@@ -70,8 +70,8 @@
       "description": ["quantitative (research|trading|strategies|models?)", "stochastic calculus", "statistical arbitrage", "probability (and|&) statistics", "market microstructure", "time ?series"],
       "subcategories": {
         "quant_trading": {"label": "Quant Trading", "title": ["quant(itative)? trad(er|ing)", "algorithmic trad(er|ing)", "algo trad(er|ing)", "market mak(er|ing)", "(junior |graduate |new grad )?trader", "trader (intern|internship)"], "description": ["market making", "trading strategies", "pnl", "trade (execution|decisions)"]},
-        "quant_research": {"label": "Quant Research", "title": ["quant(itative)? research(er)?", "alpha research(er)?", "research scientist", "quant(itative)? (analyst|strategist|modell?(ing|er))", "strats?"], "description": ["statistical arbitrage", "alpha (signals|research|generation)", "predictive (signals|models)", "research (new|novel) (trading )?strategies"]},
-        "quant_developer": {"label": "Quant Developer", "title": ["quant(itative)? (developer|dev|software (engineer|developer)|engineer)", "trading (systems|platform|infrastructure|technology|software)", "low ?latency", "(fpga|c\\+\\+) (engineer|developer)"], "description": ["low ?latency", "trading systems", "market data", "order (routing|management)", "exchange connectivity", "high ?frequency"]},
+        "quant_research": {"label": "Quant Research", "title": ["quant(itative)? research(er)?", "alpha research(er)?", "quant(itative)? (analyst|strategist|modell?(ing|er))", "strats?"], "description": ["statistical arbitrage", "alpha (signals|research|generation)", "predictive (signals|models)", "research (new|novel) (trading )?strategies"]},
+        "quant_developer": {"label": "Quant Developer", "title": ["quant(itative)? (developer|dev|software (engineer|developer)|engineer)", "trading (systems|platform|infrastructure|technology|software)"], "description": ["low ?latency", "trading systems", "market data", "order (routing|management)", "exchange connectivity", "high ?frequency"]},
         "systematic": {"label": "Systematic", "title": ["systematic (trading|strategies|investing|equities|macro|fixed income|credit)?", "quantitative (investing|investment|equities|strategies)"], "description": ["systematic (strategies|trading|investing)", "factor (models|investing)"]}
       }
     },
@@ -99,7 +99,7 @@
         "treasury": {"label": "Treasury", "title": ["treasury", "cash management", "liquidity (management|analyst|risk)", "funding (and|&) liquidity", "alm", "asset ?liability"], "description": ["treasury", "liquidity (management|planning)", "cash (management|forecasting|positioning)", "funding (plans?|strategy)", "capital management"]},
         "corporate_development": {"label": "Corporate Development", "title": ["corporate development", "corp ?dev", "strategic (transactions|investments)", "m ?& ?a (strategy|integration)"], "description": ["corporate development", "acquisitions (and|&) (divestitures|partnerships)", "inorganic growth", "strategic investments"]},
         "strategic_finance": {"label": "Strategic Finance", "title": ["strategic finance", "finance (and|&) strategy", "bizops finance", "growth finance"], "description": ["strategic finance", "unit economics", "pricing (strategy|analysis)"]},
-        "accounting": {"label": "Accounting", "title": ["accounting", "accountant", "cpa", "audit(or|ing)?", "controller(ship)?", "tax", "financial reporting", "general ledger", "assurance"], "description": ["gaap", "ifrs", "journal entries", "reconciliations", "month ?end close", "audit"]}
+        "accounting": {"label": "Accounting", "title": ["accounting", "accountant", "cpa", "audit(or|ing)?", "controller(ship)?", "tax", "financial reporting", "general ledger", "assurance", "financial (audit|assurance)"], "ambiguous_title_hits": ["audit", "auditor", "auditing", "assurance"], "description": ["gaap", "ifrs", "journal entries", "reconciliations", "month ?end close", "audit"]}
       }
     },
 
@@ -182,21 +182,16 @@
     "market_infrastructure": {"markets": 0.4, "risk": 0.3}
   },
 
-  "tech_at_trading_firm": {
-    "_note": "A plain 'Software Engineer' at a quant firm or hedge fund is quant development in practice. Applied when the title matches a non-finance technical family and the employer type is listed here.",
-    "company_types": ["quant_firm", "hedge_fund"],
-    "families": {"software": "quant.quant_developer", "hardware": "quant.quant_developer", "data_ml": "quant.quant_research"}
-  },
-
   "non_finance_families": {
-    "_order": "Checked in this order; first title match wins (AI & data before software so 'Machine Learning Engineer' is not filed as generic software).",
-    "data_ml": {"label": "AI & Data", "title": ["machine learning", "deep learning", "artificial intelligence", "ai engineer", "ml engineer", "data scientist", "data engineer", "analytics engineer", "applied scientist", "research scientist", "data analyst", "data science"]},
-    "software": {"label": "Software", "title": ["software", "developer", "backend", "back ?end", "front ?end", "full ?stack", "mobile", "ios", "android", "platform", "infrastructure", "systems? engineer", "site reliability", "sre", "devops", "cloud", "security engineer", "embedded", "firmware", "database", "distributed"]},
-    "hardware": {"label": "Hardware", "title": ["hardware", "electrical", "silicon", "fpga", "asic", "semiconductor", "robotics", "mechanical", "manufacturing engineer"]},
-    "product": {"label": "Product", "title": ["product manager", "product management", "program manager", "technical program", "product analyst"]},
+    "_order": "Checked in this order; first title match wins. Clinical roles take precedence over generic analytics; AI & data precedes software.",
+    "healthcare": {"label": "Healthcare & Science", "title": ["clinical", "medical", "biomedical", "pharmaceutical", "biostatistic(s|ian)"]},
+    "data_ml": {"label": "AI & Data", "title": ["machine learning", "deep learning", "artificial intelligence", "ai engineer", "ml engineer", "ai (and|&) ml", "ai/ml", "genai", "generative ai", "data scientist", "data engineer", "analytics engineer", "applied scientist", "applied research", "research scientist", "data analyst", "data science", "data ((and|&) )?analytics", "data (and|&) intelligence", "business intelligence"]},
+    "software": {"label": "Software", "title": ["software", "developer", "backend", "back ?end", "front ?end", "full ?stack", "mobile", "ios", "android", "platform", "infrastructure", "systems? engineer", "site reliability", "sre", "devops", "cloud", "security engineer", "embedded", "firmware", "database", "distributed", "technology enablement", "digital workplace"]},
+    "hardware": {"label": "Hardware", "title": ["hardware", "electrical", "silicon", "fpga", "asic", "semiconductor", "robotics", "mechanical", "manufacturing engineer", "quantum (technologies|computing)"]},
+    "product": {"label": "Product", "title": ["product manager", "product management", "product coordinator", "program manager", "technical program", "product analyst"]},
     "design": {"label": "Design", "title": ["designer", "design", "user experience", "ux", "ui", "creative"]},
-    "sales": {"label": "Sales & Growth", "title": ["sales", "account executive", "business development", "growth", "marketing", "partnerships"]},
-    "operations": {"label": "Operations", "title": ["operations", "business operations", "supply chain", "procurement", "chief of staff", "customer success", "support"]},
+    "sales": {"label": "Sales & Growth", "title": ["sales", "account executive", "business development", "growth", "marketing", "partnerships", "consumer insights", "market research"]},
+    "operations": {"label": "Operations", "title": ["operations", "business operations", "supply chain", "procurement", "chief of staff", "customer success", "support", "quality assurance", "quality control", "qa"]},
     "people_legal": {"label": "People & Legal", "title": ["recruit(er|ing)?", "talent acquisition", "people", "human resources", "hr", "legal", "counsel", "paralegal", "policy"]}
   }
 }

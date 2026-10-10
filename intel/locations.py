@@ -37,7 +37,8 @@ def parse_location(text: str, kn: Knowledge) -> dict:
     us_codes = kn.region_codes.get("US", set())
     if codes & ca_codes and "CA" not in countries:
         countries.append("CA")
-    if (codes & us_codes) - ({"CA"} if codes & ca_codes else set()) and "US" not in countries:
+    canadian_context = bool(codes & ca_codes) or ("CA" in countries and "US" not in countries)
+    if (codes & us_codes) - ({"CA"} if canadian_context else set()) and "US" not in countries:
         countries.append("US")
 
     for code, pattern in kn.country_patterns.items():

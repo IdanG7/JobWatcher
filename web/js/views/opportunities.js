@@ -118,7 +118,7 @@ export async function render(root, ctx) {
   function drawSummary() {
     const d = state.data;
     const scope = state.params.family === 'all' ? 'roles' : state.params.family && state.params.family !== 'finance' ? `${prettyKey(state.params.family)} roles` : 'finance roles';
-    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ' · resume match on' : ''}${d.resume_matching?.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}`;
+    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ` · resume eligibility on · ${d.resume_matching.excluded_total || 0} excluded of ${d.resume_matching.unfiltered_total ?? d.total}` : ''}${d.resume_matching?.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}`;
   }
 
   function quickActive(q) {
@@ -127,7 +127,7 @@ export async function render(root, ctx) {
 
   function drawQuick() {
     const resume = state.data?.resume_matching;
-    $('[data-quick]').innerHTML = `<button class="chip${resume?.active ? ' on' : ''}" data-resume-match aria-pressed="${!!resume?.active}" title="${resume?.enabled ? 'Show roles matching your saved targets and resume; unknown requirements stay visible for review' : 'Enable resume matching in Settings'}">📄 Resume match</button>` + QUICK.map((q, i) => `<button class="chip${quickActive(q) ? ' on' : ''}" data-quick-i="${i}" aria-pressed="${quickActive(q)}">${esc(q.label)}</button>`).join('');
+    $('[data-quick]').innerHTML = `<button class="chip${resume?.active ? ' on' : ''}" data-resume-match aria-pressed="${!!resume?.active}" title="${resume?.enabled ? 'Keep eligible finance roles; targets and resume experience rank higher. Unknown requirements stay visible for review.' : 'Enable resume matching in Settings'}">📄 Resume match</button>` + QUICK.map((q, i) => `<button class="chip${quickActive(q) ? ' on' : ''}" data-quick-i="${i}" aria-pressed="${quickActive(q)}">${esc(q.label)}</button>`).join('');
   }
 
   function drawActive() {

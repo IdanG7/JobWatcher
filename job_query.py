@@ -161,11 +161,12 @@ def build_where(params: dict, fts: bool, watched: set[str] | None = None,
     if locations:
         parts = []
         for loc in locations:
-            if loc in ("us", "canada", "remote", "other", "unknown"):
+            if loc in ("us", "canada") or (len(loc) == 2 and loc.isupper()):
+                country = {"us": "US", "canada": "CA"}.get(loc, loc)
+                parts.append("(i.country=? OR EXISTS (SELECT 1 FROM json_each(i.facts, '$.location.countries') WHERE value=?))")
+                args.extend([country, country])
+            elif loc in ("remote", "other", "unknown"):
                 parts.append("i.location_bucket=?")
-                args.append(loc)
-            elif len(loc) == 2 and loc.isupper():
-                parts.append("i.country=?")
                 args.append(loc)
             else:
                 parts.append("(' ' || i.cities || ' ') LIKE ?")

@@ -8,13 +8,25 @@ from __future__ import annotations
 
 import re
 
+_DOCTORAL = r"(?:ph\.?\s?d\.?|doctoral|doctorate)(?!\w)"
 _DEGREE_RULES = [
-    ("phd", re.compile(r"\b(ph\.?\s?d|doctoral|doctorate)\b(?![^.\n]{0,40}\b(preferred|a plus|an asset|nice to have|beneficial)\b)", re.I)),
+    ("phd", re.compile(
+        rf"\b{_DOCTORAL}\s+(?:degree\s+)?(?:candidates?|students?|graduates?|program(me)?|only|required)\b|"
+        rf"\b{_DOCTORAL}[^.\n;]{{0,40}}\b(required|minimum|must have)\b|"
+        rf"\b(pursuing|enrolled in|working towards?)\s+(?:(?:a|an|your|the)\s+)?{_DOCTORAL}|"
+        rf"\b(requires?|must (?:hold|have)|required to (?:hold|have))\s+(?:(?:a|an|completed)\s+)*{_DOCTORAL}",
+        re.I)),
     ("mba", re.compile(r"\b(mba (candidates?|students?|program|required|graduates?)|pursuing (an|your) mba|first[\s-]year mba|completed (an|your) mba)\b", re.I)),
     ("masters", re.compile(r"\b(master'?s|msc|m\.sc|meng|mfe|mmf|mqf|mfin|msf|graduate degree)\b[^.\n]{0,40}\b(required|program|students?|candidates?|pursuing|enrolled)\b|\bpursuing (a|your) master'?s\b", re.I)),
     ("undergraduate", re.compile(r"\b(bachelor(?:'?s)?|undergraduate|undergrad|b\.?a\.?|b\.?sc|b\.?s\.|b\.?comm?|bba|college (students?|juniors?|seniors?)|university students?|rising (junior|senior)s?|sophomores?|juniors? and seniors?)\b", re.I)),
 ]
 _PREFERRED = re.compile(r"\b(preferred|a plus|an asset|nice to have|beneficial|desirable|ideally)\b", re.I)
+_DEGREE_NAME = r"(?:bachelor(?:['’]?s)?|undergrad(?:uate)?|master(?:['’]?s)?|ph\.?\s?d|doctoral|doctorate|mba)"
+_DEGREE_LIST = re.compile(
+    rf"\b{_DEGREE_NAME}(?:\s+degree)?(?:\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or)\s+|[/&]\s*){_DEGREE_NAME}(?:\s+degree)?)+\b",
+    re.I)
+_UNDERGRAD_NAME = re.compile(r"\b(bachelor|undergrad)", re.I)
+_GRAD_NAME = re.compile(r"\b(master|ph\.?\s?d|doctoral|doctorate|mba)", re.I)
 _GPA = re.compile(
     r"(?:(?:minimum|min\.?|cumulative|overall)\s+(?:of\s+(?:a\s+)?)?(?:cumulative\s+)?gpa(?:\s+of)?\s*[:=]?\s*(?:a\s+)?(\d\.\d{1,2})|"
     r"gpa\s+(?:of\s+)?(?:at least\s+|minimum\s+(?:of\s+)?)?(\d\.\d{1,2})\s*(?:\+|or (?:higher|above|better)|/\s*4\.0)?|"
@@ -63,19 +75,20 @@ def extract_eligibility(description: str, title: str = "") -> dict:
                  "experience": None}
 
     for level, pattern in _DEGREE_RULES:
-        m = pattern.search(text)
-        if m:
-            sentence = text[max(0, m.start() - 80): m.end() + 80]
-            if level in ("phd", "masters") and _PREFERRED.search(sentence):
+        for m in pattern.finditer(text):
+            if level in ("phd", "masters") and _PREFERRED.search(_clause(text, m)):
                 continue
             out["degree_required"].append(level)
             if out["degree"] is None:
                 out["degree"] = {"phd": "PhD", "mba": "MBA", "masters": "Master's",
                                  "undergraduate": "Undergraduate"}[level]
                 out["degree_text"] = _snip(text, m)
-    out["degree_alternatives"] = "undergraduate" in out["degree_required"] and bool(re.search(
-        r"\bbachelor[^\n.]{0,100}\bor\b[^\n.]{0,100}(?:master|phd|mba)|"
-        r"\b(?:master|phd|mba)[^\n.]{0,100}\bor\b[^\n.]{0,100}bachelor", text, re.I))
+            break
+    # A degree list joined with commas, slashes or "and" is also inclusive.
+    # Match the list itself so unrelated degree clauses cannot waive a requirement.
+    out["degree_alternatives"] = "undergraduate" in out["degree_required"] and any(
+        _UNDERGRAD_NAME.search(m.group()) and _GRAD_NAME.search(m.group())
+        for m in _DEGREE_LIST.finditer(text))
 
     for m in _GPA.finditer(text):
         if _PREFERRED.search(_clause(text, m)):

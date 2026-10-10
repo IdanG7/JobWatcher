@@ -203,6 +203,11 @@ class DashboardServiceTests(ServiceFixture):
         self.assertEqual(["chicago"], self.service.get_profile()["profile"]["target_locations"])
 
     def test_analytics_activity_sources(self):
+        evidence = {"fetched": 1, "reported_total": 300, "complete": False,
+                    "detects_removals": False, "reason": "Configured cap reached"}
+        with self.service.db() as con:
+            con.execute("INSERT OR REPLACE INTO kv(k,v) VALUES (?,?)",
+                        ("source_coverage:rbc", json.dumps(evidence)))
         analytics = self.service.analytics({"window": ["30"]})
         self.assertIn("funnel", analytics)
         self.assertEqual(7, len(analytics["heatmap"]))
@@ -216,6 +221,7 @@ class DashboardServiceTests(ServiceFixture):
         rbc = next(s for s in sources if s["name"] == "rbc")
         self.assertEqual("Canadian Banks", rbc["group"])
         self.assertTrue(rbc["complete_listing"])
+        self.assertEqual(evidence, rbc["coverage"])
 
 
 class HttpApiTests(ServiceFixture):

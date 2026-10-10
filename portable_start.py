@@ -10,6 +10,40 @@ import threading
 import time
 from urllib.parse import urlparse
 import webbrowser
+from version import APP_VERSION
+
+
+def upgrade_sources(app: Path, data: Path) -> None:
+    """Upgrade unchanged public defaults while preserving recipient edits."""
+    bundled = json.loads((app / "config.json").read_text(encoding="utf-8"))
+    destination = data / "config.json"
+    existing = json.loads(destination.read_text(encoding="utf-8"))
+    version = bundled.get("sources_version", 0)
+    if existing.get("sources_version", 0) >= version:
+        return
+    baseline = json.loads((app / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"]
+    boards = existing.setdefault("boards", {})
+    identity = {"ats", "tenant", "site", "host", "domain", "token", "repo", "url"}
+    for name, new in bundled.get("boards", {}).items():
+        if name not in boards:
+            if name not in baseline:
+                boards[name] = new
+            continue
+        current, old = boards[name], baseline.get(name)
+        if not isinstance(current, dict) or old is None:
+            continue
+        if any(current.get(k) != old.get(k) for k in identity):
+            continue
+        for key in old.keys() | new.keys():
+            if (key not in current and key not in old) or (key in current and key in old and current[key] == old[key]):
+                if key in new:
+                    current[key] = new[key]
+                else:
+                    current.pop(key, None)
+    existing["sources_version"] = version
+    temporary = destination.with_suffix(".upgrade.tmp")
+    temporary.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(destination)
 
 
 def initialize_data(app: Path, data: Path) -> None:
@@ -20,6 +54,7 @@ def initialize_data(app: Path, data: Path) -> None:
             # Exclusive creation also protects edits if two starts overlap.
             with destination.open("xb") as output:
                 output.write((app / name).read_bytes())
+    upgrade_sources(app, data)
 
 
 def instance_url(path: Path) -> str | None:
@@ -70,6 +105,11 @@ def main(argv=None) -> int:
         for _ in range(20):
             url = instance_url(state)
             if url:
+                running = json.loads(state.read_text(encoding="utf-8"))
+                if running.get("version") != APP_VERSION:
+                    print(f"An older Jobwatch copy is still running: {url}", flush=True)
+                    print("Close its console window, then start this updated copy again.", flush=True)
+                    return 1
                 print(f"Jobwatch is already running: {url}", flush=True)
                 if not args.no_browser:
                     webbrowser.open(url)
@@ -95,9 +135,10 @@ def main(argv=None) -> int:
         url = f"http://127.0.0.1:{server.server_port}"
         service.config["dashboard_url"] = url
         temporary = state.with_suffix(".tmp")
-        temporary.write_text(json.dumps({"url": url, "pid": os.getpid()}), encoding="utf-8")
+        temporary.write_text(json.dumps({"url": url, "pid": os.getpid(), "version": APP_VERSION}), encoding="utf-8")
         temporary.replace(state)
         print(f"\nJobwatch is ready: {url}", flush=True)
+        print(f"Version: {APP_VERSION}", flush=True)
         print(f"Your private data: {data}", flush=True)
         print("Keep this window open. Close it or press Ctrl+C to stop Jobwatch.", flush=True)
         print("Open Settings to choose your targets and upload your own resume.\n", flush=True)

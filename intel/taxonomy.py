@@ -15,6 +15,12 @@ import re
 
 from .knowledge import Knowledge, Node
 
+_TECH_OCCUPATION = re.compile(
+    r"\b(engineer(?:ing)?|developer|architect|designer|product (?:manag(?:er|ement)|coordinat(?:or|ion))|"
+    r"data scientist|research scientist|applied research|genai|generative ai|"
+    r"ai[\s/&-]+ml|quantum (?:technolog\w*|computing)|technology enablement|digital workplace)\b",
+    re.I)
+
 
 def _hits(patterns, text: str) -> list[str]:
     found = []
@@ -27,9 +33,19 @@ def _hits(patterns, text: str) -> list[str]:
     return found
 
 
+def _title_hits(node: Node, title: str, family: str) -> list[str]:
+    hits = _hits(node.title, title)
+    if family != "other":
+        # Audit / assurance also describe software and clinical quality work.
+        # They cannot override a concrete non-finance occupation by themselves.
+        ambiguous = set(node.meta.get("ambiguous_title_hits") or [])
+        hits = [hit for hit in hits if hit.lower() not in ambiguous]
+    return hits
+
+
 def _node_score(node: Node, title: str, department: str, description: str,
-                weights: dict) -> tuple[float, list[str]]:
-    t = _hits(node.title, title)
+                weights: dict, family: str = "other") -> tuple[float, list[str]]:
+    t = _title_hits(node, title, family)
     d = _hits(node.department, department)
     x = _hits(node.description, description)
     if node.parent:
@@ -64,17 +80,18 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     weights = kn.weights
     priors = kn.company_priors.get(company_type, {})
     generic = bool(kn.generic_finance_title.search(title))
+    family = family_of(title, kn)
 
     results = {}
     for key, cat in kn.categories.items():
-        cat_score, cat_evidence = _node_score(cat, title, department, description, weights)
-        title_signal = bool(_hits(cat.title, title))
+        cat_score, cat_evidence = _node_score(cat, title, department, description, weights, family)
+        title_signal = bool(_title_hits(cat, title, family))
         best_sub, best_sub_score, best_sub_evidence = None, 0.0, []
         for full, sub in kn.subcategories.items():
             if sub.parent != key:
                 continue
-            score, evidence = _node_score(sub, title, department, description, weights)
-            if _hits(sub.title, title):
+            score, evidence = _node_score(sub, title, department, description, weights, family)
+            if _title_hits(sub, title, family):
                 title_signal = True
             score += priors.get(full, 0) if (score or cat_score or generic) else 0
             # ties go to the specific product over a generic bucket (FX over S&T)
@@ -96,7 +113,6 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         -kv[1]["score"], -kn.categories[kv[0]].meta.get("tie_priority", 0)))
     best_key, best = ranked[0]
     second_score = ranked[1][1]["score"] if len(ranked) > 1 else 0.0
-    family = family_of(title, kn)
     # Weak categories (FinTech, Strategy) only claim a title from 'other';
     # 'Senior Software Engineer, Payments' stays a software role.
     finance_title_hit = any(r["title_signal"] for k, r in results.items()
@@ -105,14 +121,18 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         strong = [(k, r) for k, r in ranked if not kn.categories[k].meta.get("weak_title")]
         best_key, best = strong[0]
 
-    # Tech roles at trading firms are quant development in practice.
-    tech_rule = kn.tech_at_trading_firm
-    if (family in tech_rule.get("families", {}) and company_type in tech_rule.get("company_types", [])
-            and not finance_title_hit):
-        cat_key, sub_key = tech_rule["families"][family].split(".")
-        return _result(kn, cat_key, sub_key, 0.7, [
-            f"title: {family} role", f"employer type: {company_type}"],
-            [], family="finance", rule="tech_at_trading_firm")
+    # "Lending AI Engineer" names a technical occupation in a banking domain.
+    # Domain words and employer priors must not replace the actual occupation.
+    # Explicit quantitative / trading systems titles remain finance occupations.
+    technical_occupation = family in {"software", "hardware", "data_ml", "product", "design", "healthcare"} and bool(
+        _TECH_OCCUPATION.search(title))
+    if technical_occupation:
+        if results.get("quant", {}).get("title_signal"):
+            best_key, best = "quant", results["quant"]
+            ranked = [(best_key, best)] + [(k, r) for k, r in ranked if k != best_key]
+            second_score = max((r["score"] for k, r in results.items() if k != "quant"), default=0)
+        else:
+            finance_title_hit = False
 
     min_score = weights["min_finance_score"]
     is_finance = best["score"] >= min_score and (finance_title_hit or family == "other")
@@ -138,7 +158,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         }
 
     top = best["score"]
-    margin = (top - second_score) / top if top else 0
+    margin = max(0, (top - second_score) / top) if top else 0
     confidence = round(min(0.99, (1 - math.exp(-top / 5)) * (0.55 + 0.45 * margin)), 2)
     secondary = [k for k, r in ranked[1:4] if r["score"] >= max(min_score, top * 0.45)]
     return _result(kn, best_key, best["sub"], confidence, best["evidence"], secondary)

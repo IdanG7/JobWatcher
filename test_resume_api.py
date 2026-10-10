@@ -60,13 +60,20 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         self.service.refresh_now()
         self.assertEqual(0, self.service.jobs({})["total"])
         self.assertEqual(0, self.service.get_resume()["pending"])
+        matching = self.service.jobs({})["resume_matching"]
+        self.assertEqual(matching["unfiltered_total"], matching["excluded_total"])
+        self.assertEqual(0, matching["pending_filtered"])
 
     def _change_targets_and_check(self):
         profile = self.service.get_profile()["profile"]
         profile["target_roles"] = ["public_markets.asset_management"]
+        profile["target_countries"] = ["US"]
         with patch.object(self.service, "kick"):
             self.service.put_profile({"profile": profile})
         self.assertEqual(0, self.service.jobs({})["total"])
+        matching = self.service.jobs({})["resume_matching"]
+        self.assertEqual(0, matching["excluded_total"])
+        self.assertEqual(matching["unfiltered_total"], matching["pending_filtered"])
         self.assertGreater(self.service.get_resume()["pending"], 0)
         self.assertIsNone(self.service.job_detail("rbc:one")["resume_match"])
 

@@ -287,4 +287,4 @@ async function boot() {
   setInterval(refreshNav, 120000);
 }
 
-boot();
+export const ready = boot();

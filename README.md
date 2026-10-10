@@ -3,7 +3,7 @@
 Your private career command center: broad job-market coverage, focused daily
 ranking, fast alerts, and a lightweight application CRM.
 
-Jobwatch continuously checks **212 enabled sources** across company ATSs,
+Jobwatch continuously checks configured sources across company ATSs,
 startup boards, quant firms, banks, big tech, LinkedIn, and community listing
 repos. It indexes every role it sees, ranks each one against a transparent
 profile, and only interrupts you for the matches that meet your notification
@@ -29,10 +29,26 @@ The dashboard shows live collection progress, active sources and failures while
 you use any tab. Results refresh as sources finish; **Sources** shows individual
 source status and error details.
 
+Resume match keeps eligible finance roles visible and ranks selected targets and
+resume experience higher. Explicit eligibility conflicts exclude roles; missing
+requirements stay visible with review notes. Canada includes Canadian remote and
+multi-country postings. Finance filters distinguish engineering and clinical QA
+from financial audit and assurance, including at banks and trading firms.
+
+Sources reports fetched versus reported counts, partial search windows, and
+whether removals can be detected. Workday, Oracle and Phenom paginate within a
+configurable safety limit; partial reads never close missing postings. Official
+student feeds cover RBC, TD, BMO, CIBC and Scotiabank, plus National Bank's public
+Avature board. LinkedIn guest search supplements these feeds with finance queries
+and a 30-day rolling / 90-day initial lookback; its page limits and rate limits
+mean it cannot guarantee every LinkedIn posting.
+
 The bundle starts with a clean profile and no notification accounts. It excludes
 the sender's database, resume, subscriber configuration, letters and portable state.
 Recipient settings and private data live in `%LOCALAPPDATA%\Jobwatch` and survive
 replacing the extracted app folder. Close Jobwatch before backing up that data folder.
+Updated source defaults are merged on upgrade while preserving customized sources,
+deleted defaults, private preferences and notification settings.
 The package targets Windows 10/11 on x64 PCs.
 
 To rebuild and verify the distribution on Windows:

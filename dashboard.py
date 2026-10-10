@@ -294,6 +294,19 @@ class JobwatchService:
                 f"SELECT {SELECT_COLUMNS} {FROM_CLAUSE} WHERE {clause} ORDER BY {build_order(params)} "
                 f"LIMIT ? OFFSET ?", [*args, per_page, (page - 1) * per_page]).fetchall()
             jobs = [self._row(r) for r in rows]
+            resume["unfiltered_total"] = total
+            resume["excluded_total"] = 0
+            if resume["active"]:
+                all_where, all_args = build_where({**params, "resume_match": "0"}, store_fts, self.watched(con))
+                resume["unfiltered_total"] = con.execute(
+                    f"SELECT COUNT(*) {FROM_CLAUSE} WHERE {' AND '.join(all_where)}", all_args).fetchone()[0]
+                exclusion = """i.facts_version=? AND EXISTS (SELECT 1 FROM resume_matches rm
+                    JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
+                    AND rm.matched=0 AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version)"""
+                resume["excluded_total"] = con.execute(
+                    f"SELECT COUNT(*) {FROM_CLAUSE} WHERE {' AND '.join(all_where)} AND {exclusion}",
+                    [*all_args, FACTS_VERSION]).fetchone()[0]
+            resume["pending_filtered"] = max(0, resume["unfiltered_total"] - total - resume["excluded_total"])
             self._attach_sources(con, jobs)
             facets = {}
             if want_facets:
@@ -1108,6 +1121,12 @@ class JobwatchService:
                    LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
                    WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""")}
             last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
+            coverage = {}
+            for r in con.execute("SELECT k,v FROM kv WHERE k LIKE 'source_coverage:%'"):
+                try:
+                    coverage[r[0].split(':', 1)[1]] = json.loads(r[1])
+                except (ValueError, TypeError):
+                    pass
         sources = []
         section = ""
         for name, cfg in self.config.get("boards", {}).items():
@@ -1131,6 +1150,7 @@ class JobwatchService:
                 "seeded": bool(state.get("seeded")), "last_ok": state.get("last_ok"),
                 "failures": state.get("failures", 0), "last_poll": state.get("last_poll", 0),
                 "jobs": jobs or 0, "finance_jobs": finance or 0, "high_fit": high or 0,
+                "coverage": coverage.get(name),
             })
         sources.sort(key=lambda s: (s["disabled"], -s["failures"], s["group"] or "", s["label"]))
         return {"sources": sources, "last_run": dict(last_run) if last_run else None}
@@ -1396,12 +1416,13 @@ class JobwatchService:
         return {"ok": True, "started": True}
 
     def status_info(self) -> dict:
+        from version import APP_VERSION
         with self._status_lock:
             result = copy.deepcopy(self.status)
         p = result["progress"]
         if p:
             p["elapsed"] = round((p["finished_at"] or time.time()) - p["started_at"])
-        return {**result, "pending": self._pending_cache[1] if self._pending_cache else 0}
+        return {**result, "version": APP_VERSION, "pending": self._pending_cache[1] if self._pending_cache else 0}
 
     # ------------------------------------------------------------ export
     def csv_export(self, params: dict) -> str:

@@ -16,6 +16,45 @@ import watcher
 
 
 class PortableTests(unittest.TestCase):
+    def test_source_upgrade_preserves_private_preferences_and_custom_sources(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            app, data = root / "app", root / "data"
+            (app / "config").mkdir(parents=True)
+            data.mkdir()
+            old = {"bank": {"ats": "workday", "site": "jobs", "max": 300, "min_interval": 60},
+                   "deleted": {"ats": "greenhouse", "token": "deleted"},
+                   "customized": {"ats": "linkedin", "queries": ["old"], "pages": 3, "disabled": True}}
+            new = {"bank": {**old["bank"], "max": 5000, "min_interval": 120},
+                   "deleted": old["deleted"],
+                   "customized": {"ats": "linkedin", "queries": ["finance"], "pages": 5, "disabled": True},
+                   "students": {"ats": "workday", "site": "students"}}
+            private = {"profile": {"name": "PRIVATE", "target_roles": ["quant"]},
+                       "boards": {"bank": {**old["bank"], "disabled": True, "min_interval": 90},
+                                  "customized": {"ats": "linkedin", "queries": ["my search"], "pages": 3},
+                                  "mine": {"ats": "greenhouse", "token": "mine"}}}
+            (app / "config.json").write_text(json.dumps({"sources_version": 2, "boards": new}))
+            (app / "config/source_defaults_v1.json").write_text(json.dumps({"boards": old}))
+            (app / "subscribers.json").write_text('{}')
+            (data / "config.json").write_text(json.dumps(private))
+            (data / "subscribers.json").write_text('{"secret":"unchanged"}')
+            initialize_data(app, data)
+            upgraded = json.loads((data / "config.json").read_text())
+            self.assertEqual(private["profile"], upgraded["profile"])
+            self.assertEqual(5000, upgraded["boards"]["bank"]["max"])
+            self.assertEqual(90, upgraded["boards"]["bank"]["min_interval"])
+            self.assertTrue(upgraded["boards"]["bank"]["disabled"])
+            self.assertEqual(["my search"], upgraded["boards"]["customized"]["queries"])
+            self.assertEqual(5, upgraded["boards"]["customized"]["pages"])
+            self.assertNotIn("disabled", upgraded["boards"]["customized"])
+            self.assertEqual(private["boards"]["mine"], upgraded["boards"]["mine"])
+            self.assertIn("students", upgraded["boards"])
+            self.assertNotIn("deleted", upgraded["boards"])
+            saved = (data / "config.json").read_bytes()
+            initialize_data(app, data)
+            self.assertEqual(saved, (data / "config.json").read_bytes())
+            self.assertEqual('{"secret":"unchanged"}', (data / "subscribers.json").read_text())
+
     def test_distribution_drops_private_config_and_subscribers(self):
         source = {
             "profile": {"name": "PRIVATE NAME", "skills": ["python"]},

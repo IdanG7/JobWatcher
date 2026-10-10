@@ -95,7 +95,7 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
             with urlopen(url, timeout=5) as response:
                 html = response.read()
                 assert b"collection-status" in html and b"Loading your dashboard" in html
-            for module in ("view-loader.js", "collection-status.js"):
+            for module in ("start.js", "app.js", "view-loader.js", "collection-status.js"):
                 with urlopen(url + "/js/" + module, timeout=5) as response:
                     assert response.status == 200 and "javascript" in response.headers["Content-Type"]
             progress = api("/api/status")["progress"]

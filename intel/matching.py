@@ -10,8 +10,12 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     full = f"{category}.{sub}" if sub else category
     relevant = not targets or category in targets or full in targets or (
         not sub and any(t.startswith(f"{category}.") for t in targets))
-    if not relevant:
-        exclusions.append("Role is outside your selected targets and resume experience")
+    if not relevant and cls.get("is_finance"):
+        reasons.append("Eligible finance role; your targets and experience affect ranking")
+    elif not relevant and cls.get("family") not in (None, "unknown", "other"):
+        exclusions.append("Role is outside finance and your selected career targets")
+    elif not relevant:
+        review.append("Role relevance needs review")
     else:
         reasons.append(f"Relevant role: {cls.get('category_label') or category}")
     if cls.get("confidence", 0) < 0.5:

@@ -9,7 +9,7 @@ import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toa
 // or auth-gated endpoints). Covered indirectly via GitHub/LinkedIn sources.
 const KNOWN_GAPS = [
   'Goldman Sachs', 'Bank of America', 'UBS', 'Deutsche Bank', 'Jefferies', 'Evercore', 'Lazard', 'Centerview',
-  'KKR', 'Blackstone', 'Carlyle', 'Apollo', 'Brookfield', 'CPP Investments', 'OTPP', 'CDPQ', 'Scotiabank',
+  'KKR', 'Blackstone', 'Carlyle', 'Apollo', 'Brookfield', 'CPP Investments', 'OTPP', 'CDPQ',
   'Manulife', 'Sun Life', 'Fidelity', 'Vanguard', "Moody's", 'S&P Global', 'MSCI',
 ];
 
@@ -76,7 +76,7 @@ export async function render(root, ctx) {
         <td class="num">${s.jobs}</td><td class="num">${s.finance_jobs}</td>
         <td class="num">${s.high_fit ? `<span style="color:var(--pos);font-weight:600">${s.high_fit}</span>` : '0'}</td>
         <td class="muted nowrap">${s.last_ok ? `${age(toEpochMs(s.last_ok))} ago` : '—'}</td>
-        <td class="muted">${s.complete_listing ? 'Full listing · detects removals' : 'Windowed · no closure detection'}</td></tr>`; }).join('')}</tbody></table></div>`
+        <td class="muted">${s.coverage ? `${s.coverage.complete ? 'Complete listing' : 'Limited listing'} · ${s.coverage.fetched}${s.coverage.reported_total != null ? ` of ${s.coverage.reported_total}` : ''} fetched${s.coverage.reason ? `<div class="source-error">${esc(s.coverage.reason)}</div>` : ''}${s.coverage.window?.recency ? `<div>Search window: ${esc(s.coverage.window.recency)} · ${s.coverage.window.pages} pages per query</div>` : ''}` : 'Coverage not verified yet'}<div>${s.coverage?.detects_removals ? 'Detects removals' : 'No closure detection'}</div></td></tr>`; }).join('')}</tbody></table></div>`
         : emptyState('No sources match')}
     </section>`;
   }

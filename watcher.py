@@ -35,7 +35,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urljoin, urlsplit
 
 import requests
 
@@ -64,6 +64,56 @@ def now():
 
 def log(msg):
     print(f"{now()} {msg}", flush=True)
+
+
+class SourceListing(list):
+    """A list with coverage evidence; a partial read must never close jobs."""
+    def __init__(self, jobs=(), *, complete=False, reason="", total=None):
+        super().__init__(jobs)
+        self.complete = complete
+        self.reason = reason
+        self.total = total
+
+
+def _source_limit(cfg):
+    limit = cfg.get("max", 5000)
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 20000:
+        raise ValueError("source max must be an integer from 1 to 20000")
+    return limit
+
+
+def _consume_page(out, page, seen, source, limit):
+    """Validate pagination before considering the listing authoritative."""
+    if out.total is not None and (out.total < 0 or (out.total == 0 and page)):
+        raise RuntimeError(f"{source} pagination returned an inconsistent total")
+    if not page:
+        if out.total is not None and len(out) < out.total:
+            raise RuntimeError(f"{source} pagination ended before reported total {out.total}")
+        out.complete = True
+        return True
+    if any(not j["id"] for j in page):
+        raise RuntimeError(f"{source} pagination returned a posting without an id")
+    fresh = [j for j in page if j["id"] not in seen]
+    if not fresh:
+        raise RuntimeError(f"{source} pagination repeated a page")
+    capped = len(fresh) > limit - len(out)
+    fresh = fresh[:limit - len(out)]
+    for job in fresh:
+        if job["id"] not in seen:
+            seen.add(job["id"])
+            out.append(job)
+    if capped:
+        return True
+    if out.total is not None and len(out) >= out.total:
+        out.complete = True
+        return True
+    return False
+
+
+def _finish_listing(out, source, limit):
+    if not out.complete:
+        out.reason = f"{source} reached source limit {limit}; reported total {out.total if out.total is not None else 'unknown'}"
+    return out
 
 
 # ---- posting freshness: adapters set job["posted"] = epoch seconds ----
@@ -224,31 +274,35 @@ def fetch_smartrecruiters(cfg):
 def fetch_workday(cfg):
     host, tenant, site = cfg["host"], cfg["tenant"], cfg["site"]
     url = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
-    out, offset, total = [], 0, None
-    while True:
-        body = {"appliedFacets": cfg.get("facets", {}), "limit": 20,
+    out, offset, seen = SourceListing(), 0, set()
+    limit = _source_limit(cfg)
+    while offset < limit:
+        body = {"appliedFacets": cfg.get("facets", {}), "limit": min(20, limit - offset),
                 "offset": offset, "searchText": cfg.get("search", "")}
         r = requests.post(url, json=body, timeout=TIMEOUT,
                           headers={"User-Agent": UA, "Accept": "application/json",
                                    "Content-Type": "application/json"})
         r.raise_for_status()
         data = r.json()
-        if total is None:       # many tenants only report total on page one
-            total = data.get("total", 0)
-        posts = data.get("jobPostings", [])
+        if out.total is None and isinstance(data.get("total"), int):
+            out.total = data["total"]
+        posts = data.get("jobPostings")
+        if not isinstance(posts, list):
+            raise RuntimeError("Workday pagination response has no jobPostings list")
+        page = []
         for j in posts:
             path = j.get("externalPath", "")
-            out.append({
+            page.append({
                 "id": path,
                 "title": j.get("title", ""),
                 "location": j.get("locationsText", "") or "",
                 "url": f"https://{host}/en-US/{site}{path}",
                 "posted": _workday_posted_epoch(j.get("postedOn", "")),
             })
-        offset += 20
-        if not posts or offset >= total or offset >= 300:
+        if _consume_page(out, page, seen, "Workday", limit):
             break
-    return out
+        offset += len(posts)
+    return _finish_listing(out, "Workday", limit)
 
 
 def fetch_amazon_jobs(cfg):
@@ -448,13 +502,17 @@ def fetch_github_md(cfg):
 
 
 def fetch_linkedin(cfg):
-    """LinkedIn public guest search — same postings as linkedin.com/jobs, no
-    login. cfg: queries (list) or query, location ('United States'), recency
+    """LinkedIn public guest results, no login. cfg: queries (list) or query,
+    location ('United States'), recency
     ('r86400' = posted in last 24h), pages (default 3, ~10 results/page).
-    Datacenter IPs get rate-limited sometimes; failures are quiet by design."""
+    seed_recency/seed_pages can widen the first poll. This feed is always partial."""
+    if cfg.get("_initial_seed"):
+        cfg = {**cfg, "recency": cfg.get("seed_recency", cfg.get("recency", "r2592000")),
+               "pages": cfg.get("seed_pages", cfg.get("pages", 3))}
     queries = cfg.get("queries") or [cfg.get("query", "software engineer intern")]
     location = cfg.get("location", "United States")
-    out, seen, errors = [], set(), []
+    out = SourceListing(reason="LinkedIn guest search is a bounded keyword and date window")
+    seen, errors = set(), []
     for q in queries:
         try:
             _linkedin_query(cfg, q, location, out, seen)
@@ -462,22 +520,19 @@ def fetch_linkedin(cfg):
             errors.append(e)
     if not out and errors:
         raise errors[0]
-    # Repost filter: job ids are chronological, so an id far below the batch's
-    # newest while claiming to be <24h old is a repost/relist of a stale req.
-    # ~1.2M ids/day globally; 4M ≈ 3 days of slack for genuinely new posts.
-    if out:
-        watermark = max(int(j["id"]) for j in out)
-        drift = cfg.get("max_id_drift", 4_000_000)
-        keep = [j for j in out if watermark - int(j["id"]) <= drift]
-        if len(keep) < len(out):
-            log(f"  linkedin({location}): dropped {len(out) - len(keep)} repost(s) by id drift")
-        out = keep
+    if errors:
+        out.reason += f"; {len(errors)} query request(s) failed"
+        log(f"! linkedin({location}): {len(errors)} query request(s) failed; results are partial")
     return out
 
 
 def _linkedin_query(cfg, q, location, out, seen):
     start = 0
-    for _ in range(cfg.get("pages", 3)):
+    pages = cfg.get("pages", 3)
+    if isinstance(pages, bool) or not isinstance(pages, int) or not 1 <= pages <= 40:
+        raise ValueError("LinkedIn pages must be an integer from 1 to 40")
+    previous_pages = set()
+    for _ in range(pages):
         r = requests.get(
             "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search",
             params={"keywords": q, "location": location,
@@ -488,6 +543,7 @@ def _linkedin_query(cfg, q, location, out, seen):
             break
         r.raise_for_status()
         got = 0
+        page_ids = []
         for card in r.text.split("<li")[1:]:
             m = re.search(r"urn:li:jobPosting:(\d+)", card)
             mt = re.search(r"base-search-card__title[^>]*>\s*([^<]+)", card)
@@ -495,6 +551,7 @@ def _linkedin_query(cfg, q, location, out, seen):
                 continue
             got += 1
             jid = m.group(1)
+            page_ids.append(jid)
             if jid in seen:
                 continue
             seen.add(jid)
@@ -509,8 +566,10 @@ def _linkedin_query(cfg, q, location, out, seen):
                 "company": html.unescape(mc.group(1)).strip() if mc else "",
                 "posted": _iso_epoch(md.group(1)) if md else None,
             })
-        if not got:
+        signature = tuple(page_ids)
+        if not got or signature in previous_pages:
             break
+        previous_pages.add(signature)
         start += got
         time.sleep(1.0)                         # be polite, one IP
 
@@ -554,34 +613,50 @@ def fetch_janestreet(cfg):
 
 def fetch_phenom(cfg):
     """Phenom People career sites (jobs.rbc.com etc). cfg: host, query,
-    size (default 100), url ('https://host/xx/en/job/{id}' template)."""
+    size (page size, default 100), max (default 5000), url template."""
+    limit = _source_limit(cfg)
+    size = cfg.get("size", 100)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= 100:
+        raise ValueError("Phenom size must be an integer from 1 to 100")
     body = {"lang": "en_us", "deviceType": "desktop", "country": "us",
             "pageName": "search-results", "ddoKey": "refineSearch", "from": 0,
-            "jobs": True, "counts": True, "size": cfg.get("size", 100),
+            "jobs": True, "counts": True, "size": size,
             "clearAll": False, "jdsource": "facets", "siteType": "external",
             "keywords": cfg.get("query", ""), "global": True,
             "selected_fields": {}, "all_fields": ["category", "location"]}
-    r = requests.post(f"https://{cfg['host']}/widgets", json=body,
-                      headers={"User-Agent": UA, "Accept": "application/json",
-                               "Content-Type": "application/json"},
-                      timeout=TIMEOUT)
-    r.raise_for_status()
     url_tmpl = cfg.get("url", f"https://{cfg['host']}/en/job/{{id}}")
-    out = []
-    for j in r.json().get("refineSearch", {}).get("data", {}).get("jobs", []):
-        jid = str(j.get("jobId") or j.get("reqId") or "")
-        loc = (j.get("cityStateCountry") or j.get("cityState")
-               or j.get("location") or j.get("city") or "")
-        out.append({
-            "id": jid,
-            "title": j.get("title", ""),
-            "location": loc if isinstance(loc, str) else "; ".join(loc[:3]),
-            "url": j.get("applyUrl") or url_tmpl.format(id=jid),
-            "posted": _iso_epoch(j.get("postedDate")),
-            "description": html_to_text(j.get("descriptionTeaser") or ""),
-            "department": j.get("category") or "",
-        })
-    return out
+    out, offset, seen = SourceListing(), 0, set()
+    while offset < limit:
+        request_body = {**body, "from": offset, "size": min(size, limit - offset)}
+        r = requests.post(f"https://{cfg['host']}/widgets", json=request_body,
+                          headers={"User-Agent": UA, "Accept": "application/json",
+                                   "Content-Type": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        result = r.json().get("refineSearch", {})
+        if result.get("status", 200) != 200:
+            raise RuntimeError("Phenom pagination returned an unsuccessful search")
+        if out.total is None and isinstance(result.get("totalHits"), int):
+            out.total = result["totalHits"]
+        posts = result.get("data", {}).get("jobs")
+        if not isinstance(posts, list):
+            raise RuntimeError("Phenom pagination response has no jobs list")
+        page = []
+        for j in posts:
+            jid = str(j.get("jobId") or j.get("reqId") or "")
+            loc = (j.get("cityStateCountry") or j.get("cityState")
+                   or j.get("location") or j.get("city") or "")
+            page.append({
+                "id": jid, "title": j.get("title", ""),
+                "location": loc if isinstance(loc, str) else "; ".join(loc),
+                "url": j.get("applyUrl") or url_tmpl.format(id=jid),
+                "posted": _iso_epoch(j.get("postedDate")),
+                "description": html_to_text(j.get("descriptionTeaser") or ""),
+                "department": j.get("category") or "",
+            })
+        if _consume_page(out, page, seen, "Phenom", limit):
+            break
+        offset += len(posts)
+    return _finish_listing(out, "Phenom", limit)
 
 
 def fetch_eightfold(cfg):
@@ -616,12 +691,13 @@ def fetch_eightfold(cfg):
 def fetch_oracle_hcm(cfg):
     """Oracle Recruiting Cloud candidate-experience API (JPMorgan Chase and
     other banks). cfg: host ('jpmc.fa.oraclecloud.com'), site ('CX_1001'),
-    optional query (keyword) and max (newest N, default 300)."""
+    optional query (keyword) and max (safety limit, default 5000)."""
     host, site = cfg["host"], cfg["site"]
-    out, offset, total = [], 0, None
+    out, offset, seen = SourceListing(), 0, set()
+    limit = _source_limit(cfg)
     keyword = cfg.get("query", "")
-    while offset < cfg.get("max", 300):
-        finder = f"findReqs;siteNumber={site},limit=25,offset={offset},sortBy=POSTING_DATES_DESC"
+    while offset < limit:
+        finder = f"findReqs;siteNumber={site},limit={min(25, limit - offset)},offset={offset},sortBy=POSTING_DATES_DESC"
         if keyword:
             finder += f',keyword="{keyword}"'
         r = requests.get(
@@ -629,13 +705,19 @@ def fetch_oracle_hcm(cfg):
             params={"onlyData": "true", "expand": "requisitionList.secondaryLocations", "finder": finder},
             headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
         r.raise_for_status()
-        items = (r.json().get("items") or [{}])[0]
-        if total is None:
-            total = items.get("TotalJobsCount") or 0
-        reqs = items.get("requisitionList") or []
+        items = r.json().get("items")
+        if not isinstance(items, list) or not items:
+            raise RuntimeError("Oracle pagination response has no search result")
+        items = items[0]
+        if out.total is None and isinstance(items.get("TotalJobsCount"), int):
+            out.total = items["TotalJobsCount"]
+        reqs = items.get("requisitionList")
+        if not isinstance(reqs, list):
+            raise RuntimeError("Oracle pagination response has no requisitionList")
+        page = []
         for j in reqs:
             jid = str(j.get("Id") or "")
-            out.append({
+            page.append({
                 "id": jid,
                 "title": j.get("Title", ""),
                 "location": j.get("PrimaryLocation") or "",
@@ -643,13 +725,106 @@ def fetch_oracle_hcm(cfg):
                 "posted": _iso_epoch(j.get("PostedDate")),
                 "description": html_to_text(j.get("ShortDescriptionStr") or ""),
             })
-        offset += 25
-        if not reqs or offset >= total:
+        if _consume_page(out, page, seen, "Oracle", limit):
             break
-    return out
+        offset += len(reqs)
+    return _finish_listing(out, "Oracle", limit)
+
+
+def _html_attr(tag, name):
+    match = re.search(r"\b" + re.escape(name) + r"\s*=\s*([\"'])(.*?)\1", tag, re.I | re.S)
+    return html.unescape(match.group(2)) if match else ""
+
+
+def fetch_successfactors(cfg):
+    """Public SuccessFactors Recruiting Marketing HTML (Scotiabank)."""
+    root = cfg["url"].rstrip("/") + "/"
+    out, offset, seen = SourceListing(), 0, set()
+    limit = _source_limit(cfg)
+    while offset < limit:
+        url = root if offset == 0 else f"{root}{offset}/"
+        r = requests.get(url, params={"q": "", "sortColumn": "referencedate", "sortDirection": "desc"},
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        total = re.search(r'class=["\'][^"\']*paginationLabel[^"\']*["\'][^>]*>.*?of\s*<b>\s*([\d,]+)', r.text, re.S)
+        if out.total is None and total:
+            out.total = int(total.group(1).replace(",", ""))
+        if 'id="searchresults"' not in r.text and not re.search(r"no (?:matching )?jobs", r.text, re.I):
+            raise RuntimeError("SuccessFactors pagination response has no search results table")
+        page = []
+        for row in re.findall(r'<tr\b[^>]*class=["\'][^"\']*data-row[^"\']*["\'][^>]*>(.*?)</tr>', r.text, re.S | re.I):
+            links = re.findall(r"<a\b([^>]*)>(.*?)</a>", row, re.S | re.I)
+            link = next(((attrs, title) for attrs, title in links if "jobTitle-link" in _html_attr(attrs, "class")), None)
+            if not link:
+                raise RuntimeError("SuccessFactors pagination could not parse a result")
+            attrs, title = link
+            job_url = urljoin(root, _html_attr(attrs, "href"))
+            jid = re.search(r"/(\d+)/?$", urlsplit(job_url).path)
+            loc = re.search(r'<td\b[^>]*class=["\'][^"\']*colLocation[^"\']*["\'][^>]*>(.*?)</td>', row, re.S | re.I)
+            date = re.search(r'<td\b[^>]*class=["\'][^"\']*colDate[^"\']*["\'][^>]*>(.*?)</td>', row, re.S | re.I)
+            posted = None
+            if date:
+                try:
+                    posted = datetime.strptime(html_to_text(date.group(1)).strip(), "%b %d, %Y").replace(tzinfo=timezone.utc).timestamp()
+                except ValueError:
+                    pass
+            page.append({"id": jid.group(1) if jid else "", "title": html_to_text(title).strip(),
+                         "location": html_to_text(loc.group(1)).strip() if loc else "",
+                         "url": job_url, "posted": posted})
+        if _consume_page(out, page, seen, "SuccessFactors", limit):
+            break
+        offset += len(page)
+    return _finish_listing(out, "SuccessFactors", limit)
+
+
+def fetch_avature(cfg):
+    """National Bank's public Avature jobs table and jobOffset pagination."""
+    root = cfg["url"]
+    out, offset, seen = SourceListing(), 0, set()
+    limit = _source_limit(cfg)
+    while offset < limit:
+        r = requests.get(root, params={"jobRecordsPerPage": 20, "jobOffset": offset},
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        page = []
+        for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", r.text, re.S | re.I):
+            links = re.findall(r"<a\b([^>]*)>(.*?)</a>", row, re.S | re.I)
+            link = next(((attrs, title) for attrs, title in links if _html_attr(attrs, "data-map") == "job-detail-link"), None)
+            if not link:
+                continue
+            attrs, title = link
+            job_url = urljoin(root, _html_attr(attrs, "href"))
+            jid = re.search(r"/(\d+)/?$", urlsplit(job_url).path)
+            cells = re.findall(r"<td\b[^>]*>(.*?)</td>", row, re.S | re.I)
+            loc = html_to_text(cells[0]).strip() if cells else ""
+            if loc and re.search(r"\b(?:Quebec|Québec|Ontario|Alberta|British Columbia|Manitoba|Saskatchewan|Nova Scotia|New Brunswick|Newfoundland|Prince Edward Island|Yukon|Nunavut|Northwest Territories)\b", loc, re.I):
+                loc += ", Canada"
+            page.append({"id": jid.group(1) if jid else "", "title": html_to_text(title).strip(),
+                         "location": loc, "url": job_url})
+        if not page:
+            raise RuntimeError("Avature pagination response has no parsed jobs")
+        if _consume_page(out, page, seen, "Avature", limit):
+            break
+        next_offsets = []
+        for attrs, _ in re.findall(r"<a\b([^>]*)>(.*?)</a>", r.text, re.S | re.I):
+            if "paginationLink" not in _html_attr(attrs, "class"):
+                continue
+            href = urljoin(root, _html_attr(attrs, "href"))
+            if urlsplit(href).netloc != urlsplit(root).netloc:
+                continue
+            value = parse_qs(urlsplit(href).query).get("jobOffset", [""])[0]
+            if value.isdigit() and int(value) > offset:
+                next_offsets.append(int(value))
+        if not next_offsets:
+            out.complete = True
+            break
+        offset = min(next_offsets)
+    return _finish_listing(out, "Avature", limit)
 
 
 ADAPTERS = {
+    "successfactors": fetch_successfactors,
+    "avature": fetch_avature,
     "oracle_hcm": fetch_oracle_hcm,
     "greenhouse": fetch_greenhouse,
     "lever": fetch_lever,
@@ -1680,11 +1855,11 @@ def cycle(config, con, progress=None):
     # only change every ~15 min; no point fetching them every 45s)
     due = {}
     for name, cfg in all_boards.items():
-        _, _, last_poll = board_row(con, name)
+        seeded, _, last_poll = board_row(con, name)
         if time.time() - last_poll < cfg.get("min_interval", 0):
             skipped += 1
             continue
-        due[name] = cfg
+        due[name] = {**cfg, "_initial_seed": not seeded}
 
     # New board rows must not hold a write lock during the first network wait.
     con.commit()
@@ -1756,8 +1931,28 @@ def cycle(config, con, progress=None):
                     store_description(con, name, j["id"], j.get("description") or "",
                                       j.get("department") or "",
                                       source=j.get("description_source") or "listing")
-            complete = all_boards[name].get(
-                "complete_listing", all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
+            runtime_complete = getattr(jobs, "complete", None)
+            complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
+                                             else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
+            complete = bool(complete and runtime_complete is not False)
+            coverage_warning = getattr(jobs, "reason", "")
+            if coverage_warning:
+                log(f"  {name}: {coverage_warning}")
+            source_cfg = due[name]
+            window = {}
+            if source_cfg.get("ats") == "linkedin":
+                initial = source_cfg.get("_initial_seed", False)
+                window = {"recency": source_cfg.get("seed_recency" if initial else "recency",
+                                                     source_cfg.get("recency", "r2592000" if initial else "r86400")),
+                          "pages": source_cfg.get("seed_pages" if initial else "pages",
+                                                   source_cfg.get("pages", 3)),
+                          "queries": source_cfg.get("queries") or [source_cfg.get("query", "software engineer intern")]}
+            coverage = {"fetched": len(jobs), "reported_total": getattr(jobs, "total", None),
+                        "complete": bool(runtime_complete if runtime_complete is not None else complete),
+                        "detects_removals": complete,
+                        "reason": coverage_warning, "fetched_at": ts, "window": window}
+            con.execute("INSERT OR REPLACE INTO kv(k,v) VALUES (?,?)",
+                        (f"source_coverage:{name}", json.dumps(coverage)))
             life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
                                     {j["id"] for j in fresh}, discovered=bool(seeded))
             closed_count += life["closed"]
@@ -1769,7 +1964,9 @@ def cycle(config, con, progress=None):
             # Release the write lock before waiting for another network source.
             # First-run setup stays editable and completed sources appear early.
             con.commit()
-            report_progress(progress, "source_finished", board=name, outcome="ok", jobs=len(jobs), new=len(fresh))
+            report_progress(progress, "source_finished", board=name, outcome="ok", jobs=len(jobs), new=len(fresh),
+                            coverage_complete=complete, coverage_warning=coverage_warning,
+                            reported_total=getattr(jobs, "total", None))
 
     # ---- finance intelligence for everything new or changed (incremental).
     # New postings are classified first so fit-based alerts never wait on

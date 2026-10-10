@@ -20,7 +20,7 @@ from .seniority import detect_seniority
 from .skills import extract_skills
 from .taxonomy import classify
 
-FACTS_VERSION = 4
+FACTS_VERSION = 5
 
 _TITLE_NOISE = re.compile(
     r"\((?:m/f/d|f/m/d|m/w/d|h/f|all genders)\)|\breq(?:uisition)?\s*#?\s*\d+\b|\bjob\s*id\s*:?\s*\w+\b|[-–—|,]\s*(remote|hybrid|on[\s-]?site)\s*$",
