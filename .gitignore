@@ -2,3 +2,22 @@ jobwatch.db*
 __pycache__/
 .watcher.lock
 state.json
+
+# Private, local-only data (never commit): the SQLite DB holds applications,
+# notes, contacts, events and your candidate profile.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+profile.local.json
+config.local.json
+subscribers.local.json
+.env
+.env.*
+!.env.example
+*.csv
+node_modules/
+.build-cache/
+dist/
+.test-tmp/
+.venv/

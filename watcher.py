@@ -39,11 +39,16 @@ from urllib.parse import urlsplit
 
 import requests
 
+from intel_store import (COMPLETE_LISTING_ATS, IntelStore, record_changes, store_description,
+                         update_lifecycle)
+
 HERE = Path(__file__).parent
 DB_PATH = HERE / "jobwatch.db"
 CONFIG = HERE / "config.json"
 SUBSCRIBERS = HERE / "subscribers.json"
 STATE_JSON = HERE / "state.json"
+# GitHub Actions starts every run with an empty database (see state.json).
+EPHEMERAL = bool(os.environ.get("GITHUB_ACTIONS"))
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
 TIMEOUT = 25
@@ -120,8 +125,29 @@ def _rel_age(posted):
     return ""
 
 
+_BLOCK_TAG = re.compile(r"<\s*(br|/p|/div|/li|/h\d|/tr)\s*/?>", re.I)
+_ANY_TAG = re.compile(r"<[^>]+>")
+
+
+def html_to_text(raw):
+    """ATS HTML (sometimes entity-escaped twice, as on Greenhouse) -> plain text."""
+    if not raw:
+        return ""
+    text = html.unescape(raw)
+    if "&lt;" in text or "&amp;" in text:
+        text = html.unescape(text)
+    text = _BLOCK_TAG.sub("\n", text)
+    text = re.sub(r"<\s*li[^>]*>", "\n• ", text, flags=re.I)
+    text = _ANY_TAG.sub(" ", text)
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    return re.sub(r"\n\s*\n+", "\n\n", text).strip()
+
+
 # ================================================================ adapters
 # Each returns list of {id, title, location, url, company}. id stable per board.
+# Optional: posted, salary, description, department (descriptions feed the
+# finance intelligence layer; adapters that cannot afford them leave them out
+# and DETAIL_FETCHERS enrich a budgeted number of postings per cycle).
 
 def fetch_greenhouse(cfg):
     url = f"https://boards-api.greenhouse.io/v1/boards/{cfg['token']}/jobs?content=false"
@@ -136,6 +162,16 @@ def fetch_greenhouse(cfg):
     } for j in r.json().get("jobs", [])]
 
 
+def _lever_text(j):
+    """Lever ships the full posting in the list payload — keep it."""
+    parts = [j.get("descriptionPlain") or ""]
+    for block in j.get("lists") or []:
+        items = _HTML_TAG.sub(" ", block.get("content") or "")
+        parts.append(f"{block.get('text', '')}\n{html.unescape(items)}")
+    parts.append(j.get("additionalPlain") or "")
+    return "\n".join(p for p in parts if p).strip()
+
+
 def fetch_lever(cfg):
     url = f"https://api.lever.co/v0/postings/{cfg['token']}?mode=json"
     r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
@@ -146,6 +182,9 @@ def fetch_lever(cfg):
         "location": (j.get("categories") or {}).get("location", "") or "",
         "url": j.get("hostedUrl", ""),
         "posted": (j.get("createdAt") or 0) / 1000 or None,
+        "description": _lever_text(j),
+        "department": " / ".join(filter(None, [(j.get("categories") or {}).get("department"),
+                                               (j.get("categories") or {}).get("team")])),
     } for j in r.json()]
 
 
@@ -160,6 +199,8 @@ def fetch_ashby(cfg):
         "url": j.get("jobUrl", ""),
         "salary": (j.get("compensation") or {}).get("compensationTierSummary", ""),
         "posted": _iso_epoch(j.get("publishedAt")),
+        "description": j.get("descriptionPlain") or html_to_text(j.get("descriptionHtml") or ""),
+        "department": " / ".join(filter(None, [j.get("department"), j.get("team")])),
     } for j in r.json().get("jobs", [])]
 
 
@@ -225,11 +266,15 @@ def fetch_amazon_jobs(cfg):
     r.raise_for_status()
     out = []
     for j in r.json().get("jobs", []):
+        desc = "\n\n".join(html_to_text(j.get(k) or "") for k in (
+            "description_short", "basic_qualifications", "preferred_qualifications"))
         out.append({
             "id": str(j.get("id_icims") or j.get("id")),
             "title": j.get("title", ""),
             "location": j.get("normalized_location", "") or j.get("location", ""),
             "url": "https://www.amazon.jobs" + (j.get("job_path") or ""),
+            "description": desc.strip(),
+            "department": j.get("job_category") or "",
         })
     return out
 
@@ -274,6 +319,15 @@ def fetch_github_listings(cfg):
         if not j.get("active") or not j.get("is_visible", True):
             continue
         locs = j.get("locations") or []
+        # Listing metadata (terms, sponsorship, degrees) is phrased the way the
+        # cycle and eligibility extractors already understand.
+        meta = []
+        if j.get("terms"):
+            meta.append(f"Recruiting term: {', '.join(map(str, j['terms']))}.")
+        if j.get("sponsorship"):
+            meta.append(f"Sponsorship: {j['sponsorship']}.")
+        if j.get("degrees"):
+            meta.append(f"Degrees: {', '.join(map(str, j['degrees']))}.")
         out.append({
             "id": str(j.get("id")),
             "title": j.get("title", ""),
@@ -281,6 +335,9 @@ def fetch_github_listings(cfg):
             "url": j.get("url", ""),
             "company": j.get("company_name", ""),
             "posted": j.get("date_posted") or j.get("date_updated") or None,
+            "description": " ".join(meta),
+            "description_source": "listing_metadata",
+            "department": j.get("category") or "",
         })
     return out
 
@@ -489,6 +546,8 @@ def fetch_janestreet(cfg):
             "url": f"https://www.janestreet.com/join-jane-street/position/{p.get('id')}/",
             "company": "Jane Street",
             "salary": sal,
+            "description": html_to_text(p.get("overview") or p.get("description") or ""),
+            "department": p.get("team") or p.get("category") or "",
         })
     return out
 
@@ -518,6 +577,9 @@ def fetch_phenom(cfg):
             "title": j.get("title", ""),
             "location": loc if isinstance(loc, str) else "; ".join(loc[:3]),
             "url": j.get("applyUrl") or url_tmpl.format(id=jid),
+            "posted": _iso_epoch(j.get("postedDate")),
+            "description": html_to_text(j.get("descriptionTeaser") or ""),
+            "department": j.get("category") or "",
         })
     return out
 
@@ -551,7 +613,44 @@ def fetch_eightfold(cfg):
     return out
 
 
+def fetch_oracle_hcm(cfg):
+    """Oracle Recruiting Cloud candidate-experience API (JPMorgan Chase and
+    other banks). cfg: host ('jpmc.fa.oraclecloud.com'), site ('CX_1001'),
+    optional query (keyword) and max (newest N, default 300)."""
+    host, site = cfg["host"], cfg["site"]
+    out, offset, total = [], 0, None
+    keyword = cfg.get("query", "")
+    while offset < cfg.get("max", 300):
+        finder = f"findReqs;siteNumber={site},limit=25,offset={offset},sortBy=POSTING_DATES_DESC"
+        if keyword:
+            finder += f',keyword="{keyword}"'
+        r = requests.get(
+            f"https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions",
+            params={"onlyData": "true", "expand": "requisitionList.secondaryLocations", "finder": finder},
+            headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        items = (r.json().get("items") or [{}])[0]
+        if total is None:
+            total = items.get("TotalJobsCount") or 0
+        reqs = items.get("requisitionList") or []
+        for j in reqs:
+            jid = str(j.get("Id") or "")
+            out.append({
+                "id": jid,
+                "title": j.get("Title", ""),
+                "location": j.get("PrimaryLocation") or "",
+                "url": f"https://{host}/hcmUI/CandidateExperience/en/sites/{site}/job/{jid}",
+                "posted": _iso_epoch(j.get("PostedDate")),
+                "description": html_to_text(j.get("ShortDescriptionStr") or ""),
+            })
+        offset += 25
+        if not reqs or offset >= total:
+            break
+    return out
+
+
 ADAPTERS = {
+    "oracle_hcm": fetch_oracle_hcm,
     "greenhouse": fetch_greenhouse,
     "lever": fetch_lever,
     "ashby": fetch_ashby,
@@ -569,47 +668,156 @@ ADAPTERS = {
 }
 
 
+# ---- per-posting detail fetchers: (cfg, job_id) -> (description, department)
+def detail_greenhouse(cfg, job_id):
+    r = requests.get(f"https://boards-api.greenhouse.io/v1/boards/{cfg['token']}/jobs/{job_id}",
+                     headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    dept = " / ".join(d.get("name", "") for d in data.get("departments") or [] if d.get("name"))
+    return html_to_text(data.get("content") or ""), dept
+
+
+def detail_workday(cfg, job_id):
+    url = f"https://{cfg['host']}/wday/cxs/{cfg['tenant']}/{cfg['site']}{job_id}"
+    r = requests.get(url, headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    info = r.json().get("jobPostingInfo") or {}
+    return html_to_text(info.get("jobDescription") or ""), info.get("jobFamilyGroup") or ""
+
+
+def detail_smartrecruiters(cfg, job_id):
+    r = requests.get(f"https://api.smartrecruiters.com/v1/companies/{cfg['token']}/postings/{job_id}",
+                     headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    sections = (data.get("jobAd") or {}).get("sections") or {}
+    text = "\n\n".join(html_to_text((sections.get(k) or {}).get("text") or "") for k in (
+        "jobDescription", "qualifications", "additionalInformation"))
+    return text.strip(), (data.get("department") or {}).get("label") or ""
+
+
+def detail_eightfold(cfg, job_id):
+    r = requests.get(f"https://{cfg['host']}/api/apply/v2/jobs/{job_id}",
+                     params={"domain": cfg["domain"]},
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    return html_to_text(data.get("job_description") or ""), data.get("department") or ""
+
+
+def detail_oracle_hcm(cfg, job_id):
+    r = requests.get(
+        f"https://{cfg['host']}/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails",
+        params={"onlyData": "true", "expand": "all",
+                "finder": f'ById;Id="{job_id}",siteNumber={cfg["site"]}'},
+        headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    item = (r.json().get("items") or [{}])[0]
+    text = "\n\n".join(html_to_text(item.get(k) or "") for k in (
+        "ExternalDescriptionStr", "ExternalResponsibilitiesStr", "ExternalQualificationsStr"))
+    return text.strip(), item.get("Category") or item.get("Organization") or ""
+
+
+DETAIL_FETCHERS = {
+    "oracle_hcm": detail_oracle_hcm,
+    "greenhouse": detail_greenhouse,
+    "workday": detail_workday,
+    "smartrecruiters": detail_smartrecruiters,
+    "eightfold": detail_eightfold,
+}
+FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank",
+                         "canadian_bank", "commercial_bank", "private_equity", "venture_capital",
+                         "hedge_fund", "quant_firm", "asset_manager", "pension_fund", "insurance")
+
+
+def enrich_descriptions(config, con, budget=None, fetched=None):
+    """Fetch descriptions for the postings that benefit most, politely.
+
+    Priority: tracked applications, then finance roles, then finance
+    employers, newest first.  A per-board cap spreads load; failures back
+    off for six hours and give up after three attempts.  ``fetched`` (a list)
+    collects the (board, job_id) keys that received a description.
+    """
+    from intel_store import store_description, utcnow
+    budget = config.get("description_budget", 60) if budget is None else budget
+    if budget <= 0:
+        return 0
+    boards = {k: v for k, v in config["boards"].items()
+              if not k.startswith("_") and not v.get("disabled") and v.get("ats") in DETAIL_FETCHERS}
+    if not boards:
+        return 0
+    per_board = config.get("description_per_board", 12)
+    retry_before = datetime.fromtimestamp(time.time() - 6 * 3600, timezone.utc).isoformat(timespec="seconds")
+    marks = ",".join("?" * len(boards))
+    types = ",".join("?" * len(FINANCE_COMPANY_TYPES))
+    rows = con.execute(f"""
+        SELECT j.board, j.job_id FROM jobs j
+        JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
+        LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
+        LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
+        LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+        LEFT JOIN applications a ON a.job_key=(j.board||':'||j.job_id)
+        WHERE j.board IN ({marks}) AND j.title != '' AND COALESCE(s.status,'active') != 'closed'
+          AND (t.board IS NULL OR (COALESCE(t.description,'')='' AND t.attempts < 3
+                                   AND COALESCE(t.fetched_at,'') < ?))
+        ORDER BY a.job_key IS NOT NULL DESC, i.is_finance DESC,
+                 i.company_type IN ({types}) DESC, COALESCE(d.posted, 0) DESC
+        LIMIT ?""", [*boards, retry_before, *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
+    picked, per = [], {}
+    for board, job_id in rows:
+        if per.get(board, 0) >= per_board:
+            continue
+        per[board] = per.get(board, 0) + 1
+        picked.append((board, job_id))
+        if len(picked) >= budget:
+            break
+    if not picked:
+        return 0
+
+    def fetch(item):
+        board, job_id = item
+        cfg = boards[board]
+        return item, DETAIL_FETCHERS[cfg["ats"]](cfg, job_id)
+
+    done = 0
+    # Finish any caller writes before waiting on description HTTP requests.
+    con.commit()
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        futures = [ex.submit(fetch, item) for item in picked]
+        for fut in as_completed(futures):
+            try:
+                (board, job_id), (text, dept) = fut.result()
+            except Exception as e:  # recorded, retried later with back-off
+                item = picked[futures.index(fut)]
+                con.execute(
+                    """INSERT INTO job_text(board, job_id, fetched_at, attempts, last_error)
+                       VALUES (?,?,?,1,?) ON CONFLICT(board, job_id) DO UPDATE SET
+                       attempts=job_text.attempts+1, fetched_at=excluded.fetched_at,
+                       last_error=excluded.last_error""",
+                    (item[0], item[1], utcnow(), f"{type(e).__name__}: {str(e)[:200]}"))
+                con.commit()
+                continue
+            store_description(con, board, job_id, text, dept, source="detail")
+            if fetched is not None:
+                fetched.append((board, job_id))
+            done += 1
+            con.commit()
+    con.commit()
+    return done
+
+
 # ================================================================ storage
 def db_open(path=None):
-    con = sqlite3.connect(path if path is not None else DB_PATH)
+    """Open (and migrate) the database.  Schema lives in db_migrations.py."""
+    from db_migrations import migrate
+    target = path if path is not None else DB_PATH
+    con = sqlite3.connect(target)
     con.execute("PRAGMA busy_timeout=5000")
-    con.execute("""CREATE TABLE IF NOT EXISTS jobs(
-        board TEXT, job_id TEXT, title TEXT, location TEXT, url TEXT,
-        first_seen TEXT, last_seen TEXT,
-        PRIMARY KEY(board, job_id))""")
-    con.execute("""CREATE TABLE IF NOT EXISTS job_details(
-        board TEXT, job_id TEXT, company TEXT DEFAULT '',
-        salary TEXT DEFAULT '', posted REAL,
-        PRIMARY KEY(board, job_id))""")
-    con.execute("""CREATE TABLE IF NOT EXISTS boards(
-        board TEXT PRIMARY KEY, seeded INTEGER DEFAULT 0,
-        last_ok TEXT, failures INTEGER DEFAULT 0, last_poll REAL DEFAULT 0)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS alerted(
-        key TEXT PRIMARY KEY, ts TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS sends(
-        ts TEXT, subscriber TEXT, board TEXT, job_id TEXT, ok INTEGER)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS recent(
-        ts TEXT, company TEXT, title TEXT, url TEXT,
-        location TEXT DEFAULT '', salary TEXT DEFAULT '')""")
-    con.execute("""CREATE TABLE IF NOT EXISTS pending(
-        sub TEXT, tier TEXT, ts TEXT, company TEXT, title TEXT, url TEXT,
-        location TEXT DEFAULT '', salary TEXT DEFAULT '', posted REAL)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS kv(
-        k TEXT PRIMARY KEY, v TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS applications(
-        job_key TEXT PRIMARY KEY, board TEXT, job_id TEXT, company TEXT,
-        title TEXT, location TEXT DEFAULT '', url TEXT, salary TEXT DEFAULT '',
-        posted REAL, status TEXT DEFAULT 'saved', priority INTEGER DEFAULT 0,
-        notes TEXT DEFAULT '', next_step TEXT DEFAULT '', due_date TEXT DEFAULT '',
-        created_at TEXT, updated_at TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS runs(
-        started_at TEXT, finished_at TEXT, ok_count INTEGER, fail_count INTEGER,
-        skipped_count INTEGER, new_count INTEGER, deduped_count INTEGER,
-        delivered_count INTEGER, duration REAL)""")
-    con.execute("CREATE INDEX IF NOT EXISTS jobs_last_seen ON jobs(last_seen)")
-    con.execute("CREATE INDEX IF NOT EXISTS details_posted ON job_details(posted)")
-    con.execute("CREATE INDEX IF NOT EXISTS applications_status ON applications(status)")
-
+    if str(target) != ":memory:":
+        # The dashboard reads while the watcher writes; WAL keeps both moving.
+        con.execute("PRAGMA journal_mode=WAL")
+    migrate(con)
     return con
 
 
@@ -781,7 +989,7 @@ def _resolve_secret(v, quiet=False):
 
 
 def load_subscribers(global_filters):
-    subs = json.loads(SUBSCRIBERS.read_text())
+    subs = json.loads(SUBSCRIBERS.read_text(encoding="utf-8"))
     out = []
     for name, s in subs.items():
         if name.startswith("_") or s.get("mute"):
@@ -803,6 +1011,13 @@ def load_subscribers(global_filters):
             "feeds": {k: _resolve_secret(v, quiet=True)
                       for k, v in (s.get("feeds") or {}).items()},
             "telegram_chat": str(s.get("telegram_chat_id", "") or ""),
+            # finance fit-tier alerting (alert_mode: "fit"); legacy regex otherwise
+            "alert_mode": s.get("alert_mode", "regex"),
+            "fit_tiers": {"urgent": 90, "high": 75, "digest": 55, **(s.get("fit_tiers") or {})},
+            "finance_only": bool(s.get("finance_only", True)),
+            "cooldown_minutes": int(s.get("cooldown_minutes", 60)),
+            "urgent_per_company": int(s.get("urgent_per_company", 2)),
+            "saved_search_alerts": bool(s.get("saved_search_alerts")),
         })
     return out
 
@@ -1120,6 +1335,207 @@ def deliver(sub, jobs, con):
     return ok
 
 
+# ---- finance fit-tier alerts ------------------------------------------------
+def fetch_intel(con, gated):
+    """{(board, job_id): intel row} for gated jobs that have been scored."""
+    keys = [(b, j["id"]) for b, js in gated.items() for j in js]
+    out = {}
+    for chunk in range(0, len(keys), 300):
+        part = keys[chunk:chunk + 300]
+        where = " OR ".join("(board=? AND job_id=?)" for _ in part)
+        for row in con.execute(
+                f"""SELECT board, job_id, fit, fit_detail, facts, badges, urgency, eff_deadline,
+                           company_key, is_finance, cycle
+                    FROM job_intel WHERE fit_detail IS NOT NULL AND ({where})""",
+                [v for pair in part for v in pair]):
+            out[(row[0], row[1])] = {
+                "fit": row[2], "detail": json.loads(row[3] or "{}"), "facts": json.loads(row[4] or "{}"),
+                "badges": (row[5] or "").replace("_", " ").split(), "urgency": row[6],
+                "deadline": row[7], "company_key": row[8], "is_finance": bool(row[9]), "cycle": row[10],
+            }
+    return out
+
+
+def alert_tier(sub, intel, profile, watched):
+    """'urgent' | 'high' | 'digest' | None for one scored job."""
+    tiers = sub["fit_tiers"]
+    if sub["finance_only"] and not intel["is_finance"]:
+        return None
+    fit = intel["fit"]
+    age = (intel["detail"] or {}).get("posting_age_hours")
+    on_target_cycle = intel.get("cycle") in set(profile.get("target_cycles") or [])
+    if fit >= tiers["urgent"] or (
+            intel["company_key"] in watched and on_target_cycle and age is not None
+            and age <= 12 and fit >= tiers["high"] - 10):
+        return "urgent"
+    if fit >= tiers["high"]:
+        return "high"
+    if fit >= tiers["digest"]:
+        return "digest"
+    return None
+
+
+def _finance_card(job, intel, company, tier, dashboard_url):
+    facts = intel["facts"] or {}
+    cls = facts.get("classification") or {}
+    cyc = facts.get("cycle") or {}
+    detail = intel["detail"] or {}
+    role = cls.get("category_label", "")
+    if cls.get("subcategory_label"):
+        role += f" — {cls['subcategory_label']}"
+    lines = []
+    loc = _short_loc(job.get("location") or "")
+    if loc:
+        lines.append(f"📍 {loc}")
+    if role and cls.get("is_finance"):
+        lines.append(f"🏦 {role}")
+    if cyc.get("label"):
+        lines.append(f"🎓 {cyc['label']}")
+    lines.append(f"⭐ Fit: {intel['fit']}/100")
+    age = _rel_age(job.get("posted"))
+    if age:
+        lines.append(f"🕒 Posted: {age.replace('🔥 ', '')}")
+    if intel.get("deadline"):
+        try:
+            due = datetime.fromisoformat(intel["deadline"]).strftime("%b %d").replace(" 0", " ")
+        except ValueError:
+            due = intel["deadline"]
+        lines.append(f"📅 Deadline: {due}")
+    sal = (job.get("salary") or "").strip()
+    if sal:
+        lines.append(f"💰 {sal[:60]}")
+    reasons = detail.get("reasons") or []
+    if reasons:
+        lines.append("\n**Why:**\n" + "\n".join(f"• {r.lower()}" for r in reasons[:5]))
+    concerns = detail.get("concerns") or []
+    if concerns:
+        lines.append("**Watch out:** " + ", ".join(c.lower() for c in concerns[:3]))
+    key = f"{job.get('_board', '')}:{job['id']}"
+    links = f"[Apply ↗]({job['url']})"
+    if dashboard_url:
+        links += f" · [View in Jobwatch]({dashboard_url.rstrip('/')}/#/opportunities?job={key})"
+    lines.append("\n" + links)
+    color = {"urgent": 0xE5484D, "high": 0x30A46C}.get(tier, 0x8B95A7)
+    return {
+        "title": f"{company} — {job['title']}"[:256],
+        "url": job["url"],
+        "description": "\n".join(lines)[:3900],
+        "color": color,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "footer": {"text": f"jobwatch · {tier} tier"},
+    }
+
+
+def send_finance_alerts(webhook, cards, tier, mention=""):
+    header = {"urgent": "🚨 HIGH-PRIORITY FINANCE ROLE", "high": "⭐ HIGH-FIT FINANCE ROLE"}[tier]
+    if len(cards) > 1:
+        header += f"S ({len(cards)})"
+    lines = [header] + [f"• {c['title']}"[:170] for c in cards[:5]]
+    content = "\n".join(lines)
+    if mention and tier == "urgent":
+        content = f"{mention}\n{content}"
+    ok = True
+    for i in range(0, len(cards), 10):
+        payload = {"embeds": cards[i:i + 10]}
+        if i == 0:
+            payload["content"] = content
+        if tier != "urgent":
+            payload["flags"] = 4096         # high-fit: visible, but no push buzz
+        ok &= _post_with_retry(lambda p=payload: requests.post(webhook, json=p, timeout=10), "discord")
+    return ok
+
+
+def deliver_fit(sub, jobs, intel_rows, con, config, profile):
+    """Tiered delivery: urgent (loud), high fit (quiet card), digest (feed).
+
+    A per-company cooldown keeps one firm's posting burst from flooding the
+    urgent channel; overflow is downgraded to the high-fit tier.
+    """
+    watched = {r[0] for r in con.execute("SELECT company_key FROM company_prefs WHERE watched=1")}
+    cutoff = datetime.fromtimestamp(time.time() - sub["cooldown_minutes"] * 60, timezone.utc).isoformat(
+        timespec="seconds")
+    recent = {}
+    for company, n in con.execute(
+            "SELECT company, COUNT(*) FROM alert_log WHERE sub=? AND tier='urgent' AND ts > ? GROUP BY company",
+            (sub["name"], cutoff)):
+        recent[company] = n
+    buckets = {"urgent": [], "high": [], "digest": []}
+    for board, job in jobs:
+        intel = intel_rows[(board, job["id"])]
+        tier = alert_tier(sub, intel, profile, watched)
+        if not tier:
+            continue
+        company = (intel["facts"].get("company") or {}).get("name") or job.get("company") or board
+        if tier == "urgent":
+            if recent.get(company, 0) >= sub["urgent_per_company"]:
+                tier = "high"
+            else:
+                recent[company] = recent.get(company, 0) + 1
+        buckets[tier].append((board, job, intel, company))
+
+    ts = now()
+    dashboard_url = config.get("dashboard_url", "http://127.0.0.1:8787")
+    cap = sub["max_ping_jobs"]
+    ok = True
+    for tier in ("urgent", "high"):
+        items = sorted(buckets[tier], key=lambda t: -t[2]["fit"])
+        shown, overflow = items[:cap], items[cap:]
+        buckets["digest"].extend(overflow)
+        if not shown:
+            continue
+        hook = (sub["ping_hooks"].get(tier) or sub["ping_hooks"].get("full_time")
+                or sub["discord"])
+        cards = [_finance_card({**job, "_board": board}, intel, company, tier, dashboard_url)
+                 for board, job, intel, company in shown]
+        if hook:
+            ok &= send_finance_alerts(hook, cards, tier, sub["mention"])
+        if sub["telegram_chat"]:
+            text = "\n\n".join(
+                f"{'🚨' if tier == 'urgent' else '⭐'} {company} — {job['title']}\n"
+                f"⭐ Fit {intel['fit']}/100 · {_short_loc(job.get('location') or '')}\n{job['url']}"
+                for board, job, intel, company in shown)
+            ok &= send_telegram(sub["telegram_chat"], text)
+        con.executemany("INSERT INTO alert_log VALUES (?,?,?,?,?)",
+                        [(ts, sub["name"], tier, company, f"{board}:{job['id']}")
+                         for board, job, intel, company in shown])
+    for board, job, intel, company in buckets["digest"]:
+        cat = _category(job["title"])
+        con.execute("INSERT INTO pending VALUES (?,?,?,?,?,?,?,?,?)",
+                    (sub["name"], "intern" if cat == "intern" else "ft", ts, company, job["title"],
+                     job["url"], job.get("location") or "", job.get("salary") or "", job.get("posted")))
+    sent = sum(len(v) for v in buckets.values())
+    for board, job in jobs:
+        con.execute("INSERT INTO sends VALUES (?,?,?,?,?)", (ts, sub["name"], board, job["id"], int(ok)))
+    return sent
+
+
+def notify_saved_searches(config, con, subs, store):
+    """Local mode: saved searches with notify=1 report new matches once."""
+    targets = [s for s in subs if s.get("saved_search_alerts") and s["discord"]]
+    searches = con.execute(
+        "SELECT id, name, query, COALESCE(last_notified_at, created_at) FROM saved_searches WHERE notify=1"
+    ).fetchall()
+    if not searches or not targets:
+        return 0
+    from job_query import FROM_CLAUSE, build_where, resume_params
+    resume = con.execute("SELECT enabled FROM candidate_resume WHERE id=1").fetchone()
+    sent = 0
+    for sid, name, query, since in searches:
+        params = resume_params({**json.loads(query or "{}"), "since": since}, bool(resume and resume[0]))
+        where, args = build_where(params, store.fts, store.watched)
+        rows = con.execute(
+            f"SELECT i.company_name, j.title, j.url, i.fit {FROM_CLAUSE} WHERE {' AND '.join(where)} "
+            f"ORDER BY i.fit DESC LIMIT 10", args).fetchall()
+        con.execute("UPDATE saved_searches SET last_notified_at=? WHERE id=?", (now(), sid))
+        if not rows:
+            continue
+        desc = "\n".join(f"**{r[3]}** · [{r[0]} — {r[1]}]({r[2]})" for r in rows)
+        for sub in targets:
+            send_discord_note(sub["discord"], f"🔎 {len(rows)} new for saved search “{name}”", desc, 0x3E63DD)
+        sent += len(rows)
+    return sent
+
+
 def flush_feeds(config, con, subs, force=False):
     """Send queued feed jobs as one quiet digest per stream once the oldest
     queued job is feed_flush_minutes old (or the queue is huge). Pings never
@@ -1245,6 +1661,7 @@ def cycle(config, con):
     new_by_board = {}
     broke = []
     ok_count = fail_count = skipped = 0
+    change_count = closed_count = 0
 
     # respect per-board min_interval (big feeds like the 11MB listings repos
     # only change every ~15 min; no point fetching them every 45s)
@@ -1256,6 +1673,8 @@ def cycle(config, con):
             continue
         due[name] = cfg
 
+    # New board rows must not hold a write lock during the first network wait.
+    con.commit()
     with ThreadPoolExecutor(max_workers=10) as ex:
         futs = {ex.submit(fetch_board, n, c): n for n, c in due.items()}
         for fut in as_completed(futs):
@@ -1273,6 +1692,7 @@ def cycle(config, con):
                     broke.append((name, type(e).__name__))
                 if failures in (1, 3, 10) or failures % 50 == 0:
                     log(f"! {name}: {type(e).__name__}: {e} (streak {failures})")
+                con.commit()
                 continue
 
             ok_count += 1
@@ -1280,10 +1700,14 @@ def cycle(config, con):
 
             if not jobs and len(known) >= ZERO_GUARD_MIN:
                 log(f"! {name}: returned 0 jobs but {len(known)} known — ignoring read")
+                con.commit()
                 continue
 
             fresh = [j for j in jobs if j["id"] and j["id"] not in known]
             ts = now()
+            changes = record_changes(con, name, jobs, ts)
+            if changes:
+                change_count += len(changes)
             con.executemany(
                 """INSERT INTO jobs
                    (board, job_id, title, location, url, first_seen, last_seen)
@@ -1304,11 +1728,43 @@ def cycle(config, con):
                  for j in jobs])
             con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
                         (ts, name))
+            for j in jobs:
+                if j.get("description") or j.get("department"):
+                    store_description(con, name, j["id"], j.get("description") or "",
+                                      j.get("department") or "",
+                                      source=j.get("description_source") or "listing")
+            complete = all_boards[name].get(
+                "complete_listing", all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
+            life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
+                                    {j["id"] for j in fresh}, discovered=bool(seeded))
+            closed_count += life["closed"]
 
             if not seeded:
                 log(f"  {name}: seeded {len(jobs)} postings silently")
             elif fresh:
                 new_by_board[name] = fresh
+            # Release the write lock before waiting for another network source.
+            # First-run setup stays editable and completed sources appear early.
+            con.commit()
+
+    # ---- finance intelligence for everything new or changed (incremental).
+    # New postings are classified first so fit-based alerts never wait on
+    # the background backlog.
+    con.commit()
+    store = None
+    try:
+        store = IntelStore(con, config)
+        store.facts_pass(keys=[(b, j["id"]) for b, js in new_by_board.items() for j in js])
+        # The backlog only feeds the local dashboard; on an ephemeral Actions
+        # runner it would be rebuilt every run and slow every cycle.
+        if not EPHEMERAL:
+            store.facts_pass(config.get("facts_per_cycle", 5000))
+        store.score_pass()
+        con.commit()
+    except Exception as e:      # intelligence must never stop collection or alerts
+        log(f"! intel refresh failed: {type(e).__name__}: {e}")
+        con.rollback()
+        store = None
 
     # ---- cross-source dedupe gate (same job via ATS + repo = one alert)
     excl_co = Filt._c((config.get("filters") or {}).get("exclude_companies"))
@@ -1338,18 +1794,26 @@ def cycle(config, con):
     # ---- fanout
     delivered = 0
     alerted_jobs = set()
+    intel_rows = fetch_intel(con, gated) if store else {}
     for sub in subs:
         mine = []
         for board, jobs in gated.items():
             if "all" not in sub["companies"] and board not in sub["companies"]:
                 continue
-            mine.extend((board, j) for j in jobs if sub["filt"].ok(j))
+            if sub["alert_mode"] == "fit":
+                mine.extend((board, j) for j in jobs if (board, j["id"]) in intel_rows)
+            else:
+                mine.extend((board, j) for j in jobs if sub["filt"].ok(j))
         if mine:
             mine.sort(key=lambda t: (t[1].get("company", ""), t[1]["title"]))
-            deliver(sub, mine, con)
-            delivered += len(mine)
+            if sub["alert_mode"] == "fit":
+                sent = deliver_fit(sub, mine, intel_rows, con, config, store.profile)
+            else:
+                deliver(sub, mine, con)
+                sent = len(mine)
+            delivered += sent
             alerted_jobs.update(id(j) for _, j in mine)
-            log(f"  -> {sub['name']}: {len(mine)} job(s)")
+            log(f"  -> {sub['name']}: {sent} job(s)")
 
     # mark every gated job as alerted (even if no subscriber matched, so a
     # later echo from another source can't ping something already evaluated)
@@ -1364,6 +1828,23 @@ def cycle(config, con):
 
     flush_feeds(config, con, subs)
 
+    # ---- description enrichment (after alerts so they are never delayed)
+    enriched = 0
+    if store and not EPHEMERAL:
+        try:
+            fetched = []
+            enriched = enrich_descriptions(config, con, fetched=fetched)
+            if enriched:
+                # only the enriched rows: an unbounded pass would chew through
+                # the whole backlog (every row on a fresh Actions runner)
+                store.facts_pass(keys=fetched)
+                store.score_pass()
+            notify_saved_searches(config, con, subs, store)
+            con.commit()
+        except Exception as e:
+            log(f"! enrichment failed: {type(e).__name__}: {e}")
+            con.rollback()
+
     if broke:
         detail = ", ".join(f"{n} ({err})" for n, err in broke)
         for sub in subs:
@@ -1376,11 +1857,19 @@ def cycle(config, con):
 
     maybe_digest(config, con, subs)
 
-    con.execute("DELETE FROM jobs WHERE last_seen < datetime('now', ?)",
+    # Closed postings stay visible as history until they age out; anything
+    # with an application record is kept for the CRM.
+    con.execute("""DELETE FROM jobs WHERE last_seen < datetime('now', ?)
+                   AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)""",
                 (f"-{PRUNE_AFTER_DAYS} days",))
-    con.execute("""DELETE FROM job_details WHERE NOT EXISTS (
-                   SELECT 1 FROM jobs WHERE jobs.board=job_details.board
-                   AND jobs.job_id=job_details.job_id)""")
+    for table in ("job_details", "job_text", "job_intel", "job_state"):
+        con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
+                       SELECT 1 FROM jobs WHERE jobs.board={table}.board
+                       AND jobs.job_id={table}.job_id)""")
+    con.execute("DELETE FROM job_changes WHERE ts < datetime('now', ?)", (f"-{PRUNE_AFTER_DAYS} days",))
+    con.execute("DELETE FROM alert_log WHERE ts < datetime('now', '-7 days')")
+    if store and store.fts:
+        con.execute("DELETE FROM job_fts WHERE rowid NOT IN (SELECT rowid FROM job_intel)")
     con.execute("DELETE FROM alerted WHERE ts < datetime('now', ?)",
                 (f"-{PRUNE_AFTER_DAYS} days",))
     con.execute("DELETE FROM recent WHERE ts < datetime('now', ?)",
@@ -1397,7 +1886,8 @@ def cycle(config, con):
 
     log(f"cycle: {ok_count} ok / {fail_count} fail / {skipped} not-due | "
         f"{total_new} new, {deduped} cross-source dupes, {agencies} agency-spam, "
-        f"{delivered} deliveries | {duration:.1f}s")
+        f"{delivered} deliveries | {change_count} changes, {closed_count} closed, "
+        f"{enriched} descriptions | {duration:.1f}s")
 
     hc = os.environ.get("HEALTHCHECK_URL", config.get("healthcheck_url", ""))
     if hc and (ok_count > 0):
@@ -1421,18 +1911,38 @@ def cmd_check(config):
                     "company_type_weights", "year_weights", "skills",
                     "education_penalties"):
         values = profile.get(section, {})
+        if section == "skills" and isinstance(values, list):
+            continue        # Fit 2.0 profiles list skill keys; validated below
         if not isinstance(values, dict) or any(
                 isinstance(v, bool) or not isinstance(v, (int, float))
                 for v in values.values()):
             print(f"✗ profile {section}: values must be numeric weights")
             errs += 1
+    # finance intelligence: config/*.json must compile and the profile must
+    # reference real taxonomy keys, company types, cities and skills
+    try:
+        from intel import load_knowledge, merge_profile, validate_profile
+        kn = load_knowledge()
+        for problem in validate_profile(merge_profile(profile), kn):
+            print(f"✗ profile: {problem}")
+            errs += 1
+    except Exception as e:      # bad regex / JSON / unknown company type
+        print(f"✗ intelligence config: {type(e).__name__}: {e}")
+        errs += 1
+        kn = None
     for name, b in config["boards"].items():
         if name.startswith("_"):
             continue
         if b.get("ats") not in ADAPTERS:
             print(f"✗ board {name}: unknown ats {b.get('ats')}")
             errs += 1
-    subs = json.loads(SUBSCRIBERS.read_text())
+        if kn and b.get("company_key") and b["company_key"] not in kn.companies:
+            print(f"✗ board {name}: unknown company_key {b['company_key']}")
+            errs += 1
+        if kn and b.get("company_type") and b["company_type"] not in kn.company_types:
+            print(f"✗ board {name}: unknown company_type {b['company_type']}")
+            errs += 1
+    subs = json.loads(SUBSCRIBERS.read_text(encoding="utf-8"))
     n_subs = 0
     for name, s in subs.items():
         if name.startswith("_"):
@@ -1453,6 +1963,13 @@ def cmd_check(config):
         if invalid:
             print(f"✗ subscriber {name}: unknown ping categories "
                   f"{', '.join(sorted(invalid))}")
+            errs += 1
+        if s.get("alert_mode", "regex") not in ("regex", "fit"):
+            print(f"✗ subscriber {name}: alert_mode must be 'regex' or 'fit'")
+            errs += 1
+        tiers = s.get("fit_tiers") or {}
+        if any(not isinstance(v, int) or not 0 <= v <= 100 for v in tiers.values()):
+            print(f"✗ subscriber {name}: fit_tiers values must be integers 0–100")
             errs += 1
         cap = s.get("max_ping_jobs", 10)
         if not isinstance(cap, int) or isinstance(cap, bool) or cap < 0:
@@ -1562,9 +2079,13 @@ def main():
                     help="dashboard port (default: 8787)")
     ap.add_argument("--no-browser", action="store_true",
                     help="do not open the dashboard in a browser")
+    ap.add_argument("--enrich", type=int, metavar="N",
+                    help="fetch up to N job descriptions now, then refresh intelligence")
+    ap.add_argument("--rescore", action="store_true",
+                    help="recompute finance intelligence and fit scores for every job")
     args = ap.parse_args()
 
-    config = json.loads(Path(args.config).read_text())
+    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
 
     if args.check:
         cmd_check(config)
@@ -1580,6 +2101,16 @@ def main():
             print(f"{(j.get('company') or '')[:18]:18} | {j['title']!r:55.55} | "
                   f"{j['location']!r:28.28} | {j['url'][:60]}")
         print(f"\n{len(jobs)} live postings")
+        return
+    if args.enrich or args.rescore:
+        con = db_open()
+        if args.enrich:
+            log(f"fetched {enrich_descriptions(config, con, args.enrich)} description(s)")
+        store = IntelStore(con, config)
+        if args.rescore:
+            con.execute("UPDATE job_intel SET input_hash=NULL")
+        stats = store.refresh(force_score=args.rescore)
+        log(f"intelligence: {stats['facts']} classified, {stats['scored']} scored in {stats['seconds']}s")
         return
     if args.serve:
         from dashboard import serve

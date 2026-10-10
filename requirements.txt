@@ -1,1 +1,2 @@
 requests
+pypdf>=6.10.0

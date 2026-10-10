@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "Marks web/ as ES modules so `node --test web/tests` can import the dashboard's pure helpers. No dependencies; nothing to install."
+}

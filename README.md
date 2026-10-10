@@ -3,20 +3,48 @@
 Your private career command center: broad job-market coverage, focused daily
 ranking, fast alerts, and a lightweight application CRM.
 
-Jobwatch continuously checks **195 enabled sources** across company ATSs,
+Jobwatch continuously checks **212 enabled sources** across company ATSs,
 startup boards, quant firms, banks, big tech, LinkedIn, and community listing
 repos. It indexes every role it sees, ranks each one against a transparent
 profile, and only interrupts you for the matches that meet your notification
 rules.
 
-The included profile is tuned for a 2027 candidate with strong backend,
-distributed-systems, quant, and ML experience. It prioritizes the U.S., then
-Canada, and gives extra weight to startups and trading firms. The product is
-not limited to those categories: software, quant, AI/data, hardware, product,
+The source configuration includes a sample 2027 finance profile for Canadian
+and U.S. recruiting; personalize it in Settings. Windows releases start with
+a clean profile. The product also indexes software, quant, AI/data, hardware, product,
 design, finance, sales, operations, people/legal, and uncategorized roles are
 all searchable.
 
 ## Start using it
+
+### Share a Windows copy
+
+Download **Jobwatch-Windows.zip** from [the latest release](https://github.com/IdanG7/JobWatcher/releases/latest),
+or build `dist/Jobwatch-Windows.zip` locally. The recipient extracts the entire ZIP and
+double-clicks **Start Jobwatch.bat**. Python and the dependencies are included;
+no installation, administrator access, API key or account is required. The app
+opens in the browser and fetches jobs automatically while the console stays open.
+Internet access is needed to fetch postings. The first fetch can take several minutes.
+
+The bundle starts with a clean profile and no notification accounts. It excludes
+the sender's database, resume, subscriber configuration, letters and portable state.
+Recipient settings and private data live in `%LOCALAPPDATA%\Jobwatch` and survive
+replacing the extracted app folder. Close Jobwatch before backing up that data folder.
+The package targets Windows 10/11 on x64 PCs.
+
+To rebuild and verify the distribution on Windows:
+
+```powershell
+python tools/build_windows.py
+python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
+```
+
+The builder downloads the [official Python embeddable distribution](https://www.python.org/downloads/release/python-3148/),
+verifies its published SHA-256 checksum, bundles dependency wheels with license
+notices, and records per-file checksums in `manifest.json`. It uses explicit file
+and configuration allowlists. Build artifacts are ignored by Git.
+
+### Run from source
 
 ```bash
 python3 -m venv .venv
@@ -42,7 +70,7 @@ The dashboard opens automatically and provides:
 - source health and the last polling-run status;
 - one-click CSV export.
 
-Application notes live only in `jobwatch.db`. They are never sent to Discord,
+Application notes and saved cover letters live only in `jobwatch.db`. They are never sent to Discord,
 included in `state.json`, or committed by the included workflow. The web server
 binds to loopback by default and has no authentication, so do not expose it to
 the public internet.
@@ -58,6 +86,46 @@ the public internet.
 5. Check **Sources** if coverage looks quiet; failures are visible instead of
    silently shrinking the search.
 
+## Cover letters
+
+Open a role in **Opportunities** and scroll to **Cover letter**. Enter your name,
+relevant background in first-person sentences, and optionally why the role interests
+you. **Generate draft** creates a local template using that text, the role title,
+company, and skills mentioned in the posting. No API key or external AI service is
+used; review the draft before sending it.
+
+Edit the letter and choose **Save letter** to keep it for that job. Regenerating
+previews a replacement and leaves the saved letter intact until you save again.
+**Copy** and **Download .txt** use the current editor text, including unsaved edits.
+Letters persist independently of the application tracker and are excluded from
+portable state and CSV exports. Resume optimization remains out of scope.
+
+## Resume parsing & automatic matching
+
+Install `requirements.txt` for PDF support, then open **Settings → Resume & matching**.
+Upload PDF, DOCX or TXT (up to 5 MB), or paste the complete resume. Choose
+**Preview extracted facts** to review education, graduation, GPA, skills, experience
+and proposed profile changes. **Apply & enable matching** keeps your saved career
+targets and adds resume experience, replaces demo skills with extracted skills,
+and updates education and recruiting cycles. Save any profile edits before applying.
+Geography and work authorization remain under your control; correct extracted
+fields in the profile form below and choose **Save profile & rescore**.
+
+Opportunities automatically enables **📄 Resume match** while matching is enabled.
+Click that chip to show all roles for the current view; pause matching in Settings
+to change the default. Clear role/stage/geography and explicit eligibility conflicts
+are excluded regardless of fit score. Preferred qualifications do not exclude a
+posting. Unknown requirements stay visible with review notes in the job drawer;
+matching is a shortlist, not a guarantee of eligibility. Saved views, their alerts
+and CSV exports use the same filter. Results appear in batches during indexing.
+
+Only structured matching facts are saved locally. Original documents, raw text,
+contact details and accomplishment bullets are not retained or exported. Removing
+the saved resume stops matching and leaves applied profile fields editable.
+Incomplete/unreadable replacements preserve the saved resume. PDF extraction is
+limited to 10 pages and 60,000 characters, with a 2 MB limit per decoded stream;
+scanned PDFs need pasted text. DOCX XML is bounded before decompression.
+
 ## How ranking works
 
 Collection and ranking are intentionally separate:
@@ -69,9 +137,8 @@ Collection and ranking are intentionally separate:
 - **Alerts stay scarce.** The existing filters in `subscribers.json` decide
   what reaches quiet feeds and which watchlist matches create a loud ping.
 
-The default profile boosts internships/new-grad roles, U.S. and Canadian
-locations, software/quant/AI work, startup and quant companies, and skills such
-as Rust, distributed systems, databases, backend, cloud, Python, and C++.
+The sample source profile boosts finance internships and new-grad roles,
+Canadian and U.S. locations, banking and investment employers, and finance skills.
 Senior roles and out-of-market locations rank lower but remain searchable.
 
 Edit the `profile` object to retune the dashboard without changing collection
@@ -80,10 +147,10 @@ or alert behavior:
 ```json
 {
   "profile": {
-    "headline": "SWE, quant & startup roles · U.S. first, Canada too",
-    "track_weights": {"software": 18, "quant": 20, "data_ml": 15},
-    "location_weights": {"us": 12, "canada": 8, "remote": 9},
-    "skills": {"rust": 8, "distributed": 7, "python": 4}
+    "headline": "My finance search",
+    "target_roles": ["investment_banking", "corporate_finance"],
+    "target_countries": ["CA", "US"],
+    "skills": ["valuation", "excel", "accounting"]
   }
 }
 ```
@@ -114,7 +181,8 @@ Recommended Discord channels are `#apply-now-intern`,
 `#apply-now-full-time`, `#internships`, and `#full-time`. Unset optional hooks
 fall back to `DISCORD_WEBHOOK_FULLTIME`, so a single channel also works.
 
-Configure secrets in GitHub Actions:
+Cloud alerts are optional. Set the repository variable `ENABLE_JOB_ALERTS=true`
+and configure secrets in GitHub Actions to enable the scheduled poller:
 
 - `DISCORD_WEBHOOK_FULLTIME` (required by the included workflow)
 - `DISCORD_WEBHOOK_APPLY_INTERN`
@@ -157,12 +225,20 @@ their source set and filters, and configure their own delivery secret.
 
 ## Automation and storage
 
+`.github/workflows/build-windows.yml` tests Python on Linux and Windows, runs
+the JavaScript tests, validates configuration, and builds and verifies a clean
+Windows ZIP on pushes to `main`, pull requests and manual runs. The ZIP is
+available as the `windows-package` artifact. Pushing a version tag such as
+`v0.1.0` also publishes the ZIP as a public GitHub Release after all checks pass.
+No notification secrets are needed for tests, builds or Windows releases.
+
 `.github/workflows/jobwatch.yml` runs tests and configuration validation,
 restores the portable state, polls repeatedly for roughly 25 minutes, and
-chains a successor run. `state.json` on the force-pushed `state` branch keeps
+chains a successor run when `ENABLE_JOB_ALERTS=true`. It is disabled by default.
+`state.json` on the force-pushed `state` branch keeps
 deduplication and alert queues durable across ephemeral runners.
 
 Local SQLite stores richer searchable job metadata, run history, and the
 application pipeline. Portable state deliberately excludes private pipeline
-notes. The project has one runtime dependency (`requests`); the dashboard uses
+notes. Runtime dependencies are `requests` and `pypdf`; the dashboard uses
 Python's standard-library HTTP server and plain HTML/CSS/JavaScript.
