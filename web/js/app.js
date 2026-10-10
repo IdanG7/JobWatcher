@@ -5,6 +5,8 @@ import {buildHash, compact, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
+import {mountView} from './view-loader.js';
+import {collectionMarkup} from './collection-status.js';
 import * as overview from './views/overview.js';
 import * as opportunities from './views/opportunities.js';
 import * as applications from './views/applications.js';
@@ -26,6 +28,7 @@ const store = {
 const ctx = {
   meta: null,
   profile: null,
+  status: null,
   route: parseHash(location.hash),
   store,
   navigate(path, params = {}, {replace = false} = {}) {
@@ -52,6 +55,13 @@ const ctx = {
     ctx.profile = data.profile;
     return data;
   },
+  loadMeta() {
+    if (!ctx.metaRequest) ctx.metaRequest = get('/api/meta').then(meta => (ctx.meta = meta)).catch(error => {
+      ctx.metaRequest = null;
+      throw error;
+    });
+    return ctx.metaRequest;
+  },
 };
 
 const current = {name: null, key: null, view: null};
@@ -77,21 +87,19 @@ async function route() {
   document.title = `${TITLES[name]} · Jobwatch`;
 
   if (key !== current.key) {
-    current.view?.cleanup?.();
-    current.name = name;
-    current.key = key;
     // A fresh container per render: views attach delegated listeners to their
     // root, and reusing one element would stack listeners across navigations.
     const root = document.createElement('div');
     document.getElementById('view').replaceChildren(root);
-    try {
-      current.view = (await VIEWS[name].render(root, ctx)) || null;
-    } catch (err) {
+    const active = await mountView(current, {key, name, root, render: root => VIEWS[name].render(root, ctx), onError: err => {
       console.error(err);
       root.innerHTML = errorState(err);
       root.querySelector('[data-action=retry]')?.addEventListener('click', () => { current.key = null; route(); });
-      current.view = null;
-    }
+    }});
+    if (!active) return;
+    // URL filters may have changed while this tab's first request was pending.
+    current.view?.update?.(ctx.route.params);
+    current.view?.status?.(ctx.status);
     window.scrollTo(0, 0);
   } else {
     current.view?.update?.(r.params);
@@ -144,22 +152,58 @@ async function refreshNav() {
 }
 
 let lastPollSeen = null;
+let statusInFlight = false;
+let lastCollectionRefresh = 0;
+let collectionRefresh = false;
+let collectionDirty = false;
+const COLLECTION_VIEWS = new Set(['overview', 'opportunities', 'companies', 'analytics', 'sources']);
+async function refreshCollectionView() {
+  if (collectionRefresh || !COLLECTION_VIEWS.has(current.name) || !current.view?.refresh || isTyping({target: document.activeElement})) return;
+  collectionRefresh = true;
+  collectionDirty = false;
+  lastCollectionRefresh = Date.now();
+  try { await current.view.refresh(); } catch { /* The view owns its error state. */ }
+  finally { collectionRefresh = false; }
+}
+
 async function refreshStatus() {
+  if (statusInFlight) return;
+  statusInFlight = true;
   const dot = document.getElementById('live-dot');
   const btn = document.getElementById('poll-now');
   try {
     const s = await get('/api/status');
-    const busy = s.poll_running || s.pending > 0;
-    dot.className = `live-dot ${s.error ? 'warn' : busy ? 'busy' : 'ok'}`;
-    btn.title = s.error ? `Last error: ${s.error}` : s.poll_running ? 'Polling sources…'
+    if (!ctx.meta && !ctx.metaRequest) loadMetadata();
+    const previous = ctx.status;
+    ctx.status = s;
+    const statusError = s.error || s.progress?.error;
+    const busy = s.poll_running || s.indexing || s.pending > 0;
+    const panel = document.getElementById('collection-status');
+    const markup = collectionMarkup(s);
+    // Keep the live region quiet when the status has not changed.
+    if (panel.innerHTML !== markup) panel.innerHTML = markup;
+    panel.hidden = !markup;
+    panel.classList.toggle('collection-error', Boolean(statusError));
+    current.view?.status?.(s);
+    dot.className = `live-dot ${statusError ? 'warn' : busy ? 'busy' : 'ok'}`;
+    btn.title = statusError ? `Last error: ${statusError}` : s.poll_running ? 'Polling sources…'
       : s.pending > 0 ? `Indexing ${s.pending} jobs…` : `Live · last refresh ${s.last_refresh ? new Date(s.last_refresh).toLocaleTimeString() : 'pending'} · click to poll now`;
     if (s.last_poll && lastPollSeen && s.last_poll !== lastPollSeen) {
       toast('New poll finished', {action: {label: 'Refresh', fn: () => ctx.changed()}});
     }
     lastPollSeen = s.last_poll || lastPollSeen;
+    const finished = previous && ((previous.poll_running && !s.poll_running) || (previous.indexing && !s.indexing) || previous.last_refresh !== s.last_refresh);
+    if (finished) collectionDirty = true;
+    if (collectionDirty || (busy && Date.now() - lastCollectionRefresh > 6000)) refreshCollectionView();
   } catch {
     dot.className = 'live-dot warn';
     btn.title = 'Dashboard server unreachable';
+    const panel = document.getElementById('collection-status');
+    panel.innerHTML = collectionMarkup({error: 'Connection lost. Keep the Jobwatch console open; reconnecting automatically.'});
+    panel.hidden = false;
+    panel.classList.add('collection-error');
+  } finally {
+    statusInFlight = false;
   }
 }
 
@@ -212,6 +256,12 @@ function onKey(e) {
 }
 
 // ---------------------------------------------------------------- boot
+function loadMetadata() {
+  ctx.loadMeta().then(() => {
+    if (current.name === 'opportunities') collectionDirty = true;
+  }).catch(() => {}); // Retry metadata on a later status tick; never gate navigation.
+}
+
 async function boot() {
   applyTheme();
   document.documentElement.dataset.density = store.get('jw-density', 'comfortable');
@@ -227,18 +277,13 @@ async function boot() {
   initPalette(ctx, {toggleTheme, pollNow, setDensity});
   if (store.get('jw-hints') === 'off') document.getElementById('hint-bar').hidden = true;
 
-  try {
-    const [meta] = await Promise.all([get('/api/meta'), ctx.loadProfile()]);
-    ctx.meta = meta;
-  } catch (err) {
-    document.getElementById('view').innerHTML = errorState(err);
-    document.querySelector('[data-action=retry]')?.addEventListener('click', () => location.reload());
-    return;
-  }
+  // Each tab paints its loading/empty state immediately. Metadata and profile
+  // requests must not gate the entire application shell.
   route();
+  loadMetadata();
   refreshNav();
   refreshStatus();
-  setInterval(refreshStatus, 20000);
+  setInterval(refreshStatus, 2000);
   setInterval(refreshNav, 120000);
 }
 

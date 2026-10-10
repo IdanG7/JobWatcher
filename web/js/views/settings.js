@@ -14,11 +14,12 @@ export async function render(root, ctx) {
   let profile;
   let searches = [];
   try {
-    const [p, s] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches')]);
+    const [p, s] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), ctx.loadMeta()]);
     profile = structuredClone(p.profile);
     searches = s.saved_searches;
   } catch (err) {
     root.innerHTML = errorState(err);
+    root.querySelector('[data-action=retry]')?.addEventListener('click', () => render(root, ctx));
     return null;
   }
   const meta = ctx.meta;

@@ -40,7 +40,11 @@
   </header>
 
   <main id="main" tabindex="-1">
-    <div id="view" aria-live="polite"></div>
+    <section id="collection-status" class="collection-status" role="status" aria-live="polite" aria-atomic="true">
+      <div class="collection-heading"><strong>Connecting to Jobwatch…</strong><a class="link" href="#/sources">View sources</a></div>
+      <p>Your dashboard is loading. Source collection runs in the background.</p>
+    </section>
+    <div id="view" aria-live="polite"><div class="panel panel-body">Loading your dashboard…</div></div>
   </main>
 
   <div class="hint-bar" id="hint-bar" aria-hidden="true">

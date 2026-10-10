@@ -33,7 +33,7 @@ function kpi(label, value, note, href, cls = '', sig = '') {
 function draw(root, d, ctx) {
   const s = d.stats;
   const p = d.profile || {};
-  const alerts = ctx.profile?.alerts || {};
+  const alerts = p.alerts || {};
   const pending = d.indexing?.pending || 0;
   const lastRun = d.last_run;
   root.innerHTML = `

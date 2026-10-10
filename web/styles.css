@@ -3,6 +3,19 @@
    reserved for meaning: green = high fit / positive, amber = deadlines /
    warnings, red = failures / rejections only. */
 
+.collection-status { margin-bottom: 24px; padding: 16px 20px; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); }
+.collection-status[hidden] { display: none; }
+.collection-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; }
+.collection-heading strong { font-size: 14px; }
+.collection-status p { margin: 8px 0; color: var(--text-2); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.collection-status progress { display: block; width: 100%; height: 8px; margin: 12px 0 8px; accent-color: var(--accent); border: 0; border-radius: 4px; overflow: hidden; background: var(--surface-3); }
+.collection-status progress::-webkit-progress-bar { background: var(--surface-3); border-radius: 4px; }
+.collection-status progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+.collection-status progress::-moz-progress-bar { background: var(--accent); }
+.collection-note { color: var(--text-2); font-size: 12px; }
+.collection-error { border-color: var(--neg); }
+.source-error { max-width: 30ch; margin-top: 6px; color: var(--neg); font-size: 12px; overflow-wrap: anywhere; }
+
 :root {
   color-scheme: light;
   --font: "Inter", "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

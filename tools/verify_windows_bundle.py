@@ -93,12 +93,20 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
                     return json.load(response)
 
             with urlopen(url, timeout=5) as response:
-                assert b"Jobwatch" in response.read()
+                html = response.read()
+                assert b"collection-status" in html and b"Loading your dashboard" in html
+            for module in ("view-loader.js", "collection-status.js"):
+                with urlopen(url + "/js/" + module, timeout=5) as response:
+                    assert response.status == 200 and "javascript" in response.headers["Content-Type"]
+            progress = api("/api/status")["progress"]
+            assert progress["phase"] == "complete" and progress["total"] == 0, progress
             assert not api("/api/resume")["available"]
             profile = api("/api/profile")["profile"]
             assert profile["skills"] == [] and profile["graduation_year"] is None
             profile["target_roles"] = ["investment_banking"]
+            profile["alerts"]["high_fit"] = 90
             api("/api/profile", profile, "PUT")
+            assert api("/api/overview")["profile"]["alerts"]["high_fit"] == 90
             seed = """import sys,json,watcher
 from pathlib import Path
 from intel_store import IntelStore
@@ -148,7 +156,7 @@ Built cash flow forecasts and financial reports.
             assert api("/api/jobs/rbc:portable-test/cover-letter")["cover_letter"]["content"] == letter["content"]
         finally:
             stop(process)
-        print("PASS: ZIP checksums, isolated runtime, batch startup, automatic polling, clean profile,")
+        print("PASS: ZIP checksums, isolated runtime, batch startup, automatic polling/progress, loading shell, clean profile,")
         print("resume upload/apply/matching, cover letters, duplicate starts, and restart persistence.")
 
 

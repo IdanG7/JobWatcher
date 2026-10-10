@@ -44,7 +44,9 @@ Internet access is needed to fetch job postings. Setup itself works offline.
 Keep the console window open while using Jobwatch. Close it to stop the app.
 Double-click Start again to reopen a running app. Jobwatch fetches sources on
 startup and every five minutes while open. The first fetch may take several
-minutes; use Sources to see progress and any source failures.
+minutes. A progress panel shows sources checked, active sources, failures and
+matching stages. Every tab stays usable, and results fill in automatically.
+Open Sources for each source's current status and error details.
 
 MAKE IT YOURS
 Open Settings to choose career targets, locations and work authorization.

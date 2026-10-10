@@ -731,7 +731,7 @@ FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank"
                          "hedge_fund", "quant_firm", "asset_manager", "pension_fund", "insurance")
 
 
-def enrich_descriptions(config, con, budget=None, fetched=None):
+def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
     """Fetch descriptions for the postings that benefit most, politely.
 
     Priority: tracked applications, then finance roles, then finance
@@ -781,11 +781,14 @@ def enrich_descriptions(config, con, budget=None, fetched=None):
         return item, DETAIL_FETCHERS[cfg["ats"]](cfg, job_id)
 
     done = 0
+    completed = 0
+    report_progress(progress, "descriptions", completed=0, total=len(picked))
     # Finish any caller writes before waiting on description HTTP requests.
     con.commit()
     with ThreadPoolExecutor(max_workers=6) as ex:
         futures = [ex.submit(fetch, item) for item in picked]
         for fut in as_completed(futures):
+            completed += 1
             try:
                 (board, job_id), (text, dept) = fut.result()
             except Exception as e:  # recorded, retried later with back-off
@@ -797,12 +800,14 @@ def enrich_descriptions(config, con, budget=None, fetched=None):
                        last_error=excluded.last_error""",
                     (item[0], item[1], utcnow(), f"{type(e).__name__}: {str(e)[:200]}"))
                 con.commit()
+                report_progress(progress, "descriptions", completed=completed, total=len(picked))
                 continue
             store_description(con, board, job_id, text, dept, source="detail")
             if fetched is not None:
                 fetched.append((board, job_id))
             done += 1
             con.commit()
+            report_progress(progress, "descriptions", completed=completed, total=len(picked))
     con.commit()
     return done
 
@@ -1652,7 +1657,15 @@ def fetch_board(name, cfg):
     return name, jobs
 
 
-def cycle(config, con):
+def report_progress(callback, event, **data):
+    if callback:
+        try:
+            callback(event, **data)
+        except Exception as exc:
+            log(f"! progress observer: {type(exc).__name__}: {exc}")
+
+
+def cycle(config, con, progress=None):
     t0 = time.time()
     started_at = now()
     all_boards = {k: v for k, v in config["boards"].items()
@@ -1675,8 +1688,14 @@ def cycle(config, con):
 
     # New board rows must not hold a write lock during the first network wait.
     con.commit()
+    report_progress(progress, "start", sources=list(due), skipped=skipped)
+
+    def fetch(name, cfg):
+        report_progress(progress, "source_started", board=name)
+        return fetch_board(name, cfg)
+
     with ThreadPoolExecutor(max_workers=10) as ex:
-        futs = {ex.submit(fetch_board, n, c): n for n, c in due.items()}
+        futs = {ex.submit(fetch, n, c): n for n, c in due.items()}
         for fut in as_completed(futs):
             name = futs[fut]
             seeded, failures, _ = board_row(con, name)
@@ -1693,6 +1712,8 @@ def cycle(config, con):
                 if failures in (1, 3, 10) or failures % 50 == 0:
                     log(f"! {name}: {type(e).__name__}: {e} (streak {failures})")
                 con.commit()
+                report_progress(progress, "source_finished", board=name, outcome="failed",
+                                error=f"{type(e).__name__}: {str(e)[:200]}")
                 continue
 
             ok_count += 1
@@ -1701,6 +1722,8 @@ def cycle(config, con):
             if not jobs and len(known) >= ZERO_GUARD_MIN:
                 log(f"! {name}: returned 0 jobs but {len(known)} known — ignoring read")
                 con.commit()
+                report_progress(progress, "source_finished", board=name, outcome="failed",
+                                error="Empty response ignored to protect existing postings")
                 continue
 
             fresh = [j for j in jobs if j["id"] and j["id"] not in known]
@@ -1746,12 +1769,14 @@ def cycle(config, con):
             # Release the write lock before waiting for another network source.
             # First-run setup stays editable and completed sources appear early.
             con.commit()
+            report_progress(progress, "source_finished", board=name, outcome="ok", jobs=len(jobs), new=len(fresh))
 
     # ---- finance intelligence for everything new or changed (incremental).
     # New postings are classified first so fit-based alerts never wait on
     # the background backlog.
     con.commit()
     store = None
+    report_progress(progress, "phase", phase="indexing")
     try:
         store = IntelStore(con, config)
         store.facts_pass(keys=[(b, j["id"]) for b, js in new_by_board.items() for j in js])
@@ -1767,6 +1792,7 @@ def cycle(config, con):
         store = None
 
     # ---- cross-source dedupe gate (same job via ATS + repo = one alert)
+    report_progress(progress, "phase", phase="alerts")
     excl_co = Filt._c((config.get("filters") or {}).get("exclude_companies"))
     total_new = deduped = agencies = 0
     gated = {}
@@ -1830,11 +1856,13 @@ def cycle(config, con):
 
     # ---- description enrichment (after alerts so they are never delayed)
     enriched = 0
+    report_progress(progress, "phase", phase="descriptions")
     if store and not EPHEMERAL:
         try:
             fetched = []
-            enriched = enrich_descriptions(config, con, fetched=fetched)
+            enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress)
             if enriched:
+                report_progress(progress, "phase", phase="indexing")
                 # only the enriched rows: an unbounded pass would chew through
                 # the whole backlog (every row on a fresh Actions runner)
                 store.facts_pass(keys=fetched)
@@ -1855,6 +1883,7 @@ def cycle(config, con):
                     f"Check the token / run `python watcher.py --verify`.",
                     0xE74C3C)
 
+    report_progress(progress, "phase", phase="finishing")
     maybe_digest(config, con, subs)
 
     # Closed postings stay visible as history until they age out; anything

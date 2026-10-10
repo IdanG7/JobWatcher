@@ -13,6 +13,7 @@ import argparse
 import base64
 import binascii
 import csv
+import copy
 import io
 import json
 import re
@@ -107,11 +108,12 @@ class JobwatchService:
         self.kn = load_knowledge()
         self._refresh_lock = threading.Lock()
         self._poll_lock = threading.Lock()
+        self._status_lock = threading.Lock()
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._pending_cache: tuple[float, int] | None = None
         self.status = {"indexing": False, "last_refresh": None, "last_stats": None,
-                       "poll_running": False, "last_poll": None, "error": None}
+                       "poll_running": False, "last_poll": None, "error": None, "progress": None}
         con = watcher.db_open(self.db_path)
         self._import_legacy_watchlist(con)
         con.commit()
@@ -168,6 +170,7 @@ class JobwatchService:
                 con = sqlite3.connect(self.db_path, timeout=30)
                 con.execute("PRAGMA busy_timeout=15000")
                 try:
+                    self.pending_facts(con)
                     store = IntelStore(con, self.config)
                     stats = store.refresh(force_score=force_score)
                 finally:
@@ -459,7 +462,7 @@ class JobwatchService:
             pipeline = dict(con.execute("SELECT status, COUNT(*) FROM applications GROUP BY status").fetchall())
         enabled = sum(1 for cfg in self.boards.values() if not cfg.get("disabled"))
         return {
-            "profile": {k: profile.get(k) for k in ("name", "headline", "graduation_year", "target_cycles")},
+            "profile": {k: profile.get(k) for k in ("name", "headline", "graduation_year", "target_cycles", "alerts")},
             "stats": stats,
             "top": top,
             "attention": attention,
@@ -471,7 +474,7 @@ class JobwatchService:
             "sources": {"enabled": enabled, "healthy": sum(1 for r in source_rows if r[0] and not r[1]),
                         "failing": sum(1 for r in source_rows if r[1])},
             "last_run": dict(last_run) if last_run else None,
-            "indexing": {**self.status, "pending": pending},
+            "indexing": {**{k: v for k, v in self.status.items() if k != "progress"}, "pending": pending},
             "generated_at": utcnow(),
         }
 
@@ -1333,32 +1336,72 @@ class JobwatchService:
         return {"ok": True}
 
     # ------------------------------------------------------------ polling
+    def _poll_progress(self, event, **data):
+        """Update a small in-memory snapshot; HTTP status never waits on SQLite."""
+        with self._status_lock:
+            p = self.status["progress"]
+            if event == "start":
+                p.update(phase="fetching", total=len(data["sources"]), skipped=data["skipped"],
+                         sources={name: {"label": self.source_label(name), "state": "queued"}
+                                  for name in data["sources"]})
+            elif event == "source_started":
+                p["sources"][data["board"]]["state"] = "running"
+            elif event == "source_finished":
+                p["sources"][data["board"]].update(state=data["outcome"], jobs=data.get("jobs", 0),
+                                                    error=data.get("error"))
+                p["completed"] += 1
+                p["failed"] += int(data["outcome"] != "ok")
+                p["jobs"] += data.get("jobs", 0)
+                p["new"] += data.get("new", 0)
+                if data["outcome"] == "ok":
+                    self._pending_cache = None
+                    self.kick()  # Make completed sources searchable before slow ones finish.
+            elif event == "phase":
+                p["phase"] = data["phase"]
+            elif event == "descriptions":
+                p["descriptions"] = data
+
     def trigger_poll(self) -> dict:
         if not self._poll_lock.acquire(blocking=False):
             return {"ok": True, "started": False, "message": "a poll is already running"}
 
+        with self._status_lock:
+            self.status.update(poll_running=True, error=None, progress={
+                "phase": "starting", "started_at": time.time(), "finished_at": None,
+                "total": 0, "completed": 0, "failed": 0, "skipped": 0,
+                "jobs": 0, "new": 0, "sources": {}, "descriptions": None})
+
         def run():
-            self.status["poll_running"] = True
             try:
                 con = watcher.db_open(self.db_path)
                 try:
-                    watcher.cycle(self.config, con)
+                    watcher.cycle(self.config, con, progress=self._poll_progress)
                 finally:
                     con.close()
-                self.status["last_poll"] = utcnow()
+                with self._status_lock:
+                    self.status["last_poll"] = utcnow()
+                    self.status["progress"]["phase"] = "complete"
             except Exception as exc:
-                self.status["error"] = f"poll failed: {type(exc).__name__}: {exc}"
+                with self._status_lock:
+                    self.status["error"] = f"poll failed: {type(exc).__name__}: {exc}"
+                    self.status["progress"]["error"] = self.status["error"]
+                    self.status["progress"]["phase"] = "failed"
             finally:
-                self.status["poll_running"] = False
+                with self._status_lock:
+                    self.status["poll_running"] = False
+                    self.status["progress"]["finished_at"] = time.time()
                 self._poll_lock.release()
                 self.kick()
         threading.Thread(target=run, name="jobwatch-poll", daemon=True).start()
         return {"ok": True, "started": True}
 
     def status_info(self) -> dict:
-        with self.db() as con:
-            pending = self.pending_facts(con)
-        return {**self.status, "pending": pending}
+        with self._status_lock:
+            result = copy.deepcopy(self.status)
+        p = result["progress"]
+        if p:
+            p["elapsed"] = round((p["finished_at"] or time.time()) - p["started_at"])
+        return {**result, "pending": self._pending_cache[1] if self._pending_cache else 0}
 
     # ------------------------------------------------------------ export
     def csv_export(self, params: dict) -> str:

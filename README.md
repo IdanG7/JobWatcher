@@ -25,6 +25,9 @@ double-clicks **Start Jobwatch.bat**. Python and the dependencies are included;
 no installation, administrator access, API key or account is required. The app
 opens in the browser and fetches jobs automatically while the console stays open.
 Internet access is needed to fetch postings. The first fetch can take several minutes.
+The dashboard shows live collection progress, active sources and failures while
+you use any tab. Results refresh as sources finish; **Sources** shows individual
+source status and error details.
 
 The bundle starts with a clean profile and no notification accounts. It excludes
 the sender's database, resume, subscriber configuration, letters and portable state.

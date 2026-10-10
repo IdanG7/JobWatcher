@@ -13,8 +13,13 @@ const KNOWN_GAPS = [
   'Manulife', 'Sun Life', 'Fidelity', 'Vanguard', "Moody's", 'S&P Global', 'MSCI',
 ];
 
-function health(s) {
+function health(s, progress) {
   if (s.disabled) return {cls: 'st-archived', label: 'Disabled'};
+  const live = progress?.sources?.[s.name];
+  if (live?.state === 'running') return {cls: 'st-final_round', label: 'Fetching…'};
+  if (live?.state === 'queued') return {cls: 'st-withdrawn', label: 'Queued'};
+  if (live?.state === 'failed') return {cls: 'st-rejected', label: 'Failed this poll', error: live.error};
+  if (live?.state === 'ok') return {cls: 'st-offer', label: `Fetched · ${live.jobs} postings`};
   if (s.failures >= 3) return {cls: 'st-rejected', label: `Failing (${s.failures})`};
   if (s.failures) return {cls: 'st-final_round', label: `Retrying (${s.failures})`};
   if (!s.seeded) return {cls: 'st-withdrawn', label: 'Not polled yet'};
@@ -23,6 +28,8 @@ function health(s) {
 
 export async function render(root, ctx) {
   const state = {q: '', filter: ctx.route.params.filter || 'all', data: null};
+  let liveStatus = ctx.status;
+  let lastProgress = '';
   root.innerHTML = `<div class="page-head"><div><h1>Sources</h1><p class="sub" data-summary>Official ATS feeds and aggregators Jobwatch polls.</p></div>
     <div class="page-actions">
       <label class="search"><span class="sr-only">Search sources</span>${icon('search')}<input class="input" data-search type="search" placeholder="Search sources…" style="width:200px"></label>
@@ -37,6 +44,7 @@ export async function render(root, ctx) {
   }
 
   function draw() {
+    if (!state.data) return;
     root.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('on', b.dataset.filter === state.filter));
     const all = state.data.sources;
     const enabled = all.filter(s => !s.disabled);
@@ -45,7 +53,7 @@ export async function render(root, ctx) {
     root.querySelector('[data-summary]').innerHTML = `${enabled.length} enabled · ${enabled.filter(s => s.seeded && !s.failures).length} healthy · ${failing.length ? `<span style="color:var(--neg)">${failing.length} with errors</span>` : '0 errors'}${run ? ` · last poll ${age(toEpochMs(run.finished_at))} ago (${run.ok_count} ok, ${run.fail_count} failed, ${Math.round(run.duration || 0)}s)` : ''}`;
     const q = state.q.toLowerCase();
     let list = all.filter(s => !q || `${s.label} ${s.name} ${s.adapter} ${s.company} ${s.group}`.toLowerCase().includes(q));
-    if (state.filter === 'failing') list = list.filter(s => s.failures || (!s.seeded && !s.disabled));
+    if (state.filter === 'failing') list = list.filter(s => s.failures || liveStatus?.progress?.sources?.[s.name]?.state === 'failed' || (!s.seeded && !s.disabled));
     if (state.filter === 'finance') list = list.filter(s => s.company_type && !['corporate', 'unknown'].includes(s.company_type));
     const groups = {};
     for (const s of enabled) { const g = s.group || 'Other'; groups[g] = groups[g] || {n: 0, jobs: 0, fin: 0}; groups[g].n += 1; groups[g].jobs += s.jobs; groups[g].fin += s.finance_jobs; }
@@ -60,9 +68,9 @@ export async function render(root, ctx) {
     </div>
     <section class="panel" style="overflow:hidden">
       ${list.length ? `<div class="table-wrap" style="max-height:none"><table class="data"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>Group</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th>Last success</th><th>Closure tracking</th></tr></thead>
-      <tbody>${list.map(s => { const h = health(s); return `<tr style="cursor:default${s.disabled ? ';opacity:.55' : ''}">
+      <tbody>${list.map(s => { const h = health(s, liveStatus?.progress); return `<tr style="cursor:default${s.disabled ? ';opacity:.55' : ''}">
         <td><b>${esc(s.label)}</b><div class="muted" style="font-size:11.5px">${esc(s.name)}${s.geography ? ` · ${esc(s.geography)}` : ''}${s.note ? ` · ${esc(s.note)}` : ''}</div></td>
-        <td class="nowrap"><span class="status-pill ${h.cls}"><i></i>${esc(h.label)}</span></td>
+        <td><span class="status-pill ${h.cls}"><i></i>${esc(h.label)}</span>${h.error ? `<div class="source-error">${esc(h.error)}</div>` : ''}</td>
         <td class="muted"><code>${esc(s.adapter || '')}</code></td>
         <td class="muted nowrap">${esc(prettyKey(s.group || s.section || ''))}</td>
         <td class="num">${s.jobs}</td><td class="num">${s.finance_jobs}</td>
@@ -77,12 +85,16 @@ export async function render(root, ctx) {
     const f = e.target.closest('[data-filter]');
     if (f) { state.filter = f.dataset.filter; ctx.setParams({filter: state.filter === 'all' ? null : state.filter}, {replace: true}); draw(); return; }
     if (e.target.closest('[data-act=poll]')) {
-      try { const r = await post('/api/refresh', {poll: true}); toast(r.started ? 'Polling all sources — results appear in a minute or two' : r.message); }
+      try { const r = await post('/api/refresh', {poll: true}); toast(r.started ? 'Collection started — follow progress above' : r.message); }
       catch (err) { toast(err.message, {error: true}); }
     }
   });
   root.querySelector('[data-search]').addEventListener('input', e => { state.q = e.target.value.trim(); draw(); });
   bindTooltips(root);
   await load();
-  return {refresh: load, update() {}};
+  return {refresh: load, update() {}, status(s) {
+    liveStatus = s;
+    const signature = JSON.stringify(s?.progress?.sources);
+    if (lastProgress !== signature) { lastProgress = signature; draw(); }
+  }};
 }
