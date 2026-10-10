@@ -121,8 +121,7 @@ def main(argv=None) -> int:
         initialize_data(app, data)
         # Imported after paths are ready. Never use the developer's local DB.
         import watcher
-        from dashboard import JobwatchHandler, JobwatchService
-        from http.server import ThreadingHTTPServer
+        from dashboard import JobwatchHandler, JobwatchService, JobwatchHTTPServer
 
         watcher.CONFIG = data / "config.json"
         watcher.SUBSCRIBERS = data / "subscribers.json"
@@ -131,7 +130,7 @@ def main(argv=None) -> int:
         service = JobwatchService(watcher.DB_PATH, watcher.CONFIG, watcher.SUBSCRIBERS)
         handler = type("PortableHandler", (JobwatchHandler,), {"service": service})
         # A free loopback port avoids conflicts with other apps or installations.
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        server = JobwatchHTTPServer(("127.0.0.1", 0), handler)
         url = f"http://127.0.0.1:{server.server_port}"
         service.config["dashboard_url"] = url
         temporary = state.with_suffix(".tmp")

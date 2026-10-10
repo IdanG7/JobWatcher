@@ -275,6 +275,7 @@ def fetch_workday(cfg):
     host, tenant, site = cfg["host"], cfg["tenant"], cfg["site"]
     url = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
     out, offset, seen = SourceListing(), 0, set()
+    raw_pages, malformed = set(), 0
     limit = _source_limit(cfg)
     while offset < limit:
         body = {"appliedFacets": cfg.get("facets", {}), "limit": min(20, limit - offset),
@@ -289,20 +290,51 @@ def fetch_workday(cfg):
         posts = data.get("jobPostings")
         if not isinstance(posts, list):
             raise RuntimeError("Workday pagination response has no jobPostings list")
+        if out.total is not None and (out.total < 0 or (out.total == 0 and posts)):
+            raise RuntimeError(f"Workday pagination returned an inconsistent total at offset {offset}")
+        if not posts:
+            if out.total is not None and offset < out.total:
+                raise RuntimeError(f"Workday pagination ended before reported total {out.total} at offset {offset}")
+            out.complete = True
+            break
+        # Some tenants return tombstone summaries containing only bulletFields.
+        # They occupy a result slot but provide no usable public posting URL.
+        signature = hashlib.sha256(json.dumps(posts, sort_keys=True).encode()).digest()
+        if signature in raw_pages:
+            raise RuntimeError(f"Workday pagination repeated a page at offset {offset}")
+        raw_pages.add(signature)
         page = []
         for j in posts:
-            path = j.get("externalPath", "")
+            path = j.get("externalPath") if isinstance(j, dict) else None
+            title = j.get("title") if isinstance(j, dict) else None
+            if not isinstance(path, str) or not path.strip() or not isinstance(title, str) or not title.strip():
+                malformed += 1
+                continue
+            path = path.strip()
             page.append({
                 "id": path,
-                "title": j.get("title", ""),
+                "title": title,
                 "location": j.get("locationsText", "") or "",
                 "url": f"https://{host}/en-US/{site}{path}",
                 "posted": _workday_posted_epoch(j.get("postedOn", "")),
             })
-        if _consume_page(out, page, seen, "Workday", limit):
-            break
+        # Advance by raw results, including malformed summaries, so a missing
+        # record cannot trap collection on one page or fake an exhausted feed.
         offset += len(posts)
-    return _finish_listing(out, "Workday", limit)
+        if page and _consume_page(out, page, seen, "Workday", limit):
+            break
+        if out.total is not None and offset >= out.total:
+            out.complete = True
+            break
+    _finish_listing(out, "Workday", limit)
+    if malformed:
+        out.complete = False
+        noun = "summary" if malformed == 1 else "summaries"
+        out.reason = (f"Workday returned {malformed} malformed posting {noun} without a title or public path; "
+                      "valid summaries retained; listing is incomplete")
+        if offset >= limit and (out.total is None or offset < out.total):
+            out.reason += f"; source limit {limit} reached"
+    return out
 
 
 def fetch_amazon_jobs(cfg):

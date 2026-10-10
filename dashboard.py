@@ -63,6 +63,12 @@ class ApiError(Exception):
         self.status = status
 
 
+class JobwatchHTTPServer(ThreadingHTTPServer):
+    # Browsers request the module graph in parallel while collection uses CPU.
+    # The standard server's five-connection backlog can drop those requests.
+    request_queue_size = 128
+
+
 def _today() -> date:
     return datetime.now().date()
 
@@ -1663,7 +1669,7 @@ def serve(host="127.0.0.1", port=8787, open_browser=True, db_path=watcher.DB_PAT
     handler = type("ConfiguredJobwatchHandler", (JobwatchHandler,),
                    {"service": service, "allowed_hosts": allowed,
                     "allow_any_host": host in ("0.0.0.0", "::")})
-    server = ThreadingHTTPServer((host, port), handler)
+    server = JobwatchHTTPServer((host, port), handler)
     url = f"http://{'127.0.0.1' if host in ('0.0.0.0', '::') else host}:{server.server_port}"
     print(f"Jobwatch · Finance Recruiting Intelligence → {url}")
     print("Applications, contacts, notes and your profile stay in the local SQLite database.")

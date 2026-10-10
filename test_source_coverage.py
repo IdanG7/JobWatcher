@@ -26,6 +26,39 @@ def workday_page(start, count, total=None):
 
 class SourcePaginationTests(unittest.TestCase):
     @patch("watcher.requests.post")
+    def test_workday_retains_valid_summaries_but_marks_malformed_listing_partial(self, post):
+        post.return_value = response({"total": 3, "jobPostings": [
+            {"externalPath": "/job/valid", "title": "Finance Intern", "locationsText": "Toronto"},
+            {"bulletFields": ["R0000476666"]},
+            {"externalPath": "/job/no-title", "bulletFields": ["R0000000002"]},
+        ]})
+        jobs = watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x"})
+        self.assertEqual(["/job/valid"], [j["id"] for j in jobs])
+        self.assertEqual(3, jobs.total)
+        self.assertFalse(jobs.complete)
+        self.assertIn("2 malformed", jobs.reason)
+
+    @patch("watcher.requests.post")
+    def test_workday_all_malformed_pages_advance_raw_offset_and_stop_at_cap(self, post):
+        post.side_effect = [response({"total": 100, "jobPostings": [
+            {"bulletFields": [f"R{i:010d}"]} for i in range(start, start + 20)]})
+            for start in (0, 20)]
+        jobs = watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x", "max": 40})
+        self.assertEqual([], jobs)
+        self.assertFalse(jobs.complete)
+        self.assertEqual(100, jobs.total)
+        self.assertEqual(20, post.call_args_list[1].kwargs["json"]["offset"])
+        self.assertIn("40 malformed", jobs.reason)
+        self.assertIn("limit 40", jobs.reason)
+
+    @patch("watcher.requests.post")
+    def test_workday_repeated_malformed_page_is_failure(self, post):
+        post.return_value = response({"total": 3, "jobPostings": [{"bulletFields": ["R1"]}]})
+        with self.assertRaisesRegex(RuntimeError, "pagination repeated"):
+            watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x", "max": 40})
+        self.assertEqual(2, post.call_count)
+
+    @patch("watcher.requests.post")
     def test_workday_includes_postings_beyond_first_300(self, post):
         post.side_effect = [workday_page(i, min(20, 321 - i), 321 if i == 0 else None)
                             for i in range(0, 321, 20)]
@@ -133,6 +166,31 @@ class LinkedInCoverageTests(unittest.TestCase):
 
 
 class LifecycleCoverageTests(unittest.TestCase):
+    @patch("watcher.requests.post")
+    def test_malformed_workday_summary_cannot_close_missing_posting(self, post):
+        post.return_value = response({"total": 2, "jobPostings": [
+            {"externalPath": "/job/present", "title": "Finance Intern", "locationsText": "Toronto"},
+            {"bulletFields": ["R0000476666"]}]})
+        con = watcher.db_open(":memory:")
+        stamp = watcher.now()
+        con.execute("INSERT INTO jobs VALUES ('sample','missing','Intern','Toronto','u',?,?)", (stamp, stamp))
+        cfg = {"boards": {"sample": {"ats": "workday", "host": "x", "tenant": "x", "site": "x", "complete_listing": True}},
+               "filters": {}, "profile": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            subs = Path(tmp) / "subs.json"
+            subs.write_text("{}")
+            with patch.object(watcher, "SUBSCRIBERS", subs), patch("watcher.enrich_descriptions", return_value=0):
+                watcher.cycle(cfg, con)
+        state = con.execute("SELECT status FROM job_state WHERE job_id='missing'").fetchone()
+        self.assertTrue(state is None or state[0] == "active")
+        self.assertIsNotNone(con.execute("SELECT job_id FROM jobs WHERE job_id='/job/present'").fetchone())
+        coverage = json.loads(con.execute("SELECT v FROM kv WHERE k='source_coverage:sample'").fetchone()[0])
+        self.assertEqual(1, coverage["fetched"])
+        self.assertEqual(2, coverage["reported_total"])
+        self.assertFalse(coverage["complete"])
+        self.assertIn("malformed", coverage["reason"])
+        con.close()
+
     def test_partial_listing_override_cannot_mark_missing_posting_closed(self):
         con = watcher.db_open(":memory:")
         stamp = watcher.now()
