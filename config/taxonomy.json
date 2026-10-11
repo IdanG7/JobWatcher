@@ -95,7 +95,7 @@
       "department": ["finance", "corporate finance", "controllership", "treasury"],
       "description": ["financial statements", "month ?end", "financial (analysis|reporting|planning)"],
       "subcategories": {
-        "fpa": {"label": "FP&A", "title": ["fp ?& ?a", "fpa", "financial planning (and|&) analysis", "budget(ing)? (and|&) forecast(ing)?", "business finance", "planning (and|&) analysis"], "description": ["forecast(ing)?", "budget(ing)?", "variance analysis", "financial planning (and|&) analysis", "long ?range plan"]},
+        "fpa": {"label": "FP&A", "title": ["fp ?& ?a", "fpa", "financial planning (and|&) analysis", "budget(ing)? (and|&) forecast(ing)?", "business finance", "planning (and|&) analysis", "financial analyst", "finance analyst"], "description": ["forecast(s|ing)?", "budget(s|ing)?", "variance analysis", "financial planning (and|&) analysis", "long ?range plan"]},
         "treasury": {"label": "Treasury", "title": ["treasury", "cash management", "liquidity (management|analyst|risk)", "funding (and|&) liquidity", "alm", "asset ?liability"], "description": ["treasury", "liquidity (management|planning)", "cash (management|forecasting|positioning)", "funding (plans?|strategy)", "capital management"]},
         "corporate_development": {"label": "Corporate Development", "title": ["corporate development", "corp ?dev", "strategic (transactions|investments)", "m ?& ?a (strategy|integration)"], "description": ["corporate development", "acquisitions (and|&) (divestitures|partnerships)", "inorganic growth", "strategic investments"]},
         "strategic_finance": {"label": "Strategic Finance", "title": ["strategic finance", "finance (and|&) strategy", "bizops finance", "growth finance"], "description": ["strategic finance", "unit economics", "pricing (strategy|analysis)"]},
@@ -152,10 +152,11 @@
 
     "strategy": {
       "label": "Strategy", "short": "Strategy", "competitive": false, "weak_title": true, "associate_stage": "entry", "tie_priority": 3,
-      "title": ["strategy (analyst|associate|consultant|intern|internship|program|summer|rotation(al)?)", "strategic (planning|initiatives)", "business strategy", "corporate strategy", "management consult(ant|ing)", "transformation (analyst|office|associate)", "enterprise strategy"],
+      "title": ["strategy (analyst|associate|consultant|intern|internship|program|summer|rotation(al)?)", "strategic (planning|initiatives)", "business strategy", "corporate strategy", "management consult(ant|ing)", "transformation (analyst|office|associate)", "enterprise strategy", "economist", "economics?"],
       "department": ["strategy", "corporate strategy", "strategic planning"],
       "description": ["strategic (initiatives|planning)", "corporate strategy", "business strategy"],
       "subcategories": {
+        "economic_research": {"label": "Economic Research", "title": ["economist", "economics?", "macro ?economic (research|analysis|analyst)"], "description": ["economic (research|analysis|forecasting)", "macroeconomic (research|analysis|forecasting)"]},
         "corporate_strategy": {"label": "Corporate Strategy", "title": ["corporate strategy", "strategic (planning|initiatives)", "enterprise strategy", "business strategy", "strategy (analyst|associate)"], "description": ["corporate strategy", "strategic planning"]},
         "consulting": {"label": "Consulting", "title": ["management consult(ant|ing)", "strategy consult(ant|ing)", "consulting (analyst|associate)"], "description": ["client engagements", "management consulting"]}
       }
@@ -186,12 +187,12 @@
     "_order": "Checked in this order; first title match wins. Clinical roles take precedence over generic analytics; AI & data precedes software.",
     "healthcare": {"label": "Healthcare & Science", "title": ["clinical", "medical", "biomedical", "pharmaceutical", "biostatistic(s|ian)"]},
     "data_ml": {"label": "AI & Data", "title": ["machine learning", "deep learning", "artificial intelligence", "ai engineer", "ml engineer", "ai (and|&) ml", "ai/ml", "genai", "generative ai", "data scientist", "data engineer", "analytics engineer", "applied scientist", "applied research", "research scientist", "data analyst", "data science", "data ((and|&) )?analytics", "data (and|&) intelligence", "business intelligence"]},
-    "software": {"label": "Software", "title": ["software", "developer", "backend", "back ?end", "front ?end", "full ?stack", "mobile", "ios", "android", "platform", "infrastructure", "systems? engineer", "site reliability", "sre", "devops", "cloud", "security engineer", "embedded", "firmware", "database", "distributed", "technology enablement", "digital workplace"]},
+    "software": {"label": "Software", "title": ["software", "developer", "backend", "back ?end", "front ?end", "full ?stack", "mobile", "ios", "android", "platform", "infrastructure", "systems? engineer", "site reliability", "sre", "devops", "cloud", "security engineer", "embedded", "firmware", "database", "distributed", "technology enablement", "digital workplace", "(technology|technical|it) consult(ant|ing)", "quant(itative)? dev", "trading systems"]},
     "hardware": {"label": "Hardware", "title": ["hardware", "electrical", "silicon", "fpga", "asic", "semiconductor", "robotics", "mechanical", "manufacturing engineer", "quantum (technologies|computing)"]},
     "product": {"label": "Product", "title": ["product manager", "product management", "product coordinator", "program manager", "technical program", "product analyst"]},
     "design": {"label": "Design", "title": ["designer", "design", "user experience", "ux", "ui", "creative"]},
     "sales": {"label": "Sales & Growth", "title": ["sales", "account executive", "business development", "growth", "marketing", "partnerships", "consumer insights", "market research"]},
-    "operations": {"label": "Operations", "title": ["operations", "business operations", "supply chain", "procurement", "chief of staff", "customer success", "support", "quality assurance", "quality control", "qa"]},
+    "operations": {"label": "Operations", "title": ["operations", "business operations", "supply chain", "procurement", "chief of staff", "customer success", "support", "quality assurance", "quality control", "qa", "corporate security", "workplace coordinator", "(administrative|office|executive|clerical) (assistant|support|coordinator)", "business administration", "facilities (coordinator|assistant|services)"]},
     "people_legal": {"label": "People & Legal", "title": ["recruit(er|ing)?", "talent acquisition", "people", "human resources", "hr", "legal", "counsel", "paralegal", "policy"]}
   }
 }

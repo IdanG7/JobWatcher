@@ -103,7 +103,7 @@ class PortableStateTests(unittest.TestCase):
 class NotificationQualityTests(unittest.TestCase):
     def test_iso_posting_dates_render_freshness(self):
         posted = watcher.datetime.fromtimestamp(
-            time.time() - 3 * 3600, watcher.timezone.utc).isoformat()
+            time.time() - 3 * 3600 - 60, watcher.timezone.utc).isoformat()  # margin: µs rounding + coarse clocks
         self.assertEqual("🔥 3h ago", watcher._rel_age(posted))
 
     @patch("watcher.send_discord_ping", return_value=True)

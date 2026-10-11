@@ -54,10 +54,53 @@ _LANG = re.compile(
     rf"\b({'|'.join(_LANGUAGES)})\b[^.\n]{{0,25}}?\b(?:fluency|proficiency|is required|required|is an asset|is a plus|an asset)\b|"
     rf"\bbilingual\b\s*\(?\s*(?:english\s*(?:and|/|&)\s*)?({'|'.join(_LANGUAGES)})", re.I)
 _EXP_PRIOR = re.compile(r"\b(prior|previous|relevant) (internship|work|industry|finance|banking) experience (is )?(required|preferred|an asset|a plus)\b", re.I)
+# The same requirement written as a bullet under a qualifications heading.
+_EXP_BULLET = re.compile(r"\b(?:prior|previous|relevant|\d\+? years? of)\s+(?:internship|co-?op|work|industry|finance|banking)"
+                         r"(?:\s*(?:/|or|and)\s*(?:internship|co-?op|work))?\s+experience\b", re.I)
+_HEADING = re.compile(r"^\s*(basic|minimum|required|preferred|bonus|nice[- ]to[- ]have|desired|additional)\b[^\n]{0,30}?"
+                      r"(qualifications?|requirements?|skills|experience)\s*:?\s*$", re.I | re.M)
+_ENROLLED = re.compile(r"\b(?:currently|actively)\s+(?:enrolled|pursuing|registered|studying)\b", re.I)
+_OR_HIGHER = re.compile(r"\bor\s+(?:higher|above)\b", re.I)
+_MATERIALS = [
+    ("Transcript", re.compile(r"\b(?:unofficial |official |academic )?transcripts?\b", re.I)),
+    ("Cover letter", re.compile(r"\bcover letters?\b", re.I)),
+    ("Writing sample", re.compile(r"\bwriting samples?\b", re.I)),
+]
+_SUBMIT = re.compile(r"\b(include|submit|attach|upload|provide|required|must)\b", re.I)
 
 
-def _snip(text: str, m: re.Match, pad: int = 40) -> str:
-    return re.sub(r"\s+", " ", text[max(0, m.start() - pad): m.end() + pad]).strip()
+def _section_kind(text: str, pos: int) -> str | None:
+    """'preferred' / 'required' from the nearest qualifications heading above ``pos``."""
+    kind = None
+    for h in _HEADING.finditer(text, 0, pos):
+        word = h.group(1).lower()
+        kind = ("preferred" if word in ("preferred", "bonus", "desired", "additional") or word.startswith("nice")
+                else "required")
+    return kind
+
+
+# Clause boundaries: line breaks, bullets, semicolons, and sentence-ending
+# periods (not the dots inside "U.S." or "Ph.D.").
+_BOUNDARY = re.compile(r"\n|;|[•●▪]|(?<![A-Z.])\.(?=\s|$)")
+
+
+def _snip(text: str, m: re.Match, limit: int = 220) -> str:
+    """The clause containing a match, quoted as written — never cut mid-word."""
+    start = 0
+    for b in _BOUNDARY.finditer(text, 0, m.start()):
+        start = b.end()
+    nxt = _BOUNDARY.search(text, m.end())
+    end = (nxt.end() if nxt and nxt.group() == "." else nxt.start()) if nxt else len(text)
+    clause = re.sub(r"\s+", " ", text[start:end]).strip(" -–—*:")
+    if len(clause) <= limit:
+        return clause
+    # Long clause: keep a word-aligned window around the match.
+    rel = re.sub(r"\s+", " ", text[start:m.start()]).lstrip(" -–—*:")
+    head = max(0, len(rel) - limit // 3)
+    head = clause.find(" ", head) + 1 if head else 0
+    tail = clause.rfind(" ", 0, head + limit)
+    tail = tail if tail > head else len(clause)
+    return ("…" if head else "") + clause[head:tail].strip() + ("…" if tail < len(clause) else "")
 
 
 def _clause(text: str, m: re.Match) -> str:
@@ -83,6 +126,8 @@ def extract_eligibility(description: str, title: str = "") -> dict:
                 out["degree"] = {"phd": "PhD", "mba": "MBA", "masters": "Master's",
                                  "undergraduate": "Undergraduate"}[level]
                 out["degree_text"] = _snip(text, m)
+                if _OR_HIGHER.search(out["degree_text"]):
+                    out["degree"] += " or higher"
             break
     # A degree list joined with commas, slashes or "and" is also inclusive.
     # Match the list itself so unrelated degree clauses cannot waive a requirement.
@@ -137,4 +182,23 @@ def extract_eligibility(description: str, title: str = "") -> dict:
     m = _EXP_PRIOR.search(text)
     if m:
         out["experience"] = m.group(0)
+    else:
+        m = _EXP_BULLET.search(text)
+        if m:
+            kind = "preferred" if _PREFERRED.search(_clause(text, m)) else _section_kind(text, m.start())
+            out["experience"] = f"{m.group(0)} ({kind})" if kind else m.group(0)
+
+    m = _ENROLLED.search(text)
+    out["enrollment"] = "Currently enrolled student" if m else None
+    out["enrollment_text"] = _snip(text, m) if m else None
+
+    materials, materials_text = [], None
+    for label, pattern in _MATERIALS:
+        for m in pattern.finditer(text):
+            if _SUBMIT.search(_clause(text, m)):
+                materials.append(label)
+                materials_text = materials_text or _snip(text, m)
+                break
+    out["materials"] = materials
+    out["materials_text"] = materials_text
     return out

@@ -131,12 +131,12 @@ function render(el, job) {
     <section class="section">
       <h3>Role intelligence</h3>
       <dl class="kv">
-        <dt>Category</dt><dd>${role} <span class="muted">· ${esc(confidence(cls.confidence))} confidence</span>${cls.secondary_labels?.length ? `<div class="muted" style="font-size:11.5px">Also: ${esc(cls.secondary_labels.join(', '))}</div>` : ''}</dd>
+        <dt>Category</dt><dd>${role} <span class="muted">· ${esc(confidence(cls.confidence))} confidence</span>${[...(cls.secondary_subcategory_labels || []), ...(cls.secondary_labels || [])].length ? `<div class="muted" style="font-size:11.5px">Also: ${esc([...(cls.secondary_subcategory_labels || []), ...(cls.secondary_labels || [])].join(', '))}</div>` : ''}</dd>
         <dt>Level</dt>${dd(sen.level_label ? `${sen.level_label}${sen.stage ? ` · ${prettyKey(sen.stage)}` : ''}` : '')}
         ${sen.notes?.length ? `<dt></dt><dd class="muted" style="font-size:11.5px">${esc(sen.notes.join(' · '))}</dd>` : ''}
         <dt>Recruiting cycle</dt>${dd(cyc.label ? `${cyc.label}${cyc.inferred ? ' (inferred)' : ''}` : '')}
         <dt>Deadline</dt><dd>${job.deadline ? `${deadlineCell(job.deadline, job.window_status)} <span class="muted">· ${job.override?.deadline ? 'set by you' : f.deadline?.confidence ? `${esc(f.deadline.confidence)} confidence` : ''}</span>${quote(f.deadline?.text)}` : f.rolling ? 'Rolling — apply early' : '<span class="unknown muted"><i>Not specified</i></span>'}</dd>
-        <dt>Location</dt><dd>${esc(job.location || '—')}${loc.remote ? ' <span class="tag">Remote</span>' : ''}${loc.hybrid ? ' <span class="tag">Hybrid</span>' : ''}</dd>
+        <dt>Location</dt><dd>${esc(job.location || '—')}${loc.remote ? ' <span class="tag">Remote</span>' : ''}${loc.hybrid ? ` <span class="tag">Hybrid${loc.work_model?.office_days ? ` · ${loc.work_model.office_days} days in office` : ''}</span>` : loc.work_model?.model === 'onsite' ? ' <span class="tag">On-site</span>' : ''}${quote(loc.work_model?.text)}</dd>
         <dt>Compensation</dt>${comp.display ? `<dd>${esc(comp.display)}${comp.annualized_estimate && comp.annual_display ? `<div class="muted" style="font-size:11.5px">≈ ${esc(comp.annual_display)} annualized (estimate)</div>` : ''}${comp.currency_inferred ? '<div class="muted" style="font-size:11.5px">Currency inferred from location</div>' : ''}</dd>` : unknown}
         <dt>Posted</dt><dd>${job.posted ? esc(ageLong(job.posted)) : '<span class="muted">Not provided by source</span>'} <span class="muted">· first seen ${esc(ageLong(toEpochMs(job.first_seen)))}</span></dd>
         <dt>Discovered from</dt><dd>${esc((job.discovered_from || []).join(', '))}</dd>
@@ -153,6 +153,8 @@ function render(el, job) {
         <dt>Sponsorship</dt>${elig.sponsorship ? `<dd>${elig.sponsorship === 'not_available' ? '<span class="dl-warn">Not available</span>' : 'Available'}${quote(elig.sponsorship_text)}</dd>` : unknown}
         <dt>Citizenship</dt>${elig.citizenship ? `<dd>${esc(elig.citizenship)}${quote(elig.citizenship_text)}</dd>` : unknown}
         <dt>Languages</dt>${elig.languages?.length ? `<dd>${esc(elig.languages.join(', '))}${quote(elig.language_text)}</dd>` : unknown}
+        <dt>Enrollment</dt>${elig.enrollment ? `<dd>${esc(elig.enrollment)}${elig.enrollment_text !== elig.degree_text ? quote(elig.enrollment_text) : ''}</dd>` : unknown}
+        <dt>Application materials</dt>${elig.materials?.length ? `<dd>${esc(elig.materials.join(', '))} required${quote(elig.materials_text)}</dd>` : unknown}
         <dt>Experience</dt>${dd(elig.experience || (sen.years_required ? `${sen.years_required}+ years` : ''))}
       </dl>
     </section>

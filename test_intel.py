@@ -71,15 +71,14 @@ class TaxonomyTests(unittest.TestCase):
     def test_quant(self):
         self.assertCategory(cls("Quantitative Researcher"), "quant", "quant_research")
         self.assertCategory(cls("Quantitative Trader Intern"), "quant", "quant_trading")
-        self.assertCategory(cls("Quantitative Developer"), "quant", "quant_developer")
+        self.assertFalse(cls("Quantitative Developer")["is_finance"])
         self.assertCategory(cls("Trader", company_type="quant_firm"), "quant", "quant_trading")
 
-    def test_software_at_trading_firm_requires_quant_or_trading_role_evidence(self):
+    def test_engineering_at_trading_firm_stays_technical(self):
         result = cls("Software Engineer", company_type="quant_firm")
         self.assertFalse(result["is_finance"])
         self.assertEqual("software", result["category"])
-        self.assertCategory(cls("Trading Systems Engineer", company_type="quant_firm"),
-                            "quant", "quant_developer")
+        self.assertFalse(cls("Trading Systems Engineer", company_type="quant_firm")["is_finance"])
 
     def test_software_elsewhere_stays_software(self):
         for title, ctype in (("Software Engineer, Payments", "fintech"),

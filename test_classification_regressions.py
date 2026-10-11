@@ -55,12 +55,11 @@ class ClassificationContextTests(unittest.TestCase):
                 result = build_facts({"title": title, "company": company}, KN)["classification"]
                 self.assertFalse(result["is_finance"], result)
 
-    def test_finance_specific_and_trading_technical_roles_stay_finance(self):
+    def test_finance_specific_analysis_and_quant_research_roles_stay_finance(self):
         for title, company, category, sub in (
             ("ALM Data Analyst Intern", "Manulife", "corporate_finance", "treasury"),
-            ("Quantitative Research Data Scientist Intern", "Jane Street", "quant", "quant_research"),
-            ("Trading Systems Engineer Intern", "Jane Street", "quant", "quant_developer"),
-            ("Quantitative Developer Intern", "DRW", "quant", "quant_developer"),
+            ("Quantitative Researcher Intern", "Jane Street", "quant", "quant_research"),
+            ("Quantitative Trader Intern", "Jane Street", "quant", "quant_trading"),
         ):
             with self.subTest(title=title):
                 result = build_facts({"title": title, "company": company}, KN)["classification"]
@@ -94,21 +93,51 @@ class ClassificationContextTests(unittest.TestCase):
             ("Treasury Data Analyst Intern", "corporate_finance"),
             ("Model Risk Analyst - Machine Learning", "risk"),
             ("Credit Risk Analyst Intern", "risk"),
-            ("Quantitative Data Scientist Intern", "quant"),
+            ("Quantitative Analyst Intern", "quant"),
         ):
             with self.subTest(title=title):
                 result = build_facts({"title": title, "company": "RBC"}, KN)["classification"]
                 self.assertTrue(result["is_finance"], result)
                 self.assertEqual(expected, result["category"])
 
-    def test_explicit_quant_occupation_wins_over_lending_domain(self):
+    def test_quant_label_does_not_turn_engineering_into_finance(self):
         result = classify("Commercial Lending Quantitative Software Engineer Intern", KN,
                           "Corporate banking, lending decisions and commercial clients. Business banking and commercial banking.",
                           department="Lending", company_type="canadian_bank")
-        self.assertEqual("quant", result["category"])
-        self.assertTrue(result["is_finance"])
-        self.assertNotIn("quant", result["secondary"])
-        self.assertGreaterEqual(result["confidence"], 0)
+        self.assertEqual("software", result["category"])
+        self.assertFalse(result["is_finance"])
+
+    def test_quant_development_and_trading_systems_engineering_are_not_finance(self):
+        for title in ("Quant Developer Intern", "Quantitative Developer Intern", "Trading Systems Engineer Intern",
+                      "Quantitative Software Engineer Intern", "Quantitative Data Engineer Intern",
+                      "Quantitative Data Scientist Intern", "Quantitative Research Data Scientist Intern"):
+            with self.subTest(title=title):
+                result = classify(title, KN, company_type="quant_firm", department="Quant")
+                self.assertFalse(result["is_finance"], result)
+
+    def test_bank_support_security_and_technology_consulting_are_not_finance(self):
+        for title in ("Trade Floor Technology Consultant Intern", "Corporate Security Intern",
+                      "Workplace Coordinator Intern", "Administrative Support Intern",
+                      "Finance Administrative Assistant Intern", "Office Assistant Intern",
+                      "Technology Business Administration Co-op Intern"):
+            with self.subTest(title=title):
+                result = classify(title, KN, company_type="canadian_bank", department="Finance")
+                self.assertFalse(result["is_finance"], result)
+
+    def test_economists_and_economic_research_are_financial_strategy_roles(self):
+        for title in ("Economist Intern", "Economic Research Analyst Intern", "Energy Analyst Intern - Economics"):
+            with self.subTest(title=title):
+                result = classify(title, KN)
+                self.assertTrue(result["is_finance"], result)
+                self.assertEqual("strategy", result["category"])
+
+    def test_programming_skills_do_not_change_a_financial_research_occupation(self):
+        for title in ("Quantitative Researcher Intern", "Quantitative Analyst Intern", "Quantitative Trader Intern"):
+            with self.subTest(title=title):
+                result = classify(title, KN, "Use Python, C++ and SQL for statistical analysis and financial research.",
+                                  company_type="quant_firm")
+                self.assertTrue(result["is_finance"], result)
+                self.assertEqual("quant", result["category"])
 
     def test_marketing_research_and_product_coordination_are_not_finance(self):
         for title, company, expected in (

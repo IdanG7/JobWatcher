@@ -33,13 +33,15 @@ _PENULTIMATE = re.compile(r"\b(penultimate|pen-?ultimate|second[\s-]to[\s-]last|
 _FINAL_YEAR = re.compile(r"\b(final[\s-]year|senior year|graduating (students?|seniors?)|recent graduates?)\b", re.I)
 
 _DEADLINE_CUE = re.compile(
-    r"(deadline|apply by|applications? (?:will )?(?:close|closes|closing|are due|is due|must be (?:received|submitted))|"
-    r"closing date|closes on|no later than|submit (?:your |an )?applications? by|accept(?:ed|ing) (?:applications )?(?:until|through)|"
-    r"posting (?:closes|end date|will close)|application window closes|due by|until)", re.I)
+    r"\b(deadline|apply (?:by|before|on or before)|applications? (?:will )?(?:close|closes|closing|are due|is due|must be (?:received|submitted))|"
+    r"applications? (?:will be |are |is )?accepted (?:until|through)|"
+    r"closing date|closes on|no later than|submit (?:your |an )?applications? by|accept(?:ed|ing) applications? (?:until|through)|"
+    r"(?:job )?posting (?:closes|end date|will close)|application (?:window closes|end date)|due by)\b", re.I)
 _DATE_PATTERNS = [
     (re.compile(rf"\b{_MONTH}\s+(\d{{1,2}})(?:st|nd|rd|th)?,?\s+{_YEAR}\b", re.I), "mdy"),
     (re.compile(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+(?:of\s+)?{_MONTH},?\s+{_YEAR}\b", re.I), "dmy"),
-    (re.compile(r"\b(20[2-3]\d)-(\d{2})-(\d{2})\b"), "iso"),
+    (re.compile(r"\b(20[2-3]\d)[-/](\d{2})[-/](\d{2})(?=\b|T\d)"), "iso"),
+    (re.compile(rf"\b(\d{{1,2}})-{_MONTH}-{_YEAR}\b", re.I), "dmy"),
     (re.compile(r"\b(\d{1,2})/(\d{1,2})/(20[2-3]\d)\b"), "us"),
     (re.compile(rf"\b{_MONTH}\s+(\d{{1,2}})(?:st|nd|rd|th)?\b(?!,?\s*20)", re.I), "md"),
 ]
@@ -192,19 +194,26 @@ def extract_deadline(description: str, reference: datetime | None = None) -> dic
     reference = reference or datetime.now(timezone.utc)
     best = None
     for cue in _DEADLINE_CUE.finditer(text):
-        window = text[cue.end(): cue.end() + 90]
-        strong = cue.group(1).lower() not in ("until", "by")
-        if re.search(r"\b(start|begin|commence|graduat|internship (runs|dates)|program (runs|dates))", window[:40], re.I):
+        preceding = re.split(r"[.\n]", text[max(0, cue.start() - 100):cue.start()])[-1]
+        if re.search(r"\b(project|assignment|deliverable|graduation|employment|contract)\b", preceding, re.I):
             continue
-        for pattern, kind in _DATE_PATTERNS:
-            m = pattern.search(window)
-            if not m or m.start() > 60:
+        if cue.group(1).lower() in ("no later than", "due by") and not re.search(
+                r"\b(apply|applications?|submit|submission|resume)\b", preceding, re.I):
+            continue
+        window = text[cue.end(): cue.end() + 90]
+        candidates = [(m.start(), m, kind) for pattern, kind in _DATE_PATTERNS
+                      if (m := pattern.search(window)) and m.start() <= 60]
+        for _, m, kind in sorted(candidates, key=lambda item: item[0]):
+            prefix = window[:m.start()]
+            if re.search(r"\b(start\w*|begin\w*|commenc\w*|graduat\w*|employment|internship (runs|dates)|program (runs|dates))", prefix, re.I):
+                continue
+            if re.search(r"[.!?]\s+(?:[A-Z]|\n)", prefix):
                 continue
             parsed = _parse_date(m, kind, reference)
             if not parsed:
                 continue
             when, has_year = parsed
-            confidence = ("high" if has_year else "medium") if strong else "low"
+            confidence = "high" if has_year else "medium"
             candidate = {"date": when.isoformat(), "confidence": confidence,
                          "text": text[max(0, cue.start() - 20): cue.end() + m.end() + 5].strip()}
             rank = {"high": 3, "medium": 2, "low": 1}[confidence]
@@ -225,7 +234,10 @@ def _parse_date(m: re.Match, kind: str, reference: datetime) -> tuple[date, bool
         d = _safe_date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
         return (d, True) if d else None
     if kind == "us":
-        d = _safe_date(int(m.group(3)), int(m.group(1)), int(m.group(2)))
+        month, day = int(m.group(1)), int(m.group(2))
+        if month > 12 >= day:
+            month, day = day, month
+        d = _safe_date(int(m.group(3)), month, day)
         return (d, True) if d else None
     if kind == "md":
         month, day = _month(m.group(1)), int(m.group(2))

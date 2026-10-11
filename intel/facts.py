@@ -20,7 +20,7 @@ from .seniority import detect_seniority
 from .skills import extract_skills
 from .taxonomy import classify
 
-FACTS_VERSION = 5
+FACTS_VERSION = 7
 
 _TITLE_NOISE = re.compile(
     r"\((?:m/f/d|f/m/d|m/w/d|h/f|all genders)\)|\breq(?:uisition)?\s*#?\s*\d+\b|\bjob\s*id\s*:?\s*\w+\b|[-–—|,]\s*(remote|hybrid|on[\s-]?site)\s*$",
@@ -41,6 +41,30 @@ def input_hash(job: dict) -> str:
     return hashlib.sha1("\x1f".join(map(str, parts)).encode("utf-8", "ignore")).hexdigest()[:16]
 
 
+# Explicit work-arrangement statements in the posting body ("We support a
+# hybrid model – with 3 days in the office per week").  Only stated policies
+# count; a passing mention of "hybrid" in a product name does not.
+_HYBRID_MODEL = re.compile(
+    r"\bhybrid\s+(?:work(?:ing)?\s+)?(?:model|schedule|arrangement|environment|policy|work)\b"
+    r"|\b\d\s+days?\s+(?:(?:a|per|each)\s+week\s+)?(?:in|at)\s+(?:the\s+|our\s+)?office\b"
+    r"|\b(?:in|at)\s+(?:the\s+|our\s+)?office\s+\d\s+days?\s+(?:a|per|each)\s+week\b", re.I)
+_OFFICE_DAYS = re.compile(r"\b(\d)\s+days?\s+(?:(?:a|per|each)\s+week\s+)?(?:in|at)\s+(?:the\s+|our\s+)?office\b"
+                          r"|\boffice\s+(\d)\s+days?\b", re.I)
+
+
+def _work_model(description: str) -> dict | None:
+    m = _HYBRID_MODEL.search(description or "")
+    if not m:
+        return None
+    start = max(description.rfind("\n", 0, m.start()), description.rfind(". ", 0, m.start())) + 1
+    end_candidates = [i for i in (description.find("\n", m.end()), description.find(". ", m.end())) if i >= 0]
+    sentence = re.sub(r"\s+", " ", description[start:min(end_candidates) + 1 if end_candidates else len(description)]).strip()
+    days = _OFFICE_DAYS.search(sentence)
+    office_days = int(next(g for g in days.groups() if g)) if days else None
+    model = "onsite" if office_days and office_days >= 5 else "hybrid"
+    return {"model": model, "office_days": office_days, "text": sentence[:240]}
+
+
 def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section: str = "") -> dict:
     board_cfg = board_cfg or {}
     title = job.get("title") or ""
@@ -55,6 +79,10 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     level = detect_seniority(title, description, classification["associate_stage"],
                              classification["category"])
     location = parse_location(job.get("location") or "", kn)
+    work_model = _work_model(description)
+    if work_model:
+        location["hybrid"] = location["hybrid"] or work_model["model"] == "hybrid"
+        location["work_model"] = work_model
     cycle = detect_cycle(title, description, level["stage"], posted_epoch)
     graduation = graduation_window(description, title, cycle)
     deadline = extract_deadline(description)

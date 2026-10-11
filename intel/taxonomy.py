@@ -20,6 +20,15 @@ _TECH_OCCUPATION = re.compile(
     r"data scientist|research scientist|applied research|genai|generative ai|"
     r"ai[\s/&-]+ml|quantum (?:technolog\w*|computing)|technology enablement|digital workplace)\b",
     re.I)
+_CS_OCCUPATION = re.compile(
+    r"\b(engineer(?:ing)?|developer|dev|architect|programmer|data scientist|"
+    r"software (?:intern|internship|analyst|consultant|specialist)|"
+    r"(?:technology|technical|it) consult(?:ant|ing)|"
+    r"trading (?:systems|platform|infrastructure|technology|software))\b", re.I)
+_SUPPORT_OCCUPATION = re.compile(
+    r"\b(corporate security|workplace (?:coordinator|services)|"
+    r"(?:administrative|office|executive|clerical) (?:assistant|support|coordinator)|"
+    r"business administration|facilities (?:coordinator|assistant|services))\b", re.I)
 
 
 def _hits(patterns, text: str) -> list[str]:
@@ -81,12 +90,19 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     priors = kn.company_priors.get(company_type, {})
     generic = bool(kn.generic_finance_title.search(title))
     family = family_of(title, kn)
+    cs_occupation = bool(_CS_OCCUPATION.search(title))
+    support_occupation = bool(_SUPPORT_OCCUPATION.search(title))
+    if family == "other" and cs_occupation:
+        family = "software"
+    elif family == "other" and support_occupation:
+        family = "operations"
 
     results = {}
     for key, cat in kn.categories.items():
         cat_score, cat_evidence = _node_score(cat, title, department, description, weights, family)
         title_signal = bool(_title_hits(cat, title, family))
         best_sub, best_sub_score, best_sub_evidence = None, 0.0, []
+        sub_scores = {}
         for full, sub in kn.subcategories.items():
             if sub.parent != key:
                 continue
@@ -94,6 +110,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
             if _title_hits(sub, title, family):
                 title_signal = True
             score += priors.get(full, 0) if (score or cat_score or generic) else 0
+            sub_scores[sub.key] = score
             # ties go to the specific product over a generic bucket (FX over S&T)
             best_generic = best_sub and kn.subcategories[f"{key}.{best_sub}"].meta.get("generic")
             if score > best_sub_score or (score and score == best_sub_score and best_generic
@@ -104,9 +121,15 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         if prior and (total > 0 or generic):
             total += prior
             cat_evidence = cat_evidence + [f"employer type: {company_type}"]
+        # Runner-up groups within reach: a 'Financial Analyst' intern program
+        # that also rotates through Accounting lists Accounting as secondary.
+        floor = max(weights["title"] - 1, best_sub_score * 0.5)
+        runner_ups = sorted((k for k, v in sub_scores.items() if k != best_sub and v >= floor),
+                            key=lambda k: -sub_scores[k])
         results[key] = {
             "score": total, "sub": best_sub if best_sub_score > 0 else None,
             "evidence": cat_evidence + best_sub_evidence, "title_signal": title_signal,
+            "secondary_subs": runner_ups[:2] if best_sub_score > 0 else [],
         }
 
     ranked = sorted(results.items(), key=lambda kv: (
@@ -123,10 +146,13 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
 
     # "Lending AI Engineer" names a technical occupation in a banking domain.
     # Domain words and employer priors must not replace the actual occupation.
-    # Explicit quantitative / trading systems titles remain finance occupations.
+    # Financial quantitative research remains finance, while software and
+    # trading systems development stays technical even at a trading firm.
     technical_occupation = family in {"software", "hardware", "data_ml", "product", "design", "healthcare"} and bool(
         _TECH_OCCUPATION.search(title))
-    if technical_occupation:
+    if cs_occupation or support_occupation:
+        finance_title_hit = False
+    elif technical_occupation:
         if results.get("quant", {}).get("title_signal"):
             best_key, best = "quant", results["quant"]
             ranked = [(best_key, best)] + [(k, r) for k, r in ranked if k != best_key]
@@ -161,7 +187,10 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     margin = max(0, (top - second_score) / top) if top else 0
     confidence = round(min(0.99, (1 - math.exp(-top / 5)) * (0.55 + 0.45 * margin)), 2)
     secondary = [k for k, r in ranked[1:4] if r["score"] >= max(min_score, top * 0.45)]
-    return _result(kn, best_key, best["sub"], confidence, best["evidence"], secondary)
+    out = _result(kn, best_key, best["sub"], confidence, best["evidence"], secondary)
+    out["secondary_subcategories"] = best.get("secondary_subs", [])
+    out["secondary_subcategory_labels"] = [kn.subcategory_label(best_key, k) for k in out["secondary_subcategories"]]
+    return out
 
 
 def _result(kn: Knowledge, category: str, sub: str | None, confidence: float,

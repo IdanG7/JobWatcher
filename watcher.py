@@ -33,7 +33,7 @@ import sqlite3
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urljoin, urlsplit
 
@@ -136,22 +136,42 @@ def _posted_epoch(value):
         return _iso_epoch(value)
 
 
-def _workday_posted_epoch(text):
-    """'Posted Today' / 'Posted Yesterday' / 'Posted 5 Days Ago' -> epoch."""
+def _workday_posted_epoch(text, now=None):
+    """'Posted Today' / 'Posted Yesterday' / 'Posted 5 Days Ago' -> epoch at 12:00 UTC.
+
+    Day precision keeps the value stable across polls on the same day, and it
+    matches the exact posting date (``startDate``) the detail endpoint gives.
+    Noon UTC renders as the same calendar day from UTC-11 to UTC+11.
+    Open-ended buckets ('Posted 30+ Days Ago') are only a lower bound on age, so
+    they return None rather than a made-up date; enrichment fills in the real one.
+    """
     if not text:
         return None
     t = text.lower()
+    if "+" in t:
+        return None
     if "today" in t:
-        return time.time()
-    if "yesterday" in t:
-        return time.time() - 86400
-    m = re.search(r"(\d+)\+?\s*day", t)
-    if m:
-        return time.time() - int(m.group(1)) * 86400
-    m = re.search(r"(\d+)\+?\s*month", t)
-    if m:
-        return time.time() - int(m.group(1)) * 30 * 86400
-    return None
+        days = 0
+    elif "yesterday" in t:
+        days = 1
+    else:
+        m = re.search(r"(\d+)\s*days?\b", t)
+        if not m:
+            return None
+        days = int(m.group(1))
+    now = now if now is not None else time.time()
+    day = datetime.fromtimestamp(now, timezone.utc).date() - timedelta(days=days)
+    # Never in the future ('Posted Today' before noon UTC); whole hours stay integral.
+    return min(_date_epoch(day.isoformat()), now // 3600 * 3600)
+
+
+def _date_epoch(value):
+    """'2026-08-05' -> epoch at 12:00 UTC on that day (None if missing or malformed)."""
+    try:
+        day = datetime.strptime(str(value)[:10], "%Y-%m-%d")
+    except (TypeError, ValueError):
+        return None
+    return day.replace(hour=12, tzinfo=timezone.utc).timestamp()
 
 
 def _rel_age(posted):
@@ -890,7 +910,9 @@ def detail_workday(cfg, job_id):
     r = requests.get(url, headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
     r.raise_for_status()
     info = r.json().get("jobPostingInfo") or {}
-    return html_to_text(info.get("jobDescription") or ""), info.get("jobFamilyGroup") or ""
+    # startDate is the exact posting date; the listing only says "30+ Days Ago".
+    meta = {"posted": _date_epoch(info.get("startDate"))}
+    return html_to_text(info.get("jobDescription") or ""), info.get("jobFamilyGroup") or "", meta
 
 
 def detail_smartrecruiters(cfg, job_id):
@@ -956,7 +978,12 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
         return 0
     per_board = config.get("description_per_board", 12)
     retry_before = datetime.fromtimestamp(time.time() - 6 * 3600, timezone.utc).isoformat(timespec="seconds")
+    # Workday listings say only "Posted 30+ Days Ago"; the detail record has the
+    # exact date, so undated Workday rows are revisited (at most weekly).
+    date_before = datetime.fromtimestamp(time.time() - 7 * 86400, timezone.utc).isoformat(timespec="seconds")
+    dated = [k for k, v in boards.items() if v.get("ats") == "workday"] or [""]
     marks = ",".join("?" * len(boards))
+    dmarks = ",".join("?" * len(dated))
     types = ",".join("?" * len(FINANCE_COMPANY_TYPES))
     rows = con.execute(f"""
         SELECT j.board, j.job_id FROM jobs j
@@ -967,10 +994,11 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
         LEFT JOIN applications a ON a.job_key=(j.board||':'||j.job_id)
         WHERE j.board IN ({marks}) AND j.title != '' AND COALESCE(s.status,'active') != 'closed'
           AND (t.board IS NULL OR (COALESCE(t.description,'')='' AND t.attempts < 3
-                                   AND COALESCE(t.fetched_at,'') < ?))
+                                   AND COALESCE(t.fetched_at,'') < ?)
+               OR (d.posted IS NULL AND j.board IN ({dmarks}) AND COALESCE(t.fetched_at,'') < ?))
         ORDER BY a.job_key IS NOT NULL DESC, i.is_finance DESC,
                  i.company_type IN ({types}) DESC, COALESCE(d.posted, 0) DESC
-        LIMIT ?""", [*boards, retry_before, *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
+        LIMIT ?""", [*boards, retry_before, *dated, date_before, *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
     picked, per = [], {}
     for board, job_id in rows:
         if per.get(board, 0) >= per_board:
@@ -997,7 +1025,9 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
         for fut in as_completed(futures):
             completed += 1
             try:
-                (board, job_id), (text, dept) = fut.result()
+                (board, job_id), result = fut.result()
+                text, dept = result[0], result[1]
+                meta = result[2] if len(result) > 2 else {}
             except Exception as e:  # recorded, retried later with back-off
                 item = picked[futures.index(fut)]
                 con.execute(
@@ -1010,6 +1040,13 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
                 report_progress(progress, "descriptions", completed=completed, total=len(picked))
                 continue
             store_description(con, board, job_id, text, dept, source="detail")
+            # an unchanged description is not rewritten; still record the visit
+            con.execute("UPDATE job_text SET fetched_at=? WHERE board=? AND job_id=?", (utcnow(), board, job_id))
+            if meta.get("posted"):
+                # an exact posting date from the detail record beats a listing estimate
+                con.execute("UPDATE job_details SET posted=? WHERE board=? AND job_id=?",
+                            (meta["posted"], board, job_id))
+                con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
             if fetched is not None:
                 fetched.append((board, job_id))
             done += 1
@@ -1872,12 +1909,41 @@ def report_progress(callback, event, **data):
             log(f"! progress observer: {type(exc).__name__}: {exc}")
 
 
+def repair_workday_posted(con, config):
+    """Clear posting dates invented from 'Posted 30+ Days Ago'.
+
+    Older versions stored ``now - 30 days`` for that bucket.  Those values came
+    from time.time() and so carry fractional seconds; Workday never reports
+    sub-second times, so a fractional value on a Workday board is always an
+    estimate.  Clearing them lets the next poll (day precision) or the detail
+    record (exact startDate) supply a real date instead.  Current code never
+    writes such values, so this is idempotent and cheap; it runs every cycle
+    because an older copy of the app may share (and re-dirty) the database.
+    """
+    boards = [k for k, v in config.get("boards", {}).items()
+              if not k.startswith("_") and isinstance(v, dict) and v.get("ats") == "workday"]
+    cleared = 0
+    for chunk in range(0, len(boards), 400):
+        part = boards[chunk:chunk + 400]
+        marks = ",".join("?" * len(part))
+        keys = con.execute(f"""SELECT board, job_id FROM job_details WHERE board IN ({marks})
+                               AND posted IS NOT NULL AND posted != CAST(posted AS INTEGER)""", part).fetchall()
+        con.executemany("UPDATE job_details SET posted=NULL WHERE board=? AND job_id=?", keys)
+        con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", keys)
+        cleared += len(keys)
+    if cleared:
+        con.commit()
+        log(f"cleared {cleared} estimated Workday posting date(s); real dates arrive with the next poll")
+    return cleared
+
+
 def cycle(config, con, progress=None):
     t0 = time.time()
     started_at = now()
     all_boards = {k: v for k, v in config["boards"].items()
                   if not k.startswith("_") and not v.get("disabled")}
     subs = load_subscribers(config.get("filters", {}))
+    repair_workday_posted(con, config)
     new_by_board = {}
     broke = []
     ok_count = fail_count = skipped = 0

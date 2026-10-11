@@ -376,7 +376,7 @@ class IntelStore:
             self.con.executemany("UPDATE job_intel SET is_canonical=? WHERE board=? AND job_id=?", updates)
 
     # ---- scoring
-    def score_pass(self, force: bool = False) -> int:
+    def score_pass(self, force: bool = False, keys: list[tuple[str, str]] | None = None) -> int:
         from intel.matching import match_resume
         resume = self.con.execute("SELECT version FROM candidate_resume WHERE id=1").fetchone()
         # Only profile mutations advance the authoritative resume version.
@@ -389,6 +389,10 @@ class IntelStore:
         recent_iso = (datetime.now(timezone.utc) - timedelta(days=32)).isoformat(timespec="seconds")
         recent_epoch = now - 32 * 86400
         horizon = (datetime.now(timezone.utc) - timedelta(days=2)).date().isoformat()
+        if keys is not None and not keys:
+            return 0
+        scope = " AND (" + " OR ".join("(i.board=? AND i.job_id=?)" for _ in keys) + ")" if keys else ""
+        scope_args = [v for pair in (keys or []) for v in pair]
         rows = self.con.execute(
             f"""SELECT i.board, i.job_id, i.facts, d.posted, j.first_seen,
                        COALESCE(s.discovered,0), COALESCE(s.status,'active'),
@@ -404,8 +408,8 @@ class IntelStore:
                     {'1=1 OR ' if force else ''}
                     i.profile_version IS NULL OR i.profile_version != ?
                     OR (i.scored_at < ? AND (COALESCE(d.posted,0) > ? OR j.first_seen > ?
-                        OR i.deadline >= ? OR a.deadline >= ? OR o.deadline >= ?)))""",
-            (FACTS_VERSION, self.version, stale_before, recent_epoch, recent_iso, horizon, horizon, horizon)).fetchall()
+                        OR i.deadline >= ? OR a.deadline >= ? OR o.deadline >= ?))){scope}""",
+            (FACTS_VERSION, self.version, stale_before, recent_epoch, recent_iso, horizon, horizon, horizon, *scope_args)).fetchall()
         if not rows:
             return 0
         since = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat(timespec="seconds")
