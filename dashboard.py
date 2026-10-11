@@ -19,6 +19,7 @@ import json
 import re
 import socket
 import sqlite3
+import sys
 import threading
 import time
 import webbrowser
@@ -58,6 +59,12 @@ STATIC_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 
 DISCORD_WEBHOOK = re.compile(r"^https://(?:canary\.|ptb\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-]+$")
 DISCORD_SUBSCRIBER = "desktop"
+RELEASES_API = "https://api.github.com/repos/IdanG7/JobWatcher/releases/latest"
+RELEASES_PAGE = "https://github.com/IdanG7/JobWatcher/releases/"
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    return tuple(int(n) for n in re.findall(r"\d+", version)[:3]) or (0,)
 
 
 class ApiError(Exception):
@@ -70,6 +77,18 @@ class JobwatchHTTPServer(ThreadingHTTPServer):
     # Browsers request the module graph in parallel while collection uses CPU.
     # The standard server's five-connection backlog can drop those requests.
     request_queue_size = 128
+
+    def handle_error(self, request, client_address):
+        # A browser that navigates away mid-response is routine, not an error.
+        if isinstance(sys.exc_info()[1], CLIENT_GONE):
+            return
+        super().handle_error(request, client_address)
+
+
+CLIENT_GONE = (ConnectionAbortedError, ConnectionResetError, BrokenPipeError)
+# Read-heavy GET endpoints whose responses are reused until data changes.
+CACHED_PATHS = {"/api/jobs", "/api/overview", "/api/analytics", "/api/companies", "/api/meta"}
+CACHE_SECONDS = 20     # also bounds staleness while a poll is adding postings
 
 
 def _today() -> date:
@@ -118,6 +137,10 @@ class JobwatchService:
         self._refresh_lock = threading.Lock()
         self._poll_lock = threading.Lock()
         self._discord_lock = threading.Lock()
+        self._update_cache: tuple[float, dict] | None = None
+        self._cache: dict = {}
+        self._cache_gen = 0
+        self._cache_lock = threading.Lock()
         self._status_lock = threading.Lock()
         self._scan_slots = threading.BoundedSemaphore(4)
         self._scan_lock = threading.Lock()
@@ -175,6 +198,27 @@ class JobwatchService:
         con.executemany("INSERT OR IGNORE INTO company_prefs(company_key, name, watched, created_at, updated_at) "
                         "VALUES (?,?,1,?,?)", rows)
 
+    # ------------------------------------------------------------ response cache
+    def cached(self, key, compute):
+        """Reuse a GET response until data changes (or CACHE_SECONDS pass)."""
+        now = time.monotonic()
+        with self._cache_lock:
+            gen, hit = self._cache_gen, self._cache.get(key)
+        if hit and hit[0] == gen and now - hit[1] < CACHE_SECONDS:
+            return hit[2]
+        value = compute()
+        with self._cache_lock:
+            if gen == self._cache_gen:          # never store a result computed before a change
+                if len(self._cache) > 64:
+                    self._cache.clear()
+                self._cache[key] = (gen, now, value)
+        return value
+
+    def invalidate(self) -> None:
+        with self._cache_lock:
+            self._cache_gen += 1
+            self._cache.clear()
+
     # ------------------------------------------------------------ intelligence refresh
     def refresh_now(self, force_score: bool = False) -> dict:
         with self._refresh_lock:
@@ -190,6 +234,8 @@ class JobwatchService:
                     con.close()
                 self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)
                 self._pending_cache = None
+                if stats.get("facts") or stats.get("scored"):
+                    self.invalidate()
                 return stats
             except Exception as exc:   # surfaced in /api/status, never crashes the server
                 self.status["error"] = f"{type(exc).__name__}: {exc}"
@@ -1345,13 +1391,14 @@ class JobwatchService:
                            "Webhooks → Copy Webhook URL.")
         if not watcher.send_discord_note(
                 webhook, "✅ Jobwatch connected",
-                "New job postings that match your profile will be posted in this channel.", 0x3E63DD):
+                "New matching postings, a morning summary of deadlines, interviews and follow-ups, "
+                "and saved jobs that get taken down will be posted in this channel.", 0x3E63DD):
             raise ApiError("Discord rejected the webhook. Check that it still exists and try again.")
         with self._discord_lock:
             subs = self._read_subscribers()
             subs[DISCORD_SUBSCRIBER] = {
                 "companies": ["all"], "alert_mode": "fit", "finance_only": False,
-                "ops": True, "discord_webhook": webhook,
+                "ops": True, "reminders": True, "discord_webhook": webhook,
             }
             self._write_subscribers(subs)
         return self.get_discord()
@@ -1505,6 +1552,7 @@ class JobwatchService:
                     self.status["poll_running"] = False
                     self.status["progress"]["finished_at"] = time.time()
                 self._poll_lock.release()
+                self.invalidate()
                 self.kick()
         threading.Thread(target=run, name="jobwatch-poll", daemon=True).start()
         return {"ok": True, "started": True}
@@ -1517,6 +1565,27 @@ class JobwatchService:
         if p:
             p["elapsed"] = round((p["finished_at"] or time.time()) - p["started_at"])
         return {**result, "version": APP_VERSION, "pending": self._pending_cache[1] if self._pending_cache else 0}
+
+    def update_info(self) -> dict:
+        """Whether a newer GitHub release exists. Cached; failures stay silent."""
+        from version import APP_VERSION
+        now = time.time()
+        if self._update_cache and now < self._update_cache[0]:
+            return self._update_cache[1]
+        info = {"current": APP_VERSION, "latest": None, "available": False, "url": None}
+        try:
+            r = watcher.requests.get(RELEASES_API, timeout=5, headers={"Accept": "application/vnd.github+json"})
+            r.raise_for_status()
+            data = r.json()
+            latest, url = str(data.get("tag_name") or "").lstrip("v"), str(data.get("html_url") or "")
+            info["latest"] = latest or None
+            if latest and url.startswith(RELEASES_PAGE) and _version_key(latest) > _version_key(APP_VERSION):
+                info.update(available=True, url=url)
+            expires = now + 6 * 3600
+        except (watcher.requests.RequestException, ValueError, AttributeError):
+            expires = now + 3600      # offline or rate-limited: try again later
+        self._update_cache = (expires, info)
+        return info
 
     # ------------------------------------------------------------ export
     def csv_export(self, params: dict) -> str:
@@ -1589,6 +1658,7 @@ ROUTES = [
     ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
+    ("GET", r"/api/update", lambda s, m, q, b: s.update_info()),
     ("POST", r"/api/refresh", lambda s, m, q, b: s.trigger_poll() if b.get("poll") else (
         s.kick() or {"ok": True, "started": True})),
     ("GET", r"/api/saved-searches", lambda s, m, q, b: s.saved_searches()),
@@ -1711,9 +1781,18 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                 if route_method != method:
                     continue
                 try:
-                    return self.json(handler(self.service, match, parse_qs(parsed.query), body))
+                    if method == "GET" and parsed.path in CACHED_PATHS:
+                        result = self.service.cached((parsed.path, parsed.query), lambda: handler(
+                            self.service, match, parse_qs(parsed.query), body))
+                    else:
+                        result = handler(self.service, match, parse_qs(parsed.query), body)
+                        if method != "GET":
+                            self.service.invalidate()
+                    return self.json(result)
                 except ApiError as exc:
                     return self.json({"error": str(exc)}, exc.status)
+                except CLIENT_GONE:
+                    return      # the browser cancelled this request; nobody is listening
                 except Exception as exc:
                     print(f"! {method} {parsed.path}: {type(exc).__name__}: {exc}")
                     return self.json({"error": f"{type(exc).__name__}: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)

@@ -79,26 +79,36 @@ export async function render(root, ctx) {
     b.classList.toggle('on', (document.documentElement.dataset.density || 'comfortable') === b.dataset.density));
   setDensityButtons();
 
-  async function load() {
+  // quiet: a background refresh. It never cancels a request in flight and
+  // never dims the table; only filter/page changes the user made do that.
+  async function load({quiet = false} = {}) {
+    if (quiet && state.loading) return;
     clearTimeout(state.timer);
     state.controller?.abort();
     const controller = new AbortController();
     state.controller = controller;
+    state.loading = true;
     const params = {...apiParams(state.params), per_page: PER_PAGE};
-    $('[data-table]').style.opacity = state.data ? '.55' : '1';
+    // Dim only if the answer is slow, so fast responses do not flash.
+    const dim = !quiet && state.data ? setTimeout(() => { $('[data-table]').style.opacity = '.55'; }, 250) : null;
     try {
       const data = await get('/api/jobs', params, controller.signal);
       if (controller.signal.aborted) return;
       state.data = data;
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
       drawAll();
-      if (data.resume_matching?.pending) state.timer = setTimeout(load, 2500);
+      if (data.resume_matching?.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
     } catch (err) {
       if (err.name === 'AbortError') return;
+      if (quiet && state.data) return;      // keep showing the last good results
       $('[data-table]').innerHTML = errorState(err);
-      $('[data-table]').querySelector('[data-action=retry]')?.addEventListener('click', load);
+      $('[data-table]').querySelector('[data-action=retry]')?.addEventListener('click', () => load());
     } finally {
-      $('[data-table]').style.opacity = '1';
+      clearTimeout(dim);
+      if (state.controller === controller) {
+        state.loading = false;
+        $('[data-table]').style.opacity = '1';
+      }
     }
     if (state.params.saved && state.visitedSaved !== state.params.saved) {
       state.visitedSaved = state.params.saved;
@@ -377,7 +387,7 @@ export async function render(root, ctx) {
       const {job: _b, ...b} = params;
       if (JSON.stringify(a) !== JSON.stringify(b)) load();
     },
-    refresh: load,
+    refresh: () => load({quiet: true}),
     onKey(e) {
       const jobs = state.data?.jobs || [];
       if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); setCursor(state.cursor + 1); if (ctx.route.params.job) ctx.openJob(jobs[state.cursor].key); }

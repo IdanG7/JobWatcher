@@ -1254,6 +1254,8 @@ def load_subscribers(global_filters):
             "max_ping_jobs": max(0, int(s.get("max_ping_jobs", 10))),
             "ops": bool(s.get("ops")),
             "digest": bool(s.get("digest")),
+            # deadline/interview/follow-up reminders and taken-down saved jobs
+            "reminders": bool(s.get("reminders", True)),
             "discord": _resolve_secret(s.get("discord_webhook", "")),
             "ping_hooks": {k: _resolve_secret(v, quiet=True)
                            for k, v in (s.get("ping_webhooks") or {}).items()},
@@ -1881,6 +1883,103 @@ def maybe_digest(config, con, subs):
                           + desc.replace("**", ""))
 
 
+# ---- personal reminders: built from the desktop tracker (an Actions runner has none)
+REMINDER_HOUR = 8            # local time of the once-a-day summary
+CLOSED_LOOKBACK_DAYS = 2     # older closures were already visible in the app
+OPEN_APP_STATUSES = ("discovered", "saved", "preparing")
+ACTIVE_APP_STATUSES = ("saved", "preparing", "applied", "assessment", "phone_screen",
+                       "first_round", "final_round", "offer")
+
+
+def _when(day, today):
+    days = (day - today).days
+    return "today" if days == 0 else "tomorrow" if days == 1 else f"in {days} days ({day:%b %d})"
+
+
+def _item(company, title, url):
+    label = f"{company}: {title}" if company else title
+    return f"[{label}]({url})" if url and url.startswith("http") else label
+
+
+def reminder_lines(con, today):
+    """Deadlines in the next 3 days for jobs you have not applied to, interviews
+    today/tomorrow, overdue next steps and contact follow-ups."""
+    t = today.isoformat()
+    lines = []
+    due = "substr(COALESCE(NULLIF(a.deadline, ''), i.eff_deadline, ''), 1, 10)"
+    for company, title, url, day in con.execute(
+            f"""SELECT a.company, a.title, a.url, {due} FROM applications a
+                LEFT JOIN job_intel i ON a.job_key=(i.board || ':' || i.job_id)
+                WHERE a.status IN ({','.join('?' * len(OPEN_APP_STATUSES))}) AND {due} BETWEEN ? AND ?
+                ORDER BY {due} LIMIT 8""",
+            (*OPEN_APP_STATUSES, t, (today + timedelta(days=3)).isoformat())):
+        lines.append(f"⏰ Deadline {_when(datetime.fromisoformat(day).date(), today)}: "
+                     f"{_item(company, title, url)}")
+    for company, title, url, day in con.execute(
+            """SELECT company, title, url, substr(interview_date, 1, 10) FROM applications
+               WHERE interview_date != '' AND substr(interview_date, 1, 10) BETWEEN ? AND ?
+               ORDER BY interview_date LIMIT 8""", (t, (today + timedelta(days=1)).isoformat())):
+        lines.append(f"🎤 Interview {_when(datetime.fromisoformat(day).date(), today)}: "
+                     f"{_item(company, title, url)}")
+    for company, title, url, step in con.execute(
+            f"""SELECT company, title, url, next_step FROM applications
+                WHERE next_action_date != '' AND substr(next_action_date, 1, 10) <= ?
+                AND status IN ({','.join('?' * len(ACTIVE_APP_STATUSES))})
+                ORDER BY next_action_date LIMIT 8""", (t, *ACTIVE_APP_STATUSES)):
+        lines.append(f"➡️ Next step due{': ' + step if step else ''} — {_item(company, title, url)}")
+    for name, company in con.execute(
+            """SELECT name, company FROM contacts WHERE next_follow_up != '' AND next_follow_up <= ?
+               ORDER BY next_follow_up LIMIT 8""", (t,)):
+        lines.append(f"👋 Follow up with {name}" + (f" ({company})" if company else ""))
+    return lines
+
+
+def closed_saved_jobs(con):
+    """Saved jobs whose posting was taken down recently and not yet announced."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=CLOSED_LOOKBACK_DAYS)).isoformat(timespec="seconds")
+    out = []
+    for key, company, title, url, closed_at in con.execute(
+            f"""SELECT a.job_key, a.company, a.title, a.url, s.closed_at FROM applications a
+                JOIN job_state s ON a.job_key=(s.board || ':' || s.job_id)
+                WHERE s.status='closed' AND s.closed_at >= ?
+                AND a.status IN ({','.join('?' * len(OPEN_APP_STATUSES))})
+                ORDER BY s.closed_at""", (cutoff, *OPEN_APP_STATUSES)):
+        seen = con.execute("SELECT v FROM kv WHERE k=?", (f"closed_notified:{key}",)).fetchone()
+        if not seen or seen[0] != closed_at:   # a reopened-then-closed job is announced again
+            out.append((key, company, title, url, closed_at))
+    return out
+
+
+def maybe_reminders(con, subs, now_local=None):
+    targets = [s for s in subs if s["reminders"] and s["discord"]]
+    if not targets:
+        return
+    closed = closed_saved_jobs(con)
+    if closed:
+        desc = "\n".join(f"• {_item(c, t, u)}" for _, c, t, u, _ in closed[:20])
+        if len(closed) > 20:
+            desc += f"\n…and {len(closed) - 20} more"
+        desc += "\n\nThese were saved but not applied to. Check the Applications tab."
+        ok = True
+        for sub in targets:
+            ok &= send_discord_note(sub["discord"], "🚫 Saved job taken down", desc, 0xE67E22)
+        if ok:
+            con.executemany("INSERT OR REPLACE INTO kv VALUES (?,?)",
+                            [(f"closed_notified:{key}", closed_at) for key, *_, closed_at in closed])
+    now_local = now_local or datetime.now()
+    today = now_local.date()
+    if now_local.hour < REMINDER_HOUR:
+        return
+    row = con.execute("SELECT v FROM kv WHERE k='last_reminder'").fetchone()
+    if row and row[0] >= today.isoformat():
+        return
+    con.execute("INSERT OR REPLACE INTO kv VALUES ('last_reminder', ?)", (today.isoformat(),))
+    lines = reminder_lines(con, today)
+    if lines:
+        for sub in targets:
+            send_discord_note(sub["discord"], f"📅 Jobwatch today — {today:%a %b %d}", "\n".join(lines), 0x3E63DD)
+
+
 # ================================================================ core cycle
 def fetch_board(name, cfg):
     for attempt in range(2):
@@ -2180,6 +2279,10 @@ def cycle(config, con, progress=None):
 
     report_progress(progress, "phase", phase="finishing")
     maybe_digest(config, con, subs)
+    try:
+        maybe_reminders(con, subs)
+    except Exception as e:      # reminders must never stop the cycle
+        log(f"! reminders failed: {type(e).__name__}: {e}")
 
     # Closed postings stay visible as history until they age out; anything
     # with an application record is kept for the CRM.

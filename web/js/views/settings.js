@@ -31,7 +31,7 @@ export async function render(root, ctx) {
   const checks = (name, items, selected) => items.map(([key, label]) => `<label class="check"><input type="checkbox" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}> ${esc(label)}</label>`).join('');
 
   const discordHtml = () => `<h2>Discord notifications</h2>
-        <p>Get a Discord message when new postings that match your profile appear. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
+        <p>Get Discord messages for new postings that match your profile, a morning summary of upcoming deadlines, interviews and follow-ups, and saved jobs that get taken down. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
         ${discord.configured ? `<p class="muted">Connected (webhook ${esc(discord.webhook_hint)}).</p>` : ''}
         <div class="field-row"><label class="field"><span>${discord.configured ? 'Replace webhook URL' : 'Webhook URL'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-discord-url placeholder="https://discord.com/api/webhooks/…"></label></div>
         <div class="save-bar"><button type="button" class="btn primary" data-act="discord-save">Connect &amp; send test</button>${discord.configured ? '<button type="button" class="btn" data-act="discord-test">Send test message</button><button type="button" class="btn danger" data-act="discord-remove">Disconnect</button>' : ''}</div>`;

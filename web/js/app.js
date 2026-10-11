@@ -1,7 +1,7 @@
 // Router, global state, theme, live status. Every view module exports
 // render(root, ctx) -> optional {update(params), onKey(e), cleanup()}.
 import {get, post} from './api.js';
-import {buildHash, compact, parseHash} from './lib.js';
+import {buildHash, compact, esc, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
@@ -194,7 +194,10 @@ async function refreshStatus() {
     lastPollSeen = s.last_poll || lastPollSeen;
     const finished = previous && ((previous.poll_running && !s.poll_running) || (previous.indexing && !s.indexing) || previous.last_refresh !== s.last_refresh);
     if (finished) collectionDirty = true;
-    if (collectionDirty || (busy && Date.now() - lastCollectionRefresh > 6000)) refreshCollectionView();
+    // Background view refreshes are throttled: re-querying every few seconds
+    // while collection runs made the page re-render and dim repeatedly.
+    const since = Date.now() - lastCollectionRefresh;
+    if ((collectionDirty && since > 10000) || (busy && since > 30000)) refreshCollectionView();
   } catch {
     dot.className = 'live-dot warn';
     btn.title = 'Dashboard server unreachable';
@@ -205,6 +208,27 @@ async function refreshStatus() {
   } finally {
     statusInFlight = false;
   }
+}
+
+// A dismissed notice stays hidden until an even newer release appears.
+async function checkForUpdate() {
+  let info;
+  try { info = await get('/api/update'); } catch { return; }
+  const old = document.getElementById('update-banner');
+  if (!info.available || store.get('jw-update-dismissed') === info.latest) { old?.remove(); return; }
+  if (old) return;
+  const banner = document.createElement('section');
+  banner.id = 'update-banner';
+  banner.className = 'collection-status';
+  banner.setAttribute('role', 'status');
+  banner.innerHTML = `<div class="collection-heading"><strong>Jobwatch ${esc(info.latest)} is available</strong>
+    <button type="button" class="btn xs" data-dismiss>Dismiss</button></div>
+    <p>You have ${esc(info.current)}. <a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download the new version</a>, close this console window, extract it over your old folder and start it again. Your data is kept.</p>`;
+  banner.querySelector('[data-dismiss]').addEventListener('click', () => {
+    store.set('jw-update-dismissed', info.latest);
+    banner.remove();
+  });
+  document.getElementById('main').prepend(banner);
 }
 
 async function pollNow() {
@@ -285,6 +309,8 @@ async function boot() {
   refreshStatus();
   setInterval(refreshStatus, 2000);
   setInterval(refreshNav, 120000);
+  checkForUpdate();
+  setInterval(checkForUpdate, 6 * 3600 * 1000);
 }
 
 export const ready = boot();
