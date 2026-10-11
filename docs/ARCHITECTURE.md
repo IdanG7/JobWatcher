@@ -60,8 +60,7 @@ toggles `{enabled}`; `DELETE` removes resume facts/matches without reverting the
 profile. The two POST routes allow bounded file payloads; other routes retain
 their normal request cap. PDF parsing uses the documented
 [pypdf decompression guards](https://pypdf.readthedocs.io/en/6.10.0/user/security.html).
-Private resume data is excluded from portable state and CSV. Cover letters remain
-independent, editable per-job drafts.
+Private resume data is excluded from portable state and CSV.
 
 ## Fit Score 2.0
 
@@ -100,24 +99,6 @@ The drawer's **Why 91?** panel shows every line. The scores in this section are 
 - Networking: `contacts` and `contact_log`.
 - User settings: `company_prefs` (watchlist and notes), `saved_searches`, `events` (custom calendar entries), `job_overrides` (deadline correction and hide) and `user_profile`.
 - `alert_log` drives per-company cooldowns.
-
-Schema v4 adds `cover_letters`, keyed by the posting's `board:job_id`. It stores
-the letter, candidate-supplied name/background/motivation, and creation/update
-timestamps independently of application status. `intel/cover_letter.py` generates
-offline templates from supplied facts and posting metadata without reading profile
-defaults as candidate experience. There are no external generation calls.
-
-- `GET /api/jobs/:key/cover-letter` returns the saved letter, or `null` when absent.
-- `POST /api/jobs/:key/cover-letter/generate` accepts `candidate_name`, `background`
-  and optional `motivation`; it returns a preview without storing it.
-- `PUT /api/jobs/:key/cover-letter` upserts `content` plus those inputs. Content is
-  required; input limits are 160/20,000/3,000/30,000 characters respectively for
-  name/background/motivation/content. Unknown jobs return 404.
-
-The drawer escapes saved text, confirms replacement of editor content, disables
-editing during requests, and ignores responses for detached drawers. Copy and
-UTF-8 text downloads use the current editor. These private records never enter
-`state.json`, notification payloads, or opportunity CSV exports.
 
 ## Closure detection
 

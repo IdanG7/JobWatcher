@@ -7,7 +7,6 @@ import {
   prettyKey, statusPill, toast,
 } from './ui.js';
 import {contactForm} from './forms.js';
-import {bindCoverLetter, coverLetterSection} from './cover-letter.js';
 import {resumeMatchSection} from './resume.js';
 
 let current = null;   // {key, job, el}
@@ -164,7 +163,6 @@ function render(el, job) {
 
     ${app ? applicationSection(job, app) : ''}
 
-    ${coverLetterSection(job)}
 
     <section class="section">
       <h3>Contacts at ${esc(job.company || 'this company')} <button class="btn xs" data-act="add-contact">${icon('plus', 12)} Add</button></h3>
@@ -201,7 +199,6 @@ function applicationSection(job, app) {
       </div>
       <div class="field-row three">
         <label class="field"><span>Resume version</span><input class="input" name="resume_version" value="${esc(app.resume_version || '')}" placeholder="IB v3"></label>
-        <label class="field"><span>Cover letter</span><select class="select" name="cover_letter_status">${options(['', 'not_needed', 'drafting', 'done', 'submitted'].map(k => ({key: k, label: k ? prettyKey(k) : '—'})), app.cover_letter_status || '')}</select></label>
         <label class="field"><span>Referral</span><input class="input" name="referral" value="${esc(app.referral || '')}" placeholder="Name or none"></label>
       </div>
       <label class="field"><span>Notes <span class="muted">(private, local only)</span></span><textarea class="input" name="notes" rows="3">${esc(app.notes || '')}</textarea></label>
@@ -261,7 +258,6 @@ export async function quickAction(action, job, ctx) {
 
 function bind(el, job) {
   const ctx = ctxRef;
-  bindCoverLetter(el.querySelector('[data-letter-form]'), job);
   el.querySelectorAll('[data-act=close]').forEach(b => b.addEventListener('click', () => ctx.closeJob()));
   el.querySelector('[data-act=why]')?.addEventListener('click', e => {
     const box = el.querySelector('[data-breakdown]');

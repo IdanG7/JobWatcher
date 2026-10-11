@@ -31,7 +31,6 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
-from intel.cover_letter import clean_fields, generate_letter
 from intel.profile import profile_version
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
@@ -381,8 +380,6 @@ class JobwatchService:
                 [v for pair in keys for v in pair])]
             app = con.execute("SELECT * FROM applications WHERE job_key=?", (key,)).fetchone()
             job["application"] = dict(app) if app else None
-            letter = con.execute("SELECT * FROM cover_letters WHERE job_key=?", (key,)).fetchone()
-            job["cover_letter"] = dict(letter) if letter else None
             job["application_events"] = [dict(r) for r in con.execute(
                 "SELECT ts, from_status, to_status, note FROM application_events WHERE job_key=? ORDER BY ts DESC",
                 (key,))]
@@ -452,35 +449,6 @@ class JobwatchService:
             with self._scan_lock:
                 self._scanning.discard(key)
                 self._scan_slots.release()
-
-    def get_cover_letter(self, key: str) -> dict:
-        return {"cover_letter": self.job_detail(key)["cover_letter"]}
-
-    def generate_cover_letter(self, key: str, payload: dict) -> dict:
-        job = self.job_detail(key)
-        try:
-            fields = clean_fields(payload, generating=True)
-        except ValueError as exc:
-            raise ApiError(str(exc)) from exc
-        # Preview only: regeneration must never overwrite a saved letter.
-        return {"cover_letter": {"job_key": key, **fields, "content": generate_letter(job, fields)}}
-
-    def save_cover_letter(self, key: str, payload: dict) -> dict:
-        self.job_detail(key)  # same 404 behavior as the drawer, including unknown jobs
-        try:
-            fields = clean_fields(payload)
-        except ValueError as exc:
-            raise ApiError(str(exc)) from exc
-        now = utcnow()
-        with self.db() as con:
-            con.execute("""INSERT INTO cover_letters
-                (job_key, candidate_name, background, motivation, content, created_at, updated_at)
-                VALUES (?,?,?,?,?,?,?) ON CONFLICT(job_key) DO UPDATE SET
-                candidate_name=excluded.candidate_name, background=excluded.background,
-                motivation=excluded.motivation, content=excluded.content, updated_at=excluded.updated_at""",
-                (key, fields["candidate_name"], fields["background"], fields["motivation"], fields["content"], now, now))
-            letter = dict(con.execute("SELECT * FROM cover_letters WHERE job_key=?", (key,)).fetchone())
-        return {"ok": True, "cover_letter": letter}
 
     def set_override(self, key: str, payload: dict) -> dict:
         deadline = _clean_date(payload.get("deadline"), "deadline")
@@ -808,7 +776,6 @@ class JobwatchService:
             "deadline": _clean_date(deadline, "deadline"),
             "applied_date": _clean_date(pick("applied_date"), "applied_date"),
             "resume_version": str(pick("resume_version") or "")[:120],
-            "cover_letter_status": str(pick("cover_letter_status") or "")[:40],
             "referral": str(pick("referral") or "")[:200],
             "networking_status": str(pick("networking_status") or "")[:80],
             "next_action_date": _clean_date(pick("next_action_date"), "next_action_date"),
@@ -1593,9 +1560,6 @@ ROUTES = [
     ("GET", r"/api/jobs", lambda s, m, q, b: s.jobs(q)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)", lambda s, m, q, b: s.job_detail(unquote(m["key"]))),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/scan", lambda s, m, q, b: s.scan_job(unquote(m["key"]), b)),
-    ("GET", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.get_cover_letter(unquote(m["key"]))),
-    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter/generate", lambda s, m, q, b: s.generate_cover_letter(unquote(m["key"]), b)),
-    ("PUT", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.save_cover_letter(unquote(m["key"]), b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/override", lambda s, m, q, b: s.set_override(unquote(m["key"]), b)),
     ("GET", r"/api/companies", lambda s, m, q, b: s.companies(q)),
     ("GET", r"/api/companies/(?P<key>[^/]+)", lambda s, m, q, b: s.company_detail(unquote(m["key"]))),

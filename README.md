@@ -89,7 +89,7 @@ The dashboard opens automatically and provides:
 - source health and the last polling-run status;
 - one-click CSV export.
 
-Application notes and saved cover letters live only in `jobwatch.db`. They are never sent to Discord,
+Application notes live only in `jobwatch.db`. They are never sent to Discord,
 included in `state.json`, or committed by the included workflow. The web server
 binds to loopback by default and has no authentication, so do not expose it to
 the public internet.
@@ -105,19 +105,6 @@ the public internet.
 5. Check **Sources** if coverage looks quiet; failures are visible instead of
    silently shrinking the search.
 
-## Cover letters
-
-Open a role in **Opportunities** and scroll to **Cover letter**. Enter your name,
-relevant background in first-person sentences, and optionally why the role interests
-you. **Generate draft** creates a local template using that text, the role title,
-company, and skills mentioned in the posting. No API key or external AI service is
-used; review the draft before sending it.
-
-Edit the letter and choose **Save letter** to keep it for that job. Regenerating
-previews a replacement and leaves the saved letter intact until you save again.
-**Copy** and **Download .txt** use the current editor text, including unsaved edits.
-Letters persist independently of the application tracker and are excluded from
-portable state and CSV exports. Resume optimization remains out of scope.
 
 ## Resume parsing & automatic matching
 

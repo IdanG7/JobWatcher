@@ -53,7 +53,6 @@ Open Settings to choose career targets, locations and work authorization.
 Upload your own resume under Resume & matching, preview the facts, then choose
 Apply & enable matching. Unknown requirements show review notes. Use the Resume
 match chip in Opportunities to switch between matched jobs and all jobs.
-Open a job's drawer to generate, edit, save, copy or download a cover letter.
 
 YOUR DATA
 This is a fresh copy: no sender resume, profile, applications, letters, database

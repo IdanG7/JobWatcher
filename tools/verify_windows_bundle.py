@@ -140,10 +140,6 @@ Built cash flow forecasts and financial reports.
                     break
                 time.sleep(0.1)
             assert jobs["total"] == 1 and jobs["resume_matching"]["active"], jobs
-            letter_input = {"candidate_name": "Test Candidate", "background": "I built valuation models for a student investment fund."}
-            letter = api("/api/jobs/rbc:portable-test/cover-letter/generate", letter_input, "POST")["cover_letter"]
-            letter["content"] = "My saved portable test letter."
-            api("/api/jobs/rbc:portable-test/cover-letter", letter, "PUT")
             duplicate = subprocess.run(command, env=env, capture_output=True, timeout=10,
                                        creationflags=subprocess.CREATE_NO_WINDOW)
             assert duplicate.returncode == 0, duplicate.stdout + duplicate.stderr
@@ -153,11 +149,10 @@ Built cash flow forecasts and financial reports.
             url = ready(process)
             assert api("/api/resume")["enabled"]
             assert api("/api/profile")["profile"]["graduation_year"] == 2028
-            assert api("/api/jobs/rbc:portable-test/cover-letter")["cover_letter"]["content"] == letter["content"]
         finally:
             stop(process)
         print("PASS: ZIP checksums, isolated runtime, batch startup, automatic polling/progress, loading shell, clean profile,")
-        print("resume upload/apply/matching, cover letters, duplicate starts, and restart persistence.")
+        print("resume upload/apply/matching, duplicate starts, and restart persistence.")
 
 
 if __name__ == "__main__":

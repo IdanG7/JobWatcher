@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -186,8 +186,13 @@ def _v5_resume_matching(con: sqlite3.Connection) -> None:
     con.execute("CREATE INDEX IF NOT EXISTS resume_matches_filter ON resume_matches(profile_version, matched)")
 
 
+def _v6_drop_cover_letters(con: sqlite3.Connection) -> None:
+    # The cover-letter feature was removed; its saved letters go with it.
+    con.execute("DROP TABLE IF EXISTS cover_letters")
+
+
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
-              5: _v5_resume_matching}
+              5: _v5_resume_matching, 6: _v6_drop_cover_letters}
 
 
 def migrate(con: sqlite3.Connection) -> int:
