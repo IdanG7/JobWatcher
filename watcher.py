@@ -88,8 +88,18 @@ def _consume_page(out, page, seen, source, limit):
     if out.total is not None and (out.total < 0 or (out.total == 0 and page)):
         raise RuntimeError(f"{source} pagination returned an inconsistent total")
     if not page:
-        if out.total is not None and len(out) < out.total:
-            raise RuntimeError(f"{source} pagination ended before reported total {out.total}")
+        missing = out.total - len(out) if out.total is not None else 0
+        if missing > 0:
+            # Sites that order same-day postings unstably repeat a few and skip a
+            # few. A tiny gap is safe to treat as complete: closing a job takes 3
+            # consecutive misses over 24h, and a randomly skipped job reappears on
+            # the next read. A larger gap keeps the postings but tracks no removals.
+            if missing <= max(2, out.total // 200):
+                out.reason = f"{source} returned {len(out)} of {out.total} (unstable ordering)"
+                out.complete = True
+            else:
+                out.reason = f"{source} pagination ended at {len(out)} of reported total {out.total}"
+            return True
         out.complete = True
         return True
     if any(not j["id"] for j in page):
@@ -112,7 +122,7 @@ def _consume_page(out, page, seen, source, limit):
 
 
 def _finish_listing(out, source, limit):
-    if not out.complete:
+    if not out.complete and not out.reason:
         out.reason = f"{source} reached source limit {limit}; reported total {out.total if out.total is not None else 'unknown'}"
     return out
 
@@ -276,19 +286,37 @@ def fetch_ashby(cfg):
 
 
 def fetch_smartrecruiters(cfg):
+    """SmartRecruiters public postings API, every page (100 per request)."""
     t = cfg["token"]
-    url = f"https://api.smartrecruiters.com/v1/companies/{t}/postings?limit=100"
-    r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
-    r.raise_for_status()
-    out = []
-    for j in r.json().get("content", []):
-        loc = j.get("location") or {}
-        out.append({
-            "id": str(j.get("id")),
-            "title": j.get("name", ""),
-            "location": ", ".join(x for x in [loc.get("city"), loc.get("country")] if x),
-            "url": f"https://jobs.smartrecruiters.com/{t}/{j.get('id')}",
-        })
+    limit = _source_limit(cfg)
+    out, seen, offset = SourceListing(), set(), 0
+    while offset < limit:
+        r = requests.get(f"https://api.smartrecruiters.com/v1/companies/{t}/postings",
+                         params={"limit": 100, "offset": offset},
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("totalFound"), int):
+            out.total = data["totalFound"]
+        posts = data.get("content") or []
+        for j in posts:
+            jid = str(j.get("id"))
+            if jid in seen or len(out) >= limit:
+                continue
+            seen.add(jid)
+            loc = j.get("location") or {}
+            out.append({
+                "id": jid,
+                "title": j.get("name", ""),
+                "location": ", ".join(x for x in [loc.get("city"), loc.get("country")] if x),
+                "url": f"https://jobs.smartrecruiters.com/{t}/{jid}",
+            })
+        offset += len(posts)
+        if not posts or (out.total is not None and offset >= out.total):
+            break
+    out.complete = out.total is not None and len(out) >= out.total
+    if not out.complete:
+        out.reason = f"SmartRecruiters returned {len(out)} of {out.total} postings"
     return out
 
 
@@ -360,29 +388,41 @@ def fetch_workday(cfg):
 
 def fetch_amazon_jobs(cfg):
     """amazon.jobs public search JSON. cfg: query (e.g. 'software intern'),
-    optionally country. Returns newest 100 matches."""
-    params = {
-        "base_query": cfg.get("query", "software engineer intern"),
-        "result_limit": 100, "offset": 0, "sort": "recent",
-    }
-    if cfg.get("country"):
-        params["country"] = cfg["country"]
-    r = requests.get("https://www.amazon.jobs/en/search.json", params=params,
-                     headers={"User-Agent": UA, "Accept": "application/json"},
-                     timeout=TIMEOUT)
-    r.raise_for_status()
-    out = []
-    for j in r.json().get("jobs", []):
-        desc = "\n\n".join(html_to_text(j.get(k) or "") for k in (
-            "description_short", "basic_qualifications", "preferred_qualifications"))
-        out.append({
-            "id": str(j.get("id_icims") or j.get("id")),
-            "title": j.get("title", ""),
-            "location": j.get("normalized_location", "") or j.get("location", ""),
-            "url": "https://www.amazon.jobs" + (j.get("job_path") or ""),
-            "description": desc.strip(),
-            "department": j.get("job_category") or "",
-        })
+    optionally country and max (default 1000). Reads every page of matches,
+    newest first; a keyword search is never treated as Amazon's full listing."""
+    limit = cfg.get("max", 1000)
+    out, seen, offset = SourceListing(reason="amazon.jobs keyword search"), set(), 0
+    while offset < limit:
+        params = {"base_query": cfg.get("query", "software engineer intern"),
+                  "result_limit": 100, "offset": offset, "sort": "recent"}
+        if cfg.get("country"):
+            params["country"] = cfg["country"]
+        r = requests.get("https://www.amazon.jobs/en/search.json", params=params,
+                         headers={"User-Agent": UA, "Accept": "application/json"},
+                         timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("hits"), int):
+            out.total = data["hits"]
+        jobs = data.get("jobs") or []
+        for j in jobs:
+            jid = str(j.get("id_icims") or j.get("id"))
+            if jid in seen:
+                continue
+            seen.add(jid)
+            desc = "\n\n".join(html_to_text(j.get(k) or "") for k in (
+                "description_short", "basic_qualifications", "preferred_qualifications"))
+            out.append({
+                "id": jid,
+                "title": j.get("title", ""),
+                "location": j.get("normalized_location", "") or j.get("location", ""),
+                "url": "https://www.amazon.jobs" + (j.get("job_path") or ""),
+                "description": desc.strip(),
+                "department": j.get("job_category") or "",
+            })
+        offset += len(jobs)
+        if not jobs or (out.total is not None and offset >= out.total):
+            break
     return out
 
 
@@ -457,6 +497,9 @@ _HTML_TAG = re.compile(r"<[^>]+>")
 _DECOR = re.compile(r"[✓✅🆕🔥⭐🎯🛂🔒🇺🇸🇨🇦↳*_`]")
 
 
+_ZERO_WIDTH = re.compile("[\u200b-\u200d\u2060\ufeff]")
+
+
 def _cell_text(cell):
     s = _MD_IMG.sub("", cell)
     m = _MD_LINK.search(s)
@@ -465,6 +508,7 @@ def _cell_text(cell):
     else:
         s = _HTML_TAG.sub("", s)
     s = _DECOR.sub("", s)
+    s = _ZERO_WIDTH.sub("", s)      # some lists hide zero-width spaces inside words
     return re.sub(r"\s+", " ", s).strip(" -—")
 
 
@@ -699,59 +743,91 @@ def fetch_janestreet(cfg):
     return out
 
 
+PHENOM_PASSES = 4
+
+
 def fetch_phenom(cfg):
     """Phenom People career sites (jobs.rbc.com etc). cfg: host, query,
-    size (page size, default 100), max (default 5000), url template."""
+    size (page size, default 100), max (default 5000), url template.
+
+    Phenom orders ties differently on every request, so one paged pass can
+    repeat some postings and skip others (RBC: 798-825 of 827). Pages are
+    sorted newest first and whole passes repeat, merging by id, until every
+    reported posting is seen. A short read keeps what it found but is not
+    marked complete, so it can never close postings it merely missed."""
     limit = _source_limit(cfg)
     size = cfg.get("size", 100)
     if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= 100:
         raise ValueError("Phenom size must be an integer from 1 to 100")
     body = {"lang": "en_us", "deviceType": "desktop", "country": "us",
             "pageName": "search-results", "ddoKey": "refineSearch", "from": 0,
-            "jobs": True, "counts": True, "size": size,
+            "jobs": True, "counts": True, "size": size, "sortBy": cfg.get("sort", "Most recent"),
             "clearAll": False, "jdsource": "facets", "siteType": "external",
             "keywords": cfg.get("query", ""), "global": True,
             "selected_fields": {}, "all_fields": ["category", "location"]}
     url_tmpl = cfg.get("url", f"https://{cfg['host']}/en/job/{{id}}")
-    out, offset, seen = SourceListing(), 0, set()
-    while offset < limit:
-        request_body = {**body, "from": offset, "size": min(size, limit - offset)}
-        r = requests.post(f"https://{cfg['host']}/widgets", json=request_body,
-                          headers={"User-Agent": UA, "Accept": "application/json",
-                                   "Content-Type": "application/json"}, timeout=TIMEOUT)
-        r.raise_for_status()
-        result = r.json().get("refineSearch", {})
-        if result.get("status", 200) != 200:
-            raise RuntimeError("Phenom pagination returned an unsuccessful search")
-        if out.total is None and isinstance(result.get("totalHits"), int):
-            out.total = result["totalHits"]
-        posts = result.get("data", {}).get("jobs")
-        if not isinstance(posts, list):
-            raise RuntimeError("Phenom pagination response has no jobs list")
-        page = []
-        for j in posts:
-            jid = str(j.get("jobId") or j.get("reqId") or "")
-            loc = (j.get("cityStateCountry") or j.get("cityState")
-                   or j.get("location") or j.get("city") or "")
-            page.append({
-                "id": jid, "title": j.get("title", ""),
-                "location": loc if isinstance(loc, str) else "; ".join(loc),
-                "url": j.get("applyUrl") or url_tmpl.format(id=jid),
-                "posted": _iso_epoch(j.get("postedDate")),
-                "description": html_to_text(j.get("descriptionTeaser") or ""),
-                "department": j.get("category") or "",
-            })
-        if _consume_page(out, page, seen, "Phenom", limit):
+    out, seen = SourceListing(), set()
+    passes = 0
+    while passes < PHENOM_PASSES:
+        passes += 1
+        offset = 0
+        while offset < limit:
+            request_body = {**body, "from": offset, "size": size}
+            r = requests.post(f"https://{cfg['host']}/widgets", json=request_body,
+                              headers={"User-Agent": UA, "Accept": "application/json",
+                                       "Content-Type": "application/json"}, timeout=TIMEOUT)
+            r.raise_for_status()
+            result = r.json().get("refineSearch", {})
+            if result.get("status", 200) != 200:
+                raise RuntimeError("Phenom pagination returned an unsuccessful search")
+            if out.total is None and isinstance(result.get("totalHits"), int):
+                out.total = result["totalHits"]
+                if out.total < 0:
+                    raise RuntimeError("Phenom pagination returned an inconsistent total")
+            posts = result.get("data", {}).get("jobs")
+            if not isinstance(posts, list):
+                raise RuntimeError("Phenom pagination response has no jobs list")
+            if not posts:
+                break
+            for j in posts:
+                jid = str(j.get("jobId") or j.get("reqId") or "")
+                if not jid:
+                    raise RuntimeError("Phenom pagination returned a posting without an id")
+                if jid in seen or len(out) >= limit:
+                    continue
+                seen.add(jid)
+                loc = (j.get("cityStateCountry") or j.get("cityState")
+                       or j.get("location") or j.get("city") or "")
+                out.append({
+                    "id": jid, "title": j.get("title", ""),
+                    "location": loc if isinstance(loc, str) else "; ".join(loc),
+                    "url": j.get("applyUrl") or url_tmpl.format(id=jid),
+                    "posted": _iso_epoch(j.get("postedDate")),
+                    "description": html_to_text(j.get("descriptionTeaser") or ""),
+                    "department": j.get("category") or "",
+                })
+            offset += len(posts)
+            if out.total is not None and offset >= out.total:
+                break
+        if out.total is None or len(out) >= min(out.total, limit):
             break
-        offset += len(posts)
-    return _finish_listing(out, "Phenom", limit)
+    if out.total is not None and len(out) >= out.total:
+        out.complete = True
+    elif len(out) >= limit:
+        out.reason = f"Phenom reached source limit {limit}; reported total {out.total}"
+    else:
+        out.reason = (f"Phenom returned {len(out)} of {out.total} postings after {passes} passes "
+                      "(the site's ordering is unstable); removals are not tracked this time")
+    return out
 
 
 def fetch_eightfold(cfg):
     """Eightfold-powered career sites (Netflix etc). cfg: host
-    ('explore.jobs.netflix.net'), domain ('netflix.com'), optional query."""
-    out, start = [], 0
-    while start < cfg.get("max", 100):      # API serves 10 per page
+    ('explore.jobs.netflix.net'), domain ('netflix.com'), optional query,
+    max (default 2000). The API serves 10 per page."""
+    limit = cfg.get("max", 2000)
+    out, seen, start = SourceListing(), set(), 0
+    while start < limit:
         params = {"domain": cfg["domain"], "start": start, "num": 10,
                   "sort_by": "timestamp"}
         if cfg.get("query"):
@@ -761,18 +837,27 @@ def fetch_eightfold(cfg):
                          timeout=TIMEOUT)
         r.raise_for_status()
         data = r.json()
+        if out.total is None and isinstance(data.get("count"), int):
+            out.total = data["count"]
         positions = data.get("positions", [])
         for p in positions:
+            pid = str(p.get("id"))
+            if pid in seen:
+                continue
+            seen.add(pid)
             out.append({
-                "id": str(p.get("id")),
+                "id": pid,
                 "title": p.get("name", ""),
                 "location": p.get("location", "") or "",
                 "url": p.get("canonicalPositionUrl")
-                       or f"https://{cfg['host']}/careers/job/{p.get('id')}",
+                       or f"https://{cfg['host']}/careers/job/{pid}",
             })
         start += len(positions)
-        if not positions or start >= data.get("count", 0):
+        if not positions or start >= (out.total or 0):
             break
+    out.complete = not cfg.get("query") and out.total is not None and len(out) >= out.total
+    if not out.complete:
+        out.reason = f"Eightfold returned {len(out)} of {out.total} postings"
     return out
 
 
@@ -1307,7 +1392,10 @@ def load_subscribers(global_filters):
             "finance_only": bool(s.get("finance_only", True)),
             "cooldown_minutes": int(s.get("cooldown_minutes", 60)),
             "urgent_per_company": int(s.get("urgent_per_company", 2)),
-            "saved_search_alerts": bool(s.get("saved_search_alerts")),
+            # saved views with Alerts on act as Discord filters
+            "saved_search_alerts": bool(s.get("saved_search_alerts", True)),
+            # False = only saved-view alerts, no general new-posting alerts
+            "match_alerts": bool(s.get("match_alerts", True)),
         })
     return out
 
@@ -2252,6 +2340,8 @@ def cycle(config, con, progress=None):
     intel_rows = fetch_intel(con, gated) if store else {}
     for sub in subs:
         mine = []
+        if not sub["match_alerts"]:
+            continue
         for board, jobs in gated.items():
             if "all" not in sub["companies"] and board not in sub["companies"]:
                 continue

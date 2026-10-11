@@ -68,3 +68,19 @@ class DiscordSettingsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DiscordModeTests(DiscordSettingsTests):
+    def test_views_only_mode_is_saved_survives_reconnect_and_turns_off_match_alerts(self):
+        with mock.patch.object(watcher, "send_discord_note", return_value=True):
+            self.service.put_discord({"webhook": HOOK})
+            self.assertEqual("matches_and_views", self.service.get_discord()["mode"])
+            self.assertEqual("views_only", self.service.put_discord_settings({"mode": "views_only"})["mode"])
+            self.service.put_discord({"webhook": HOOK})
+        self.assertEqual("views_only", self.service.get_discord()["mode"])
+        with mock.patch.object(watcher, "SUBSCRIBERS", self.subs):
+            desktop = next(s for s in watcher.load_subscribers({}) if s["name"] == "desktop")
+        self.assertFalse(desktop["match_alerts"])
+        self.assertTrue(desktop["saved_search_alerts"])
+        with self.assertRaises(ApiError):
+            self.service.put_discord_settings({"mode": "everything"})

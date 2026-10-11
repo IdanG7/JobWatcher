@@ -33,6 +33,10 @@ export async function render(root, ctx) {
   const discordHtml = () => `<h2>Discord notifications</h2>
         <p>Get Discord messages for new postings that match your profile, a morning summary of upcoming deadlines, interviews and follow-ups, and saved jobs that get taken down. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
         ${discord.configured ? `<p class="muted">Connected (webhook ${esc(discord.webhook_hint)}).</p>` : ''}
+        ${discord.configured ? `<div class="field-row"><label class="field"><span>Which new postings to send</span><select class="select" data-discord-mode>
+          <option value="matches_and_views"${discord.mode !== 'views_only' ? ' selected' : ''}>Good matches for my profile, plus my saved views</option>
+          <option value="views_only"${discord.mode === 'views_only' ? ' selected' : ''}>Only my saved views (my own filters)</option></select></label></div>
+        <p class="muted">To set filters: open <a class="link" href="#/opportunities">Opportunities</a>, choose filters (role, location, company, keywords…), press <b>Save view</b>, then switch <b>Alerts</b> on for that view under <a class="link" href="#s-views" data-jump>Saved views</a>. Reminders and taken-down alerts are sent either way.</p>` : ''}
         <div class="field-row"><label class="field"><span>${discord.configured ? 'Replace webhook URL' : 'Webhook URL'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-discord-url placeholder="https://discord.com/api/webhooks/…"></label></div>
         <div class="save-bar"><button type="button" class="btn primary" data-act="discord-save">Connect &amp; send test</button>${discord.configured ? '<button type="button" class="btn" data-act="discord-test">Send test message</button><button type="button" class="btn danger" data-act="discord-remove">Disconnect</button>' : ''}</div>`;
   const redrawDiscord = () => { root.querySelector('#s-discord').innerHTML = discordHtml(); };
@@ -205,6 +209,11 @@ export async function render(root, ctx) {
     if (pref === 'theme') { ctx.store.set('jw-theme', e.target.value || null); ctx.applyTheme(); }
     if (pref === 'density') { ctx.store.set('jw-density', e.target.value); document.documentElement.dataset.density = e.target.value; }
     if (pref === 'hints') { ctx.store.set('jw-hints', e.target.value); document.getElementById('hint-bar').hidden = e.target.value === 'off'; }
+    if (e.target.matches('[data-discord-mode]')) {
+      try { discord = await put('/api/discord/settings', {mode: e.target.value}); toast(discord.mode === 'views_only' ? 'Discord will only send your saved views' : 'Discord will send good matches and your saved views'); }
+      catch (err) { toast(err.message, {error: true}); redrawDiscord(); }
+      return;
+    }
     if (e.target.matches('[data-notify]')) {
       const id = e.target.closest('tr').dataset.sid;
       try { await patch(`/api/saved-searches/${id}`, {notify: e.target.checked}); toast(e.target.checked ? 'Alerts on for this view' : 'Alerts off'); } catch (err) { toast(err.message, {error: true}); }

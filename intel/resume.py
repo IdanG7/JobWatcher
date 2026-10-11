@@ -23,6 +23,7 @@ from .knowledge import Knowledge
 from .locations import parse_location
 from .skills import extract_skills
 from .taxonomy import classify
+from . import resume_insights as insights
 
 MAX_BYTES = 5_000_000
 MAX_CHARS = 60_000
@@ -148,7 +149,7 @@ def _pdf_limits(pypdf):
 # ---------------------------------------------------------------- field extraction
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _PHONE = re.compile(r"(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}")
-_LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?", re.I)
+_LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?|(?<![\w/])in/[\w-]{3,}", re.I)
 _SECTION = re.compile(
     r"^\s*(education|academic|experience|work experience|professional experience|employment|"
     r"skills|technical skills(?:\s*(?:&|and)\s*interests)?|skills\s*(?:&|and)\s*interests|leadership(?:\s*(?:&|and)\s*activities)?|activities|extracurricular|"
@@ -240,6 +241,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
     school = next((l.strip(" ,|") for l in (edu_lines or full.splitlines()) if _SCHOOL.search(l) and len(l) < 120), None)
     if school:
         school = re.split(r"\s{2,}|\t|\s[|–—]\s|,\s*(?:expected|20\d\d)", school)[0].strip(" ,|")
+        school = insights.strip_city(school)
     level, degree_text = None, None
     for key, pattern in _DEGREES:
         m = pattern.search(text)
@@ -342,6 +344,10 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
     roles, bullets = _experience(exp_lines or lines, kn)
+    entries = insights.experience_entries(sections)
+    edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
+    interests = insights.role_interests(entries, edu_text, kn)
+    career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))
     skills = extract_skills(text, kn, limit=60)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference
@@ -349,10 +355,6 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         if len(line) < 160:
             for city in parse_location(line, kn)["cities"]:
                 cities[city] += 1
-    categories: Counter = Counter()
-    for r in roles:
-        categories[f"{r['category']}.{r['subcategory']}" if r["subcategory"] else r["category"]] += 2
-        categories[r["category"]] += 1
     work_auth = {}
     for country, value, pattern in _AUTH:
         if country not in work_auth and pattern.search(text):
@@ -369,11 +371,16 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "skills": skills,
         "roles": roles,
         "bullets": bullets,
-        "role_categories": [k for k, _ in categories.most_common(8)],
+        # specific role targets (never whole categories), strongest first
+        "role_categories": [i["key"] for i in interests],
+        "role_interests": interests,
+        "career": career,
+        "company_types": insights.company_types(interests),
+        "entries": [{k: e[k] for k in ("block", "company", "title", "end")} for e in entries],
         "cities": [c for c, _ in cities.most_common(6)],
         "languages": _languages(text),
         "work_authorization": work_auth,
-        "internships": sum(1 for r in roles if re.search(r"\b(?:intern|internship|summer analyst|co-?op)\b", r["text"], re.I)),
+        "internships": insights.student_roles(entries),
         "chars": len(text),
     }
 
@@ -442,8 +449,27 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     result["education"] = {**(result.get("education") or {}),
         **{k: edu[k] for k in ("school", "program", "level", "gpa") if edu.get(k) not in (None, "")}}
     result["skills"] = [s["key"] for s in parsed.get("skills", []) if s["key"] in kn.skill_by_key]
-    roles = [r for r in parsed.get("role_categories", []) if r in kn.categories or r in kn.subcategories]
-    result["target_roles"] = list(dict.fromkeys([*(profile.get("target_roles") or []), *roles]))
+    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()}
+    interests = [i for i in parsed.get("role_interests") or [] if i["key"] in valid]
+    if interests:
+        # The resume decides the targets; weights grade them (strongest = 1.0).
+        result["target_roles"] = [i["key"] for i in interests]
+        result["role_weights"] = {i["key"]: round(0.6 + 0.4 * i["strength"], 2) for i in interests}
+    else:
+        roles = [r for r in parsed.get("role_categories", []) if r in valid]
+        result["target_roles"] = list(dict.fromkeys([*(profile.get("target_roles") or []), *roles]))
+    types = [t for t in parsed.get("company_types") or [] if t in kn.company_types]
+    if types:
+        result["target_company_types"] = types
+    career = parsed.get("career") or {}
+    if career.get("stages"):
+        result["target_stages"] = career["stages"]
+    # Location stays the user's choice; the resume only fills an empty one.
+    if not result.get("target_locations"):
+        result["target_locations"] = [c for c in parsed.get("cities") or [] if c in kn.city_by_key][:3]
+    if not result.get("target_countries"):
+        countries = [kn.city_by_key[c].get("country") for c in result["target_locations"]]
+        result["target_countries"] = list(dict.fromkeys(c for c in countries if c))
     if parsed.get("languages"):
         result["languages"] = list(parsed["languages"])
     if edu.get("graduation_year"):
@@ -451,6 +477,7 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
         result["graduation_year"] = year
         if edu.get("graduation_month"):
             result["graduation_month"] = edu["graduation_month"]
-        result["target_cycles"] = ([f"summer_{year - 1}"] if year - 1 >= date.today().year else []) + [f"new_grad_{year}"]
+        result["target_cycles"] = career.get("cycles") or (
+            ([f"summer_{year - 1}"] if year - 1 >= date.today().year else []) + [f"new_grad_{year}"])
     # Authorization remains a user-controlled preference, even when mentioned in a CV.
     return result

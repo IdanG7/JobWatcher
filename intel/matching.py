@@ -1,5 +1,12 @@
 """Explainable resume filtering: explicit conflicts exclude, unknowns stay visible."""
 
+# Finance roles that need a background a resume must show; outside the
+# candidate's targets they are filtered instead of merely ranked lower.
+SPECIALIST = {
+    "quant": "Quant role: needs a programming / mathematics background your resume and targets don't show",
+    "insurance": "Actuarial / underwriting role: outside your resume and targets",
+}
+
 
 def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     cls, stage = facts["classification"], facts["seniority"].get("stage")
@@ -10,7 +17,9 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     full = f"{category}.{sub}" if sub else category
     relevant = not targets or category in targets or full in targets or (
         not sub and any(t.startswith(f"{category}.") for t in targets))
-    if not relevant and cls.get("is_finance"):
+    if not relevant and cls.get("is_finance") and category in SPECIALIST:
+        exclusions.append(SPECIALIST[category])
+    elif not relevant and cls.get("is_finance"):
         reasons.append("Eligible finance role; your targets and experience affect ranking")
     elif not relevant and cls.get("family") not in (None, "unknown", "other"):
         exclusions.append("Role is outside finance and your selected career targets")
@@ -62,6 +71,9 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     year = profile.get("graduation_year")
     if year and cycle.get("year") and not cycle.get("inferred") and stage == "new_grad" and cycle["year"] < year:
         exclusions.append(f"Graduate program starts in {cycle['year']}, before graduation in {year}")
+    elif (year and cycle.get("year") and not cycle.get("inferred") and stage == "new_grad"
+          and cycle["year"] > year + 1):
+        exclusions.append(f"Graduate program is for {cycle['year']} graduates; you graduate in {year}")
     if scored.get("window_status") == "closed":
         exclusions.append("Posting or application window is closed")
     mine = set(profile.get("skills") or [])

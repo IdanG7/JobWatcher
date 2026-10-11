@@ -1296,7 +1296,8 @@ class JobwatchService:
                 raise ResumeError("could not recognize education and experience or skills; upload or paste the complete resume")
         except ResumeError as exc:
             raise ApiError(str(exc)) from exc
-        parsed = {k: parsed[k] for k in ("education", "skills", "roles", "role_categories", "languages", "work_authorization")}
+        parsed = {k: parsed.get(k) for k in ("education", "skills", "roles", "role_categories", "role_interests", "career",
+                                             "company_types", "cities", "internships", "languages", "work_authorization")}
         parsed["roles"] = [{k: r[k] for k in ("title", "category", "subcategory", "label")} for r in parsed["roles"]]
         with self.db() as con:
             current = self.profile(con)
@@ -1383,8 +1384,22 @@ class JobwatchService:
 
     def get_discord(self) -> dict:
         with self._discord_lock:
-            hook = str(self._read_subscribers().get(DISCORD_SUBSCRIBER, {}).get("discord_webhook", ""))
-        return {"configured": bool(hook), "webhook_hint": f"…{hook[-6:]}" if hook else ""}
+            entry = self._read_subscribers().get(DISCORD_SUBSCRIBER, {})
+        hook = str(entry.get("discord_webhook", ""))
+        mode = "views_only" if entry.get("match_alerts") is False else "matches_and_views"
+        return {"configured": bool(hook), "webhook_hint": f"…{hook[-6:]}" if hook else "", "mode": mode}
+
+    def put_discord_settings(self, payload: dict) -> dict:
+        mode = payload.get("mode")
+        if mode not in ("matches_and_views", "views_only"):
+            raise ApiError("mode must be matches_and_views or views_only")
+        with self._discord_lock:
+            subs = self._read_subscribers()
+            if DISCORD_SUBSCRIBER not in subs:
+                raise ApiError("Connect Discord first.")
+            subs[DISCORD_SUBSCRIBER].update(match_alerts=mode == "matches_and_views", saved_search_alerts=True)
+            self._write_subscribers(subs)
+        return self.get_discord()
 
     def put_discord(self, payload: dict) -> dict:
         webhook = str(payload.get("webhook") or "").strip()
@@ -1400,7 +1415,10 @@ class JobwatchService:
             subs = self._read_subscribers()
             subs[DISCORD_SUBSCRIBER] = {
                 "companies": ["all"], "alert_mode": "fit", "finance_only": False,
-                "ops": True, "reminders": True, "discord_webhook": webhook,
+                "ops": True, "reminders": True, "saved_search_alerts": True,
+                "discord_webhook": webhook,
+                # replacing the webhook keeps the chosen alert mode
+                "match_alerts": subs.get(DISCORD_SUBSCRIBER, {}).get("match_alerts", True),
             }
             self._write_subscribers(subs)
         return self.get_discord()
@@ -1656,6 +1674,7 @@ ROUTES = [
     ("PUT", r"/api/profile", lambda s, m, q, b: s.put_profile(b)),
     ("GET", r"/api/discord", lambda s, m, q, b: s.get_discord()),
     ("PUT", r"/api/discord", lambda s, m, q, b: s.put_discord(b)),
+    ("PUT", r"/api/discord/settings", lambda s, m, q, b: s.put_discord_settings(b)),
     ("POST", r"/api/discord/test", lambda s, m, q, b: s.test_discord()),
     ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),

@@ -44,8 +44,14 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertNotIn("python", profile["skills"])
         self.assertNotIn("statistics", profile["skills"])
         self.assertIn("corporate_finance.treasury", profile["target_roles"])
-        self.assertIn("investment_banking", profile["target_roles"])
-        self.assertEqual(["summer_2027", "new_grad_2028"], profile["target_cycles"])
+        # The resume decides targets (graded), replacing earlier ones; whole
+        # categories are never targeted, so siblings like Accounting don't
+        # inherit full role credit.
+        self.assertNotIn("investment_banking", profile["target_roles"])
+        self.assertTrue(all("." in r for r in profile["target_roles"]))
+        self.assertEqual(1.0, max(profile["role_weights"].values()))
+        self.assertIn("summer_2027", profile["target_cycles"])
+        self.assertIn("new_grad_2028", profile["target_cycles"])
         self.assertEqual(before["work_authorization"], profile["work_authorization"])
         self.assertEqual(before["target_locations"], profile["target_locations"])
 

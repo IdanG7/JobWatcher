@@ -1,0 +1,226 @@
+"""What a resume says about the roles a candidate should be ranked for.
+
+Past job *titles* alone are a poor guide: a student's titles are generic
+("Student Financial Analyst") while the work behind them is specific
+(DCF models, post-merger valuation, treasury funding). This module reads the
+whole resume -- titles, bullets, coursework and certifications -- and turns
+it into graded role interests, a recruiting plan from the graduation date,
+and employer types. Every interest keeps the phrases that produced it, so
+the dashboard can explain each suggestion. Nothing here guesses facts the
+resume does not contain.
+"""
+
+from __future__ import annotations
+
+import re
+from datetime import date
+
+from .knowledge import Knowledge
+from .taxonomy import classify
+
+# (target role, weight, evidence pattern). Each distinct phrase counts once
+# per resume block, so repeating a word does not inflate a role.
+SIGNALS: list[tuple[str, float, re.Pattern]] = [(key, weight, re.compile(pattern, re.I)) for key, weight, pattern in [
+    ("investment_banking.ma", 2.0, r"\bm&a\b|mergers?\b|acquisitions?\b|post-merger|due diligence|enterprise value|"
+                                   r"pitch ?books?|precedent transactions?|comparable compan\w+|trading comps|accretion"),
+    ("investment_banking.ma", 1.5, r"\bdcf\b|discounted cash flow|\bwacc\b|valuations?\b|terminal (?:growth|value)|"
+                                   r"\blbo\b|leveraged buy ?outs?|sensitivity analysis"),
+    ("investment_banking.dcm", 1.0, r"debt capital markets|bond issuance|fixed income"),
+    ("investment_banking.ecm", 1.0, r"equity capital markets|\bipos?\b"),
+    ("corporate_finance.corporate_development", 1.5, r"post-merger|due diligence|valuations?\b|capital (?:allocation|investment)|"
+                                                     r"investment projects?|\bnpv\b|\birr\b|integration"),
+    ("corporate_finance.strategic_finance", 1.0, r"strategic (?:budgeting|planning|finance)|business cases?|capital investment"),
+    ("private_markets.private_equity", 1.0, r"\blbo\b|leveraged buy ?outs?|portfolio compan\w+|private equity|value creation|due diligence"),
+    ("private_markets.real_estate", 2.0, r"real estate|\breits?\b|propert(?:y|ies)\b|\bnoi\b|cap rates?"),
+    ("private_markets.infrastructure", 1.0, r"infrastructure"),
+    ("public_markets.equity_research", 1.5, r"equity research|stock pitch\w*|investment thes[ie]s|\bcfa\b|"
+                                            r"financial statement analysis|investments? (?:club|fund)"),
+    ("public_markets.asset_management", 1.5, r"\bcfa\b|portfolios?\b|asset management|\binvestments\b|capital market theory|"
+                                             r"pension|fund\b"),
+    ("markets.fixed_income", 1.5, r"fixed income|\bbonds?\b|yield curves?|\bduration\b|credit spreads?"),
+    ("markets.derivatives", 1.5, r"\boptions\b|greeks|derivatives?|futures|\bswaps?\b|volatility"),
+    ("markets.sales_trading", 1.2, r"trading|macro\b|market making|sales (?:&|and) trading|financial markets"),
+    ("corporate_finance.treasury", 2.0, r"treasury|liquidity|cash (?:positioning|management|forecast\w*)|funding|"
+                                        r"wire transfers?|kyriba|banking relationships?"),
+    ("corporate_finance.fpa", 2.0, r"fp&a|budget\w*|forecast\w*|variance|capex|management reporting|"
+                                   r"financial planning|monthly reports?"),
+    ("corporate_finance.accounting", 1.0, r"accounting|accounts payable|\bap\b|journal entr\w+|reconciliations?|general ledger|"
+                                          r"\bg/l\b|invoices?|period-end close|month-end close|\bifrs\b|\bgaap\b"),
+    ("banking.credit", 1.5, r"credit (?:analysis|memo|risk)|underwrit\w+|lending|\bloans?\b|covenants?"),
+    ("risk.market_risk", 1.0, r"\bvar\b|value at risk|stress test\w*|liquidity risk|risk oversight"),
+    ("quant.quant_research", 1.5, r"\bpython\b|stochastic|machine learning|statistical model\w*|\bc\+\+|backtest\w*"),
+    ("wealth.wealth_management", 1.5, r"wealth|financial advis\w+|client portfolios|private client"),
+]]
+# Book-keeping tasks appear in almost every finance student's resume, so they
+# count for less unless the candidate actually held an accounting title.
+TASK_DISCOUNT = {"corporate_finance.accounting": 0.4}
+# Most recent role first; resumes list experience in reverse order.
+RECENCY = (1.0, 0.8, 0.65, 0.55, 0.45)
+BLOCK_WEIGHT = {"experience": 1.0, "leadership": 0.5, "projects": 0.7, "education": 0.8}
+TITLE_POINTS = 4.0
+COMPANY_TYPES = {
+    "investment_banking": ["bulge_bracket", "elite_boutique", "middle_market_bank", "canadian_bank"],
+    "private_markets": ["private_equity", "pension_fund", "asset_manager"],
+    "public_markets": ["asset_manager", "pension_fund", "hedge_fund"],
+    "markets": ["bulge_bracket", "canadian_bank", "global_bank"],
+    "banking": ["canadian_bank", "commercial_bank"],
+    "corporate_finance": ["corporate", "pension_fund"],
+    "quant": ["quant_firm", "hedge_fund"],
+    "wealth": ["canadian_bank", "asset_manager"],
+    "risk": ["canadian_bank", "global_bank"],
+}
+_STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term)\b", re.I)
+_BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
+_RANGE = re.compile(r"(?:[A-Za-z]{3,9}\.?\s*)?(20\d\d)\s*(?:-|–|—|to)\s*(?:[A-Za-z]{3,9}\.?\s*)?(20\d\d|present|current|now)", re.I)
+_SEASON_START = {"winter": 1, "summer": 5, "fall": 9}
+# "Toronto, ON" / "New York, NY": one word, or two when the first is a city prefix.
+_CITY_SUFFIX = re.compile(r"\s+(?:(?:New|San|Los|Las|Salt|St\.?|Saint|Fort|Grand|Thunder|Niagara)\s)?"
+                          r"[A-Z][a-z.'-]+,\s*[A-Z]{2}$")
+TITLE_SIGNAL_FACTOR = 2.0      # words in a job title say more than words in a bullet
+COMPANY_SIGNAL_FACTOR = 0.5    # the employer's business ("Properties", "Capital") is weaker evidence
+
+
+def strip_city(text: str) -> str:
+    return _CITY_SUFFIX.sub("", text).strip()
+
+
+def experience_entries(sections: dict[str, list[str]]) -> list[dict]:
+    """Group resume lines into roles: company, title, dates and their bullets.
+
+    A line with a date range is a role; the plain line before it names the
+    employer; bullet lines (and their wrapped continuations) belong to it.
+    """
+    entries: list[dict] = []
+    for block in ("experience", "leadership", "projects"):
+        company = ""
+        current = None
+        for raw in sections.get(block, []):
+            line = raw.strip()
+            if not line:
+                continue
+            if _BULLET.match(raw):
+                if current is None:
+                    current = {"block": block, "company": company, "title": "", "end": None, "bullets": []}
+                    entries.append(current)
+                current["bullets"].append(_BULLET.sub("", line).strip())
+                continue
+            dates = _RANGE.search(line)
+            if dates:
+                end = dates.group(2)
+                current = {"block": block, "company": company, "title": line[:dates.start()].strip(" ,|–—-"),
+                           "end": date.today().year if not end.isdigit() else int(end), "bullets": []}
+                entries.append(current)
+                continue
+            if current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
+                current["bullets"][-1] += " " + line          # wrapped bullet text
+            else:
+                company = strip_city(line)        # drop a trailing "Toronto, ON"
+                current = None
+    return entries
+
+
+def _hits(text: str) -> dict[str, tuple[float, list[str]]]:
+    found: dict[str, tuple[float, list[str]]] = {}
+    for key, weight, pattern in SIGNALS:
+        phrases = list(dict.fromkeys(m.group(0).lower() for m in pattern.finditer(text)))
+        if phrases:
+            points, evidence = found.get(key, (0.0, []))
+            found[key] = (points + weight * min(len(phrases), 3), evidence + phrases)
+    return found
+
+
+def role_interests(entries: list[dict], education_text: str, kn: Knowledge) -> list[dict]:
+    """Graded role targets with the evidence behind each."""
+    scores: dict[str, float] = {}
+    evidence: dict[str, list[str]] = {}
+    titled: set[str] = set()
+
+    def add(key, points, why):
+        scores[key] = scores.get(key, 0.0) + points
+        evidence.setdefault(key, [])
+        for w in why:
+            if w not in evidence[key]:
+                evidence[key].append(w)
+
+    work = [e for e in entries if e["block"] == "experience"]
+    for entry in entries:
+        rank = work.index(entry) if entry in work else 2
+        weight = BLOCK_WEIGHT.get(entry["block"], 0.5) * RECENCY[min(rank, len(RECENCY) - 1)]
+        if entry["title"]:
+            cls = classify(entry["title"], kn)
+            if cls["is_finance"] and cls.get("subcategory") and cls["confidence"] >= 0.45:
+                key = f"{cls['category']}.{cls['subcategory']}"
+                titled.add(key)
+                add(key, TITLE_POINTS * weight, [f"title: {entry['title']}"])
+        for key, (points, phrases) in _hits(entry["title"]).items():
+            add(key, points * weight * TITLE_SIGNAL_FACTOR, [f"title: {p}" for p in phrases])
+        for key, (points, phrases) in _hits(entry["company"]).items():
+            add(key, points * weight * COMPANY_SIGNAL_FACTOR, [f"employer: {p}" for p in phrases])
+        for key, (points, phrases) in _hits(" ".join(entry["bullets"])).items():
+            add(key, points * weight, phrases)
+    for key, (points, phrases) in _hits(education_text).items():
+        add(key, points * BLOCK_WEIGHT["education"], phrases)
+    for key, factor in TASK_DISCOUNT.items():
+        if key in scores and key not in titled:
+            scores[key] *= factor
+    valid = {f"{s.parent}.{s.key}" for s in kn.subcategories.values()}
+    ranked = sorted(((k, v) for k, v in scores.items() if k in valid and v > 0), key=lambda kv: -kv[1])
+    if not ranked:
+        return []
+    top = ranked[0][1]
+    out = []
+    for key, value in ranked:
+        strength = value / top
+        if strength < 0.3:
+            break
+        category, sub = key.split(".", 1)
+        out.append({"key": key, "label": f"{kn.category_label(category)} · {kn.subcategory_label(category, sub) or sub}",
+                    "strength": round(strength, 2), "evidence": evidence[key][:5]})
+    return out[:8]
+
+
+def career_plan(graduation_year: int | None, graduation_month: int | None, today: date | None = None) -> dict:
+    """Stages and recruiting cycles that make sense for the graduation date."""
+    today = today or date.today()
+    if not graduation_year:
+        return {}
+    grad = date(graduation_year, graduation_month or 5, 1)
+    months = (grad.year - today.year) * 12 + grad.month - today.month
+    cycles: list[str] = []
+    if months > 0:
+        # internship terms that start after today and before graduation
+        for year in range(today.year, graduation_year + 1):
+            for season, month in _SEASON_START.items():
+                start = date(year, month, 1)
+                if today < start < grad:
+                    cycles.append(f"{season}_{year}")
+        cycles += sorted({f"off_cycle_{int(c.rsplit('_', 1)[1])}" for c in cycles})
+    if months <= 13:
+        stages = ["internship", "new_grad", "entry"] if months > 0 else ["new_grad", "entry"]
+        cycles.append(f"new_grad_{graduation_year}")
+        note = ("Final year: new-grad and entry-level programs, plus any remaining internships"
+                if months > 0 else "Graduated: new-grad and entry-level roles")
+    elif months <= 24:
+        # Penultimate year: internships now; a few banks already post graduate
+        # programs for the graduation year, so those stay in (that year only).
+        stages = ["internship", "new_grad"]
+        cycles.append(f"new_grad_{graduation_year}")
+        note = (f"Graduating {grad:%b %Y}: internships and co-op terms, plus {graduation_year} "
+                "graduate programs that open early")
+    else:
+        stages = ["internship"]
+        note = f"Graduating {grad:%b %Y}: internships and co-op terms"
+    return {"stages": stages, "cycles": list(dict.fromkeys(cycles)), "note": note, "months_to_graduation": months}
+
+
+def company_types(interests: list[dict]) -> list[str]:
+    types: list[str] = []
+    for interest in interests[:5]:
+        for t in COMPANY_TYPES.get(interest["key"].split(".")[0], []):
+            if t not in types:
+                types.append(t)
+    return types[:7]
+
+
+def student_roles(entries: list[dict]) -> int:
+    return sum(1 for e in entries if e["block"] == "experience" and _STUDENT_ROLE.search(e["title"]))

@@ -3,7 +3,8 @@
     Role fit 25 · Career stage 20 · Company 15 · Location 10
     Recruiting cycle 10 · Skills 10 · Freshness 10          = 100
     minus penalties (senior role, degree, graduation year, geography,
-    sponsorship, language, GPA, role mismatch, closed/stale)
+    sponsorship, language, GPA, role mismatch, off-target finance role,
+    closed/stale)
 
 Every point carries a human-readable ``detail`` so the UI can answer
 "Why 91?" exactly.  Nothing here touches the network or the database.
@@ -83,7 +84,9 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         pts, detail = 25, f"{role_label} matches your {kn.category_label(which.split('.')[0])} target"
         reasons.append(f"{kn.category_label(cls['category'])} target")
     elif match == "category":
-        pts = 18 if not cls.get("subcategory") else 13
+        # A sibling of a target (Accounting next to an FP&A target) is related
+        # work, not a target: partial credit only.
+        pts = 14 if not cls.get("subcategory") else 9
         detail = (f"{role_label}: same division as your "
                   f"{kn.subcategory_label(*which.split('.')) or kn.category_label(which)} target")
     elif any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or []):
@@ -100,6 +103,15 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         pts *= 0.8
         detail += " (low-confidence classification)"
     sub("role", "Role fit", pts, 25, detail)
+    related = match or any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or [])
+    if targets and not related and cls.get("is_finance"):
+        # Internship + bank + city + cycle alone add up to ~60 points; without
+        # this, any generic co-op outranks the roles the candidate targets.
+        confident = cls.get("confidence", 0) >= 0.5
+        penalty("off_target", "Not a target role", 12 if confident else 6,
+                f"{role_label} is not one of your target roles")
+    elif targets and cls["category"] == "other":
+        penalty("off_target", "Not a target role", 6, "Couldn't place this role in any of your targets")
     has_nonfinance_target = any(t in kn.families for t in targets)
     if not cls.get("is_finance") and targets and not has_nonfinance_target and cls["category"] != "other":
         penalty("role_mismatch", "Role mismatch", 10, f"{cls['category_label']} role; your targets are finance roles")

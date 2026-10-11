@@ -11,7 +11,10 @@ export function resumeFacts(parsed = {}) {
     ['Skills', (parsed.skills || []).map(s => s.label).join(', ') || 'Not found'],
     ['Experience', (parsed.roles || []).map(r => r.title).join(' · ') || 'Not found'],
     ['Languages', (parsed.languages || []).join(', ') || 'Not found']];
-  return `<dl class="facts">${rows.map(([label, value]) => `<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`).join('')}</dl>`;
+  if (parsed.career?.note) rows.push(['Career stage', parsed.career.note]);
+  const interests = (parsed.role_interests || []).map(i => `<li><strong>${esc(i.label)}</strong> <span class="muted">${Math.round(i.strength * 100)}%</span>${i.evidence?.length ? `<br><span class="muted">${esc(i.evidence.join(' · '))}</span>` : ''}</li>`).join('');
+  return `<dl class="facts">${rows.map(([label, value]) => `<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`).join('')}</dl>`
+    + (interests ? `<p class="muted">Roles your experience points to (strongest first)</p><ul class="reasons">${interests}</ul>` : '');
 }
 
 export function resumeChanges(changes = {}, meta = {}) {
@@ -22,7 +25,7 @@ export function resumeChanges(changes = {}, meta = {}) {
   }
   const display = value => {
     if (Array.isArray(value)) return value.map(v => labels[v] || prettyKey(v)).join(', ') || 'None';
-    if (value && typeof value === 'object') return Object.entries(value).map(([k, v]) => `${prettyKey(k)}: ${v ?? 'Not specified'}`).join(' · ');
+    if (value && typeof value === 'object') return Object.entries(value).map(([k, v]) => `${labels[k] || prettyKey(k)}: ${v ?? 'Not specified'}`).join(' · ');
     return value ?? 'Not specified';
   };
   return Object.entries(changes).map(([key, change]) => `<div class="resume-change"><strong>${esc(prettyKey(key))}</strong><div><span class="muted">${esc(display(change.before))}</span><br><span>→ ${esc(display(change.after))}</span></div></div>`).join('') || '<p>No profile changes needed.</p>';
