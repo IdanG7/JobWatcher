@@ -147,6 +147,26 @@ def _posted_epoch(value):
         return _iso_epoch(value)
 
 
+_AGE = re.compile(r"^(\d+)\s*(mo|m|h|d|w)$", re.I)
+_AGE_SECONDS = {"m": 60, "h": 3600, "d": 86400, "w": 7 * 86400, "mo": 30 * 86400}
+
+
+def _age_posted_epoch(text, now=None):
+    """'36m' / '8h' / '2d' / '1w' / '3mo' (time since posting) -> epoch.
+
+    Day-or-longer ages are pinned to 12:00 UTC of that day so the value stays
+    stable across polls; 'Date unknown' and anything else gives None."""
+    m = _AGE.match((text or "").strip())
+    if not m:
+        return None
+    unit = m.group(2).lower()
+    when = (now or time.time()) - int(m.group(1)) * _AGE_SECONDS[unit]
+    if unit in ("m", "h"):
+        return float(int(when))
+    day = datetime.fromtimestamp(when, timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
+    return day.timestamp()
+
+
 def _workday_posted_epoch(text, now=None):
     """'Posted Today' / 'Posted Yesterday' / 'Posted 5 Days Ago' -> epoch at 12:00 UTC.
 
@@ -594,6 +614,10 @@ def fetch_github_md(cfg):
             sal = _cell_text(cells[cols["salary"]])
             if sal and sal != "-":
                 job["salary"] = sal
+        if "age" in cols:
+            posted = _age_posted_epoch(_cell_text(cells[cols["age"]]))
+            if posted:
+                job["posted"] = posted
         out.append(job)
     return out
 

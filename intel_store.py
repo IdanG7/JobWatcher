@@ -6,7 +6,8 @@ Bridges the pure ``intel`` package and SQLite:
 * score pass   — recomputes fit for the current profile; hourly for jobs
                  whose freshness / deadline can still move
 * clustering   — cross-source duplicates share a ``cluster_key``; one member
-                 is ``is_canonical`` (direct ATS > bespoke > repo > LinkedIn)
+                 is ``is_canonical`` (direct ATS > bespoke > repo > LinkedIn > lists whose
+                 links often miss the posting)
 * lifecycle    — change history and closed/removed detection for complete
                  listings
 
@@ -31,6 +32,7 @@ from intel import (CONFIG_DIR, FACTS_VERSION, build_facts, config_fingerprint, i
 COMPLETE_LISTING_ATS = {"greenhouse", "lever", "ashby", "janestreet", "marqeta", "github_listings", "github_md"}
 SOURCE_RANK = {"linkedin": 0, "github_listings": 1, "github_md": 1}
 DIRECT_RANK = 3
+INDIRECT_RANK = -1      # lists whose links often miss the posting (config: indirect_links)
 CHANGE_FIELDS = ("title", "location", "url", "salary")
 RESCORE_SECONDS = 3600
 CLOSE_AFTER_MISSES = 3
@@ -270,7 +272,7 @@ class IntelStore:
         rows = self.con.execute(
             f"""SELECT j.board, j.job_id, j.title, j.location, j.url, j.first_seen,
                        COALESCE(d.company, REPLACE(j.board,'_',' ')), COALESCE(d.salary,''), d.posted,
-                       COALESCE(t.description,''), COALESCE(t.department,'')
+                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,'')
                 FROM jobs j
                 LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
                 LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
@@ -289,7 +291,8 @@ class IntelStore:
              description, department) in rows:
             job = {"board": board, "id": job_id, "title": title, "location": location, "url": url,
                    "company": company, "salary": salary, "posted": posted,
-                   "description": description, "department": department}
+                   # bytes: one damaged byte on disk must not stop indexing for everything
+                   "description": bytes(description).decode("utf-8", "replace"), "department": department}
             facts = build_facts(job, self.kn, self.boards.get(board, {}), self.sections.get(board, ""))
             cls, loc, cyc, comp = (facts["classification"], facts["location"], facts["cycle"],
                                    facts["compensation"])
@@ -313,7 +316,7 @@ class IntelStore:
                 int(facts["rolling"]), comp.get("annual_min"), comp.get("annual_max"), comp.get("currency"),
                 skills, search, facts["cluster_key"]))
             if self.fts:
-                fts_rows.append((board, job_id, f"{search} {description[:6000].lower()}"))
+                fts_rows.append((board, job_id, f"{search} {job['description'][:6000].lower()}"))
         self.con.executemany(
             """INSERT INTO job_intel(board, job_id, input_hash, facts_version, kb_version, facts, facts_at,
                  family, category, subcategory, is_finance, class_confidence, stage, level,
@@ -348,6 +351,24 @@ class IntelStore:
         return len(rows)
 
     # ---- clustering
+    def source_rank(self, board: str) -> int:
+        cfg = self.boards.get(board) or {}
+        if cfg.get("indirect_links"):
+            return INDIRECT_RANK
+        return SOURCE_RANK.get(cfg.get("ats", ""), DIRECT_RANK)
+
+    def recluster_if_ranks_changed(self) -> None:
+        """Re-pick canonical members everywhere after source ranks change (config upgrade)."""
+        signature = json.dumps({b: self.source_rank(b) for b in sorted(self.boards)}, separators=(",", ":"))
+        row = self.con.execute("SELECT v FROM kv WHERE k='canonical_ranks'").fetchone()
+        if row and row[0] == signature:
+            return
+        self.recluster([k for (k,) in self.con.execute(
+            "SELECT DISTINCT cluster_key FROM job_intel WHERE cluster_key IS NOT NULL")])
+        # rescore once so posted dates are shared across the re-picked duplicates
+        self.con.execute("UPDATE job_intel SET profile_version=NULL")
+        self.con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('canonical_ranks', ?)", (signature,))
+
     def recluster(self, keys) -> None:
         keys = [k for k in keys if k]
         for chunk in range(0, len(keys), 400):
@@ -367,9 +388,7 @@ class IntelStore:
             updates = []
             for rows in groups.values():
                 def rank(r):
-                    ats = (self.boards.get(r[1]) or {}).get("ats", "")
-                    return (r[3] == "active", SOURCE_RANK.get(ats, DIRECT_RANK), r[4],
-                            -(iso_epoch(r[5]) or 0))
+                    return (r[3] == "active", self.source_rank(r[1]), r[4], -(iso_epoch(r[5]) or 0))
                 best = max(rows, key=rank)
                 for r in rows:
                     updates.append((int(r is best), r[1], r[2]))
@@ -394,7 +413,15 @@ class IntelStore:
         scope = " AND (" + " OR ".join("(i.board=? AND i.job_id=?)" for _ in keys) + ")" if keys else ""
         scope_args = [v for pair in (keys or []) for v in pair]
         rows = self.con.execute(
-            f"""SELECT i.board, i.job_id, i.facts, d.posted, j.first_seen,
+            # Duplicates share the earliest real posting date and first sighting, so a
+            # list that picked a job up late does not make it look new.
+            f"""SELECT i.board, i.job_id, i.facts,
+                       COALESCE((SELECT MIN(d2.posted) FROM job_intel i2 JOIN job_details d2
+                                 ON d2.board=i2.board AND d2.job_id=i2.job_id
+                                 WHERE i2.cluster_key=i.cluster_key), d.posted),
+                       COALESCE((SELECT MIN(j2.first_seen) FROM job_intel i2 JOIN jobs j2
+                                 ON j2.board=i2.board AND j2.job_id=i2.job_id
+                                 WHERE i2.cluster_key=i.cluster_key), j.first_seen),
                        COALESCE(s.discovered,0), COALESCE(s.status,'active'),
                        NULLIF(COALESCE(NULLIF(o.deadline,''), a.deadline), ''),
                        i.company_key
@@ -445,6 +472,7 @@ class IntelStore:
         t0 = time.time()
         self._batch_scored = 0
         resume = bool(self.con.execute("SELECT 1 FROM candidate_resume WHERE id=1").fetchone())
+        self.recluster_if_ranks_changed()
         facts = self.facts_pass(max_facts, incremental_score=resume)
         scored = self.score_pass(force_score) + self._batch_scored
         self.con.commit()

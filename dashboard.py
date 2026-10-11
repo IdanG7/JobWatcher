@@ -446,9 +446,9 @@ class JobwatchService:
                 JOIN job_intel i ON i.board=rm.board AND i.job_id=rm.job_id AND i.profile_version=rm.profile_version
                 WHERE rm.board=? AND rm.job_id=? AND i.facts_version=?""", (board, job_id, FACTS_VERSION)).fetchone()
             job["resume_match"] = json.loads(match[0]) if match else None
-            text = con.execute("SELECT description, department, source, fetched_at FROM job_text "
-                               "WHERE board=? AND job_id=?", (board, job_id)).fetchone()
-            job["description"] = text["description"] if text else ""
+            text = con.execute("SELECT CAST(description AS BLOB) AS description, department, source, fetched_at "
+                               "FROM job_text WHERE board=? AND job_id=?", (board, job_id)).fetchone()
+            job["description"] = bytes(text["description"] or b"").decode("utf-8", "replace") if text else ""
             job["department"] = text["department"] if text else ""
             job["description_source"] = text["source"] if text else ""
             scan = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
@@ -466,6 +466,14 @@ class JobwatchService:
             job["discovered_from"] = sorted({s["label"] for s in job["sources"]})
             keys = [(m["board"], m["job_id"]) for m in members] or [(board, job_id)]
             where = " OR ".join("(board=? AND job_id=?)" for _ in keys)
+            # The earliest real posting date and sighting among the duplicates
+            posted, first_seen = con.execute(
+                "SELECT MIN(d.posted), MIN(j.first_seen) FROM jobs j LEFT JOIN job_details d "
+                "ON d.board=j.board AND d.job_id=j.job_id WHERE "
+                + " OR ".join("(j.board=? AND j.job_id=?)" for _ in keys),
+                [v for pair in keys for v in pair]).fetchone()
+            job["posted"] = posted or job.get("posted")
+            job["first_seen"] = first_seen or job["first_seen"]
             job["changes"] = [dict(r) for r in con.execute(
                 f"SELECT ts, kind, field, old, new FROM job_changes WHERE {where} ORDER BY ts DESC LIMIT 30",
                 [v for pair in keys for v in pair])]

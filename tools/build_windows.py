@@ -27,11 +27,12 @@ RUNTIME_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHO
 RUNTIME_SHA256 = "a93abe456ab01bd96d7a085b3cdb6566b3063f4241360d114142fbdb07f0a310"
 MODULES = ("watcher.py", "dashboard.py", "db_migrations.py", "intel_store.py",
            "job_intelligence.py", "job_query.py", "portable_start.py", "version.py")
-KNOWLEDGE = ("companies.json", "locations.json", "skills.json", "taxonomy.json", "source_defaults_v1.json")
+KNOWLEDGE = ("companies.json", "locations.json", "skills.json", "taxonomy.json", "source_defaults_v1.json",
+             "source_defaults_history.json")
 BOARD_FIELDS = {"ats", "token", "tenant", "site", "host", "domain", "url", "repo",
                 "query", "queries", "search", "location", "facets", "cols", "group",
                 "min_interval", "disabled", "company_key", "company_type", "geography",
-                "priority", "complete_listing", "path", "branch", "max", "size", "pages", "recency", "seed_pages", "seed_recency"}
+                "priority", "complete_listing", "indirect_links", "path", "branch", "max", "size", "pages", "recency", "seed_pages", "seed_recency"}
 
 QUICK_START = """JOBWATCH - Windows 10/11, 64-bit
 
@@ -85,7 +86,7 @@ def clean_config(source: dict) -> dict:
                    target_cycles=[], target_locations=[], target_company_types=[],
                    skills=[], languages=[], work_authorization={"CA": "unknown", "US": "unknown"})
     return {
-        "sources_version": 3,
+        "sources_version": 4,
         "interval_seconds": 300, "feed_flush_minutes": 90, "digest_hour_utc": None,
         "healthcheck_url": "", "dashboard_url": "", "description_budget": 60,
         "description_per_board": 12, "facts_per_cycle": 5000, "profile": profile,
@@ -109,11 +110,16 @@ def stage_app(source: Path, destination: Path) -> None:
                 target = app / path.relative_to(source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, target)
+    original = json.loads((source / "config.json").read_text(encoding="utf-8"))
+    cleaned = clean_config(original)
+    # Record this release's source defaults so later upgrades recognise them as unedited.
+    from tools.source_history import load_history, merge_history, save_history
+    history_path = source / "config" / "source_defaults_history.json"
+    save_history(merge_history(load_history(history_path), cleaned["boards"]), history_path)
     (app / "config").mkdir()
     for name in KNOWLEDGE:
         shutil.copyfile(source / "config" / name, app / "config" / name)
-    original = json.loads((source / "config.json").read_text(encoding="utf-8"))
-    (app / "config.json").write_text(json.dumps(clean_config(original), indent=2) + "\n", encoding="utf-8")
+    (app / "config.json").write_text(json.dumps(cleaned, indent=2) + "\n", encoding="utf-8")
     (app / "subscribers.json").write_text("{}\n", encoding="utf-8")
     shutil.copyfile(source / "Start Jobwatch.bat", destination / "Start Jobwatch.bat")
     (destination / "READ ME FIRST.txt").write_text(QUICK_START, encoding="utf-8")

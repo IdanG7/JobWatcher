@@ -22,6 +22,7 @@ import webbrowser
 from version import APP_VERSION
 
 LOG_LIMIT = 5_000_000
+MISSING = "__missing__"     # tools/source_history.py: a key a release did not ship
 
 
 def upgrade_sources(app: Path, data: Path) -> None:
@@ -32,21 +33,33 @@ def upgrade_sources(app: Path, data: Path) -> None:
     version = bundled.get("sources_version", 0)
     if existing.get("sources_version", 0) >= version:
         return
-    baseline = json.loads((app / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"]
+    # Every value any release shipped (board -> key -> values; MISSING = key absent).
+    # A setting still equal to one of them was never edited, so it takes the new default.
+    history_file = app / "config/source_defaults_history.json"
+    if history_file.exists():
+        history = json.loads(history_file.read_text(encoding="utf-8"))
+    else:
+        baseline = json.loads((app / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"]
+        history = {name: {k: [v] for k, v in board.items()} for name, board in baseline.items()}
     boards = existing.setdefault("boards", {})
     identity = {"ats", "tenant", "site", "host", "domain", "token", "repo", "url"}
+
+    def shipped(known: dict, key: str, current: dict) -> bool:
+        value = current.get(key, MISSING)
+        return value in known.get(key, [MISSING])
+
     for name, new in bundled.get("boards", {}).items():
         if name not in boards:
-            if name not in baseline:
-                boards[name] = new
+            if name not in history:
+                boards[name] = new          # a source added since; a removed old one stays removed
             continue
-        current, old = boards[name], baseline.get(name)
-        if not isinstance(current, dict) or old is None:
+        current, known = boards[name], history.get(name)
+        if not isinstance(current, dict) or known is None:
             continue
-        if any(current.get(k) != old.get(k) for k in identity):
-            continue
-        for key in old.keys() | new.keys():
-            if (key not in current and key not in old) or (key in current and key in old and current[key] == old[key]):
+        if not all(shipped(known, k, current) or current.get(k) == new.get(k) for k in identity):
+            continue                        # the recipient pointed this source elsewhere
+        for key in known.keys() | new.keys():
+            if shipped(known, key, current):
                 if key in new:
                     current[key] = new[key]
                 else:

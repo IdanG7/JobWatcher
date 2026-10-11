@@ -1,0 +1,3147 @@
+{
+ "1password": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "1password"
+  ]
+ },
+ "abridge": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "abridge"
+  ]
+ },
+ "adobe": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "adobe.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "external_experienced"
+  ],
+  "tenant": [
+   "adobe"
+  ]
+ },
+ "adobe_university": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "591af8b812fa10737b43a1662896f01c"
+    ]
+   }
+  ],
+  "host": [
+   "adobe.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "external_experienced"
+  ],
+  "tenant": [
+   "adobe"
+  ]
+ },
+ "affirm": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "affirm"
+  ]
+ },
+ "airbnb": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "airbnb"
+  ]
+ },
+ "airtable": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "airtable"
+  ]
+ },
+ "akuna": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "akunacapital"
+  ]
+ },
+ "alloy": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "alloy"
+  ]
+ },
+ "amazon": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "min_interval": [
+   300
+  ],
+  "query": [
+   "software engineer intern"
+  ]
+ },
+ "amazon_newgrad": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "max": [
+   "__missing__",
+   2500
+  ],
+  "min_interval": [
+   300,
+   900
+  ],
+  "query": [
+   "software development engineer"
+  ]
+ },
+ "amplitude": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "amplitude"
+  ]
+ },
+ "anduril": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "andurilindustries"
+  ]
+ },
+ "anthropic": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "anthropic"
+  ]
+ },
+ "aqr": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "aqr"
+  ]
+ },
+ "asana": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "asana"
+  ]
+ },
+ "assemblyai": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "assemblyai"
+  ]
+ },
+ "attio": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "attio"
+  ]
+ },
+ "aurora": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "aurora-operations-inc"
+  ]
+ },
+ "autodesk": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "autodesk.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Ext"
+  ],
+  "tenant": [
+   "autodesk"
+  ]
+ },
+ "barclays": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "barclays"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "barclays.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External_Career_Site_Barclays"
+  ],
+  "tenant": [
+   "barclays"
+  ]
+ },
+ "baseten": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "baseten"
+  ]
+ },
+ "betterment": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "betterment"
+  ]
+ },
+ "blackrock": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "blackrock"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Asset Managers"
+  ],
+  "host": [
+   "blackrock.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "BlackRock_Professional"
+  ],
+  "tenant": [
+   "blackrock"
+  ]
+ },
+ "block": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "block"
+  ]
+ },
+ "bmo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "__missing__",
+   "bmo"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Banks"
+  ],
+  "host": [
+   "bmo.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   "__missing__",
+   5000
+  ],
+  "min_interval": [
+   1800,
+   3600
+  ],
+  "priority": [
+   "__missing__",
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "bmo"
+  ]
+ },
+ "bmo_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bmo"
+  ],
+  "facets": [
+   {
+    "company": [
+     "99ba898c88ac011c8a873c01f2016c06"
+    ]
+   }
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "host": [
+   "bmo.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "bmo"
+  ]
+ },
+ "braintrust": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "braintrust"
+  ]
+ },
+ "brex": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "brex"
+  ]
+ },
+ "browserbase": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "browserbase"
+  ]
+ },
+ "calendly": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "calendly"
+  ]
+ },
+ "canada_intern26": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 3
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "negarprh/Canadian-Tech-Internships-2026"
+  ]
+ },
+ "capital_one": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "capitalone.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Capital_One"
+  ],
+  "tenant": [
+   "capitalone"
+  ]
+ },
+ "capital_one_early": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "workerSubType": [
+     "a12c70bf789e10572aab83c4780919ad"
+    ]
+   }
+  ],
+  "host": [
+   "capitalone.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "Capital_One"
+  ],
+  "tenant": [
+   "capitalone"
+  ]
+ },
+ "cartesia": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "cartesia"
+  ]
+ },
+ "character_ai": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "character"
+  ]
+ },
+ "checkr": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "checkr"
+  ]
+ },
+ "chime": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "chime"
+  ]
+ },
+ "cibc": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "__missing__",
+   "cibc"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Banks"
+  ],
+  "host": [
+   "cibc.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   "__missing__",
+   5000
+  ],
+  "min_interval": [
+   1800,
+   3600
+  ],
+  "priority": [
+   "__missing__",
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "search"
+  ],
+  "tenant": [
+   "cibc"
+  ]
+ },
+ "cibc_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cibc"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "4bbe6c74e8a7013edb3931a881012710"
+    ]
+   }
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "host": [
+   "cibc.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "search"
+  ],
+  "tenant": [
+   "cibc"
+  ]
+ },
+ "citadel": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "citadel"
+  ]
+ },
+ "citadel_sec": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "citadelsecurities"
+  ]
+ },
+ "citi": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "citi"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "citi.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "2"
+  ],
+  "tenant": [
+   "citi"
+  ]
+ },
+ "citi_early": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "citi"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "citi.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   "analyst"
+  ],
+  "site": [
+   "2"
+  ],
+  "tenant": [
+   "citi"
+  ]
+ },
+ "clickhouse": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "clickhouse"
+  ]
+ },
+ "cloudflare": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "cloudflare"
+  ]
+ },
+ "cockroach_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "cockroachlabs"
+  ]
+ },
+ "cohere": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "cohere"
+  ]
+ },
+ "coinbase": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "coinbase"
+  ]
+ },
+ "comcast": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "comcast.wd115.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Comcast_Careers"
+  ],
+  "tenant": [
+   "comcast"
+  ]
+ },
+ "commure": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "commure"
+  ]
+ },
+ "crusoe": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "crusoe"
+  ]
+ },
+ "cursor": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "cursor"
+  ]
+ },
+ "cvrve_newgrad": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "cvrve/New-Grad"
+  ]
+ },
+ "databricks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "databricks"
+  ]
+ },
+ "datadog": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "datadog"
+  ]
+ },
+ "decagon": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "decagon"
+  ]
+ },
+ "deepmind": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "deepmind"
+  ]
+ },
+ "derec4_newgrad27": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 1
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "DereC4/internships-and-newgrad"
+  ]
+ },
+ "descript": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "descript"
+  ]
+ },
+ "discord": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "discord"
+  ]
+ },
+ "disney": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "disney.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "disneycareer"
+  ],
+  "tenant": [
+   "disney"
+  ]
+ },
+ "disney_early": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "workerSubType": [
+     "4f84d9e8a0970100aec0ae70150e0000"
+    ]
+   }
+  ],
+  "host": [
+   "disney.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "disneycareer"
+  ],
+  "tenant": [
+   "disney"
+  ]
+ },
+ "doordash": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "doordashusa"
+  ]
+ },
+ "dropbox": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "dropbox"
+  ]
+ },
+ "drw": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "drweng"
+  ]
+ },
+ "duolingo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "duolingo"
+  ]
+ },
+ "ebay": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "ebay.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "apply"
+  ],
+  "tenant": [
+   "ebay"
+  ]
+ },
+ "elastic": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "elastic"
+  ]
+ },
+ "elevenlabs": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "elevenlabs"
+  ]
+ },
+ "faire": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "faire"
+  ]
+ },
+ "fastly": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "fastly"
+  ]
+ },
+ "figma": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "figma"
+  ]
+ },
+ "fireblocks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "fireblocks"
+  ]
+ },
+ "five_rings": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "fiveringsllc"
+  ]
+ },
+ "fivetran": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "fivetran"
+  ]
+ },
+ "flexport": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "flexport"
+  ]
+ },
+ "flow_traders": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "flowtraders"
+  ]
+ },
+ "gemini": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "gemini"
+  ]
+ },
+ "geneva_trading": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "genevatrading"
+  ]
+ },
+ "gitlab": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "gitlab"
+  ]
+ },
+ "glean": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "gleanwork"
+  ]
+ },
+ "glossier": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "glossier"
+  ]
+ },
+ "gopuff": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "gopuff"
+  ]
+ },
+ "gts": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "gtsassociates"
+  ]
+ },
+ "gusto": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "gusto"
+  ]
+ },
+ "harvey": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "harvey"
+  ]
+ },
+ "heygen": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "heygen"
+  ]
+ },
+ "hightouch": {
+  "ats": [
+   "greenhouse",
+   "ashby"
+  ],
+  "token": [
+   "hightouch",
+   "hightouch-inc"
+  ]
+ },
+ "hinge_health": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "hinge-health"
+  ]
+ },
+ "houlihan_lokey": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "houlihan_lokey"
+  ],
+  "complete_listing": [
+   true
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Middle Market"
+  ],
+  "host": [
+   "hl.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "hl"
+  ]
+ },
+ "houlihan_lokey_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "houlihan_lokey"
+  ],
+  "complete_listing": [
+   true
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Middle Market"
+  ],
+  "host": [
+   "hl.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Campus"
+  ],
+  "tenant": [
+   "hl"
+  ]
+ },
+ "hp": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "hp.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "ExternalCareerSite"
+  ],
+  "tenant": [
+   "hp"
+  ]
+ },
+ "hrt": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "wehrtyou"
+  ]
+ },
+ "imbue": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "imbue"
+  ]
+ },
+ "imc": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "imc"
+  ]
+ },
+ "instacart": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "instacart"
+  ]
+ },
+ "intel": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "intel.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "intel"
+  ]
+ },
+ "intel_early": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "dc8bf79476611087d67b36517cf17036"
+    ]
+   }
+  ],
+  "host": [
+   "intel.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "intel"
+  ]
+ },
+ "jane_street": {
+  "ats": [
+   "janestreet"
+  ],
+  "min_interval": [
+   600
+  ]
+ },
+ "jpmorgan": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "jpmorgan"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "jpmc.fa.oraclecloud.com"
+  ],
+  "max": [
+   "__missing__",
+   10000
+  ],
+  "min_interval": [
+   900,
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
+ "jpmorgan_early": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "jpmorgan"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "jpmc.fa.oraclecloud.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "analyst"
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
+ "jump_trading": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "jumptrading"
+  ]
+ },
+ "lambda_labs": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "lambda"
+  ]
+ },
+ "launchdarkly": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "launchdarkly"
+  ]
+ },
+ "linear": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "linear"
+  ]
+ },
+ "linkedin_canada": {
+  "ats": [
+   "linkedin"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   600,
+   1800
+  ],
+  "pages": [
+   "__missing__",
+   5
+  ],
+  "queries": [
+   [
+    "software engineer intern",
+    "software engineer new grad"
+   ],
+   [
+    "finance internship",
+    "investment banking intern",
+    "summer analyst",
+    "sales trading internship",
+    "asset management internship",
+    "equity research intern",
+    "private equity intern",
+    "pension internship",
+    "finance co-op",
+    "finance student",
+    "new graduate analyst",
+    "software engineer intern",
+    "software engineer new grad"
+   ]
+  ],
+  "recency": [
+   "__missing__",
+   "r2592000"
+  ],
+  "seed_pages": [
+   "__missing__",
+   8
+  ],
+  "seed_recency": [
+   "__missing__",
+   "r7776000"
+  ]
+ },
+ "linkedin_quant": {
+  "ats": [
+   "linkedin"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   900
+  ],
+  "queries": [
+   [
+    "quantitative trading intern",
+    "quantitative research intern",
+    "quantitative trader 2026"
+   ]
+  ]
+ },
+ "linkedin_us": {
+  "ats": [
+   "linkedin"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   300,
+   1800
+  ],
+  "pages": [
+   "__missing__",
+   5
+  ],
+  "queries": [
+   [
+    "software engineer intern",
+    "software engineer new grad",
+    "software developer intern",
+    "2026 software engineer",
+    "machine learning intern"
+   ],
+   [
+    "finance internship",
+    "investment banking summer analyst",
+    "equity research intern",
+    "asset management internship",
+    "private equity intern",
+    "finance new graduate",
+    "software engineer intern",
+    "software engineer new grad",
+    "machine learning intern"
+   ]
+  ],
+  "recency": [
+   "__missing__",
+   "r2592000"
+  ],
+  "seed_pages": [
+   "__missing__",
+   8
+  ],
+  "seed_recency": [
+   "__missing__",
+   "r7776000"
+  ]
+ },
+ "lithic": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "lithic"
+  ]
+ },
+ "lyft": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "lyft"
+  ]
+ },
+ "man_group": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "man_group"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Hedge Funds"
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mangroup"
+  ]
+ },
+ "marqeta": {
+  "ats": [
+   "marqeta"
+  ],
+  "url": [
+   "https://www.marqeta.com"
+  ]
+ },
+ "mastercard": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "mastercard.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "CorporateCareers"
+  ],
+  "tenant": [
+   "mastercard"
+  ]
+ },
+ "mastercard_early": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "workerSubType": [
+     "cfba33fac07f49c9b6d3d53336c6a291"
+    ]
+   }
+  ],
+  "host": [
+   "mastercard.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "CorporateCareers"
+  ],
+  "tenant": [
+   "mastercard"
+  ]
+ },
+ "mercor": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "mercor"
+  ]
+ },
+ "mercury": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "mercury"
+  ]
+ },
+ "microsoft": {
+  "ats": [
+   "microsoft"
+  ],
+  "disabled": [
+   true
+  ],
+  "min_interval": [
+   300
+  ],
+  "query": [
+   "software engineer intern"
+  ]
+ },
+ "midjourney": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "midjourney"
+  ]
+ },
+ "mixpanel": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "mixpanel"
+  ]
+ },
+ "modal": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "modal"
+  ]
+ },
+ "moelis": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "moelis"
+  ],
+  "complete_listing": [
+   true
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Elite Boutiques"
+  ],
+  "host": [
+   "moelis.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Experienced-Hires"
+  ],
+  "tenant": [
+   "moelis"
+  ]
+ },
+ "mongodb": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "mongodb"
+  ]
+ },
+ "morgan_stanley": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "morgan_stanley"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "ms.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "ms"
+  ]
+ },
+ "morgan_stanley_early": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "morgan_stanley"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "ms.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   "analyst"
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "ms"
+  ]
+ },
+ "nasdaq": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "nasdaq.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Global_External_Site"
+  ],
+  "tenant": [
+   "nasdaq"
+  ]
+ },
+ "national_bank": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "national_bank"
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "url": [
+   "https://emplois.bnc.ca/en_CA/careers/searchjobs/"
+  ]
+ },
+ "netflix": {
+  "ats": [
+   "eightfold"
+  ],
+  "domain": [
+   "netflix.com"
+  ],
+  "host": [
+   "explore.jobs.netflix.net"
+  ],
+  "min_interval": [
+   600
+  ]
+ },
+ "neuralink": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "neuralink"
+  ]
+ },
+ "notion": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "notion"
+  ]
+ },
+ "nuro": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "nuro"
+  ]
+ },
+ "nvidia": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "workerSubType": [
+     "ab40a98049581037a3ada55b087049b7",
+     "0c40f6bd1d8f10adf6dae42e46d44a17"
+    ]
+   }
+  ],
+  "host": [
+   "nvidia.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "NVIDIAExternalCareerSite"
+  ],
+  "tenant": [
+   "nvidia"
+  ]
+ },
+ "nwfintech_quant27": {
+  "ats": [
+   "github_md"
+  ],
+  "disabled": [
+   true
+  ],
+  "min_interval": [
+   900
+  ],
+  "repo": [
+   "northwesternfintech/2027QuantInternships"
+  ]
+ },
+ "offseason_fall26": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 3,
+    "title": 1,
+    "url": 6
+   },
+   {
+    "company": 0,
+    "location": 3,
+    "title": 1,
+    "url": 2
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zshah101/Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships"
+  ]
+ },
+ "old_mission": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "oldmissioncapital"
+  ]
+ },
+ "openai": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "openai"
+  ]
+ },
+ "openevidence": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "openevidence"
+  ]
+ },
+ "optiver_us": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "optiverus"
+  ]
+ },
+ "oscar_health": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "oscar"
+  ]
+ },
+ "palantir": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "palantir"
+  ]
+ },
+ "paypal": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "paypal.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "jobs"
+  ],
+  "tenant": [
+   "paypal"
+  ]
+ },
+ "pdt_partners": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "pdtpartners"
+  ]
+ },
+ "peloton": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "peloton"
+  ]
+ },
+ "perplexity": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "perplexity"
+  ]
+ },
+ "pinterest": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "pinterest"
+  ]
+ },
+ "piper_sandler": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "piper_sandler"
+  ],
+  "complete_listing": [
+   true
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Middle Market"
+  ],
+  "host": [
+   "pipersandler.wd501.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Piper_Sandler_Careers"
+  ],
+  "tenant": [
+   "pipersandler"
+  ]
+ },
+ "pjt_partners": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pjt"
+  ],
+  "complete_listing": [
+   true
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Elite Boutiques"
+  ],
+  "host": [
+   "pjtpartners.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "pjtpartners"
+  ]
+ },
+ "plaid": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "plaid"
+  ]
+ },
+ "planetscale": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "planetscale"
+  ]
+ },
+ "point72": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "point72"
+  ]
+ },
+ "poolside": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "poolside"
+  ]
+ },
+ "postman": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "postman.wd108.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "site": [
+   "careers"
+  ],
+  "tenant": [
+   "postman"
+  ]
+ },
+ "qube_rt": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "quberesearchandtechnologies"
+  ]
+ },
+ "ramp": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "ramp"
+  ]
+ },
+ "rbc": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "__missing__",
+   "rbc"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Banks"
+  ],
+  "host": [
+   "jobs.rbc.com"
+  ],
+  "max": [
+   "__missing__",
+   5000
+  ],
+  "min_interval": [
+   900,
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   1
+  ],
+  "query": [
+   "software",
+   ""
+  ],
+  "url": [
+   "https://jobs.rbc.com/ca/en/job/{id}"
+  ]
+ },
+ "rbc_early": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "__missing__",
+   "rbc"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Banks"
+  ],
+  "host": [
+   "jobs.rbc.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   "__missing__",
+   1
+  ],
+  "query": [
+   "intern"
+  ],
+  "url": [
+   "https://jobs.rbc.com/ca/en/job/{id}"
+  ]
+ },
+ "rbc_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "rbc"
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "host": [
+   "rbc.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "RBCEARLYTALENT1"
+  ],
+  "tenant": [
+   "rbc"
+  ]
+ },
+ "reddit": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "reddit"
+  ]
+ },
+ "retool": {
+  "ats": [
+   "ashby"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "retool"
+  ]
+ },
+ "rippling": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "rippling"
+  ]
+ },
+ "robinhood": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "robinhood"
+  ]
+ },
+ "roblox": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "roblox"
+  ]
+ },
+ "runpod": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "runpod"
+  ]
+ },
+ "runway": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "runway"
+  ]
+ },
+ "salesforce": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "salesforce.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External_Career_Site"
+  ],
+  "tenant": [
+   "salesforce"
+  ]
+ },
+ "salesforce_early": {
+  "ats": [
+   "workday"
+  ],
+  "facets": [
+   {
+    "workerSubType": [
+     "3a910852b2c31010f48d2cefdccd0000"
+    ]
+   }
+  ],
+  "host": [
+   "salesforce.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   600
+  ],
+  "site": [
+   "External_Career_Site"
+  ],
+  "tenant": [
+   "salesforce"
+  ]
+ },
+ "samsara": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "samsara"
+  ]
+ },
+ "scale_ai": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "scaleai"
+  ]
+ },
+ "schonfeld": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "schonfeld"
+  ]
+ },
+ "scotiabank_students": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "scotiabank"
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "url": [
+   "https://jobs.scotiabank.com/go/Student-%26-New-Grad-Jobs/2298417/"
+  ]
+ },
+ "seatgeek": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "seatgeek"
+  ]
+ },
+ "servicenow": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "token": [
+   "ServiceNow"
+  ]
+ },
+ "shield_ai": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "shieldai"
+  ]
+ },
+ "sierra": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "sierra"
+  ]
+ },
+ "sig": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "sig"
+  ]
+ },
+ "simplify_intern26": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "SimplifyJobs/Summer2026-Internships"
+  ]
+ },
+ "simplify_intern27": {
+  "ats": [
+   "github_listings"
+  ],
+  "disabled": [
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "SimplifyJobs/Summer2027-Internships"
+  ]
+ },
+ "simplify_newgrad": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "SimplifyJobs/New-Grad-Positions"
+  ]
+ },
+ "smartsheet": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "smartsheet"
+  ]
+ },
+ "sndsh_intern27": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 3
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "sndsh404/summer-2027-internships"
+  ]
+ },
+ "sofi": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "sofi"
+  ]
+ },
+ "spacex": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "spacex"
+  ]
+ },
+ "speedy_ai": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "salary": 3,
+    "title": 1,
+    "url": 4
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "speedyapply/2027-AI-College-Jobs"
+  ]
+ },
+ "speedy_swe": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "salary": 3,
+    "title": 1,
+    "url": 4
+   }
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "speedyapply/2027-SWE-College-Jobs"
+  ]
+ },
+ "spotify": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "spotify"
+  ]
+ },
+ "squarepoint": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "squarepointcapital"
+  ]
+ },
+ "squarespace": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "squarespace"
+  ]
+ },
+ "starburst": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "starburst"
+  ]
+ },
+ "stepstone": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "stepstone"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "stepstone"
+  ]
+ },
+ "stripe": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "stripe"
+  ]
+ },
+ "suno": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "suno"
+  ]
+ },
+ "supabase": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "supabase"
+  ]
+ },
+ "sweetgreen": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "sweetgreen"
+  ]
+ },
+ "target": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "target.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "targetcareers"
+  ],
+  "tenant": [
+   "target"
+  ]
+ },
+ "td": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "__missing__",
+   "td"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Banks"
+  ],
+  "host": [
+   "td.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   "__missing__",
+   5000
+  ],
+  "min_interval": [
+   1800,
+   3600
+  ],
+  "priority": [
+   "__missing__",
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "TD_Bank_Careers"
+  ],
+  "tenant": [
+   "td"
+  ]
+ },
+ "td_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "td"
+  ],
+  "facets": [
+   {
+    "jobFamily": [
+     "de769652963501ab29a8b80c0704c3aa",
+     "de769652963501e60b293b0d070431ab"
+    ]
+   }
+  ],
+  "group": [
+   "Canadian Banks"
+  ],
+  "host": [
+   "td.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   900
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "TD_Bank_Careers"
+  ],
+  "tenant": [
+   "td"
+  ]
+ },
+ "together_ai": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "togetherai"
+  ]
+ },
+ "tower_research": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "towerresearchcapital"
+  ]
+ },
+ "twilio": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "twilio"
+  ]
+ },
+ "two_sigma": {
+  "ats": [
+   "greenhouse"
+  ],
+  "disabled": [
+   true
+  ],
+  "token": [
+   "twosigma"
+  ]
+ },
+ "typeface": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "typeface"
+  ]
+ },
+ "upstart": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "upstart"
+  ]
+ },
+ "vansh_intern26": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "vanshb03/Summer2026-Internships"
+  ]
+ },
+ "vansh_intern27": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "vanshb03/Summer2027-Internships"
+  ]
+ },
+ "vansh_newgrad27": {
+  "ats": [
+   "github_listings"
+  ],
+  "min_interval": [
+   300
+  ],
+  "repo": [
+   "vanshb03/New-Grad-2027"
+  ]
+ },
+ "vanta": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "vanta"
+  ]
+ },
+ "vatic_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "vaticlabs"
+  ]
+ },
+ "vercel": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "vercel"
+  ]
+ },
+ "verkada": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "verkada"
+  ]
+ },
+ "virtu": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "virtu"
+  ]
+ },
+ "voleon": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "voleon"
+  ]
+ },
+ "waabi": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "waabi"
+  ]
+ },
+ "warp": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "warp"
+  ]
+ },
+ "waymo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "waymo"
+  ]
+ },
+ "wealthsimple": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "wealthsimple"
+  ]
+ },
+ "webflow": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "webflow"
+  ]
+ },
+ "wells_fargo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "wells_fargo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "U.S. Commercial Banks"
+  ],
+  "host": [
+   "wf.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "analyst"
+  ],
+  "site": [
+   "WellsFargoJobs"
+  ],
+  "tenant": [
+   "wf"
+  ]
+ },
+ "william_blair": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "william_blair"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Middle Market"
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "williamblair"
+  ]
+ },
+ "workday_hq": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "workday.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Workday"
+  ],
+  "tenant": [
+   "workday"
+  ]
+ },
+ "worldquant": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "worldquant"
+  ]
+ },
+ "writer": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "writer"
+  ]
+ },
+ "xai": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "xai"
+  ]
+ },
+ "zapply_ca_intern": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 4
+   },
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   },
+   {
+    "age": 3,
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   }
+  ],
+  "indirect_links": [
+   "__missing__",
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zapplyjobs/Canada-Internships-2027"
+  ]
+ },
+ "zapply_ca_jobs": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 4
+   },
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   },
+   {
+    "age": 3,
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   }
+  ],
+  "indirect_links": [
+   "__missing__",
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zapplyjobs/Canada-Jobs-2027"
+  ]
+ },
+ "zapply_intern27": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   },
+   {
+    "age": 3,
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   }
+  ],
+  "indirect_links": [
+   "__missing__",
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zapplyjobs/Internships-2027"
+  ]
+ },
+ "zapply_newgrad27": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   },
+   {
+    "age": 3,
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   }
+  ],
+  "indirect_links": [
+   "__missing__",
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zapplyjobs/New-Grad-Jobs-2027"
+  ]
+ },
+ "zapply_swe_newgrad": {
+  "ats": [
+   "github_md"
+  ],
+  "cols": [
+   {
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   },
+   {
+    "age": 3,
+    "company": 0,
+    "location": 2,
+    "title": 1,
+    "url": 5
+   }
+  ],
+  "indirect_links": [
+   "__missing__",
+   true
+  ],
+  "min_interval": [
+   600
+  ],
+  "repo": [
+   "zapplyjobs/New-Grad-Software-Engineering-Jobs-2027"
+  ]
+ },
+ "zoom": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "zoom.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Zoom"
+  ],
+  "tenant": [
+   "zoom"
+  ]
+ },
+ "zoox": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "zoox"
+  ]
+ }
+}
