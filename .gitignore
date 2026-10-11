@@ -12,6 +12,7 @@ state.json
 profile.local.json
 config.local.json
 subscribers.local.json
+ai.local.json
 .env
 .env.*
 !.env.example

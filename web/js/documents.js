@@ -1,0 +1,134 @@
+// Drawer sections for application documents: a Gemini-written cover letter
+// for this posting, and one merged PDF (resume, letter, transcript…) to upload.
+import {api, download, enc, fileToBase64, get, put} from './api.js';
+import {esc, fmtDay} from './lib.js';
+import {confirmDialog, toast} from './ui.js';
+
+export function documentsSections() {
+  return `<section class="section" data-cover-root><h3>Cover letter</h3><p class="muted" style="margin:0">Loading…</p></section>
+    <section class="section" data-merge-root></section>`;
+}
+
+export async function mountDocuments(el, job, deps = {}) {
+  const request = {api, download, fileToBase64, get, put, toast, confirm: confirmDialog, ...deps};
+  const cover = el.querySelector('[data-cover-root]');
+  const merge = el.querySelector('[data-merge-root]');
+  if (!cover || !merge) return;
+  let state = {letter: null, ai: false, resume: false, reference: null};
+  let items = [];        // {kind: 'file', file} | {kind: 'letter'}
+  let busy = false;
+
+  try { state = await request.get(`/api/jobs/${enc(job.key)}/cover-letter`); } catch (err) {
+    cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">${esc(err.message)}</p>`;
+  }
+  if (state.letter) items.push({kind: 'letter'});
+
+  const drawCover = () => {
+    const l = state.letter;
+    if (!state.ai || !state.resume) {
+      cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">${!state.ai
+        ? 'Write a letter for this posting with Gemini. Connect a free Gemini API key in <a class="link" href="#/settings">Settings → AI cover letters</a>.'
+        : 'Upload your resume in <a class="link" href="#/settings">Settings</a> first; letters are written from it.'}</p>`;
+      return;
+    }
+    cover.innerHTML = `<h3>Cover letter</h3>
+      <label class="field"><span>Anything to emphasize? <span class="muted">(optional)</span></span>
+        <input class="input" data-cover-notes maxlength="1000" value="${esc(l?.notes || '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>
+      ${l ? `<label class="field" style="margin-top:8px"><span>Letter <span class="muted">· ${l.model ? `written by ${esc(l.model)}` : 'written by you'} ${l.created_at ? `· ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span></span>
+        <textarea class="input" data-cover-body rows="14">${esc(l.body)}</textarea></label>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn${l ? '' : ' primary'} sm" data-cover-act="generate"${busy ? ' disabled' : ''}>${busy ? 'Writing…' : l ? 'Rewrite with Gemini' : 'Write with Gemini'}</button>
+        ${l ? `<button type="button" class="btn primary sm" data-cover-act="save">Save edits</button>
+          <button type="button" class="btn sm" data-cover-act="copy">Copy</button>
+          <button type="button" class="btn sm" data-cover-act="pdf">Download PDF</button>` : ''}
+      </div>
+      <p class="muted" style="font-size:11.5px;margin:8px 0 0">${state.reference
+        ? `Matches the style of your past letter (${esc(state.reference.filename)}).`
+        : 'Tip: add a past cover letter in Settings so new letters match your style.'} Check every letter before sending.</p>`;
+  };
+
+  const drawMerge = () => {
+    merge.innerHTML = `<h3>Application PDF</h3>
+      <p class="muted" style="margin:0 0 8px">Combine your resume, cover letter, transcript and other PDFs into one file.</p>
+      ${items.length ? `<ol class="mini-list" style="margin:0 -14px 8px;list-style:none;padding:0">${items.map((it, i) => `<li data-merge-i="${i}"><div class="grow"><div class="t">${i + 1}. ${esc(it.kind === 'letter' ? 'Cover letter (from above)' : it.file.name)}</div></div>
+        <button type="button" class="btn xs" data-merge-act="up"${i ? '' : ' disabled'} aria-label="Move up">↑</button>
+        <button type="button" class="btn xs" data-merge-act="down"${i < items.length - 1 ? '' : ' disabled'} aria-label="Move down">↓</button>
+        <button type="button" class="btn xs danger" data-merge-act="remove" aria-label="Remove">✕</button></li>`).join('')}</ol>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label class="btn sm">Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
+        ${state.letter && !items.some(it => it.kind === 'letter') ? '<button type="button" class="btn sm" data-merge-act="letter">Add cover letter</button>' : ''}
+        <button type="button" class="btn primary sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>Merge &amp; download</button>
+      </div>`;
+  };
+
+  const redraw = () => { drawCover(); drawMerge(); };
+  redraw();
+
+  cover.addEventListener('click', async e => {
+    const act = e.target.closest('[data-cover-act]')?.dataset.coverAct;
+    if (!act || busy) return;
+    const body = cover.querySelector('[data-cover-body]')?.value;
+    try {
+      if (act === 'generate') {
+        if (state.letter?.edited && !await request.confirm('Replace your edited letter with a new one?', {confirmLabel: 'Rewrite'})) return;
+        busy = true; drawCover();
+        const notes = cover.querySelector('[data-cover-notes]')?.value || '';
+        state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter`, {method: 'POST', body: {notes}, timeout: 150000});
+        if (!items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
+        request.toast('Cover letter written. Read it over before sending.');
+      } else if (act === 'save') {
+        state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
+        request.toast('Cover letter saved');
+      } else if (act === 'copy') {
+        await navigator.clipboard.writeText(body);
+        request.toast('Cover letter copied');
+        return;
+      } else if (act === 'pdf') {
+        if (body !== state.letter.body) state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
+        await request.download('/api/documents/merge', {files: [{cover_letter: job.key}], name: `${job.company} - ${job.title} - Cover letter`});
+        return;
+      }
+    } catch (err) {
+      request.toast(err.message, {error: true, timeout: 9000});
+    } finally {
+      if (busy) { busy = false; }
+    }
+    redraw();
+  });
+
+  merge.addEventListener('change', e => {
+    if (!e.target.matches('[data-merge-files]')) return;
+    for (const file of e.target.files) items.push({kind: 'file', file});
+    drawMerge();
+  });
+  merge.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-merge-act]');
+    if (!btn) return;
+    const act = btn.dataset.mergeAct;
+    const i = Number(btn.closest('[data-merge-i]')?.dataset.mergeI);
+    if (act === 'up' || act === 'down') {
+      const j = act === 'up' ? i - 1 : i + 1;
+      [items[i], items[j]] = [items[j], items[i]];
+    } else if (act === 'remove') {
+      items.splice(i, 1);
+    } else if (act === 'letter') {
+      items.push({kind: 'letter'});
+    } else if (act === 'merge') {
+      btn.disabled = true;
+      btn.textContent = 'Merging…';
+      try {
+        const body = cover.querySelector('[data-cover-body]')?.value;
+        if (state.letter && body && body !== state.letter.body && items.some(it => it.kind === 'letter')) {
+          state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
+        }
+        const files = await Promise.all(items.map(async it => (it.kind === 'letter' ? {cover_letter: job.key}
+          : {filename: it.file.name, data: await request.fileToBase64(it.file)})));
+        const name = await request.download('/api/documents/merge', {files, name: `${job.company} - ${job.title}`});
+        request.toast(`Saved ${name}`);
+      } catch (err) {
+        request.toast(err.message, {error: true, timeout: 9000});
+      }
+    }
+    drawMerge();
+  });
+}

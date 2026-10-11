@@ -8,6 +8,7 @@ import {
 } from './ui.js';
 import {contactForm} from './forms.js';
 import {resumeMatchSection} from './resume.js';
+import {documentsSections, mountDocuments} from './documents.js';
 
 let current = null;   // {key, job, el}
 let ctxRef = null;
@@ -163,6 +164,8 @@ function render(el, job) {
 
     ${app ? applicationSection(job, app) : ''}
 
+    ${documentsSections()}
+
 
     <section class="section">
       <h3>Contacts at ${esc(job.company || 'this company')} <button class="btn xs" data-act="add-contact">${icon('plus', 12)} Add</button></h3>
@@ -182,6 +185,7 @@ function render(el, job) {
   </div>`;
 
   bind(el, job);
+  mountDocuments(el, job);
 }
 
 function applicationSection(job, app) {

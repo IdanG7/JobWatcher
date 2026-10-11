@@ -28,11 +28,12 @@ from datetime import date, datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version
+from intel import cover_letter, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
@@ -71,6 +72,12 @@ class ApiError(Exception):
     def __init__(self, message: str, status: HTTPStatus = HTTPStatus.BAD_REQUEST):
         super().__init__(message)
         self.status = status
+
+
+class FileResult:
+    """A route result sent as a download instead of JSON."""
+    def __init__(self, data: bytes, filename: str, content_type: str = "application/pdf"):
+        self.data, self.filename, self.content_type = data, filename, content_type
 
 
 class JobwatchHTTPServer(ThreadingHTTPServer):
@@ -131,7 +138,10 @@ class JobwatchService:
         self.db_path = Path(db_path) if str(db_path) != ":memory:" else db_path
         self.config_path = Path(config_path)
         self.subscribers_path = Path(subscribers_path)
-        self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
+        # The Gemini key sits beside the database (git-ignored, never in the DB or config).
+        self.ai_path = (Path(db_path).parent if isinstance(self.db_path, Path) else self.subscribers_path.parent) / "ai.local.json"
+        self._ai_lock = threading.Lock()
+        self.config =json.loads(self.config_path.read_text(encoding="utf-8"))
         self.boards = {k: v for k, v in self.config.get("boards", {}).items() if not k.startswith("_")}
         self.kn = load_knowledge()
         self._refresh_lock = threading.Lock()
@@ -1258,7 +1268,8 @@ class JobwatchService:
              OR i.profile_version IS NULL OR i.profile_version!=?)""",
             (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
         result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending,
-                  "filename": row["filename"], "updated_at": row["updated_at"]}
+                  "filename": row["filename"], "updated_at": row["updated_at"],
+                  "targets": self.profile(con).get("target_roles") or []}
         if include_parsed:
             result["parsed"] = json.loads(row["parsed"])
         return result
@@ -1271,26 +1282,35 @@ class JobwatchService:
         with self.db() as con:
             return self._resume_status(con, include_parsed=True)
 
-    def parse_resume(self, payload: dict) -> dict:
-        filename = payload.get("filename", "Pasted resume")
+    @staticmethod
+    def _document_text(payload: dict, what: str = "resume") -> tuple[str, str]:
+        """(filename, text) from an uploaded .pdf/.docx/.txt (base64 ``data``) or pasted ``text``."""
+        filename = payload.get("filename", f"Pasted {what}")
         if not isinstance(filename, str) or len(filename) > 200:
             raise ApiError("filename must be text up to 200 characters")
         try:
             if "text" in payload:
                 text = payload["text"]
                 if not isinstance(text, str) or len(text) > MAX_CHARS:
-                    raise ResumeError("resume text must be text up to 60,000 characters")
+                    raise ResumeError(f"{what} text must be text up to 60,000 characters")
             else:
                 encoded = payload.get("data")
                 if not isinstance(encoded, str) or len(encoded) > (MAX_BYTES + 2) // 3 * 4:
-                    raise ResumeError("upload a resume up to 5 MB or paste its text")
+                    raise ResumeError(f"upload a {what} up to 5 MB or paste its text")
                 try:
                     data = base64.b64decode(encoded, validate=True)
                 except (binascii.Error, ValueError) as exc:
                     raise ResumeError("invalid file encoding") from exc
                 text = extract_text(filename, data)
             if len(text) > MAX_CHARS:
-                raise ResumeError("resume contains too much text; upload or paste up to 60,000 characters")
+                raise ResumeError(f"{what} contains too much text; upload or paste up to 60,000 characters")
+        except ResumeError as exc:
+            raise ApiError(str(exc).replace("resume", what)) from exc
+        return filename, text
+
+    def parse_resume(self, payload: dict, keep_text: bool = False) -> dict:
+        filename, text = self._document_text(payload)
+        try:
             parsed = parse_resume(text, self.kn)
             if not (parsed["education"].get("level") and (parsed["skills"] or parsed["roles"])):
                 raise ResumeError("could not recognize education and experience or skills; upload or paste the complete resume")
@@ -1305,12 +1325,15 @@ class JobwatchService:
         problems = validate_profile(proposed, self.kn)
         if problems:
             raise ApiError("; ".join(problems))
-        return {"filename": filename, "parsed": parsed, "profile": proposed,
-                "changes": {k: {"before": current.get(k), "after": v}
-                            for k, v in proposed.items() if v != current.get(k)}}
+        result = {"filename": filename, "parsed": parsed, "profile": proposed,
+                  "changes": {k: {"before": current.get(k), "after": v}
+                              for k, v in proposed.items() if v != current.get(k)}}
+        if keep_text:
+            result["text"] = text
+        return result
 
     def apply_resume(self, payload: dict) -> dict:
-        preview = self.parse_resume(payload)
+        preview = self.parse_resume(payload, keep_text=True)
         with self.db() as con:
             con.execute("BEGIN IMMEDIATE")
             profile = profile_from_resume(preview["parsed"], self.profile(con), self.kn)
@@ -1320,6 +1343,8 @@ class JobwatchService:
                 DO UPDATE SET filename=excluded.filename, parsed=excluded.parsed, enabled=1,
                 version=excluded.version, updated_at=excluded.updated_at""",
                 (preview["filename"], json.dumps(preview["parsed"]), version, utcnow()))
+            # full text for cover letters; parsed facts alone lose the wording
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('resume_text', ?)", (preview["text"],))
             con.execute("DELETE FROM resume_matches")
             con.execute("UPDATE job_intel SET profile_version=NULL")
         self.kick()
@@ -1339,6 +1364,7 @@ class JobwatchService:
         with self.db() as con:
             con.execute("DELETE FROM candidate_resume")
             con.execute("DELETE FROM resume_matches")
+            con.execute("DELETE FROM kv WHERE k='resume_text'")
         return {"ok": True}
 
     def get_profile(self) -> dict:
@@ -1440,6 +1466,133 @@ class JobwatchService:
             if subs.pop(DISCORD_SUBSCRIBER, None) is not None:
                 self._write_subscribers(subs)
         return self.get_discord()
+
+    # ------------------------------------------------------------ Gemini cover letters
+    def _read_ai(self) -> dict:
+        try:
+            raw = json.loads(self.ai_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+        return raw if isinstance(raw, dict) else {}
+
+    def get_ai(self) -> dict:
+        with self._ai_lock:
+            ai = self._read_ai()
+        key = str(ai.get("api_key") or "")
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k='cover_reference'").fetchone()
+        reference = json.loads(row[0]) if row else None
+        return {"configured": bool(key), "key_hint": f"…{key[-4:]}" if key else "",
+                "model": (ai.get("models") or [""])[0],
+                "reference": {"filename": reference["filename"], "chars": len(reference["text"]),
+                              "updated_at": reference["updated_at"]} if reference else None}
+
+    def put_ai(self, payload: dict) -> dict:
+        key = str(payload.get("api_key") or "").strip()
+        if not re.fullmatch(r"[\w-]{20,200}", key):
+            raise ApiError("Paste the API key from aistudio.google.com/apikey (it usually starts with AIza).")
+        try:
+            models = cover_letter.pick_models(cover_letter.list_models(key))
+        except cover_letter.CoverLetterError as exc:
+            raise ApiError(str(exc)) from exc
+        with self._ai_lock:
+            temporary = self.ai_path.with_suffix(".tmp")
+            temporary.write_text(json.dumps({"api_key": key, "models": models}), encoding="utf-8")
+            temporary.replace(self.ai_path)
+        return self.get_ai()
+
+    def delete_ai(self) -> dict:
+        with self._ai_lock:
+            self.ai_path.unlink(missing_ok=True)
+        return self.get_ai()
+
+    def put_cover_reference(self, payload: dict) -> dict:
+        filename, text = self._document_text(payload, "cover letter")
+        if len(text.strip()) < 200:
+            raise ApiError("That letter is too short to learn from; upload a complete past cover letter.")
+        with self.db() as con:
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('cover_reference', ?)",
+                        (json.dumps({"filename": filename, "text": text, "updated_at": utcnow()}),))
+        return self.get_ai()
+
+    def delete_cover_reference(self) -> dict:
+        with self.db() as con:
+            con.execute("DELETE FROM kv WHERE k='cover_reference'")
+        return self.get_ai()
+
+    def get_cover_letter(self, key: str) -> dict:
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
+            has_resume = bool(con.execute("SELECT 1 FROM kv WHERE k='resume_text'").fetchone())
+        ai = self.get_ai()
+        return {"letter": json.loads(row[0]) if row else None, "ai": ai["configured"],
+                "resume": has_resume, "reference": ai["reference"]}
+
+    def generate_cover_letter(self, key: str, payload: dict) -> dict:
+        notes = payload.get("notes") or ""
+        if not isinstance(notes, str) or len(notes) > cover_letter.MAX_NOTES:
+            raise ApiError(f"notes must be text up to {cover_letter.MAX_NOTES} characters")
+        with self._ai_lock:
+            ai = self._read_ai()
+        if not ai.get("api_key"):
+            raise ApiError("Connect Gemini in Settings first.")
+        job = self.job_detail(key)
+        with self.db() as con:
+            resume = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
+            reference = con.execute("SELECT v FROM kv WHERE k='cover_reference'").fetchone()
+        if not resume:
+            raise ApiError("Upload your resume in Settings first; the letter is written from it.")
+        prompt = cover_letter.build_prompt(job, resume[0], json.loads(reference[0])["text"] if reference else "", notes)
+        try:
+            text, model = cover_letter.generate(ai["api_key"], prompt, ai.get("models") or cover_letter.MODELS)
+        except cover_letter.CoverLetterError as exc:
+            raise ApiError(str(exc)) from exc
+        letter = {"body": text, "model": model, "notes": notes, "created_at": utcnow(), "edited": False}
+        with self.db() as con:
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
+        return {**self.get_cover_letter(key), "letter": letter}
+
+    def put_cover_letter(self, key: str, payload: dict) -> dict:
+        body = payload.get("body")
+        if not isinstance(body, str) or not body.strip() or len(body) > 20_000:
+            raise ApiError("the letter must be text up to 20,000 characters")
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
+            letter = {**(json.loads(row[0]) if row else {"model": "", "notes": "", "created_at": utcnow()}),
+                      "body": body, "edited": True}
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
+        return self.get_cover_letter(key)
+
+    def merge_documents(self, payload: dict) -> FileResult:
+        """One PDF from uploaded PDFs and, optionally, this job's cover letter.
+
+        ``files`` items are {"filename", "data" (base64)} or {"cover_letter": "<job key>"}.
+        """
+        items = payload.get("files")
+        if not isinstance(items, list) or not items:
+            raise ApiError("add at least one PDF")
+        files = []
+        for item in items[:pdf_tools.MAX_FILES + 1]:
+            if not isinstance(item, dict):
+                raise ApiError("files must be objects")
+            if item.get("cover_letter"):
+                key = str(item["cover_letter"])
+                letter = self.get_cover_letter(key)["letter"]
+                if not letter:
+                    raise ApiError("this job has no cover letter yet")
+                files.append(("Cover letter", pdf_tools.text_pdf(letter["body"], "Cover letter")))
+                continue
+            name = str(item.get("filename") or "document.pdf")[:200]
+            try:
+                files.append((name, base64.b64decode(str(item.get("data") or ""), validate=True)))
+            except (binascii.Error, ValueError) as exc:
+                raise ApiError(f"{name}: invalid file encoding") from exc
+        try:
+            merged = pdf_tools.merge_pdfs(files)
+        except pdf_tools.PdfError as exc:
+            raise ApiError(str(exc)) from exc
+        name = payload.get("name") if isinstance(payload.get("name"), str) else ""
+        return FileResult(merged, pdf_tools.safe_filename(name[:150] or "Application"))
 
     def meta(self) -> dict:
         with self.db() as con:
@@ -1677,6 +1830,15 @@ ROUTES = [
     ("PUT", r"/api/discord/settings", lambda s, m, q, b: s.put_discord_settings(b)),
     ("POST", r"/api/discord/test", lambda s, m, q, b: s.test_discord()),
     ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
+    ("GET", r"/api/ai", lambda s, m, q, b: s.get_ai()),
+    ("PUT", r"/api/ai", lambda s, m, q, b: s.put_ai(b)),
+    ("DELETE", r"/api/ai", lambda s, m, q, b: s.delete_ai()),
+    ("PUT", r"/api/ai/reference", lambda s, m, q, b: s.put_cover_reference(b)),
+    ("DELETE", r"/api/ai/reference", lambda s, m, q, b: s.delete_cover_reference()),
+    ("GET", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.get_cover_letter(unquote(m["key"]))),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.generate_cover_letter(unquote(m["key"]), b)),
+    ("PUT", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.put_cover_letter(unquote(m["key"]), b)),
+    ("POST", r"/api/documents/merge", lambda s, m, q, b: s.merge_documents(b)),
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
     ("GET", r"/api/update", lambda s, m, q, b: s.update_info()),
@@ -1779,7 +1941,9 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                 if "application/json" not in (self.headers.get("Content-Type") or ""):
                     return self._reject_unread_body("Content-Type must be application/json",
                                                     HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
-                limit = 6_700_000 if method == "POST" and parsed.path in ("/api/resume", "/api/resume/parse") else 200_000
+                limit = (34_000_000 if parsed.path == "/api/documents/merge"
+                         else 6_700_000 if parsed.path in ("/api/resume", "/api/resume/parse", "/api/ai/reference")
+                         else 200_000)
                 if length > limit:
                     return self._reject_unread_body("request too large", HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
                 try:
@@ -1809,6 +1973,9 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                         result = handler(self.service, match, parse_qs(parsed.query), body)
                         if method != "GET":
                             self.service.invalidate()
+                    if isinstance(result, FileResult):
+                        return self._send(result.data, result.content_type, extra_headers={
+                            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(result.filename)}"})
                     return self.json(result)
                 except ApiError as exc:
                     return self.json({"error": str(exc)}, exc.status)

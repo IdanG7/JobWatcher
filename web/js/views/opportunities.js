@@ -95,6 +95,12 @@ export async function render(root, ctx) {
       const data = await get('/api/jobs', params, controller.signal);
       if (controller.signal.aborted) return;
       state.data = data;
+      const rm = data.resume_matching;
+      if (rm?.active && rm.targets?.length && state.params.resume_match == null && state.params.category == null && !state.params.saved) {
+        // Default resume matching starts from the resume's target roles; the user can uncheck them.
+        ctx.setParams({resume_match: '1', category: rm.targets.join(',')}, {replace: true});
+        return;
+      }
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
       drawAll();
       if (data.resume_matching?.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
@@ -285,7 +291,13 @@ export async function render(root, ctx) {
     const t = e.target;
     if (t.closest('[data-resume-match]')) {
       if (!state.data?.resume_matching?.enabled) ctx.navigate(['settings'], {});
-      else set({resume_match: state.data.resume_matching.active ? '0' : '1'});
+      else {
+        // Turning resume match on also selects the resume's target roles as categories.
+        const {active, targets = []} = state.data.resume_matching;
+        const picked = targets.join(',') || null;
+        const own = listParam(state.params.category).join(',') === (picked || '');
+        set({resume_match: active ? '0' : '1', category: active ? (own ? null : state.params.category || null) : picked});
+      }
       return;
     }
     const quick = t.closest('[data-quick-i]');
