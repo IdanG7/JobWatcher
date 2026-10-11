@@ -34,7 +34,7 @@ from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.cover_letter import clean_fields, generate_letter
 from intel.profile import profile_version
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
-from intel_store import IntelStore, iso_epoch, load_profile, save_profile, utcnow, watched_companies
+from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
                        SELECT_COLUMNS, build_order, build_where, flatten, page_args, resume_params)
@@ -55,6 +55,10 @@ _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 STATIC_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
                 ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon"}
+
+
+DISCORD_WEBHOOK = re.compile(r"^https://(?:canary\.|ptb\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-]+$")
+DISCORD_SUBSCRIBER = "desktop"
 
 
 class ApiError(Exception):
@@ -114,7 +118,11 @@ class JobwatchService:
         self.kn = load_knowledge()
         self._refresh_lock = threading.Lock()
         self._poll_lock = threading.Lock()
+        self._discord_lock = threading.Lock()
         self._status_lock = threading.Lock()
+        self._scan_slots = threading.BoundedSemaphore(4)
+        self._scan_lock = threading.Lock()
+        self._scanning = set()
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._pending_cache: tuple[float, int] | None = None
@@ -353,6 +361,10 @@ class JobwatchService:
             job["description"] = text["description"] if text else ""
             job["department"] = text["department"] if text else ""
             job["description_source"] = text["source"] if text else ""
+            scan = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
+            scan = json.loads(scan[0]) if scan else {}
+            job["posting_scan"] = {"checked_at": scan.get("checked_at"), "error": scan.get("error", ""),
+                "auto": time.time() - scan.get("timestamp", 0) >= 6 * 3600}
             members = con.execute(
                 """SELECT i.board, i.job_id, j.url, j.first_seen, i.is_canonical
                    FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
@@ -387,6 +399,59 @@ class JobwatchService:
                                     "hq": company.hq, "country": company.country}
                                    if company else None)
         return job
+
+    def scan_job(self, key: str, payload: dict) -> dict:
+        """Fetch only this stored posting; network work never holds a DB lock."""
+        job = self.job_detail(key)
+        cfg = self.boards.get(job["board"])
+        if not cfg or cfg.get("disabled"):
+            raise ApiError("This posting's source is unavailable for scanning.")
+        with self.db() as con:
+            cached = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
+        previous = json.loads(cached[0]) if cached else {}
+        cooldown = 60 if payload.get("force") is True else 6 * 3600
+        if time.time() - previous.get("timestamp", 0) < cooldown:
+            if previous.get("error"):
+                raise ApiError(previous["error"], HTTPStatus.BAD_GATEWAY)
+            return job
+        with self._scan_lock:
+            if key in self._scanning or not self._scan_slots.acquire(blocking=False):
+                raise ApiError("A posting scan is already running. Try again shortly.", HTTPStatus.CONFLICT)
+            self._scanning.add(key)
+        try:
+            try:
+                result = watcher.scan_posting(cfg, job["job_id"], job["url"])
+                if not (result.get("description") or "").strip():
+                    raise ValueError("The source did not provide readable posting details.")
+            except (ValueError, watcher.requests.RequestException) as exc:
+                message = str(exc)[:250] or "Posting details are temporarily unavailable."
+                with self.db() as con:
+                    con.execute("INSERT OR REPLACE INTO kv VALUES (?,?)", ("posting_scan:" + key,
+                        json.dumps({"timestamp": time.time(), "checked_at": utcnow(), "error": message})))
+                raise ApiError(message, HTTPStatus.BAD_GATEWAY) from exc
+            with self.db() as con:
+                store_description(con, job["board"], job["job_id"], result["description"],
+                                  result.get("department", ""), source="detail")
+                url = result.get("url") or job["url"]
+                if url != job["url"]:
+                    con.execute("UPDATE jobs SET url=? WHERE board=? AND job_id=?", (url, job["board"], job["job_id"]))
+                    con.execute("INSERT INTO job_changes(board,job_id,ts,kind,field,old,new) VALUES (?,?,?,'link_changed','url',?,?)",
+                                (job["board"], job["job_id"], utcnow(), job["url"], url))
+                if result.get("salary"):
+                    con.execute("UPDATE job_details SET salary=? WHERE board=? AND job_id=?",
+                                (result["salary"], job["board"], job["job_id"]))
+                con.execute("INSERT OR REPLACE INTO kv VALUES (?,?)", ("posting_scan:" + key,
+                    json.dumps({"timestamp": time.time(), "checked_at": utcnow(), "error": ""})))
+            with self.db() as con:
+                store = IntelStore(con, self.config)
+                store.facts_pass(keys=[(job["board"], job["job_id"])])
+                store.score_pass(keys=[(job["board"], job["job_id"])])
+            self._pending_cache = None
+            return self.job_detail(key)
+        finally:
+            with self._scan_lock:
+                self._scanning.discard(key)
+                self._scan_slots.release()
 
     def get_cover_letter(self, key: str) -> dict:
         return {"cover_letter": self.job_detail(key)["cover_letter"]}
@@ -1286,6 +1351,62 @@ class JobwatchService:
         self.kick()
         return {"ok": True, "profile": profile}
 
+    # ------------------------------------------------------------ Discord alerts
+    def _read_subscribers(self) -> dict:
+        try:
+            raw = json.loads(self.subscribers_path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return {}
+        except (OSError, ValueError) as exc:
+            raise ApiError(f"subscribers.json is unreadable: {exc}", HTTPStatus.INTERNAL_SERVER_ERROR) from exc
+        return raw if isinstance(raw, dict) else {}
+
+    def _write_subscribers(self, subs: dict) -> None:
+        temporary = self.subscribers_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(subs, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(self.subscribers_path)
+
+    def get_discord(self) -> dict:
+        with self._discord_lock:
+            hook = str(self._read_subscribers().get(DISCORD_SUBSCRIBER, {}).get("discord_webhook", ""))
+        return {"configured": bool(hook), "webhook_hint": f"…{hook[-6:]}" if hook else ""}
+
+    def put_discord(self, payload: dict) -> dict:
+        webhook = str(payload.get("webhook") or "").strip()
+        if not DISCORD_WEBHOOK.match(webhook):
+            raise ApiError("That is not a Discord webhook URL. In Discord: channel settings → Integrations → "
+                           "Webhooks → Copy Webhook URL.")
+        if not watcher.send_discord_note(
+                webhook, "✅ Jobwatch connected",
+                "New job postings that match your profile will be posted in this channel.", 0x3E63DD):
+            raise ApiError("Discord rejected the webhook. Check that it still exists and try again.")
+        with self._discord_lock:
+            subs = self._read_subscribers()
+            subs[DISCORD_SUBSCRIBER] = {
+                "companies": ["all"], "alert_mode": "fit", "finance_only": False,
+                "ops": True, "discord_webhook": webhook,
+            }
+            self._write_subscribers(subs)
+        return self.get_discord()
+
+    def test_discord(self) -> dict:
+        with self._discord_lock:
+            hook = str(self._read_subscribers().get(DISCORD_SUBSCRIBER, {}).get("discord_webhook", ""))
+        if not hook:
+            raise ApiError("Discord is not connected yet.")
+        if not watcher.send_discord_note(
+                hook, "🧪 Jobwatch test",
+                "If you can read this, Discord alerts are working.", 0x3E63DD):
+            raise ApiError("Discord rejected the message. The webhook may have been deleted; reconnect it.")
+        return {"ok": True}
+
+    def delete_discord(self) -> dict:
+        with self._discord_lock:
+            subs = self._read_subscribers()
+            if subs.pop(DISCORD_SUBSCRIBER, None) is not None:
+                self._write_subscribers(subs)
+        return self.get_discord()
+
     def meta(self) -> dict:
         with self.db() as con:
             cycles = [r[0] for r in con.execute(
@@ -1471,6 +1592,7 @@ ROUTES = [
     ("GET", r"/api/overview", lambda s, m, q, b: s.overview()),
     ("GET", r"/api/jobs", lambda s, m, q, b: s.jobs(q)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)", lambda s, m, q, b: s.job_detail(unquote(m["key"]))),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/scan", lambda s, m, q, b: s.scan_job(unquote(m["key"]), b)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.get_cover_letter(unquote(m["key"]))),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter/generate", lambda s, m, q, b: s.generate_cover_letter(unquote(m["key"]), b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.save_cover_letter(unquote(m["key"]), b)),
@@ -1497,6 +1619,10 @@ ROUTES = [
     ("GET", r"/api/sources", lambda s, m, q, b: s.sources()),
     ("GET", r"/api/profile", lambda s, m, q, b: s.get_profile()),
     ("PUT", r"/api/profile", lambda s, m, q, b: s.put_profile(b)),
+    ("GET", r"/api/discord", lambda s, m, q, b: s.get_discord()),
+    ("PUT", r"/api/discord", lambda s, m, q, b: s.put_discord(b)),
+    ("POST", r"/api/discord/test", lambda s, m, q, b: s.test_discord()),
+    ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
     ("POST", r"/api/refresh", lambda s, m, q, b: s.trigger_poll() if b.get("poll") else (

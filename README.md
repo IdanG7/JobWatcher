@@ -210,6 +210,10 @@ and configure secrets in GitHub Actions to enable the scheduled poller:
 - `TELEGRAM_BOT_TOKEN` (optional)
 - `HEALTHCHECK_URL` (optional)
 
+The Windows app can send Discord alerts too: open **Settings → Discord notifications**, paste a channel
+webhook URL and press **Connect & send test**. New postings that match your profile are posted
+while Jobwatch is running.
+
 Webhook values in `subscribers.json` use `env:SECRET_NAME`; URLs do not belong
 in the repository.
 

@@ -1,6 +1,6 @@
 // Settings: candidate profile (drives Fit Score 2.0), alerts, saved views,
 // appearance and privacy notes.
-import {del, get, patch, put} from '../api.js';
+import {del, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
 import {confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
@@ -13,8 +13,10 @@ export async function render(root, ctx) {
   root.innerHTML = `<div class="panel">${skeletonRows(10)}</div>`;
   let profile;
   let searches = [];
+  let discord = {configured: false, webhook_hint: ''};
   try {
-    const [p, s] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), ctx.loadMeta()]);
+    const [p, s, d] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), ctx.loadMeta()]);
+    discord = d;
     profile = structuredClone(p.profile);
     searches = s.saved_searches;
   } catch (err) {
@@ -28,6 +30,13 @@ export async function render(root, ctx) {
 
   const checks = (name, items, selected) => items.map(([key, label]) => `<label class="check"><input type="checkbox" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}> ${esc(label)}</label>`).join('');
 
+  const discordHtml = () => `<h2>Discord notifications</h2>
+        <p>Get a Discord message when new postings that match your profile appear. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
+        ${discord.configured ? `<p class="muted">Connected (webhook ${esc(discord.webhook_hint)}).</p>` : ''}
+        <div class="field-row"><label class="field"><span>${discord.configured ? 'Replace webhook URL' : 'Webhook URL'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-discord-url placeholder="https://discord.com/api/webhooks/…"></label></div>
+        <div class="save-bar"><button type="button" class="btn primary" data-act="discord-save">Connect &amp; send test</button>${discord.configured ? '<button type="button" class="btn" data-act="discord-test">Send test message</button><button type="button" class="btn danger" data-act="discord-remove">Disconnect</button>' : ''}</div>`;
+  const redrawDiscord = () => { root.querySelector('#s-discord').innerHTML = discordHtml(); };
+
   function draw() {
     const roles = profile.target_roles || [];
     const edu = profile.education || {};
@@ -40,9 +49,10 @@ export async function render(root, ctx) {
       <nav class="settings-nav" aria-label="Settings sections">
         <a href="#s-resume" data-jump>Resume & matching</a><a href="#s-profile" data-jump>Candidate profile</a><a href="#s-roles" data-jump>Target roles</a><a href="#s-prefs" data-jump>Stages, cycles & locations</a>
         <a href="#s-employers" data-jump>Employers</a><a href="#s-elig" data-jump>Eligibility</a><a href="#s-skills" data-jump>Skills</a>
-        <a href="#s-alerts" data-jump>Alerts</a><a href="#s-views" data-jump>Saved views</a><a href="#s-appearance" data-jump>Appearance</a><a href="#s-privacy" data-jump>Privacy</a>
+        <a href="#s-discord" data-jump>Discord</a><a href="#s-alerts" data-jump>Alerts</a><a href="#s-views" data-jump>Saved views</a><a href="#s-appearance" data-jump>Appearance</a><a href="#s-privacy" data-jump>Privacy</a>
       </nav>
       <div class="stack"><section class="panel settings-section" id="s-resume" data-resume-panel></section>
+      <section class="panel settings-section" id="s-discord">${discordHtml()}</section>
       <form class="stack" data-form novalidate>
         <section class="panel settings-section" id="s-profile"><h2>Candidate profile</h2><p>Used to explain matches and check eligibility. Nothing here is required.</p>
           <div class="field-row"><label class="field"><span>Profile name</span><input class="input" name="name" value="${esc(profile.name || '')}"></label>
@@ -163,6 +173,24 @@ export async function render(root, ctx) {
       draw();
       baseline = null;
       toast('Defaults loaded — press Save to apply');
+      return;
+    }
+    if (e.target.closest('[data-act=discord-save]')) {
+      const input = root.querySelector('[data-discord-url]');
+      try {
+        discord = await put('/api/discord', {webhook: input.value});
+        redrawDiscord();
+        toast('Discord connected — check your channel for the test message');
+      } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+      return;
+    }
+    if (e.target.closest('[data-act=discord-test]')) {
+      try { await post('/api/discord/test', {}); toast('Test message sent — check your Discord channel'); } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+      return;
+    }
+    if (e.target.closest('[data-act=discord-remove]')) {
+      if (!await confirmDialog('Stop sending Discord notifications?', {confirmLabel: 'Disconnect', title: 'Disconnect Discord'})) return;
+      try { discord = await del('/api/discord'); redrawDiscord(); toast('Discord disconnected'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
     const delBtn = e.target.closest('[data-del-search]');
