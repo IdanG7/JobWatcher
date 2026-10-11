@@ -130,7 +130,7 @@ Built cash flow forecasts and financial reports.
                        if resume else {"text": synthetic})
             preview = api("/api/resume/parse", payload, "POST")
             assert preview["profile"]["graduation_year"] == 2028
-            assert "investment_banking" in preview["profile"]["target_roles"]
+            assert "corporate_finance.treasury" in preview["profile"]["target_roles"], preview["profile"]["target_roles"]
             assert not api("/api/resume")["available"]
             api("/api/resume", payload, "POST")
             deadline = time.monotonic() + 10
