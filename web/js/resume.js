@@ -68,7 +68,8 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
   }
   function drawSaved() {
     $('[data-resume-saved]').innerHTML = saved.available ? `<div class="resume-saved"><div><strong>${esc(saved.filename)}</strong>
-      <p>${saved.enabled ? 'Automatic matching enabled' : 'Automatic matching paused'}${saved.pending ? ` · ${saved.pending.toLocaleString()} postings being checked` : ''}</p></div>
+      <p>${saved.enabled ? 'Automatic matching enabled' : 'Automatic matching paused'}${saved.pending ? ` · ${saved.pending.toLocaleString()} postings being checked` : ''}</p>
+      ${saved.outdated ? '<p class="dl-warn">This resume was read by an older version of Jobwatch. Upload it again below and apply it so targets and fit scores come from your actual experience.</p>' : ''}</div>
       <div class="chips"><button type="button" class="btn sm" data-resume-toggle>${saved.enabled ? 'Pause matching' : 'Enable matching'}</button>
       <button type="button" class="btn sm danger" data-resume-remove>Remove resume</button></div></div><details><summary>Saved matching facts</summary>${resumeFacts(saved.parsed)}</details>` : '<p class="muted">Upload a resume to enable automatic matching on Opportunities.</p>';
   }

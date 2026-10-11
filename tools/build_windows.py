@@ -41,9 +41,11 @@ QUICK_START = """JOBWATCH - Windows 10/11, 64-bit
 
 No Python installation, account, API key, or administrator access is needed.
 Internet access is needed to fetch job postings. Setup itself works offline.
-Keep the console window open while using Jobwatch. Close it to stop the app.
-Double-click Start again to reopen a running app. Jobwatch fetches sources on
-startup and every five minutes while open. The first fetch may take several
+Jobwatch runs in the background without a window; the start window closes by
+itself. Double-click Start again any time to reopen the dashboard. To start it
+whenever you sign in to Windows, or to stop it, open Settings > Background.
+Jobwatch fetches sources on startup and every five minutes while it runs
+(about 200 MB of memory, little CPU between checks). The first fetch may take several
 minutes. A progress panel shows sources checked, active sources, failures and
 matching stages. Every tab stays usable, and results fill in automatically.
 Open Sources for each source's current status and error details.
@@ -58,15 +60,17 @@ YOUR DATA
 This is a fresh copy: no sender resume, profile, applications, letters, database
 or notification accounts are included. Your data is stored only on your PC in:
     %LOCALAPPDATA%\\Jobwatch
-To back up, close Jobwatch and copy that entire data folder. Keep it when
+To back up, stop Jobwatch (Settings > Background) and copy that entire data folder. Keep it when
 replacing the app folder with a newer release. Do not send that data folder to
 someone else. No Discord or Telegram notifications are connected by default.
 
 IF IT DOES NOT START
 Make sure you extracted the entire ZIP before opening Start Jobwatch.bat.
 Keep app and runtime beside the start file. This package is for 64-bit Windows,
-not macOS or Linux. Any startup error stays visible in the console window.
-If your browser did not open, copy the local URL printed in that window.
+not macOS or Linux. A startup error stays visible in the start window, and
+details are written to %LOCALAPPDATA%\\Jobwatch\\jobwatch.log. To run it in a
+visible window instead, open Command Prompt in this folder and run:
+    "Start Jobwatch.bat" --console
 
 Third-party license notices are included with the runtime and its packages.
 """

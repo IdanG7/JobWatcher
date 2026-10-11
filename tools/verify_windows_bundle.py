@@ -55,22 +55,37 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
         log = fixture / "startup.log"
 
         def launch():
+            # The batch file starts a windowless server, waits for it and exits.
             output = log.open("ab")
-            process = subprocess.Popen(command, env=env, stdout=output, stderr=subprocess.STDOUT,
-                                       creationflags=subprocess.CREATE_NO_WINDOW)
+            launcher = subprocess.run(command, env=env, stdout=output, stderr=subprocess.STDOUT, timeout=120,
+                                      creationflags=subprocess.CREATE_NO_WINDOW)
             output.close()
-            return process
+            assert launcher.returncode == 0, log.read_text(encoding="utf-8")
+            pid = json.loads((data / "instance.json").read_text())["pid"]
+            image = subprocess.check_output(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"], text=True,
+                                            creationflags=subprocess.CREATE_NO_WINDOW)
+            assert "pythonw.exe" in image.lower(), image
+            return pid
 
-        def stop(process):
-            if process.poll() is None:
-                subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                               capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
-                process.wait(timeout=10)
+        def stop(pid):
+            if pid is None:
+                return
+            try:
+                request = Request(json.loads((data / "instance.json").read_text())["url"] + "/api/shutdown",
+                                  data=b"{}", method="POST", headers={"Content-Type": "application/json"})
+                with urlopen(request, timeout=5):
+                    pass
+                deadline = time.monotonic() + 15
+                while (data / "instance.json").exists() and time.monotonic() < deadline:
+                    time.sleep(0.1)
+                assert not (data / "instance.json").exists(), "shutdown did not stop the server"
+            finally:
+                subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True,
+                               creationflags=subprocess.CREATE_NO_WINDOW)
 
-        def ready(process):
+        def ready(pid):
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
-                assert process.poll() is None, log.read_text(encoding="utf-8")
                 try:
                     url = json.loads((data / "instance.json").read_text())["url"]
                     with urlopen(url + "/api/status", timeout=2) as response:
@@ -81,8 +96,9 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
                 time.sleep(0.1)
             raise AssertionError("Startup timed out: " + log.read_text(encoding="utf-8"))
 
-        process = launch()
+        process = None
         try:
+            process = launch()
             url = ready(process)
 
             def api(path, body=None, method="GET"):
@@ -145,14 +161,15 @@ Built cash flow forecasts and financial reports.
             assert duplicate.returncode == 0, duplicate.stdout + duplicate.stderr
             assert b"already running" in duplicate.stdout
             stop(process)
+            process = None
             process = launch()
             url = ready(process)
             assert api("/api/resume")["enabled"]
             assert api("/api/profile")["profile"]["graduation_year"] == 2028
         finally:
             stop(process)
-        print("PASS: ZIP checksums, isolated runtime, batch startup, automatic polling/progress, loading shell, clean profile,")
-        print("resume upload/apply/matching, duplicate starts, and restart persistence.")
+        print("PASS: ZIP checksums, isolated runtime, windowless batch startup, automatic polling/progress, loading shell,")
+        print("clean profile, resume upload/apply/matching, duplicate starts, shutdown and restart persistence.")
 
 
 if __name__ == "__main__":

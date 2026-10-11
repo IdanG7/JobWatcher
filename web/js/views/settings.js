@@ -15,10 +15,12 @@ export async function render(root, ctx) {
   let searches = [];
   let discord = {configured: false, webhook_hint: ''};
   let ai = {configured: false, key_hint: '', model: '', reference: null};
+  let background = {can_stop: false, autostart_supported: false, autostart: false, log: ''};
   try {
-    const [p, s, d, a] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/ai'), ctx.loadMeta()]);
+    const [p, s, d, a, b] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/ai'), get('/api/background'), ctx.loadMeta()]);
     discord = d;
     ai = a;
+    background = b;
     profile = structuredClone(p.profile);
     searches = s.saved_searches;
   } catch (err) {
@@ -55,6 +57,12 @@ export async function render(root, ctx) {
         <p class="muted" style="font-size:11.5px">To write each letter, the posting, your resume and your past letter are sent to Google. On the free tier Google may use them to improve its products. The key is stored only on this computer.</p>`;
   const redrawAi = () => { root.querySelector('#s-ai').innerHTML = aiHtml(); };
 
+  const backgroundHtml = () => `<h2>Background</h2>
+        <p>Jobwatch runs in the background without a window and keeps checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open <b>Start Jobwatch.bat</b> any time to reopen this dashboard.</p>
+        ${background.autostart_supported ? `<label class="check"><input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}> Start Jobwatch automatically when I sign in to Windows</label>` : ''}
+        ${background.log ? `<p class="muted" style="font-size:11.5px">Log file: <code>${esc(background.log)}</code></p>` : ''}
+        ${background.can_stop ? '<div class="save-bar"><button type="button" class="btn danger" data-act="shutdown">Stop Jobwatch</button></div>' : ''}`;
+
   function draw() {
     const roles = profile.target_roles || [];
     const edu = profile.education || {};
@@ -67,11 +75,12 @@ export async function render(root, ctx) {
       <nav class="settings-nav" aria-label="Settings sections">
         <a href="#s-resume" data-jump>Resume & matching</a><a href="#s-profile" data-jump>Candidate profile</a><a href="#s-roles" data-jump>Target roles</a><a href="#s-prefs" data-jump>Stages, cycles & locations</a>
         <a href="#s-employers" data-jump>Employers</a><a href="#s-elig" data-jump>Eligibility</a><a href="#s-skills" data-jump>Skills</a>
-        <a href="#s-discord" data-jump>Discord</a><a href="#s-ai" data-jump>AI cover letters</a><a href="#s-alerts" data-jump>Alerts</a><a href="#s-views" data-jump>Saved views</a><a href="#s-appearance" data-jump>Appearance</a><a href="#s-privacy" data-jump>Privacy</a>
+        <a href="#s-discord" data-jump>Discord</a><a href="#s-ai" data-jump>AI cover letters</a><a href="#s-background" data-jump>Background</a><a href="#s-alerts" data-jump>Alerts</a><a href="#s-views" data-jump>Saved views</a><a href="#s-appearance" data-jump>Appearance</a><a href="#s-privacy" data-jump>Privacy</a>
       </nav>
       <div class="stack"><section class="panel settings-section" id="s-resume" data-resume-panel></section>
       <section class="panel settings-section" id="s-discord">${discordHtml()}</section>
       <section class="panel settings-section" id="s-ai">${aiHtml()}</section>
+      <section class="panel settings-section" id="s-background">${backgroundHtml()}</section>
       <form class="stack" data-form novalidate>
         <section class="panel settings-section" id="s-profile"><h2>Candidate profile</h2><p>Used to explain matches and check eligibility. Nothing here is required.</p>
           <div class="field-row"><label class="field"><span>Profile name</span><input class="input" name="name" value="${esc(profile.name || '')}"></label>
@@ -224,6 +233,14 @@ export async function render(root, ctx) {
       try { ai = await del('/api/ai'); redrawAi(); toast('Gemini disconnected'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
+    if (e.target.closest('[data-act=shutdown]')) {
+      if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open Start Jobwatch.bat again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
+      try {
+        await post('/api/shutdown', {});
+        document.body.innerHTML = '<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Jobwatch stopped</h1><p>It is no longer checking for jobs. Open <b>Start Jobwatch.bat</b> to start it again. You can close this tab.</p></main>';
+      } catch (err) { toast(err.message, {error: true}); }
+      return;
+    }
     if (e.target.closest('[data-act=ai-ref-remove]')) {
       try { ai = await del('/api/ai/reference'); redrawAi(); toast('Past cover letter removed'); } catch (err) { toast(err.message, {error: true}); }
       return;
@@ -243,6 +260,13 @@ export async function render(root, ctx) {
     if (e.target.matches('[data-discord-mode]')) {
       try { discord = await put('/api/discord/settings', {mode: e.target.value}); toast(discord.mode === 'views_only' ? 'Discord will only send your saved views' : 'Discord will send good matches and your saved views'); }
       catch (err) { toast(err.message, {error: true}); redrawDiscord(); }
+      return;
+    }
+    if (e.target.matches('[data-autostart]')) {
+      try {
+        background = await put('/api/background', {autostart: e.target.checked});
+        toast(background.autostart ? 'Jobwatch will start when you sign in to Windows' : 'Jobwatch will no longer start at sign-in');
+      } catch (err) { e.target.checked = !e.target.checked; toast(err.message, {error: true, timeout: 8000}); }
       return;
     }
     if (e.target.matches('[data-ai-reference]')) {

@@ -74,6 +74,35 @@ class ApiError(Exception):
         self.status = status
 
 
+AUTOSTART_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
+AUTOSTART_NAME = "Jobwatch"
+
+
+def autostart_value() -> str | None:
+    """The command Windows runs for Jobwatch at sign-in, if any (per user, no admin)."""
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, AUTOSTART_KEY) as key:
+            return str(winreg.QueryValueEx(key, AUTOSTART_NAME)[0])
+    except (ImportError, OSError):
+        return None
+
+
+def set_autostart(command: str | None) -> None:
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, AUTOSTART_KEY, 0, winreg.KEY_SET_VALUE) as key:
+            if command:
+                winreg.SetValueEx(key, AUTOSTART_NAME, 0, winreg.REG_SZ, command)
+            else:
+                try:
+                    winreg.DeleteValue(key, AUTOSTART_NAME)
+                except FileNotFoundError:
+                    pass
+    except (ImportError, OSError) as exc:
+        raise ApiError(f"Windows did not allow changing startup apps: {exc}") from exc
+
+
 class FileResult:
     """A route result sent as a download instead of JSON."""
     def __init__(self, data: bytes, filename: str, content_type: str = "application/pdf"):
@@ -141,7 +170,11 @@ class JobwatchService:
         # The Gemini key sits beside the database (git-ignored, never in the DB or config).
         self.ai_path = (Path(db_path).parent if isinstance(self.db_path, Path) else self.subscribers_path.parent) / "ai.local.json"
         self._ai_lock = threading.Lock()
-        self.config =json.loads(self.config_path.read_text(encoding="utf-8"))
+        # Set by the portable launcher, which owns the server and the Windows paths.
+        self.on_shutdown = None
+        self.autostart_command: str | None = None
+        self.log_path: Path | None = None
+        self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
         self.boards = {k: v for k, v in self.config.get("boards", {}).items() if not k.startswith("_")}
         self.kn = load_knowledge()
         self._refresh_lock = threading.Lock()
@@ -1269,7 +1302,9 @@ class JobwatchService:
             (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
         result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending,
                   "filename": row["filename"], "updated_at": row["updated_at"],
-                  "targets": self.profile(con).get("target_roles") or []}
+                  "targets": self.profile(con).get("target_roles") or [],
+                  # read by the parser before graded role targets; re-uploading improves matching
+                  "outdated": "role_interests" not in json.loads(row["parsed"])}
         if include_parsed:
             result["parsed"] = json.loads(row["parsed"])
         return result
@@ -1466,6 +1501,27 @@ class JobwatchService:
             if subs.pop(DISCORD_SUBSCRIBER, None) is not None:
                 self._write_subscribers(subs)
         return self.get_discord()
+
+    # ------------------------------------------------------------ background running
+    def background_info(self) -> dict:
+        return {"can_stop": self.on_shutdown is not None,
+                "autostart_supported": bool(self.autostart_command),
+                "autostart": autostart_value() == self.autostart_command if self.autostart_command else False,
+                "log": str(self.log_path or "")}
+
+    def put_background(self, payload: dict) -> dict:
+        if not isinstance(payload.get("autostart"), bool):
+            raise ApiError("autostart must be true or false")
+        if not self.autostart_command:
+            raise ApiError("Starting at sign-in is only available in the Windows app.")
+        set_autostart(self.autostart_command if payload["autostart"] else None)
+        return self.background_info()
+
+    def shutdown(self) -> dict:
+        if self.on_shutdown is None:
+            raise ApiError("Stop this copy of Jobwatch from the window it is running in.")
+        threading.Timer(0.3, self.on_shutdown).start()      # let this response reach the browser first
+        return {"ok": True}
 
     # ------------------------------------------------------------ Gemini cover letters
     def _read_ai(self) -> dict:
@@ -1830,6 +1886,9 @@ ROUTES = [
     ("PUT", r"/api/discord/settings", lambda s, m, q, b: s.put_discord_settings(b)),
     ("POST", r"/api/discord/test", lambda s, m, q, b: s.test_discord()),
     ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
+    ("GET", r"/api/background", lambda s, m, q, b: s.background_info()),
+    ("PUT", r"/api/background", lambda s, m, q, b: s.put_background(b)),
+    ("POST", r"/api/shutdown", lambda s, m, q, b: s.shutdown()),
     ("GET", r"/api/ai", lambda s, m, q, b: s.get_ai()),
     ("PUT", r"/api/ai", lambda s, m, q, b: s.put_ai(b)),
     ("DELETE", r"/api/ai", lambda s, m, q, b: s.delete_ai()),

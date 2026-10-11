@@ -23,7 +23,8 @@ Download **Jobwatch-Windows.zip** from [the latest release](https://github.com/I
 or build `dist/Jobwatch-Windows.zip` locally. The recipient extracts the entire ZIP and
 double-clicks **Start Jobwatch.bat**. Python and the dependencies are included;
 no installation, administrator access, API key or account is required. The app
-opens in the browser and fetches jobs automatically while the console stays open.
+opens in the browser and fetches jobs automatically in the background, without a console window
+(Settings > Background can start it at sign-in or stop it).
 Internet access is needed to fetch postings. The first fetch can take several minutes.
 The dashboard shows live collection progress, active sources and failures while
 you use any tab. Results refresh as sources finish; **Sources** shows individual

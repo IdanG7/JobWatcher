@@ -3,7 +3,13 @@ import {test} from 'node:test';
 
 import {funnel, hBars, heatmap} from '../js/charts.js';
 import {badge, fitMeter, options} from '../js/ui.js';
-import {apiParams} from '../js/views/opportunities.js';
+import {apiParams, resumeCategories} from '../js/views/opportunities.js';
+
+test('resume match picks each parent category with its groups', () => {
+  assert.equal(resumeCategories(['public_markets.asset_management', 'corporate_finance.fpa', 'corporate_finance.treasury', 'quant']),
+    'public_markets,public_markets.asset_management,corporate_finance,corporate_finance.fpa,corporate_finance.treasury,quant');
+  assert.equal(resumeCategories([]), '');
+});
 
 test('opportunities default to finance roles, family=all lifts the scope', () => {
   assert.deepEqual(apiParams({}), {family: 'finance'});

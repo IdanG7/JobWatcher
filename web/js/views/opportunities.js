@@ -40,6 +40,17 @@ const STAGES = [
 ];
 
 /** API params from URL params: finance-only unless family=all is explicit. */
+// Resume targets as category filters: each parent category, then its picked groups.
+export function resumeCategories(targets = []) {
+  const keys = [];
+  for (const t of targets) {
+    const parent = t.split('.')[0];
+    if (!keys.includes(parent)) keys.push(parent);
+    if (!keys.includes(t)) keys.push(t);
+  }
+  return keys.join(',');
+}
+
 export function apiParams(params) {
   const p = {...params};
   delete p.job; delete p.saved;
@@ -98,7 +109,7 @@ export async function render(root, ctx) {
       const rm = data.resume_matching;
       if (rm?.active && rm.targets?.length && state.params.resume_match == null && state.params.category == null && !state.params.saved) {
         // Default resume matching starts from the resume's target roles; the user can uncheck them.
-        ctx.setParams({resume_match: '1', category: rm.targets.join(',')}, {replace: true});
+        ctx.setParams({resume_match: '1', category: resumeCategories(rm.targets)}, {replace: true});
         return;
       }
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
@@ -134,7 +145,7 @@ export async function render(root, ctx) {
   function drawSummary() {
     const d = state.data;
     const scope = state.params.family === 'all' ? 'roles' : state.params.family && state.params.family !== 'finance' ? `${prettyKey(state.params.family)} roles` : 'finance roles';
-    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ` · resume eligibility on · ${d.resume_matching.excluded_total || 0} excluded of ${d.resume_matching.unfiltered_total ?? d.total}` : ''}${d.resume_matching?.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}`;
+    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ` · resume eligibility on · ${d.resume_matching.excluded_total || 0} excluded of ${d.resume_matching.unfiltered_total ?? d.total}` : ''}${d.resume_matching?.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}${d.resume_matching?.outdated ? ' · <a class="link" href="#/settings">re-upload your resume</a> for better matching' : ''}`;
   }
 
   function quickActive(q) {
@@ -294,7 +305,7 @@ export async function render(root, ctx) {
       else {
         // Turning resume match on also selects the resume's target roles as categories.
         const {active, targets = []} = state.data.resume_matching;
-        const picked = targets.join(',') || null;
+        const picked = resumeCategories(targets) || null;
         const own = listParam(state.params.category).join(',') === (picked || '');
         set({resume_match: active ? '0' : '1', category: active ? (own ? null : state.params.category || null) : picked});
       }
