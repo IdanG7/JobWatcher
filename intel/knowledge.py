@@ -7,6 +7,7 @@ compiles those files once and caches the result per directory + mtime.
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 import threading
@@ -30,15 +31,125 @@ def fragment(pattern: str) -> str:
     return rf"(?<![a-z0-9])(?:{body})(?![a-z0-9])"
 
 
-def compile_fragments(patterns) -> list[re.Pattern]:
-    return [re.compile(fragment(p), re.I) for p in (patterns or [])]
+_META = set("()[]{}|?*+\\.^$ ")
 
 
-def compile_union(patterns) -> re.Pattern | None:
+def _split_top(pattern: str) -> list[str]:
+    """Split on '|' that is not inside parentheses or a character class."""
+    parts, depth, start, in_class = [], 0, 0, False
+    for i, ch in enumerate(pattern):
+        if ch == "[":
+            in_class = True
+        elif ch == "]":
+            in_class = False
+        elif not in_class and ch == "(":
+            depth += 1
+        elif not in_class and ch == ")":
+            depth -= 1
+        elif not in_class and ch == "|" and depth == 0:
+            parts.append(pattern[start:i])
+            start = i + 1
+    return parts + [pattern[start:]]
+
+
+def required_literal(pattern: str) -> str | None:
+    """The longest lowercase word every match of this config fragment contains.
+
+    Only plain text outside parentheses counts; a character made optional by
+    ? * or { is dropped. Longer words are rarer, so the check skips more often.
+    """
+    runs, current, depth, i = [], "", 0, 0
+    while i < len(pattern):
+        ch = pattern[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif depth == 0 and ch == "\\":
+            i += 1                       # escaped character: not plain text
+        elif depth == 0 and ch == "[":
+            i = pattern.find("]", i)
+            if i < 0:
+                break
+        elif depth == 0 and ch not in _META:
+            current += ch
+            i += 1
+            continue
+        if depth == 0 and ch in "?*{" and current:
+            current = current[:-1]       # its last character is optional
+        if current:
+            runs.append(current)
+        current = ""
+        i += 1
+    if current:
+        runs.append(current)
+    runs = [r.lower() for r in runs if len(r) >= 2 and r.isascii()]
+    return max(runs, key=len) if runs else None
+
+
+def prematchers(patterns) -> tuple[str, ...] | None:
+    """Strings of which at least one appears in any text the patterns match.
+
+    None means "no cheap test is possible": always run the regex.
+    """
+    literals = []
+    for pattern in patterns:
+        for alternative in _split_top(pattern):
+            literal = required_literal(alternative)
+            if literal is None:
+                return None
+            literals.append(literal)
+    return tuple(dict.fromkeys(literals)) or None
+
+
+@functools.lru_cache(maxsize=32)
+def _lower(text: str) -> str:
+    return text.lower()
+
+
+class Prefiltered:
+    """A compiled pattern that skips the regex when a required word is absent.
+
+    Most of the ~650 taxonomy and skill patterns never occur in a given posting.
+    A substring test ('in' on the lowercased text) is far cheaper than a
+    case-insensitive regex scan that starts with a lookbehind, which defeats
+    the regex engine's own literal-prefix search. Results are identical: the
+    regex still decides every match it is allowed to run on.
+    """
+    __slots__ = ("regex", "literals")
+
+    def __init__(self, regex: re.Pattern, literals: tuple[str, ...] | None):
+        self.regex = regex
+        self.literals = literals
+
+    def _possible(self, text: str) -> bool:
+        if self.literals is None:
+            return True
+        low = _lower(text)
+        return any(literal in low for literal in self.literals)
+
+    def search(self, text, *args):
+        return self.regex.search(text, *args) if self._possible(text) else None
+
+    def finditer(self, text, *args):
+        return self.regex.finditer(text, *args) if self._possible(text) else iter(())
+
+    def findall(self, text, *args):
+        return self.regex.findall(text, *args) if self._possible(text) else []
+
+    def __getattr__(self, name):
+        return getattr(self.regex, name)
+
+
+def compile_fragments(patterns) -> list[Prefiltered]:
+    return [Prefiltered(re.compile(fragment(p), re.I), prematchers([p])) for p in (patterns or [])]
+
+
+def compile_union(patterns) -> Prefiltered | None:
     patterns = [p for p in (patterns or []) if p]
     if not patterns:
         return None
-    return re.compile("|".join(fragment(p) for p in patterns), re.I)
+    return Prefiltered(re.compile("|".join(fragment(p) for p in patterns), re.I), prematchers(patterns))
 
 
 @dataclass

@@ -159,6 +159,7 @@ class JobwatchService:
     def connect(self):
         con = sqlite3.connect(self.db_path, timeout=10)
         con.execute("PRAGMA busy_timeout=8000")
+        con.execute("PRAGMA synchronous=NORMAL")
         con.row_factory = sqlite3.Row
         return con
 
@@ -226,6 +227,7 @@ class JobwatchService:
             try:
                 con = sqlite3.connect(self.db_path, timeout=30)
                 con.execute("PRAGMA busy_timeout=15000")
+                con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
                 try:
                     self.pending_facts(con)
                     store = IntelStore(con, self.config)

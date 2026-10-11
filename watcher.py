@@ -31,6 +31,7 @@ import random
 import re
 import sqlite3
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
@@ -553,6 +554,46 @@ def fetch_github_md(cfg):
     return out
 
 
+# LinkedIn answers bursts with 429. All LinkedIn sources share one IP, so their
+# requests take turns with a gap, back off on 429, and pause briefly if blocked.
+LINKEDIN_SPACING = 1.5             # seconds between requests (plus up to 1s jitter)
+LINKEDIN_BACKOFF = (8, 20, 45)     # waits after successive 429s on one request
+LINKEDIN_BLOCK_PAUSE = 300         # skip LinkedIn this long once retries are exhausted
+_linkedin_lock = threading.Lock()
+_linkedin_next = 0.0
+_linkedin_blocked_until = 0.0
+
+
+class LinkedInRateLimited(requests.HTTPError):
+    pass
+
+
+def _linkedin_get(params):
+    global _linkedin_next, _linkedin_blocked_until
+    with _linkedin_lock:
+        for attempt in range(len(LINKEDIN_BACKOFF) + 1):
+            now = time.monotonic()
+            if now < _linkedin_blocked_until:
+                raise LinkedInRateLimited("LinkedIn is rate limiting; paused for a few minutes")
+            if now < _linkedin_next:
+                time.sleep(_linkedin_next - now)
+            r = requests.get(
+                "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search",
+                params=params, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
+                timeout=TIMEOUT)
+            _linkedin_next = time.monotonic() + LINKEDIN_SPACING + random.uniform(0, 1)
+            if r.status_code != 429:
+                return r
+            if attempt < len(LINKEDIN_BACKOFF):
+                try:
+                    wait = min(float(r.headers.get("Retry-After") or 0), 120) or LINKEDIN_BACKOFF[attempt]
+                except ValueError:
+                    wait = LINKEDIN_BACKOFF[attempt]
+                _linkedin_next = time.monotonic() + wait
+        _linkedin_blocked_until = time.monotonic() + LINKEDIN_BLOCK_PAUSE
+        raise LinkedInRateLimited("LinkedIn kept answering 429 Too Many Requests")
+
+
 def fetch_linkedin(cfg):
     """LinkedIn public guest results, no login. cfg: queries (list) or query,
     location ('United States'), recency
@@ -585,12 +626,8 @@ def _linkedin_query(cfg, q, location, out, seen):
         raise ValueError("LinkedIn pages must be an integer from 1 to 40")
     previous_pages = set()
     for _ in range(pages):
-        r = requests.get(
-            "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search",
-            params={"keywords": q, "location": location,
-                    "f_TPR": cfg.get("recency", "r86400"), "start": start},
-            headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
-            timeout=TIMEOUT)
+        r = _linkedin_get({"keywords": q, "location": location,
+                           "f_TPR": cfg.get("recency", "r86400"), "start": start})
         if r.status_code in (400, 404):         # past the end of results
             break
         r.raise_for_status()
@@ -622,8 +659,7 @@ def _linkedin_query(cfg, q, location, out, seen):
         if not got or signature in previous_pages:
             break
         previous_pages.add(signature)
-        start += got
-        time.sleep(1.0)                         # be polite, one IP
+        start += got                            # _linkedin_get spaces the requests
 
 
 def fetch_janestreet(cfg):
@@ -1066,6 +1102,9 @@ def db_open(path=None):
     if str(target) != ":memory:":
         # The dashboard reads while the watcher writes; WAL keeps both moving.
         con.execute("PRAGMA journal_mode=WAL")
+        # Recommended with WAL: commits stay atomic but skip a disk flush each;
+        # a power cut can lose only the last few commits, never corrupt the file.
+        con.execute("PRAGMA synchronous=NORMAL")
     migrate(con)
     return con
 
@@ -2174,10 +2213,6 @@ def cycle(config, con, progress=None):
     try:
         store = IntelStore(con, config)
         store.facts_pass(keys=[(b, j["id"]) for b, js in new_by_board.items() for j in js])
-        # The backlog only feeds the local dashboard; on an ephemeral Actions
-        # runner it would be rebuilt every run and slow every cycle.
-        if not EPHEMERAL:
-            store.facts_pass(config.get("facts_per_cycle", 5000))
         store.score_pass()
         con.commit()
     except Exception as e:      # intelligence must never stop collection or alerts
@@ -2247,6 +2282,20 @@ def cycle(config, con, progress=None):
                          j.get("salary") or ""))
 
     flush_feeds(config, con, subs)
+
+    # ---- backlog indexing: alerts only need the new postings above, so older
+    # unindexed postings are processed after alerts instead of delaying them.
+    # The backlog only feeds the local dashboard; on an ephemeral Actions
+    # runner it would be rebuilt every run and slow every cycle.
+    if store and not EPHEMERAL:
+        report_progress(progress, "phase", phase="indexing")
+        try:
+            store.facts_pass(config.get("facts_per_cycle", 5000))
+            store.score_pass()
+            con.commit()
+        except Exception as e:
+            log(f"! backlog indexing failed: {type(e).__name__}: {e}")
+            con.rollback()
 
     # ---- description enrichment (after alerts so they are never delayed)
     enriched = 0
