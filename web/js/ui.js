@@ -184,12 +184,28 @@ export async function confirmDialog(message, {title = 'Are you sure?', confirmLa
 }
 
 // ---------------------------------------------------------------- tooltip
+/** Tooltip markup may carry scraped titles: keep the text and <b> emphasis only. */
+export function tooltipNodes(markup) {
+  const template = document.createElement('template');
+  template.innerHTML = markup;              // inert: nothing in a template runs or loads
+  const copy = node => {
+    if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.textContent);
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+    const out = node.tagName === 'B' ? document.createElement('b') : document.createDocumentFragment();
+    node.childNodes.forEach(child => { const c = copy(child); if (c) out.append(c); });
+    return out;
+  };
+  const fragment = document.createDocumentFragment();
+  template.content.childNodes.forEach(child => { const c = copy(child); if (c) fragment.append(c); });
+  return fragment;
+}
+
 export function bindTooltips(root) {
   const tip = document.getElementById('tooltip');
   root.addEventListener('mousemove', e => {
     const target = e.target.closest('[data-tip]');
     if (!target || !root.contains(target)) { tip.hidden = true; return; }
-    tip.innerHTML = target.getAttribute('data-tip');
+    tip.replaceChildren(tooltipNodes(target.getAttribute('data-tip')));
     tip.hidden = false;
     tip.style.left = `${e.clientX}px`;
     tip.style.top = `${e.clientY}px`;

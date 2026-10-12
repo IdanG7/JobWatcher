@@ -186,6 +186,7 @@ class JobwatchService:
         self._cache_lock = threading.Lock()
         self._status_lock = threading.Lock()
         self._scan_slots = threading.BoundedSemaphore(4)
+        self._merge_slots = threading.BoundedSemaphore(2)   # each merge can hold ~100 MB of PDFs
         self._scan_lock = threading.Lock()
         self._scanning = set()
         self._wake = threading.Event()
@@ -560,15 +561,17 @@ class JobwatchService:
                 (key, deadline, str(payload.get("deadline_note") or "")[:300], hidden, utcnow()))
             board, _, job_id = key.partition(":")
             con.execute("UPDATE job_intel SET profile_version=NULL WHERE board=? AND job_id=?", (board, job_id))
-        self._rescore_soon()
+            try:
+                # Just this job; a full refresh here could index a whole backlog first.
+                IntelStore(con, self.config).score_pass(keys=[(board, job_id)])
+            except Exception:
+                self.kick()
         return {"ok": True}
 
     def _rescore_soon(self) -> None:
-        """Cheap: only rows whose profile_version was nulled get rescored."""
-        try:
-            self.refresh_now()
-        except Exception:
-            self.kick()
+        """Rescoring can touch every job (watching a company changes every
+        score), so it runs in the background loop, never inside a request."""
+        self.kick()
 
     # ------------------------------------------------------------ overview
     def overview(self) -> dict:
@@ -797,6 +800,13 @@ class JobwatchService:
                  payload.get("notes") if "notes" in payload else None))
             con.execute("UPDATE job_intel SET profile_version=NULL WHERE company_key=?", (key,))
             self._update_resume_version(con)
+            # This company's jobs now; every other score changes too, in the background.
+            keys = con.execute("SELECT board, job_id FROM job_intel WHERE company_key=? LIMIT 500", (key,)).fetchall()
+            if keys:
+                try:
+                    IntelStore(con, self.config).score_pass(force=True, keys=[tuple(k) for k in keys])
+                except Exception:
+                    pass
         self._rescore_soon()
         return {"ok": True, "company_key": key, "watched": bool(watched)}
 
@@ -1622,7 +1632,10 @@ class JobwatchService:
         body = payload.get("body")
         if not isinstance(body, str) or not body.strip() or len(body) > 20_000:
             raise ApiError("the letter must be text up to 20,000 characters")
+        board, _, job_id = key.partition(":")
         with self.db() as con:
+            if not con.execute("SELECT 1 FROM jobs WHERE board=? AND job_id=?", (board, job_id)).fetchone():
+                raise ApiError("job not found", HTTPStatus.NOT_FOUND)
             row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
             letter = {**(json.loads(row[0]) if row else {"model": "", "notes": "", "created_at": utcnow()}),
                       "body": body, "edited": True}
@@ -1637,6 +1650,14 @@ class JobwatchService:
         items = payload.get("files")
         if not isinstance(items, list) or not items:
             raise ApiError("add at least one PDF")
+        if not self._merge_slots.acquire(blocking=False):
+            raise ApiError("Another merge is still running; try again in a moment.", HTTPStatus.TOO_MANY_REQUESTS)
+        try:
+            return self._merge_documents(payload, items)
+        finally:
+            self._merge_slots.release()
+
+    def _merge_documents(self, payload: dict, items: list) -> FileResult:
         files = []
         for item in items[:pdf_tools.MAX_FILES + 1]:
             if not isinstance(item, dict):
@@ -1838,7 +1859,9 @@ class JobwatchService:
                   "cycle_label", "location", "deadline", "app_status", "salary", "url", "first_seen"]
         writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
         writer.writeheader()
-        writer.writerows(jobs)
+        # Scraped text starting with = + - @ would run as a spreadsheet formula.
+        writer.writerows({k: "'" + v if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r") else v
+                          for k, v in job.items()} for job in jobs)
         return stream.getvalue()
 
 
@@ -1925,6 +1948,7 @@ class JobwatchHandler(BaseHTTPRequestHandler):
     service: JobwatchService
     allowed_hosts: set[str] = {"127.0.0.1", "localhost", "[::1]", "::1"}
     allow_any_host = False      # only when deliberately bound to 0.0.0.0 / ::
+    timeout = 60                # a client that stalls mid-request never holds a thread forever
 
     def log_message(self, fmt, *args):
         if "/api/" in (args[0] if args else ""):
@@ -1996,9 +2020,12 @@ class JobwatchHandler(BaseHTTPRequestHandler):
         if method in ("POST", "PUT", "PATCH", "DELETE"):
             # Cross-site forms can only send text/plain / form bodies; requiring
             # JSON forces a CORS preflight this server never approves.
+            # The Origin must be this exact server, port included: any other
+            # local app (another port) is a different site.
             origin = self.headers.get("Origin")
-            if origin and not self.allow_any_host and urlparse(origin).hostname not in {
-                    h.strip("[]") for h in self.allowed_hosts}:
+            if origin and not self.allow_any_host and origin.rstrip("/").lower() !=                     f"http://{self.headers.get('Host') or ''}".lower():
+                return self._reject_unread_body("cross-origin request refused", HTTPStatus.FORBIDDEN)
+            if (self.headers.get("Sec-Fetch-Site") or "same-origin") not in ("same-origin", "none"):
                 return self._reject_unread_body("cross-origin request refused", HTTPStatus.FORBIDDEN)
             try:
                 length = int(self.headers.get("Content-Length") or 0)
@@ -2007,7 +2034,8 @@ class JobwatchHandler(BaseHTTPRequestHandler):
             except ValueError:
                 return self._reject_unread_body("invalid Content-Length", HTTPStatus.BAD_REQUEST)
             if length:
-                if "application/json" not in (self.headers.get("Content-Type") or ""):
+                media_type = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                if media_type != "application/json":
                     return self._reject_unread_body("Content-Type must be application/json",
                                                     HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
                 limit = (34_000_000 if parsed.path == "/api/documents/merge"
@@ -2015,14 +2043,23 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                          else 200_000)
                 if length > limit:
                     return self._reject_unread_body("request too large", HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                raw = self.rfile.read(length)
+                if len(raw) < length:
+                    self.close_connection = True
+                    return self.json({"error": "request body ended early"}, HTTPStatus.BAD_REQUEST)
                 try:
-                    body = json.loads(self.rfile.read(length) or b"{}")
-                except json.JSONDecodeError:
+                    body = json.loads(raw.decode("utf-8") or "{}")
+                except (ValueError, RecursionError):      # bad JSON, bad UTF-8 or absurd nesting
                     return self.json({"error": "invalid JSON"}, HTTPStatus.BAD_REQUEST)
                 if not isinstance(body, dict):
                     return self.json({"error": "JSON body must be an object"}, HTTPStatus.BAD_REQUEST)
         if parsed.path == "/api/export.csv" and method == "GET":
-            data = self.service.csv_export(parse_qs(parsed.query)).encode()
+            try:
+                data = self.service.csv_export(parse_qs(parsed.query)).encode()
+            except ApiError as exc:
+                return self.json({"error": str(exc)}, exc.status)
+            except (ValueError, TypeError, OverflowError) as exc:
+                return self.json({"error": f"invalid request: {exc}"}, HTTPStatus.BAD_REQUEST)
             return self._send(data, "text/csv; charset=utf-8", extra_headers={
                 "Content-Disposition": "attachment; filename=jobwatch-opportunities.csv"})
         if parsed.path.startswith("/api/"):
@@ -2050,6 +2087,9 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                     return self.json({"error": str(exc)}, exc.status)
                 except CLIENT_GONE:
                     return      # the browser cancelled this request; nobody is listening
+                except (ValueError, TypeError, OverflowError) as exc:
+                    # Malformed parameters (page=1e20, a list where text belongs, ...).
+                    return self.json({"error": f"invalid request: {exc}"}, HTTPStatus.BAD_REQUEST)
                 except Exception as exc:
                     print(f"! {method} {parsed.path}: {type(exc).__name__}: {exc}")
                     return self.json({"error": f"{type(exc).__name__}: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -2073,6 +2113,25 @@ class JobwatchHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         self._dispatch("DELETE")
+
+    def do_OPTIONS(self):
+        self._reject_unread_body("method not allowed", HTTPStatus.METHOD_NOT_ALLOWED)   # no CORS preflight
+
+    def do_HEAD(self):
+        self.close_connection = True
+        self.send_response(HTTPStatus.METHOD_NOT_ALLOWED)
+        self.send_header("Allow", "GET, POST, PUT, PATCH, DELETE")
+        self.send_header("Content-Length", "0")
+        self.send_header("Connection", "close")
+        self.end_headers()
+
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except CLIENT_GONE:
+            self.close_connection = True
+        except (TimeoutError, socket.timeout):
+            self.close_connection = True        # stalled client: drop it quietly
 
     def _static(self, path):
         if path in ("", "/", "/index.html"):
