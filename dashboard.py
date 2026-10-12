@@ -16,6 +16,7 @@ import csv
 import copy
 import io
 import json
+import os
 import re
 import socket
 import sqlite3
@@ -113,6 +114,14 @@ class JobwatchHTTPServer(ThreadingHTTPServer):
     # Browsers request the module graph in parallel while collection uses CPU.
     # The standard server's five-connection backlog can drop those requests.
     request_queue_size = 128
+    # Windows lets a second program bind a port marked reusable; Jobwatch keeps
+    # its port to itself so a remembered port can never be shared or taken over.
+    allow_reuse_address = os.name != "nt"
+
+    def server_bind(self):
+        if os.name == "nt":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
     def handle_error(self, request, client_address):
         # A browser that navigates away mid-response is routine, not an error.

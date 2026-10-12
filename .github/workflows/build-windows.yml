@@ -69,15 +69,31 @@ jobs:
             echo "::error::Tag $GITHUB_REF_NAME does not match version.py ($version); the app would report the wrong version and miss updates."
             exit 1
           fi
-      - name: Build clean portable package
-        run: python tools/build_windows.py
+      - name: Install Inno Setup (pinned, checksum verified)
+        shell: bash
+        env:
+          INNO_VERSION: "6.7.3"
+          INNO_SHA256: "9c73c3bae7ed48d44112a0f48e66742c00090bdb5bef71d9d3c056c66e97b732"
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/innosetup.exe" \
+            "https://github.com/jrsoftware/issrc/releases/download/is-${INNO_VERSION//./_}/innosetup-${INNO_VERSION}.exe"
+          echo "$INNO_SHA256  $RUNNER_TEMP/innosetup.exe" | sha256sum -c -
+          "$RUNNER_TEMP/innosetup.exe" //VERYSILENT //SUPPRESSMSGBOXES //CURRENTUSER //PORTABLE=1 //NOICONS "//DIR=$(cygpath -w "$RUNNER_TEMP/inno")"
+          echo "ISCC=$(cygpath -w "$RUNNER_TEMP/inno/ISCC.exe")" >> "$GITHUB_ENV"
+      - name: Build clean installer and portable package
+        run: python tools/build_windows.py --installer
       - name: Verify batch startup, matching, letters and restart persistence
         run: python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
+      - name: Verify install, start, upgrade in place and uninstall
+        shell: bash
+        run: python tools/verify_windows_installer.py dist/Jobwatch-Setup-*.exe
       - name: Upload Windows package
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-package
-          path: dist/Jobwatch-Windows.zip
+          path: |
+            dist/Jobwatch-Setup-*.exe
+            dist/Jobwatch-Windows.zip
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
@@ -95,15 +111,15 @@ jobs:
         with:
           name: windows-package
           path: dist
-      - name: Publish downloadable ZIP
+      - name: Publish installer and ZIP
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" dist/Jobwatch-Windows.zip --repo "$GITHUB_REPOSITORY" --clobber
+            gh release upload "$GITHUB_REF_NAME" dist/Jobwatch-Setup-*.exe dist/Jobwatch-Windows.zip --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" dist/Jobwatch-Windows.zip \
+            gh release create "$GITHUB_REF_NAME" dist/Jobwatch-Setup-*.exe dist/Jobwatch-Windows.zip \
               --repo "$GITHUB_REPOSITORY" --verify-tag \
               --title "Jobwatch $GITHUB_REF_NAME" \
-              --notes "Portable Windows 10/11 x64 package. Extract the ZIP and double-click Start Jobwatch.bat; Jobwatch runs in the background without a window and opens in your browser. To update, extract over your old folder: your profile, applications and settings are kept. Python and dependencies are included; fetching jobs requires internet. Stop it, or start it when you sign in to Windows, from Settings > Background."
+              --notes "Windows 10/11 x64. Download Jobwatch-Setup and run it; no administrator rights are needed. Windows may show 'Windows protected your PC' because the installer is not code-signed: choose More info, then Run anyway. Jobwatch opens in your browser and keeps running in the background; open it again from the Start menu. Your profile, applications and settings are kept across updates and reinstalls. Prefer no installer? Jobwatch-Windows.zip still works: extract it and double-click Start Jobwatch.bat."
           fi

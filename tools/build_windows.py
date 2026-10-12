@@ -9,6 +9,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -20,6 +21,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from intel.profile import DEFAULT_PROFILE, STAGES
+from version import APP_VERSION
 
 PYTHON_VERSION = "3.14.8"
 RUNTIME_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
@@ -146,7 +148,29 @@ def bundle_files(stage: Path) -> list[Path]:
             if path.is_file() and path.relative_to(stage).parts[:4] not in wrappers]
 
 
-def build(output: Path) -> Path:
+def find_iscc(explicit: Path | None = None) -> Path:
+    """Inno Setup's compiler: --iscc, $ISCC, or a standard install location."""
+    candidates = [explicit, os.environ.get("ISCC"),
+                  Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Inno Setup 6/ISCC.exe",
+                  Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Inno Setup 6/ISCC.exe",
+                  Path(os.environ.get("LOCALAPPDATA", "")) / "Programs/Inno Setup 6/ISCC.exe"]
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return Path(candidate)
+    raise FileNotFoundError("Inno Setup 6 (ISCC.exe) not found; pass --iscc or set ISCC")
+
+
+def build_installer(stage: Path, output_dir: Path, iscc: Path) -> Path:
+    """Compile tools/jobwatch.iss over the staged folder into Jobwatch-Setup-<version>.exe."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    subprocess.run([str(iscc), "/Q", f"/DAppVersion={APP_VERSION}", f"/DStageDir={stage}",
+                    f"/DOutputDir={output_dir}", str(ROOT / "tools/jobwatch.iss")], check=True)
+    setup = output_dir / f"Jobwatch-Setup-{APP_VERSION}.exe"
+    print(f"Ready: {setup} ({setup.stat().st_size / 1024 / 1024:.1f} MB)")
+    return setup
+
+
+def build(output: Path, installer: bool = False, iscc: Path | None = None, zip_bundle: bool = True) -> Path:
     cache = ROOT / ".build-cache"
     cache.mkdir(exist_ok=True)
     archive = runtime_archive(cache)
@@ -177,16 +201,24 @@ def build(output: Path) -> Path:
                     "runtime_source": RUNTIME_URL, "runtime_sha256": RUNTIME_SHA256,
                     "files": files}
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-        temporary_zip = output.with_suffix(".building.zip")
-        with zipfile.ZipFile(temporary_zip, "w", zipfile.ZIP_DEFLATED) as bundle:
-            for path in bundle_files(stage):
-                bundle.write(path, "Jobwatch/" + path.relative_to(stage).as_posix())
-        temporary_zip.replace(output)
-    print(f"Ready: {output} ({output.stat().st_size / 1024 / 1024:.1f} MB)")
+        if installer:
+            build_installer(stage, output.parent, find_iscc(iscc))
+        if zip_bundle:
+            temporary_zip = output.with_suffix(".building.zip")
+            with zipfile.ZipFile(temporary_zip, "w", zipfile.ZIP_DEFLATED) as bundle:
+                for path in bundle_files(stage):
+                    bundle.write(path, "Jobwatch/" + path.relative_to(stage).as_posix())
+            temporary_zip.replace(output)
+            print(f"Ready: {output} ({output.stat().st_size / 1024 / 1024:.1f} MB)")
     return output
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "dist/Jobwatch-Windows.zip")
-    build(parser.parse_args().output.resolve())
+    parser.add_argument("--output", type=Path, default=ROOT / "dist/Jobwatch-Windows.zip",
+                        help="the ZIP; the installer is written beside it")
+    parser.add_argument("--installer", action="store_true", help="also build Jobwatch-Setup-<version>.exe")
+    parser.add_argument("--no-zip", action="store_true", help="skip the portable ZIP")
+    parser.add_argument("--iscc", type=Path, help="path to Inno Setup's ISCC.exe")
+    args = parser.parse_args()
+    build(args.output.resolve(), installer=args.installer, iscc=args.iscc, zip_bundle=not args.no_zip)

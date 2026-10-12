@@ -1,9 +1,10 @@
-"""Windows portable entry point; all recipient data lives outside the app.
+"""Windows entry point; all recipient data lives outside the app.
 
-Start Jobwatch.bat runs this as a short-lived launcher: it starts the server
-as a windowless pythonw.exe process (or finds the one already running),
-opens the browser and exits, so no console stays on screen. ``--console``
-keeps the old run-in-this-window behaviour for troubleshooting.
+The Start menu shortcut (pythonw.exe, no window) or Start Jobwatch.bat runs
+this as a short-lived launcher: it starts the server as a windowless
+pythonw.exe process (or finds the one already running), opens the browser and
+exits. ``--console`` keeps the old run-in-this-window behaviour for
+troubleshooting; ``--stop`` stops a running copy (the installer uses it).
 """
 from __future__ import annotations
 
@@ -189,6 +190,91 @@ def stop_running(url: str) -> bool:
         return False
 
 
+def wait_for_exit(pid: int, seconds: float) -> bool:
+    """Wait for a stopped server's process to end (its files stay in use until it
+    does); one still alive after ``seconds`` is ended. Only Python processes are
+    touched, so a reused process id never ends an unrelated program."""
+    import ctypes
+    from ctypes import wintypes
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    synchronize, terminate, query = 0x00100000, 0x0001, 0x1000
+    handle = kernel32.OpenProcess(synchronize | terminate | query, False, pid)
+    if not handle:
+        return True           # already gone
+    try:
+        if kernel32.WaitForSingleObject(handle, int(seconds * 1000)) == 0:
+            return True
+        size = wintypes.DWORD(1024)
+        name = ctypes.create_unicode_buffer(size.value)
+        if not kernel32.QueryFullProcessImageNameW(handle, 0, name, ctypes.byref(size)):
+            return False
+        if Path(name.value).name.lower() not in ("pythonw.exe", "python.exe"):
+            return False
+        kernel32.TerminateProcess(handle, 1)
+        return kernel32.WaitForSingleObject(handle, 5000) == 0
+    finally:
+        kernel32.CloseHandle(handle)
+
+
+def stop_and_wait(data: Path, seconds: float = 30) -> bool:
+    """Stop the copy serving this data folder and wait until its process has exited."""
+    state = data / "instance.json"
+    url = instance_url(state)
+    pid = None
+    if url:
+        try:
+            pid = int(json.loads(state.read_text(encoding="utf-8")).get("pid"))
+        except (OSError, ValueError, TypeError):
+            pass
+        if not stop_running(url):
+            pid = None        # nothing answered: the recorded process id may be stale
+    deadline = time.monotonic() + seconds
+    while True:
+        lock = acquire_lock(data / "running.lock")
+        if lock is not None:
+            lock.close()
+            break
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.2)
+    return wait_for_exit(pid, max(5.0, deadline - time.monotonic())) if pid else True
+
+
+def preferred_port(data: Path) -> int:
+    """The port used last time, so open tabs and bookmarks survive a restart or update."""
+    try:
+        port = int((data / "port").read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return 0
+    return port if 1024 <= port <= 65535 else 0
+
+
+def bind_server(server_class, handler, data: Path):
+    """Listen on the remembered port, or any free one if another program has it."""
+    port = preferred_port(data)
+    if port:
+        try:
+            return server_class(("127.0.0.1", port), handler)
+        except OSError:
+            pass
+    server = server_class(("127.0.0.1", 0), handler)
+    try:
+        (data / "port").write_text(str(server.server_port), encoding="utf-8")
+    except OSError:
+        pass
+    return server
+
+
+def show_error(text: str) -> None:
+    """No console under pythonw.exe: a startup problem is shown in a message box."""
+    try:
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(None, text[-1800:], "Jobwatch", 0x10)    # MB_ICONERROR
+    except (ImportError, AttributeError, OSError):
+        pass
+
+
 def log_tail(path: Path, lines: int = 15) -> str:
     try:
         return "\n".join(path.read_text(encoding="utf-8", errors="replace").splitlines()[-lines:])
@@ -316,12 +402,15 @@ def main(argv=None) -> int:
     parser.add_argument("--no-browser", action="store_true")
     parser.add_argument("--no-poll", action="store_true", help="offline diagnostics only")
     parser.add_argument("--console", action="store_true", help="run in this window instead of the background")
+    parser.add_argument("--stop", action="store_true", help="stop the running copy and wait for it to exit")
     parser.add_argument("--serve", action="store_true", help=argparse.SUPPRESS)   # the hidden server itself
     args = parser.parse_args(argv)
     if os.name != "nt":
         parser.error("This package runs on Windows 10/11 (64-bit).")
     data = args.data_dir.resolve()
     data.mkdir(parents=True, exist_ok=True)
+    if args.stop:
+        return 0 if stop_and_wait(data) else 1
     lock = None
     if args.serve:
         # Lock first: a second server (e.g. the sign-in start while one runs) exits
@@ -366,8 +455,9 @@ def main(argv=None) -> int:
         watcher.STATE_JSON = data / "state.json"
         service = JobwatchService(watcher.DB_PATH, watcher.CONFIG, watcher.SUBSCRIBERS)
         handler = type("PortableHandler", (JobwatchHandler,), {"service": service})
-        # A free loopback port avoids conflicts with other apps or installations.
-        server = JobwatchHTTPServer(("127.0.0.1", 0), handler)
+        # The last port again (a free one if taken): conflicts with other apps are avoided
+        # and open tabs reconnect after a restart or update.
+        server = bind_server(JobwatchHTTPServer, handler, data)
         url = f"http://127.0.0.1:{server.server_port}"
         service.config["dashboard_url"] = url
         service.on_shutdown = server.shutdown
@@ -414,9 +504,22 @@ def main(argv=None) -> int:
     return 0
 
 
-if __name__ == "__main__":
+def run(argv=None) -> int:
+    """main(), but under pythonw.exe (no console) failures are shown in a message box."""
+    windowless = sys.stdout is None and "--serve" not in (argv or sys.argv[1:])
+    if windowless:
+        sys.stdout = sys.stderr = captured = io.StringIO()
     try:
-        raise SystemExit(main())
+        code = main(argv)
+    except SystemExit as exc:          # argparse errors
+        code = exc.code if isinstance(exc.code, int) else 1
     except Exception as exc:
         print(f"Jobwatch could not start: {type(exc).__name__}: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+        code = 1
+    if windowless and code:
+        show_error(captured.getvalue().strip() or "Jobwatch could not start.")
+    return code
+
+
+if __name__ == "__main__":
+    raise SystemExit(run())
