@@ -82,10 +82,16 @@ def parse_location(text: str, kn: Knowledge) -> dict:
     }
 
 
-def geo_key(loc: dict) -> str:
-    """Coarse geography identity for cross-source clustering."""
+def geo_key(loc: dict, raw: str = "", kn: Knowledge | None = None) -> str:
+    """Coarse geography identity for cross-source clustering. A city missing
+    from the knowledge base keeps its own name ('ca:brampton'), so postings in
+    different towns are never merged into one country-wide job."""
     if loc["cities"]:
         return loc["cities"][0]
     if loc["countries"]:
-        return loc["countries"][0].lower()
+        country = loc["countries"][0].lower()
+        place = re.sub(r"[^a-z0-9]+", " ", re.split(r"[,;|/(]", raw or "")[0].lower()).strip()
+        generic = (not place or len(place) <= 3 or _REMOTE.search(place) or bool(kn and any(
+            p and p.search(place) for p in [*kn.country_patterns.values(), *kn.region_names.values()])))
+        return country if generic else f"{country}:{place.replace(' ', '_')}"
     return "remote" if loc["remote"] else ""

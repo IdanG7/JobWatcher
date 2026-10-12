@@ -26,7 +26,7 @@ _TITLE_MONTH_YEAR = re.compile(rf"\b{_MONTH}\s+{_YEAR}\b", re.I)
 _GRAD_BETWEEN = re.compile(
     rf"graduat\w*[^.\n]{{0,60}}?\b(?:between|from)\s+(?:{_MONTH}\s+)?{_YEAR}\s+(?:and|to|-|–|through)\s+(?:{_MONTH}\s+)?{_YEAR}", re.I)
 _GRAD_RANGE = re.compile(
-    rf"(?:expected\s+)?graduation(?:\s+date)?\s*(?:of|in|between|:|-|is)?\s*(?:{_MONTH}\s+)?{_YEAR}\s*(?:and|to|-|–|through)\s*(?:{_MONTH}\s+)?{_YEAR}", re.I)
+    rf"(?:expected\s+)?graduat(?:ion|ing)(?:\s+date)?\s*(?:of|in|between|:|-|is)?\s*(?:{_MONTH}\s+)?{_YEAR}\s*(?:and|to|-|–|through)\s*(?:{_MONTH}\s+)?{_YEAR}", re.I)
 _GRAD_SINGLE = re.compile(
     rf"(?:graduat(?:e|ing|ion)(?:\s+date)?(?:\s+(?:in|by|of|date of|between))?|expected\s+to\s+graduate(?:\s+(?:in|by))?|class\s+of)\s*:?\s*(?:{_MONTH}\s+|(?:spring|summer|fall|winter)\s+)?{_YEAR}", re.I)
 _PENULTIMATE = re.compile(r"\b(penultimate|pen-?ultimate|second[\s-]to[\s-]last|rising senior|junior year|third[\s-]year (student|undergraduate))\b", re.I)
@@ -80,19 +80,18 @@ def detect_cycle(title: str, description: str = "", stage: str = "", posted_epoc
         m = _OFF_CYCLE.search(text)
         if m:
             year = m.group(1) or m.group(2)
-            if year:
+            if year and (text is title or _plausible_year(int(year), posted_epoch)):
                 return _cycle("off_cycle", int(year), "internship", base_conf)
             if text is title:
                 return {"cycle": "off_cycle", "season": "off_cycle", "year": None,
                         "kind": "internship", "label": "Off-Cycle", "confidence": 0.6,
                         "inferred": False, "internship_year": None}
-        m = _SEASON_YEAR.search(text) or _YEAR_SEASON.search(text)
-        if m:
+        for m in sorted([*_SEASON_YEAR.finditer(text), *_YEAR_SEASON.finditer(text)], key=lambda m: m.start()):
             groups = [g for g in m.groups() if g]
             season = next(g for g in groups if not g.isdigit()).lower()
             year = int(next(g for g in groups if g.isdigit()))
-            if text is not title and not _plausible_year(year):
-                continue
+            if text is not title and not _plausible_year(year, posted_epoch):
+                continue                # history, e.g. "our 2025 Summer Analysts"
             kind = "internship" if stage == "internship" or text is not title or re.search(
                 r"intern|analyst|associate|co[\s-]?op|placement", title, re.I) else "full_time"
             if stage == "new_grad":
@@ -110,7 +109,7 @@ def detect_cycle(title: str, description: str = "", stage: str = "", posted_epoc
             m = _PROGRAM_YEAR.search(text)
             if m:
                 return _cycle("new_grad", int(m.group(2)), "full_time", 0.8)
-    m = _START_DATE.search(description)
+    m = next((m for m in _START_DATE.finditer(description) if _plausible_year(int(m.group(3)), posted_epoch)), None)
     if m:
         month, year = _month(m.group(2)), int(m.group(3))
         if stage == "internship" and month:
@@ -129,10 +128,11 @@ def detect_cycle(title: str, description: str = "", stage: str = "", posted_epoc
     return {}
 
 
-def _plausible_year(year: int) -> bool:
-    """Descriptions mention history ('since Spring 2019'); only near-term years count."""
-    this_year = datetime.now(timezone.utc).year
-    return this_year - 1 <= year <= this_year + 3
+def _plausible_year(year: int, posted_epoch: float | None = None) -> bool:
+    """Descriptions mention history ('since Spring 2019', 'our 2025 Summer
+    Analysts'); only the posting's own year onward counts."""
+    reference = datetime.fromtimestamp(posted_epoch, timezone.utc) if posted_epoch else datetime.now(timezone.utc)
+    return reference.year <= year <= reference.year + 3
 
 
 def _cycle(season: str, year: int, kind: str, confidence: float) -> dict:

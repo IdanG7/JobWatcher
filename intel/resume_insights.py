@@ -71,7 +71,36 @@ COMPANY_TYPES = {
 }
 _STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term)\b", re.I)
 _BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
-_RANGE = re.compile(r"(?:[A-Za-z]{3,9}\.?\s*)?(20\d\d)\s*(?:-|–|—|to)\s*(?:[A-Za-z]{3,9}\.?\s*)?(20\d\d|present|current|now)", re.I)
+_MON = r"\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+# Resume dates: "May 2025 – Aug 2025", "May – Aug 2026", "05/2026 – 08/2026",
+# "Summer 2025", or a role line ending in a bare "2025" / "Aug 2025".
+_RANGE = re.compile(
+    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:20\d\d)?|\b20\d\d)\s*(?:-|–|—|to)\s*"
+    rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?(?P<end>20\d\d|present|current|now)\b"
+    rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>20\d\d)\b"
+    rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>20\d\d)\s*\)?\s*$", re.I)
+_MONTH_NUMBERS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+
+
+def span_end(m: re.Match) -> tuple[int | None, int | None]:
+    """(end year, end month) of a _RANGE match; an ongoing role ends this year."""
+    if m.group("end"):
+        year = int(m.group("end")) if m.group("end").isdigit() else date.today().year
+        month_text, number = m.group("end_month"), m.group("end_num")
+    elif m.group("season_year"):
+        season = m.group("season").lower()
+        return int(m.group("season_year")), {"winter": 4, "spring": 4, "summer": 8, "fall": 12, "autumn": 12}[season]
+    else:
+        year, month_text, number = int(m.group("one")), m.group("one_month"), m.group("one_num")
+    month = _MONTH_NUMBERS.get(month_text[:3].lower()) if month_text else (
+        int(number) if number and 1 <= int(number) <= 12 else None)
+    return year, month
+
+
+def without_dates(line: str, m: re.Match) -> str:
+    """The role text around a date: before it, or after it when the date leads."""
+    before, after = line[:m.start()].strip(" ,|–—-()"), line[m.end():].strip(" ,|–—-()")
+    return before or after
 _SEASON_START = {"winter": 1, "summer": 5, "fall": 9}
 # "Toronto, ON" / "New York, NY": one word, or two when the first is a city prefix.
 _CITY_SUFFIX = re.compile(r"\s+(?:(?:New|San|Los|Las|Salt|St\.?|Saint|Fort|Grand|Thunder|Niagara)\s)?"
@@ -106,9 +135,8 @@ def experience_entries(sections: dict[str, list[str]]) -> list[dict]:
                 continue
             dates = _RANGE.search(line)
             if dates:
-                end = dates.group(2)
-                current = {"block": block, "company": company, "title": line[:dates.start()].strip(" ,|–—-"),
-                           "end": date.today().year if not end.isdigit() else int(end), "bullets": []}
+                current = {"block": block, "company": company, "title": without_dates(line, dates),
+                           "end": span_end(dates)[0], "bullets": []}
                 entries.append(current)
                 continue
             if current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):

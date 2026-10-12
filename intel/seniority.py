@@ -17,14 +17,14 @@ R = lambda p: re.compile(p, re.I)  # noqa: E731
 # (level, stage, label, pattern) — first match wins, order matters.
 TITLE_RULES = [
     ("spring_week", "internship", "Spring Week / Insight", R(r"\b(spring (week|insight)|insight (day|week|program(me)?)|discovery (day|program(me)?)|early insights?|sophomore (program|summit)|freshman (program|summit)|first ?year (insight|program))\b")),
-    ("summer_associate", "internship", "Summer Associate", R(r"\bsummer associates?\b|\bmba (summer )?intern(ship)?\b|\bassociate intern(ship)?\b")),
-    ("summer_analyst", "internship", "Summer Analyst", R(r"\bsummer (analyst|internship analyst)s?\b|\bsummer (investment banking|markets|research|sales (and|&) trading) analyst\b")),
+    ("summer_associate", "internship", "Summer Associate", R(r"\bsummer associates?\b|\bsummer 20\d\d,?\s+associates?\b|\bmba (summer )?intern(ship)?\b|\bassociate intern(ship)?\b")),
+    ("summer_analyst", "internship", "Summer Analyst", R(r"\bsummer (analyst|internship analyst)s?\b|\bsummer 20\d\d,?\s+analysts?\b|\bsummer(?:\s+(?!analyst)[\w&]+){1,3}\s+analysts?\b|\bsummer (investment banking|markets|research|sales (and|&) trading) analyst\b")),
     ("off_cycle", "internship", "Off-Cycle Intern", R(r"\boff[\s-]?cycle\b")),
     ("co_op", "internship", "Co-op", R(r"\bco[\s-]?op\b|\bwork term\b|\bwork[\s-]integrated learning\b")),
-    ("intern", "internship", "Intern", R(r"\bintern(ship|s)?\b|\bplacement (year|student)\b|\bindustrial placement\b|\bstudent (analyst|associate|program)\b|\bapprentice(ship)?\b")),
+    ("intern", "internship", "Intern", R(r"\bintern(ship|s)?\b|\bplacement (year|student)\b|\bindustrial placement\b|\bstudent (analyst|associate|program)\b|^\s*(university |college )?students?\s*[,:|–—-]|[,(|–—-]\s*students?\s*\)?\s*$|\bapprentice(ship)?\b")),
     ("rotational", "new_grad", "Rotational Analyst", R(r"\brotation(al)? (analyst|program(me)?|associate|development program)\b|\bleadership development program\b|\bdevelopment program(me)?\b|\b(management )?trainee\b")),
     ("graduate_analyst", "new_grad", "Graduate Analyst", R(r"\b(graduate|grad|campus|university|new[\s-]?grad|entry[\s-]?level|early[\s-]?career|first[\s-]?year|full[\s-]?time) analyst\b|\banalyst (program(me)?|class|development program)\b|\bgraduate program(me)?\b")),
-    ("new_grad", "new_grad", "New Grad", R(r"\bnew[\s-]?grad(uate)?s?\b|\bcampus (hire|recruit)\b|\buniversity (grad(uate)?|hire|recruit)\b|\bearly[\s-]?career\b|\bentry[\s-]?level\b|\bclass of 20\d\d\b|\bgraduate\b|\bjunior\b")),
+    ("new_grad", "new_grad", "New Grad", R(r"\bnew[\s-]?grad(uate)?s?\b|\bcampus (hire|recruit)(?!er)\b|\buniversity (grad(uate)?|hire|recruit)(?!er)\b|\bearly[\s-]?career\b|\bentry[\s-]?level\b|\bclass of 20\d\d\b|\bgraduate\b|\bjunior\b")),
     ("managing_director", "senior", "Managing Director", R(r"\bmanaging director\b|\b(md)\b|\b(managing|general|equity|operating) partner\b|\bhead of\b|\bchief\b|\bc[efio]o\b")),
     ("executive_director", "senior", "Executive Director", R(r"\bexecutive director\b|\b(senior )?director\b")),
     ("vp", "senior", "Vice President", R(r"\b(senior )?vice[\s-]president\b|\b(s)?vp\b|\bprincipal\b")),
@@ -37,6 +37,11 @@ TITLE_RULES = [
     ("mid_ic", "experienced", "Experienced", R(r"\b(ii|2)\b(?!\d)")),
 ]
 
+# Senior words that name the team, not the role: "Analyst, Office of the CFO".
+_TEAM_NAME = re.compile(
+    r"\b(?:office of(?: the)?|reporting to(?: the)?|supporting(?: the)?|to the)\s+"
+    r"(?:chief\s+\w+(?:\s+\w+)?\s+officer|c[efior]o|head of [\w&\s]+?|managing director)(?=$|[,|()–—-])|"
+    r"\bchief \w+ office\b|\bhead office\b|\bheadquarters\b", re.I)
 _YEAR_IN_TITLE = re.compile(r"\b20(2[5-9]|3[0-2])\b")
 _YEARS_EXP = re.compile(
     r"(\d{1,2})\s*(?:\+|-\s*\d{1,2}|to\s+\d{1,2})?\s*(?:\+\s*)?years?(?:'|’)?\s+(?:of\s+)?(?:relevant\s+|professional\s+|full[\s-]time\s+|industry\s+|post[\s-](?:mba|graduate)\s+|work(?:ing)?\s+|investment banking\s+|private equity\s+)*(?:experience|exp\b)",
@@ -54,7 +59,7 @@ def years_required(description: str) -> int | None:
 def detect_seniority(title: str, description: str = "", associate_stage: str = "entry",
                      category: str | None = None) -> dict:
     """Return {stage, level, level_label, confidence, notes, years_required, post_mba}."""
-    title = title or ""
+    title = _TEAM_NAME.sub(" ", title or "")
     notes: list[str] = []
     level, stage, label = None, None, None
     for lvl, stg, lbl, pattern in TITLE_RULES:

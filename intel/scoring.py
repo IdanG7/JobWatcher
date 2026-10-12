@@ -29,6 +29,18 @@ LEVEL_BADGES = {"summer_analyst": "SUMMER ANALYST", "summer_associate": "SUMMER 
                 "new_grad": "NEW GRAD", "analyst": "ANALYST"}
 
 
+GRADUATION_SLACK_MONTHS = 3
+
+
+def _months_outside(mine: str, start: str, end: str) -> int:
+    """Months between a 'YYYY-MM' date and the nearest end of a window."""
+    def index(text):
+        year, month = text.split("-")
+        return int(year) * 12 + int(month)
+    value = index(mine)
+    return max(index(start) - value, value - index(end), 0)
+
+
 def _age_text(hours: float) -> str:
     if hours < 1:
         return "under an hour ago"
@@ -80,7 +92,10 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     # ---- role fit (25)
     role_label = cls["category_label"] + (f" — {cls['subcategory_label']}" if cls.get("subcategory_label") else "")
     match, which = _target_match(targets, cls["category"], cls.get("subcategory"))
-    if match == "exact":
+    if cls.get("prior_only"):
+        match, which = "", None
+        pts, detail = 8, f"Division not named in the posting (the employer suggests {cls['category_label']})"
+    elif match == "exact":
         pts, detail = 25, f"{role_label} matches your {kn.category_label(which.split('.')[0])} target"
         reasons.append(f"{kn.category_label(cls['category'])} target")
     elif match == "category":
@@ -104,7 +119,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         detail += " (low-confidence classification)"
     sub("role", "Role fit", pts, 25, detail)
     related = match or any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or [])
-    if targets and not related and cls.get("is_finance"):
+    if targets and not related and cls.get("is_finance") and not cls.get("prior_only"):
         # Internship + bank + city + cycle alone add up to ~60 points; without
         # this, any generic co-op outranks the roles the candidate targets.
         confident = cls.get("confidence", 0) >= 0.5
@@ -217,9 +232,13 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append("Graduation window matches")
     sub("cycle", "Recruiting cycle", pts, 10, detail)
     if grad_ok is False:
-        penalty("graduation", "Graduation window", 12,
-                f"Requires graduation {grad['start']} → {grad['end']}; you graduate "
-                f"{profile['graduation_year']}-{int(profile.get('graduation_month') or 5):02d}")
+        detail = (f"Requires graduation {grad['start']} → {grad['end']}; you graduate "
+                  f"{profile['graduation_year']}-{int(profile.get('graduation_month') or 5):02d}")
+        if _months_outside(mine, grad["start"], grad["end"]) <= GRADUATION_SLACK_MONTHS:
+            # Off by a month or two is usually a term-end rounding, not a different class.
+            penalty("graduation_near", "Graduation window (close)", 4, detail + " — close; check with the employer")
+        else:
+            penalty("graduation", "Graduation window", 12, detail)
 
     # ---- skills (10)
     job_skills = facts.get("skills") or []

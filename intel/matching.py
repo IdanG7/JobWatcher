@@ -25,12 +25,19 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
         exclusions.append("Role is outside finance and your selected career targets")
     elif not relevant:
         review.append("Role relevance needs review")
+    elif cls.get("prior_only"):
+        # Only the employer suggested the division: shown, but never a target match.
+        review.append("Division is not named in the posting; check what the role does")
     else:
         reasons.append(f"Relevant role: {cls.get('category_label') or category}")
     if cls.get("confidence", 0) < 0.5:
         review.append("Role classification has limited evidence")
     stages = profile.get("target_stages") or []
-    if stage and stage not in ("unknown", "other") and stages and stage not in stages:
+    if (stage == "entry" and facts["seniority"].get("level") == "analyst" and "new_grad" in stages
+            and relevant and cls.get("is_finance") and not cls.get("prior_only")):
+        # A bare 'Analyst' title is the finance entry level and often a campus hire.
+        review.append("Title does not say whether this is a new-grad role; check the experience required")
+    elif stage and stage not in ("unknown", "other") and stages and stage not in stages:
         exclusions.append(f"Career stage {stage.replace('_', ' ')} is outside your targets")
     elif not stage or stage == "unknown":
         review.append("Career stage is not stated")
@@ -43,6 +50,8 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     for penalty in scored.get("penalties", []):
         if penalty["key"] in ("graduation", "degree", "gpa", "language", "cycle_year"):
             exclusions.append(penalty["detail"])
+        elif penalty["key"] == "graduation_near":
+            review.append(penalty["detail"])
     auth = profile.get("work_authorization") or {}
     if any(auth.get(c) in (None, "unknown") for c in countries):
         review.append("Work authorization is not confirmed for the posting location")

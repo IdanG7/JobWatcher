@@ -167,14 +167,14 @@ _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
     r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in|–|-)?\s*([A-Z][A-Za-z&,' ]{2,60})", re.I)
 _PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*([A-Za-z&' ]{3,50})", re.I)
-_GPA = re.compile(r"\b(?:c?gpa|grade point average)\s*[:\-]?\s*(\d(?:\.\d{1,2})?)\s*(?:/\s*(\d(?:\.\d)?))?", re.I)
+_GPA = re.compile(r"\b(?:c?gpa|grade point average)\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,2})?)\s*(?:/\s*(\d{1,2}(?:\.\d{1,2})?))?", re.I)
 _MONTHS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 _MONTH = r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
 _GRAD = [
     re.compile(rf"\b(?:expected|anticipated|graduat(?:ion|ing|e))\s*(?:date)?\s*[:\-]?\s*(?:{_MONTH}\.?\s*)?(20\d\d)", re.I),
     re.compile(r"\bclass of\s*(20\d\d)", re.I),
 ]
-_RANGE = re.compile(rf"(?:{_MONTH}\.?\s*)?(20\d\d)\s*(?:-|–|—|to)\s*(?:{_MONTH}\.?\s*)?(20\d\d|present|current|now)", re.I)
+_RANGE = insights._RANGE
 _LANG_LINE = re.compile(r"\blanguages?\s*:\s*([^\n]{3,120})", re.I)
 _KNOWN_LANGS = ["English", "French", "Mandarin", "Cantonese", "Spanish", "Portuguese", "German", "Italian",
                 "Japanese", "Korean", "Hindi", "Punjabi", "Urdu", "Arabic", "Russian", "Hebrew", "Farsi",
@@ -227,12 +227,12 @@ def _graduation(edu_text: str, full: str) -> tuple[int | None, int | None, str |
                 return int(groups[-1]), month, m.group(0).strip()
     # education ranges: the latest end year is the graduation date
     best = None
-    for m in _RANGE.finditer(edu_text):
-        end = m.group(4)
-        if end and end.isdigit():
-            year = int(end)
-            if best is None or year > best[0]:
-                best = (year, _MONTHS.get((m.group(3) or "")[:3].lower()), m.group(0).strip())
+    for line in edu_text.splitlines():
+        for m in _RANGE.finditer(line):
+            if (m.group("end") or "").isdigit() or m.group("season_year"):
+                year, month = insights.span_end(m)
+                if best is None or year > best[0]:
+                    best = (year, month, m.group(0).strip())
     return best if best else (None, None, None)
 
 
@@ -296,7 +296,7 @@ def _experience(lines: list[str], kn: Knowledge) -> tuple[list[dict], list[str]]
             # "Company — Role", "Role, Company" and "Role | Dates" all occur:
             # classify only the segment that reads like a job title, so a
             # firm name ("… Asset Management") never stands in for the role.
-            title_line = _RANGE.sub("", line).strip(" ,|–—-")
+            title_line = _RANGE.sub("", line).strip(" ,|–—-()")
             segments = [s.strip() for s in re.split(r"\s{2,}|\t|\s[|–—-]\s|,\s", title_line) if s.strip()]
             titled = [s for s in segments if _ROLE_WORD.search(s)]
             best = None

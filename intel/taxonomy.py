@@ -188,6 +188,9 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     confidence = round(min(0.99, (1 - math.exp(-top / 5)) * (0.55 + 0.45 * margin)), 2)
     secondary = [k for k, r in ranked[1:4] if r["score"] >= max(min_score, top * 0.45)]
     out = _result(kn, best_key, best["sub"], confidence, best["evidence"], secondary)
+    # 'Global Technology Summer Analyst' at a bank: nothing but the employer
+    # points at a division, so the label is a guess, not evidence.
+    out["prior_only"] = all(e.startswith("employer type:") for e in best["evidence"])
     out["secondary_subcategories"] = best.get("secondary_subs", [])
     out["secondary_subcategory_labels"] = [kn.subcategory_label(best_key, k) for k in out["secondary_subcategories"]]
     return out

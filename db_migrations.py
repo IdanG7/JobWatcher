@@ -109,6 +109,7 @@ def _v2_finance(con: sqlite3.Connection) -> None:
     con.execute("CREATE INDEX IF NOT EXISTS job_changes_ts ON job_changes(ts)")
     con.execute("CREATE INDEX IF NOT EXISTS job_changes_job ON job_changes(board, job_id)")
     con.execute("CREATE INDEX IF NOT EXISTS jobs_first_seen ON jobs(first_seen)")
+    con.execute("CREATE INDEX IF NOT EXISTS jobs_board_title ON jobs(board, title)")
 
     # Application CRM: richer records + status history.
     for column, decl in (

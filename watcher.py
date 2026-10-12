@@ -1383,21 +1383,45 @@ def name_key(company, title, normalize=False):
     return f"nk:{c}|{t}" if c and t else ""
 
 
+def place_key(location):
+    """The first place a posting names ('Toronto, ON' and 'Toronto, Ontario,
+    Canada' agree), so one title in two cities is two jobs."""
+    first = re.split(r"[,;|/(]|\s[-–]\s", location or "")[0]
+    return re.sub(r"[^a-z0-9]+", "", first.lower())
+
+
 def dedupe_keys(job):
     """LinkedIn hides direct apply URLs from guests, so a LinkedIn posting and
-    its ATS twin never share a URL — company|title keys (exact + normalized
-    company) do the cross-source matching instead."""
+    its ATS twin never share a URL — company|title|place keys (exact +
+    normalized company) do the cross-source matching instead."""
     ks = []
     cu = canon_url(job.get("url", ""))
     if cu:
         ks.append(f"url:{cu}")
-    nk = name_key(job.get("company", ""), job.get("title", ""))
-    if nk:
-        ks.append(nk)
-    nk2 = name_key(job.get("company", ""), job.get("title", ""), normalize=True)
-    if nk2 and nk2 != nk:
-        ks.append(nk2)
+    place = place_key(job.get("location", ""))
+    for normalize in (False, True):
+        nk = name_key(job.get("company", ""), job.get("title", ""), normalize=normalize)
+        if nk:
+            nk = f"{nk}|{place}" if place else nk
+            if nk not in ks:
+                ks.append(nk)
     return ks
+
+
+def known_on_board(con, board, job, fresh_ids=()):
+    """An older posting on this board has this title, company and place: a
+    re-listed link (README links change), not a new job. Postings new in this
+    same cycle (two requisitions for one title) never hide each other."""
+    for job_id, company in con.execute(
+            "SELECT j.job_id, COALESCE(d.company, '') FROM jobs j "
+            "LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id "
+            "WHERE j.board=? AND j.title=? AND j.location=? LIMIT 50",
+            (board, job.get("title") or "", job.get("location") or "")):
+        if job_id == job["id"] or job_id in fresh_ids:
+            continue
+        if not job.get("company") or not company or company.casefold() == job["company"].casefold():
+            return True
+    return False
 
 
 def already_alerted(con, job):
@@ -2416,6 +2440,8 @@ def cycle(config, con, progress=None):
             closed_count += life["closed"]
 
             if not seeded:
+                for j in jobs:          # a later echo from another source is not new either
+                    mark_alerted(con, j)
                 log(f"  {name}: seeded {len(jobs)} postings silently")
             elif fresh:
                 new_by_board[name] = fresh
@@ -2454,13 +2480,14 @@ def cycle(config, con, progress=None):
                      key=lambda kv: all_boards.get(kv[0], {}).get("ats") == "linkedin")
     for board, jobs in ordered:
         keep = []
+        fresh_ids = {j["id"] for j in jobs}
         for j in jobs:
             total_new += 1
             if excl_co and excl_co.search(j.get("company") or ""):
                 agencies += 1       # staffing-agency spam: drop, don't alert
                 continue
             ks = dedupe_keys(j)
-            if already_alerted(con, j) or any(k in seen_keys for k in ks):
+            if already_alerted(con, j) or any(k in seen_keys for k in ks) or known_on_board(con, board, j, fresh_ids):
                 deduped += 1
                 continue
             seen_keys.update(ks)

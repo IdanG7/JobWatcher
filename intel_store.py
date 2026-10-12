@@ -307,6 +307,12 @@ class IntelStore:
                 cyc.get("label"), " ".join(s["label"] for s in facts["skills"]),
                 " ".join(loc["city_labels"])])).lower()
             clusters.add(facts["cluster_key"])
+            # A job leaving its old cluster can take the canonical flag with it;
+            # rerank that cluster too so it keeps a visible member.
+            old = self.con.execute("SELECT cluster_key FROM job_intel WHERE board=? AND job_id=?",
+                                   (board, job_id)).fetchone()
+            if old and old[0] and old[0] != facts["cluster_key"]:
+                clusters.add(old[0])
             batch.append((
                 board, job_id, input_hash(job), FACTS_VERSION, self.kb_version,
                 json.dumps(facts, separators=(",", ":")), ts,

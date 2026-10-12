@@ -20,7 +20,7 @@ from .seniority import detect_seniority
 from .skills import extract_skills
 from .taxonomy import classify
 
-FACTS_VERSION = 7
+FACTS_VERSION = 8
 
 _TITLE_NOISE = re.compile(
     r"\((?:m/f/d|f/m/d|m/w/d|h/f|all genders)\)|\breq(?:uisition)?\s*#?\s*\d+\b|\bjob\s*id\s*:?\s*\w+\b|[-–—|,]\s*(remote|hybrid|on[\s-]?site)\s*$",
@@ -94,7 +94,7 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     skills = extract_skills(f"{title}\n{description}", kn)
 
     title_norm = normalize_title(title)
-    cluster_key = "|".join([company["key"], title_norm, geo_key(location)])
+    cluster_key = "|".join([company["key"], title_norm, geo_key(location, job.get("location") or "", kn)])
     return {
         "v": FACTS_VERSION,
         "company": company,
