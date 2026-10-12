@@ -276,7 +276,7 @@ class IntelStore:
         rows = self.con.execute(
             f"""SELECT j.board, j.job_id, j.title, j.location, j.url, j.first_seen,
                        COALESCE(d.company, REPLACE(j.board,'_',' ')), COALESCE(d.salary,''), d.posted,
-                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,'')
+                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,''), i.cluster_key
                 FROM jobs j
                 LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
                 LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
@@ -292,7 +292,7 @@ class IntelStore:
         clusters = set()
         batch, fts_rows = [], []
         for (board, job_id, title, location, url, first_seen, company, salary, posted,
-             description, department) in rows:
+             description, department, old_cluster) in rows:
             job = {"board": board, "id": job_id, "title": title, "location": location, "url": url,
                    "company": company, "salary": salary, "posted": posted,
                    # bytes: one damaged byte on disk must not stop indexing for everything
@@ -309,10 +309,8 @@ class IntelStore:
             clusters.add(facts["cluster_key"])
             # A job leaving its old cluster can take the canonical flag with it;
             # rerank that cluster too so it keeps a visible member.
-            old = self.con.execute("SELECT cluster_key FROM job_intel WHERE board=? AND job_id=?",
-                                   (board, job_id)).fetchone()
-            if old and old[0] and old[0] != facts["cluster_key"]:
-                clusters.add(old[0])
+            if old_cluster and old_cluster != facts["cluster_key"]:
+                clusters.add(old_cluster)
             batch.append((
                 board, job_id, input_hash(job), FACTS_VERSION, self.kb_version,
                 json.dumps(facts, separators=(",", ":")), ts,
