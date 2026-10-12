@@ -86,3 +86,15 @@ data on the same port.
 
 ## Release
 Version **0.2.0** is the bridge release (installer + ZIP). 0.2.1 onward: installer only.
+
+## Phase 3 implementation (2026-10-12)
+- `version.py` is set to **0.2.0**. README, packaged READ ME FIRST and release notes
+  explain the installer, SmartScreen, automatic downloads, restart, data preservation,
+  uninstall and manual migration from 0.1.13 or earlier.
+- Settings uses the Start menu instruction for an installed copy and the batch
+  instruction for a ZIP copy. Connection errors use instructions that work for both.
+- CI includes and verifies the ZIP only when `APP_VERSION == "0.2.0"`; all later
+  versions build with `--no-zip` and publish the installer and signed update files.
+- Before tagging a public release, configure the `JOBWATCH_UPDATE_KEY` repository
+  secret using the existing private key and retain a secure backup. A main-branch
+  push runs the full build and update checks without publishing a release.

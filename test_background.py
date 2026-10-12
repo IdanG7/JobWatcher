@@ -23,7 +23,7 @@ class BackgroundTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_dev_server_cannot_be_stopped_or_autostarted_remotely(self):
-        self.assertEqual({"can_stop": False, "autostart_supported": False, "autostart": False, "log": ""},
+        self.assertEqual({"can_stop": False, "installed": False, "autostart_supported": False, "autostart": False, "log": ""},
                          self.service.background_info())
         with self.assertRaises(ApiError):
             self.service.shutdown()
@@ -41,6 +41,12 @@ class BackgroundTests(unittest.TestCase):
             self.assertIsNone(stored["v"])
             with self.assertRaises(ApiError):
                 self.service.put_background({"autostart": "yes"})
+
+    def test_background_identifies_installed_and_zip_copies(self):
+        self.service.app_root = self.root
+        self.assertFalse(self.service.background_info()["installed"])
+        (self.root / "unins000.exe").write_bytes(b"uninstaller")
+        self.assertTrue(self.service.background_info()["installed"])
 
     def test_shutdown_answers_before_stopping(self):
         stopped = threading.Event()

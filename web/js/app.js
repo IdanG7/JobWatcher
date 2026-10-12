@@ -204,7 +204,7 @@ async function refreshStatus() {
     dot.className = 'live-dot warn';
     btn.title = 'Dashboard server unreachable';
     const panel = document.getElementById('collection-status');
-    panel.innerHTML = collectionMarkup({error: 'Connection lost. If Jobwatch was stopped, open Start Jobwatch.bat; reconnecting automatically.'});
+    panel.innerHTML = collectionMarkup({error: 'Connection lost. If Jobwatch was stopped, open Jobwatch again; reconnecting automatically.'});
     panel.hidden = false;
     panel.classList.add('collection-error');
   } finally {

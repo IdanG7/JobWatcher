@@ -50,7 +50,7 @@ jobs:
         run: python watcher.py --check
 
   windows:
-    name: Build and verify Windows ZIP
+    name: Build and verify Windows installer
     needs: test
     runs-on: windows-latest
     timeout-minutes: 30
@@ -80,9 +80,26 @@ jobs:
           echo "$INNO_SHA256  $RUNNER_TEMP/innosetup.exe" | sha256sum -c -
           "$RUNNER_TEMP/innosetup.exe" //VERYSILENT //SUPPRESSMSGBOXES //CURRENTUSER //PORTABLE=1 //NOICONS "//DIR=$(cygpath -w "$RUNNER_TEMP/inno")"
           echo "ISCC=$(cygpath -w "$RUNNER_TEMP/inno/ISCC.exe")" >> "$GITHUB_ENV"
-      - name: Build clean installer and portable package
-        run: python tools/build_windows.py --installer
+      - name: Select bridge packaging
+        id: packaging
+        shell: bash
+        run: |
+          version=$(python -c "from version import APP_VERSION; print(APP_VERSION)")
+          if [ "$version" = "0.2.0" ]; then
+            echo "bridge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bridge=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build clean Windows package
+        shell: bash
+        env:
+          BRIDGE_RELEASE: ${{ steps.packaging.outputs.bridge }}
+        run: |
+          args=(--installer)
+          if [ "$BRIDGE_RELEASE" != "true" ]; then args+=(--no-zip); fi
+          python tools/build_windows.py "${args[@]}"
       - name: Verify batch startup, matching, letters and restart persistence
+        if: steps.packaging.outputs.bridge == 'true'
         run: python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
       - name: Verify install, start, upgrade in place and uninstall
         shell: bash
@@ -128,11 +145,31 @@ jobs:
           fi
           python -m pip install -r requirements.txt
           python tools/sign_release.py dist/Jobwatch-Setup-*.exe
-      - name: Publish installer, update files and ZIP
+      - name: Publish installer and update files (ZIP for 0.2.0 only)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          files=(dist/Jobwatch-Setup-*.exe dist/jobwatch-update.json dist/jobwatch-update.json.sig dist/Jobwatch-Windows.zip)
+          files=(dist/Jobwatch-Setup-*.exe dist/jobwatch-update.json dist/jobwatch-update.json.sig)
+          notes="$RUNNER_TEMP/release-notes.md"
+          cat > "$notes" <<'NOTES'
+          Windows 10/11 x64. Download **Jobwatch-Setup** and run it; no administrator rights are needed.
+
+          Windows may show **Windows protected your PC** because the installer is not code-signed: choose **More info**, then **Run anyway**.
+
+          Jobwatch opens in your browser and keeps running in the background. Open it again from the Start menu. When a newer version has downloaded and passed signature verification, choose **Restart to update**. Your profile, applications and settings are kept across updates and reinstalls.
+
+          To uninstall, use **Windows Settings > Apps**. Keeping your data for a later reinstall is the default.
+
+          Upgrading an older ZIP copy? Stop Jobwatch in Settings > Background, then run Setup. The installed app uses the same data folder. Once it opens successfully, you can delete the old extracted folder.
+          NOTES
+          version=$(python -c "from version import APP_VERSION; print(APP_VERSION)")
+          if [ "$version" = "0.2.0" ]; then
+            files+=(dist/Jobwatch-Windows.zip)
+            cat >> "$notes" <<'NOTES'
+
+          **Final portable ZIP release:** 0.2.0 includes Jobwatch-Windows.zip. Extract it and double-click Start Jobwatch.bat. Its next update installs Jobwatch and keeps your data; later releases provide the installer only.
+          NOTES
+          fi
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else
@@ -140,6 +177,7 @@ jobs:
             gh release create "$GITHUB_REF_NAME" "${files[@]}" \
               --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
               --title "Jobwatch $GITHUB_REF_NAME" \
-              --notes "Windows 10/11 x64. Download Jobwatch-Setup and run it; no administrator rights are needed. Windows may show 'Windows protected your PC' because the installer is not code-signed: choose More info, then Run anyway. Jobwatch opens in your browser and keeps running in the background; open it again from the Start menu. Installed copies update themselves: when a new version is ready, Jobwatch shows a Restart to update button. Your profile, applications and settings are kept across updates and reinstalls. Prefer no installer? Jobwatch-Windows.zip still works: extract it and double-click Start Jobwatch.bat; it can install itself from its update banner."
-            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+              --notes-file "$notes"
           fi
+          gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --notes-file "$notes" --draft=false --latest

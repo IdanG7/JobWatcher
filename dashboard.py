@@ -1536,6 +1536,7 @@ class JobwatchService:
     # ------------------------------------------------------------ background running
     def background_info(self) -> dict:
         return {"can_stop": self.on_shutdown is not None,
+                "installed": bool(self.app_root and (self.app_root / "unins000.exe").exists()),
                 "autostart_supported": bool(self.autostart_command),
                 "autostart": autostart_value() == self.autostart_command if self.autostart_command else False,
                 "log": str(self.log_path or "")}

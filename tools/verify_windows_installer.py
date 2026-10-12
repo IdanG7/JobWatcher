@@ -81,13 +81,16 @@ def verify(installer: Path) -> None:
             # 1. Fresh install: program files only, no data, nothing running.
             setup(installer, install, env)
             pythonw, launcher = install / "runtime/pythonw.exe", install / "app/portable_start.py"
-            for path in (pythonw, launcher, install / "app/web/jobwatch.ico", install / "unins000.exe"):
+            for path in (pythonw, launcher, install / "app/web/jobwatch.ico", install / "unins000.exe",
+                         install / "READ ME FIRST.txt"):
                 assert path.is_file(), path
             assert not data.exists(), "installing must not create user data"
 
             # 2. Start it the way the Start menu shortcut does: no window, server in the background.
             subprocess.run([str(pythonw), str(launcher), "--no-browser"], env=env, cwd=install, timeout=120)
             first = wait_for(lambda: instance(data), 120, "the first start")
+            with urlopen(first["url"] + "/api/background", timeout=5) as response:
+                assert json.load(response)["installed"], "installed copies must show Start menu instructions"
             port = int(first["url"].rsplit(":", 1)[1])
             assert (data / "config.json").is_file() and (data / "jobwatch.db").is_file()
             print(f"installed copy serving {first['url']} (pid {first['pid']})", flush=True)

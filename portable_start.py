@@ -357,7 +357,7 @@ def _launch(args, data: Path) -> int:
                 time.sleep(0.1)
         if lock is None:
             print(f"An older Jobwatch copy is still running: {url}", flush=True)
-            print("Close its console window, then start this updated copy again.", flush=True)
+            print("Stop it in Settings > Background, then start this updated copy again.", flush=True)
             return 1
     lock.close()          # the server takes the lock itself
     state.unlink(missing_ok=True)
@@ -391,7 +391,7 @@ def _launch(args, data: Path) -> int:
         return 1
     print(f"\nJobwatch is running in the background: {url}", flush=True)
     print("This window closes by itself; Jobwatch keeps running without a window.", flush=True)
-    print("Open Start Jobwatch.bat again any time to reopen the dashboard.", flush=True)
+    print("Open Jobwatch again any time to reopen the dashboard.", flush=True)
     print("To stop it, or to start it when you sign in to Windows: Settings > Background.\n", flush=True)
     if not args.no_browser:
         webbrowser.open(url)

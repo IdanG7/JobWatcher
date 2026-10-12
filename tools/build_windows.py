@@ -1,4 +1,4 @@
-"""Build a clean Windows ZIP with a private, verified Python runtime.
+"""Build clean Windows installer/ZIP packages with a private, verified Python runtime.
 
 No developer database, subscriber accounts, resume, profile, or state is copied.
 The recipient needs no Python installation, pip, PowerShell, or administrator rights.
@@ -39,20 +39,38 @@ BOARD_FIELDS = {"ats", "token", "tenant", "site", "host", "domain", "url", "repo
 
 QUICK_START = """JOBWATCH - Windows 10/11, 64-bit
 
+INSTALLER (recommended)
+Download Jobwatch-Setup-<version>.exe from:
+    https://github.com/IdanG7/JobWatcher/releases/latest
+Run Setup. It installs for your Windows account; no administrator rights are needed.
+If Windows shows "Windows protected your PC", choose More info, then Run anyway.
+Open Jobwatch from the Start menu any time to reopen the dashboard.
+
+PORTABLE ZIP (0.2.0 is the final ZIP release)
 1. Right-click the ZIP and choose Extract All.
 2. Open the extracted Jobwatch folder.
 3. Double-click Start Jobwatch.bat. Your browser opens automatically.
 
 No Python installation, account, API key, or administrator access is needed.
 Internet access is needed to fetch job postings. Setup itself works offline.
-Jobwatch runs in the background without a window; the start window closes by
-itself. Double-click Start again any time to reopen the dashboard. To start it
+Jobwatch runs in the background without a window. In the ZIP copy, the start
+window closes by itself; double-click Start Jobwatch.bat to reopen it. To start it
 whenever you sign in to Windows, or to stop it, open Settings > Background.
 Jobwatch fetches sources on startup and every five minutes while it runs
 (about 200 MB of memory, little CPU between checks). The first fetch may take several
 minutes. A progress panel shows sources checked, active sources, failures and
 matching stages. Every tab stays usable, and results fill in automatically.
 Open Sources for each source's current status and error details.
+
+UPDATES
+Jobwatch checks for updates every six hours and downloads them in the background.
+When a verified update is ready, choose Restart to update. The page reconnects
+automatically, keeping your data and settings. For a ZIP copy, this installs the
+app and moves future starts to the Start menu; you can then delete the old folder.
+Versions 0.1.13 and earlier need a manual upgrade: stop Jobwatch in Settings >
+Background, run Setup, and open it from the Start menu. Check your data before
+deleting the old extracted folder. Releases after 0.2.0 provide the installer only.
+To uninstall, use Windows Settings > Apps; keeping your data is the default.
 
 MAKE IT YOURS
 Open Settings to choose career targets, locations and work authorization.
@@ -65,16 +83,17 @@ This is a fresh copy: no sender resume, profile, applications, letters, database
 or notification accounts are included. Your data is stored only on your PC in:
     %LOCALAPPDATA%\\Jobwatch
 To back up, stop Jobwatch (Settings > Background) and copy that entire data folder. Keep it when
-replacing the app folder with a newer release. Do not send that data folder to
+updating or reinstalling Jobwatch. Do not send that data folder to
 someone else. No Discord or Telegram notifications are connected by default.
 
 IF IT DOES NOT START
-Make sure you extracted the entire ZIP before opening Start Jobwatch.bat.
-Keep app and runtime beside the start file. This package is for 64-bit Windows,
-not macOS or Linux. A startup error stays visible in the start window, and
-details are written to %LOCALAPPDATA%\\Jobwatch\\jobwatch.log. To run it in a
-visible window instead, open Command Prompt in this folder and run:
-    "Start Jobwatch.bat" --console
+This package is for 64-bit Windows, not macOS or Linux. The installer shows startup
+errors in a message box; the ZIP leaves them in the start window. Details are
+written to %LOCALAPPDATA%\\Jobwatch\\jobwatch.log. For the ZIP, extract the entire
+archive and keep app and runtime beside Start Jobwatch.bat. For the installed app,
+try running Setup again; it keeps your data. For a visible troubleshooting window,
+open Command Prompt in the program folder and run:
+    runtime\\python.exe app\\portable_start.py --console
 
 Third-party license notices are included with the runtime and its packages.
 """

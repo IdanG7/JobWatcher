@@ -17,14 +17,32 @@ all searchable.
 
 ## Start using it
 
-### Share a Windows copy
+### Install on Windows
 
-Download **Jobwatch-Windows.zip** from [the latest release](https://github.com/IdanG7/JobWatcher/releases/latest),
-or build `dist/Jobwatch-Windows.zip` locally. The recipient extracts the entire ZIP and
-double-clicks **Start Jobwatch.bat**. Python and the dependencies are included;
-no installation, administrator access, API key or account is required. The app
-opens in the browser and fetches jobs automatically in the background, without a console window
-(Settings > Background can start it at sign-in or stop it).
+Download **Jobwatch-Setup-<version>.exe** from [the latest release](https://github.com/IdanG7/JobWatcher/releases/latest)
+and run it. It installs for the current user only (no administrator rights) into
+`%LOCALAPPDATA%\Programs\Jobwatch` and adds Jobwatch to the Start menu. The installer
+is not code-signed yet, so Windows may show **Windows protected your PC**: choose
+**More info**, then **Run anyway**. Python and the dependencies are included; no API
+key or account is required. The app opens in the browser and fetches jobs
+automatically in the background, without a window (Settings > Background can start
+it at sign-in or stop it). Open it again any time from the Start menu.
+
+**Updates download automatically.** Jobwatch checks for a new release every six hours
+and downloads it in the background. When it is ready, a banner offers **Restart to
+update**: when installation finishes, the page reloads on the new version, with your data
+and settings kept. An update is installed only if it is signed with the Jobwatch
+release key built into the app, matches its release and is newer than the running
+version. To uninstall, use **Settings > Apps** in Windows; it asks whether to keep
+your data (the default) or delete it.
+
+The portable **Jobwatch-Windows.zip** is still published for 0.2.0: extract it and
+double-click **Start Jobwatch.bat**. Its update banner installs Jobwatch into Programs,
+which takes over the same data; the old folder can then be deleted. Later releases
+ship the installer only. Copies from 0.1.13 or earlier need a manual upgrade: stop
+Jobwatch in Settings > Background, run Setup, and open Jobwatch from the Start
+menu. It uses the same data folder; delete the old extracted folder once you have
+checked that your data is there.
 Internet access is needed to fetch postings. The first fetch can take several minutes.
 The dashboard shows live collection progress, active sources and failures while
 you use any tab. Results refresh as sources finish; **Sources** shows individual
@@ -46,18 +64,41 @@ mean it cannot guarantee every LinkedIn posting.
 
 The bundle starts with a clean profile and no notification accounts. It excludes
 the sender's database, resume, subscriber configuration, letters and portable state.
-Recipient settings and private data live in `%LOCALAPPDATA%\Jobwatch` and survive
-replacing the extracted app folder. Close Jobwatch before backing up that data folder.
+Recipient settings and private data live in `%LOCALAPPDATA%\Jobwatch`, apart from
+the program, so updates and reinstalls keep them. Stop Jobwatch (Settings > Background)
+before backing up that data folder.
 Updated source defaults are merged on upgrade while preserving customized sources,
 deleted defaults, private preferences and notification settings.
 The package targets Windows 10/11 on x64 PCs.
 
-To rebuild and verify the distribution on Windows:
+To rebuild and verify the distribution on Windows (the installer needs
+[Inno Setup 6](https://jrsoftware.org/isinfo.php); pass `--iscc` or set `ISCC` if it is
+not in a standard location):
 
 ```powershell
-python tools/build_windows.py
+python tools/build_windows.py --installer
 python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
+python tools/verify_windows_installer.py dist/Jobwatch-Setup-<version>.exe
+python tools/verify_windows_update.py      # version N updates itself to N+1 (throwaway key)
 ```
+
+After 0.2.0, build with `--installer --no-zip` and skip the ZIP verifier.
+The installer and update verifiers use a temporary installation and temporary
+`%LOCALAPPDATA%`, and always uninstall afterwards. The ZIP verifier also uses
+temporary app and data folders, so a Jobwatch you already run is not touched.
+Releases are built by CI from a `v<version>` tag matching `version.py`. CI signs
+the update manifest with the `JOBWATCH_UPDATE_KEY` secret (an ed25519 key whose
+public half is in `update_key.py`) and refuses to publish without it.
+The maintainer sets the secret once from Git Bash:
+
+```bash
+gh secret set JOBWATCH_UPDATE_KEY --repo IdanG7/JobWatcher < ~/.jobwatch/update-signing-key.pem
+```
+
+Keep a secure backup of that private key outside the repository. Existing apps
+trust its public half; losing the key requires a manual reinstall to trust a
+replacement. This update signature is separate from Windows code signing, so
+SmartScreen may still appear on the first install.
 
 The builder downloads the [official Python embeddable distribution](https://www.python.org/downloads/release/python-3148/),
 verifies its published SHA-256 checksum, bundles dependency wheels with license
@@ -238,10 +279,13 @@ their source set and filters, and configure their own delivery secret.
 
 `.github/workflows/build-windows.yml` tests Python on Linux and Windows, runs
 the JavaScript tests, validates configuration, and builds and verifies a clean
-Windows ZIP on pushes to `main`, pull requests and manual runs. The ZIP is
-available as the `windows-package` artifact. Pushing a version tag such as
-`v0.1.0` also publishes the ZIP as a public GitHub Release after all checks pass.
-No notification secrets are needed for tests, builds or Windows releases.
+Windows installer on pushes to `main`, pull requests and manual runs. It also
+tests a signed version N → N+1 update with a throwaway key. The `windows-package`
+artifact contains the installer, plus the verified ZIP for the 0.2.0 bridge only.
+Pushing a tag such as `v0.2.0` that matches `version.py` publishes a GitHub Release
+with the installer, signed update manifest and signature (and the ZIP for 0.2.0).
+The release remains a draft until all files are uploaded. Releases require the
+`JOBWATCH_UPDATE_KEY` secret; tests and builds use no release or notification secrets.
 
 `.github/workflows/jobwatch.yml` runs tests and configuration validation,
 restores the portable state, polls repeatedly for roughly 25 minutes, and

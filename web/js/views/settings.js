@@ -57,8 +57,10 @@ export async function render(root, ctx) {
         <p class="muted" style="font-size:11.5px">To write each letter, the posting, your resume and your past letter are sent to Google. On the free tier Google may use them to improve its products. The key is stored only on this computer.</p>`;
   const redrawAi = () => { root.querySelector('#s-ai').innerHTML = aiHtml(); };
 
+  // The installed app is opened from the Start menu; a ZIP copy from its batch file.
+  const startHint = () => (background.installed ? '<b>Jobwatch</b> from the Start menu' : '<b>Start Jobwatch.bat</b>');
   const backgroundHtml = () => `<h2>Background</h2>
-        <p>Jobwatch runs in the background without a window and keeps checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open <b>Start Jobwatch.bat</b> any time to reopen this dashboard.</p>
+        <p>Jobwatch runs in the background without a window and keeps checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
         ${background.autostart_supported ? `<label class="check"><input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}> Start Jobwatch automatically when I sign in to Windows</label>` : ''}
         ${background.log ? `<p class="muted" style="font-size:11.5px">Log file: <code>${esc(background.log)}</code></p>` : ''}
         ${background.can_stop ? '<div class="save-bar"><button type="button" class="btn danger" data-act="shutdown">Stop Jobwatch</button></div>' : ''}`;
@@ -238,11 +240,11 @@ export async function render(root, ctx) {
       return;
     }
     if (e.target.closest('[data-act=shutdown]')) {
-      if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open Start Jobwatch.bat again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
+      if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open it again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
       try {
         await post('/api/shutdown', {});
         ctx.stop?.();
-        document.body.innerHTML = '<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Jobwatch stopped</h1><p>It is no longer checking for jobs. Open <b>Start Jobwatch.bat</b> to start it again. You can close this tab.</p></main>';
+        document.body.innerHTML = `<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Jobwatch stopped</h1><p>It is no longer checking for jobs. Open ${startHint()} to start it again. You can close this tab.</p></main>`;
       } catch (err) { toast(err.message, {error: true}); }
       return;
     }

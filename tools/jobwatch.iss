@@ -61,6 +61,7 @@ Type: filesandordirs; Name: "{app}\runtime"
 Source: "{#StageDir}\app\*"; DestDir: "{app}\app"; Flags: recursesubdirs ignoreversion
 Source: "{#StageDir}\runtime\*"; DestDir: "{app}\runtime"; Flags: recursesubdirs ignoreversion
 Source: "{#StageDir}\manifest.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#StageDir}\READ ME FIRST.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\Jobwatch"; Filename: "{#Pythonw}"; Parameters: """{#Launcher}"""; WorkingDir: "{app}"; IconFilename: "{app}\app\web\jobwatch.ico"; Comment: "Open your Jobwatch dashboard"
