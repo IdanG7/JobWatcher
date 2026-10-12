@@ -17,14 +17,29 @@ export async function mountDocuments(el, job, deps = {}) {
   let state = {letter: null, ai: false, resume: false, reference: null};
   let items = [];        // {kind: 'file', file} | {kind: 'letter'}
   let busy = false;
+  let merging = false;
+  let loadError = null;
 
-  try { state = await request.get(`/api/jobs/${enc(job.key)}/cover-letter`); } catch (err) {
-    cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">${esc(err.message)}</p>`;
-  }
+  const load = async () => {
+    try {
+      state = await request.get(`/api/jobs/${enc(job.key)}/cover-letter`);
+      loadError = null;
+    } catch (err) { loadError = err; }
+  };
+  await load();
   if (state.letter) items.push({kind: 'letter'});
 
-  const drawCover = () => {
+  // What the user typed survives redraws (a failed save, a busy button).
+  const typed = () => ({notes: cover.querySelector('[data-cover-notes]')?.value,
+    body: cover.querySelector('[data-cover-body]')?.value});
+
+  const drawCover = (draft = {}) => {
     const l = state.letter;
+    if (loadError) {
+      cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">Could not load the cover letter: ${esc(loadError.message)}</p>
+        <button type="button" class="btn sm" data-cover-act="reload" style="margin-top:8px">Try again</button>`;
+      return;
+    }
     if (!state.ai || !state.resume) {
       cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">${!state.ai
         ? 'Write a letter for this posting with Gemini. Connect a free Gemini API key in <a class="link" href="#/settings">Settings → AI cover letters</a>.'
@@ -33,9 +48,9 @@ export async function mountDocuments(el, job, deps = {}) {
     }
     cover.innerHTML = `<h3>Cover letter</h3>
       <label class="field"><span>Anything to emphasize? <span class="muted">(optional)</span></span>
-        <input class="input" data-cover-notes maxlength="1000" value="${esc(l?.notes || '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>
+        <input class="input" data-cover-notes maxlength="1000" value="${esc(draft.notes ?? l?.notes ?? '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>
       ${l ? `<label class="field" style="margin-top:8px"><span>Letter <span class="muted">· ${l.model ? `written by ${esc(l.model)}` : 'written by you'} ${l.created_at ? `· ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span></span>
-        <textarea class="input" data-cover-body rows="14">${esc(l.body)}</textarea></label>` : ''}
+        <textarea class="input" data-cover-body rows="14">${esc(draft.body ?? l.body)}</textarea></label>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button type="button" class="btn${l ? '' : ' primary'} sm" data-cover-act="generate"${busy ? ' disabled' : ''}>${busy ? 'Writing…' : l ? 'Rewrite with Gemini' : 'Write with Gemini'}</button>
         ${l ? `<button type="button" class="btn primary sm" data-cover-act="save">Save edits</button>
@@ -68,16 +83,25 @@ export async function mountDocuments(el, job, deps = {}) {
     const act = e.target.closest('[data-cover-act]')?.dataset.coverAct;
     if (!act || busy) return;
     const body = cover.querySelector('[data-cover-body]')?.value;
+    let draft = typed();
+    if (act === 'reload') {
+      await load();
+      if (state.letter && !items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
+      redraw();
+      return;
+    }
     try {
       if (act === 'generate') {
         if (state.letter?.edited && !await request.confirm('Replace your edited letter with a new one?', {confirmLabel: 'Rewrite'})) return;
-        busy = true; drawCover();
+        busy = true; drawCover(draft);
         const notes = cover.querySelector('[data-cover-notes]')?.value || '';
         state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter`, {method: 'POST', body: {notes}, timeout: 150000});
+        draft = {};
         if (!items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
         request.toast('Cover letter written. Read it over before sending.');
       } else if (act === 'save') {
         state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
+        draft = {};
         request.toast('Cover letter saved');
       } else if (act === 'copy') {
         await navigator.clipboard.writeText(body);
@@ -93,7 +117,8 @@ export async function mountDocuments(el, job, deps = {}) {
     } finally {
       if (busy) { busy = false; }
     }
-    redraw();
+    drawCover(draft);
+    drawMerge();
   });
 
   merge.addEventListener('change', e => {
@@ -114,6 +139,8 @@ export async function mountDocuments(el, job, deps = {}) {
     } else if (act === 'letter') {
       items.push({kind: 'letter'});
     } else if (act === 'merge') {
+      if (merging) return;
+      merging = true;
       btn.disabled = true;
       btn.textContent = 'Merging…';
       try {
@@ -127,6 +154,8 @@ export async function mountDocuments(el, job, deps = {}) {
         request.toast(`Saved ${name}`);
       } catch (err) {
         request.toast(err.message, {error: true, timeout: 9000});
+      } finally {
+        merging = false;
       }
     }
     drawMerge();

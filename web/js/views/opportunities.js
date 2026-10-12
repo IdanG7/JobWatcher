@@ -64,7 +64,7 @@ export async function render(root, ctx) {
     filtersHidden: ctx.store.get('jw-filters') === 'hidden', visitedSaved: null};
   root.innerHTML = `
   <div class="page-head">
-    <div><h1>Opportunities</h1><p class="sub" data-summary>Loading…</p></div>
+    <div><h1>Opportunities</h1><p class="sub" data-summary role="status" aria-live="polite">Loading…</p></div>
     <div class="page-actions">
       <label class="search"><span class="sr-only">Search opportunities</span>${icon('search')}<input class="input" data-search type="search" placeholder="Search company, title, skills, group…" value="${esc(state.params.q || '')}" autocomplete="off"><kbd>/</kbd></label>
       <button class="btn" data-act="filters" title="Toggle filters (f)">${icon('filter')} Filters</button>
@@ -114,7 +114,7 @@ export async function render(root, ctx) {
       }
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
       drawAll();
-      if (data.resume_matching?.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
+      if (data.resume_matching?.active && data.resume_matching.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
     } catch (err) {
       if (err.name === 'AbortError') return;
       if (quiet && state.data) return;      // keep showing the last good results
@@ -133,11 +133,22 @@ export async function render(root, ctx) {
     }
   }
 
+  // Identify a filter control so focus can return to it after a redraw.
+  const controlId = n => n && ['list', 'single', 'toggle', 'range', 'clear', 'expand']
+    .map(k => (n.dataset?.[k] !== undefined ? `[data-${k}="${CSS.escape(n.dataset[k])}"]${n.value && k === 'list' ? `[value="${CSS.escape(n.value)}"]` : ''}` : '')).find(Boolean);
+
   function drawAll() {
     drawSummary();
     drawQuick();
     drawActive();
-    drawFilters();
+    const sidebar = $('[data-filters]');
+    const focused = sidebar.contains(document.activeElement) ? document.activeElement : null;
+    // Never rebuild the sidebar under someone typing in it (a background refresh).
+    if (!(focused && ['INPUT', 'SELECT', 'TEXTAREA'].includes(focused.tagName) && focused.type !== 'checkbox')) {
+      const id = controlId(focused);
+      drawFilters();
+      if (id) sidebar.querySelector(id)?.focus({preventScroll: true});
+    }
     drawTable();
     drawPager();
   }
@@ -145,7 +156,7 @@ export async function render(root, ctx) {
   function drawSummary() {
     const d = state.data;
     const scope = state.params.family === 'all' ? 'roles' : state.params.family && state.params.family !== 'finance' ? `${prettyKey(state.params.family)} roles` : 'finance roles';
-    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ` · resume eligibility on · ${d.resume_matching.excluded_total || 0} excluded of ${d.resume_matching.unfiltered_total ?? d.total}` : ''}${d.resume_matching?.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}${d.resume_matching?.outdated ? ' · <a class="link" href="#/settings">re-upload your resume</a> for better matching' : ''}`;
+    $('[data-summary]').innerHTML = `<span class="num">${d.total.toLocaleString()}</span> ${scope}${state.params.q ? ` matching “${esc(state.params.q)}”` : ''} · sorted by ${esc(sortLabel(state.params.sort))}${d.resume_matching?.active ? ` · resume eligibility on · ${d.resume_matching.excluded_total || 0} excluded of ${d.resume_matching.unfiltered_total ?? d.total}` : ''}${d.resume_matching?.active && d.resume_matching.pending ? ` · checking ${d.resume_matching.pending.toLocaleString()} postings` : ''}${d.resume_matching?.outdated ? ' · <a class="link" href="#/settings">re-upload your resume</a> for better matching' : ''}`;
   }
 
   function quickActive(q) {
@@ -328,7 +339,11 @@ export async function render(root, ctx) {
       set({[k]: remove.dataset.single ? null : toggleListParam(state.params[k], remove.dataset.value) || null});
       return;
     }
-    if (t.closest('[data-act=clear]')) { ctx.navigate(['opportunities'], {}); return; }
+    if (t.closest('[data-act=clear]')) {
+      // Clear everything, resume categories included; resume eligibility itself stays as it was.
+      ctx.navigate(['opportunities'], state.data?.resume_matching?.active ? {resume_match: '1'} : {});
+      return;
+    }
     const clear = t.closest('[data-clear]');
     if (clear) { set({[clear.dataset.clear]: null}); return; }
     const expand = t.closest('[data-expand]');
@@ -370,7 +385,7 @@ export async function render(root, ctx) {
 
   root.addEventListener('keydown', e => {
     const th = e.target.closest?.('[data-sort]');
-    if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); th.click(); }
+    if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); th.click(); }
   });
 
   root.addEventListener('change', e => {
@@ -413,8 +428,12 @@ export async function render(root, ctx) {
     refresh: () => load({quiet: true}),
     onKey(e) {
       const jobs = state.data?.jobs || [];
-      if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); setCursor(state.cursor + 1); if (ctx.route.params.job) ctx.openJob(jobs[state.cursor].key); }
-      else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); setCursor(state.cursor - 1); if (ctx.route.params.job) ctx.openJob(jobs[state.cursor].key); }
+      // Enter / Space on a focused button, link or sort header does that control's own thing.
+      const control = e.target.closest?.('button, a[href], [role=button], [data-sort], summary, label');
+      if (control && (e.key === 'Enter' || e.key === ' ')) return;
+      if (['j', 'k', 'ArrowDown', 'ArrowUp'].includes(e.key) && !jobs.length) return;
+      if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); setCursor(state.cursor + 1); if (ctx.route.params.job && jobs[state.cursor]) ctx.openJob(jobs[state.cursor].key); }
+      else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); setCursor(state.cursor - 1); if (ctx.route.params.job && jobs[state.cursor]) ctx.openJob(jobs[state.cursor].key); }
       else if (e.key === 'Enter' && jobs[state.cursor]) { e.preventDefault(); ctx.openJob(jobs[state.cursor].key); }
       else if (e.key === 'f') { e.preventDefault(); toggleFilters(); }
       else if (jobs[state.cursor] && ['s', 'a', 'o'].includes(e.key)) {

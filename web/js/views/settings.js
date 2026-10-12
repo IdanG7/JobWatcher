@@ -25,7 +25,7 @@ export async function render(root, ctx) {
     searches = s.saved_searches;
   } catch (err) {
     root.innerHTML = errorState(err);
-    root.querySelector('[data-action=retry]')?.addEventListener('click', () => render(root, ctx));
+    root.querySelector('[data-action=retry]')?.addEventListener('click', () => ctx.remount());   // cleans up first
     return null;
   }
   const meta = ctx.meta;
@@ -213,7 +213,11 @@ export async function render(root, ctx) {
       return;
     }
     if (e.target.closest('[data-act=discord-test]')) {
+      const btn = e.target.closest('[data-act=discord-test]');
+      if (btn.disabled) return;
+      btn.disabled = true;      // one test message per click
       try { await post('/api/discord/test', {}); toast('Test message sent — check your Discord channel'); } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+      finally { btn.disabled = false; }
       return;
     }
     if (e.target.closest('[data-act=discord-remove]')) {
@@ -237,6 +241,7 @@ export async function render(root, ctx) {
       if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open Start Jobwatch.bat again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
       try {
         await post('/api/shutdown', {});
+        ctx.stop?.();
         document.body.innerHTML = '<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Jobwatch stopped</h1><p>It is no longer checking for jobs. Open <b>Start Jobwatch.bat</b> to start it again. You can close this tab.</p></main>';
       } catch (err) { toast(err.message, {error: true}); }
       return;
@@ -249,7 +254,12 @@ export async function render(root, ctx) {
     if (delBtn) {
       const id = delBtn.closest('tr').dataset.sid;
       if (!await confirmDialog('Delete this saved view?')) return;
-      try { await del(`/api/saved-searches/${id}`); searches = searches.filter(s => String(s.id) !== id); draw(); toast('Saved view deleted'); } catch (err) { toast(err.message, {error: true}); }
+      try {
+        await del(`/api/saved-searches/${id}`);
+        searches = searches.filter(s => String(s.id) !== id);
+        delBtn.closest('tr').remove();      // a full redraw would discard unsaved profile edits
+        toast('Saved view deleted');
+      } catch (err) { toast(err.message, {error: true}); }
     }
   });
   root.addEventListener('change', async e => {

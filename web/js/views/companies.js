@@ -26,12 +26,16 @@ async function renderList(root, ctx) {
   <section class="panel" style="overflow:hidden"><div class="table-wrap" data-body>${skeletonRows(10)}</div></section>`;
   const $ = s => root.querySelector(s);
 
+  let latest = 0;
   async function load() {
+    const ticket = ++latest;      // typing fast: only the newest search may draw
     try {
-      state.data = await get('/api/companies', {q: state.q, type: state.type, watched: state.watched ? 1 : ''});
+      const data = await get('/api/companies', {q: state.q, type: state.type, watched: state.watched ? 1 : ''});
+      if (ticket !== latest) return;
+      state.data = data;
       draw();
     } catch (err) {
-      $('[data-body]').innerHTML = errorState(err);
+      if (ticket === latest) $('[data-body]').innerHTML = errorState(err);
     }
   }
 
@@ -86,6 +90,9 @@ async function renderCompany(root, ctx, key) {
   const load = async () => { data = await get(`/api/companies/${enc(key)}`); draw(); };
 
   function draw() {
+    // Unsaved notes survive refreshes and watch toggles.
+    const typing = root.querySelector('[data-notes]');
+    const draftNotes = typing && typing.value !== typing.defaultValue ? typing.value : null;
     const active = data.jobs.filter(j => j.job_status !== 'closed');
     const closed = data.jobs.filter(j => j.job_status === 'closed');
     root.innerHTML = `
@@ -130,11 +137,12 @@ async function renderCompany(root, ctx, key) {
       </div>
     </div>`;
     weeklyColumns(root.querySelector('[data-weekly]'), data.weekly);
+    if (draftNotes !== null) root.querySelector('[data-notes]').value = draftNotes;
   }
 
   try { await load(); } catch (err) {
     root.innerHTML = errorState(err);
-    root.querySelector('[data-action=retry]')?.addEventListener('click', () => renderCompany(root, ctx, key));
+    root.querySelector('[data-action=retry]')?.addEventListener('click', () => ctx.remount());
     return null;
   }
   bindTooltips(root);
@@ -148,7 +156,10 @@ async function renderCompany(root, ctx, key) {
       } else if (act === 'contact') {
         if (await contactForm({company: data.name, company_key: key}, ctx)) await load();
       } else if (act === 'notes') {
-        await put(`/api/companies/${enc(key)}/watch`, {watched: data.watched, name: data.name, notes: root.querySelector('[data-notes]').value});
+        const box = root.querySelector('[data-notes]');
+        await put(`/api/companies/${enc(key)}/watch`, {watched: data.watched, name: data.name, notes: box.value});
+        data.notes = box.value;
+        box.defaultValue = box.value;
         toast('Notes saved');
       }
     } catch (err) { toast(err.message, {error: true}); }

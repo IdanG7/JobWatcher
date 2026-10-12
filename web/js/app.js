@@ -41,6 +41,8 @@ const ctx = {
     for (const k of Object.keys(params)) if (params[k] === '' || params[k] === null || params[k] === undefined) delete params[k];
     ctx.navigate(ctx.route.path, params, {replace});
   },
+  /** Render the current view again from scratch (Retry); the old one is cleaned up first. */
+  remount() { current.key = null; route(); },
   openJob(key) { ctx.setParams({job: key}); },
   closeJob() { ctx.setParams({job: null}); },
   /** Data changed (save, status move, watch): refresh the view softly and the drawer. */
@@ -202,7 +204,7 @@ async function refreshStatus() {
     dot.className = 'live-dot warn';
     btn.title = 'Dashboard server unreachable';
     const panel = document.getElementById('collection-status');
-    panel.innerHTML = collectionMarkup({error: 'Connection lost. Keep the Jobwatch console open; reconnecting automatically.'});
+    panel.innerHTML = collectionMarkup({error: 'Connection lost. If Jobwatch was stopped, open Start Jobwatch.bat; reconnecting automatically.'});
     panel.hidden = false;
     panel.classList.add('collection-error');
   } finally {
@@ -223,7 +225,7 @@ async function checkForUpdate() {
   banner.setAttribute('role', 'status');
   banner.innerHTML = `<div class="collection-heading"><strong>Jobwatch ${esc(info.latest)} is available</strong>
     <button type="button" class="btn xs" data-dismiss>Dismiss</button></div>
-    <p>You have ${esc(info.current)}. <a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download the new version</a>, close this console window, extract it over your old folder and start it again. Your data is kept.</p>`;
+    <p>You have ${esc(info.current)}. <a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download the new version</a>, stop Jobwatch in Settings → Background, extract the new version over your old folder and open Start Jobwatch.bat. Your data is kept.</p>`;
   banner.querySelector('[data-dismiss]').addEventListener('click', () => {
     store.set('jw-update-dismissed', info.latest);
     banner.remove();
@@ -307,10 +309,17 @@ async function boot() {
   loadMetadata();
   refreshNav();
   refreshStatus();
-  setInterval(refreshStatus, 2000);
-  setInterval(refreshNav, 120000);
+  const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
   checkForUpdate();
-  setInterval(checkForUpdate, 6 * 3600 * 1000);
+  timers.push(setInterval(checkForUpdate, 6 * 3600 * 1000));
+  // The server was stopped from Settings: nothing may poll a page that no longer exists.
+  ctx.stop = () => {
+    timers.forEach(clearInterval);
+    current.view?.cleanup?.();
+    current.view = null;
+    window.removeEventListener('hashchange', route);
+    document.removeEventListener('keydown', onKey);
+  };
 }
 
 export const ready = boot();

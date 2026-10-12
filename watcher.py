@@ -167,6 +167,9 @@ def _age_posted_epoch(text, now=None):
     return day.timestamp()
 
 
+RELATIVE_DATE_ATS = {"workday", "github_md"}     # listing dates written as "Posted Today" / "3d"
+
+
 def _workday_posted_epoch(text, now=None):
     """'Posted Today' / 'Posted Yesterday' / 'Posted 5 Days Ago' -> epoch at 12:00 UTC.
 
@@ -1374,6 +1377,14 @@ _CO_NOISE = re.compile(r"\(.*?\)|\b(incorporated|corporation|company|inc|llc|ltd
                        re.I)
 
 
+def failure_backoff(failures):
+    """Seconds to wait before retrying a source that keeps failing: none for a
+    blip, then doubling from 5 minutes to a 2-hour ceiling."""
+    if not isinstance(failures, int) or failures < 3:
+        return 0
+    return min(7200, 300 * 2 ** min(failures - 3, 5))
+
+
 def name_key(company, title, normalize=False):
     c = company or ""
     if normalize:               # 'Stripe, Inc.' / 'Stripe (YC S10)' -> 'Stripe'
@@ -2136,7 +2147,7 @@ def maybe_digest(config, con, subs):
     con.execute("INSERT OR REPLACE INTO kv VALUES ('last_digest', ?)", (today,))
 
     rows = con.execute(
-        "SELECT company, COUNT(*) FROM recent WHERE ts > datetime('now','-1 day') "
+        "SELECT company, COUNT(*) FROM recent WHERE ts > strftime('%Y-%m-%dT%H:%M:%S', 'now','-1 day') "
         "GROUP BY company ORDER BY COUNT(*) DESC, company").fetchall()
     total = sum(n for _, n in rows)
     n_boards = con.execute(
@@ -2337,8 +2348,8 @@ def cycle(config, con, progress=None):
     # only change every ~15 min; no point fetching them every 45s)
     due = {}
     for name, cfg in all_boards.items():
-        seeded, _, last_poll = board_row(con, name)
-        if time.time() - last_poll < cfg.get("min_interval", 0):
+        seeded, failures, last_poll = board_row(con, name)
+        if time.time() - last_poll < max(cfg.get("min_interval", 0), failure_backoff(failures)):
             skipped += 1
             continue
         due[name] = {**cfg, "_initial_seed": not seeded}
@@ -2373,84 +2384,98 @@ def cycle(config, con, progress=None):
                                 error=f"{type(e).__name__}: {str(e)[:200]}")
                 continue
 
-            ok_count += 1
-            known = known_ids(con, name)
+            try:
+                ok_count += 1
+                known = known_ids(con, name)
 
-            if not jobs and len(known) >= ZERO_GUARD_MIN:
-                log(f"! {name}: returned 0 jobs but {len(known)} known — ignoring read")
+                if not jobs and len(known) >= ZERO_GUARD_MIN:
+                    log(f"! {name}: returned 0 jobs but {len(known)} known — ignoring read")
+                    con.commit()
+                    report_progress(progress, "source_finished", board=name, outcome="failed",
+                                    error="Empty response ignored to protect existing postings")
+                    continue
+
+                fresh = [j for j in jobs if j["id"] and j["id"] not in known]
+                ts = now()
+                changes = record_changes(con, name, jobs, ts)
+                if changes:
+                    change_count += len(changes)
+                con.executemany(
+                    """INSERT INTO jobs
+                       (board, job_id, title, location, url, first_seen, last_seen)
+                       VALUES (?,?,?,?,?,?,?)
+                       ON CONFLICT(board, job_id) DO UPDATE SET
+                         title=excluded.title, location=excluded.location,
+                         url=excluded.url, last_seen=excluded.last_seen""",
+                    [(name, j["id"], j["title"], j["location"], j["url"], ts, ts)
+                     for j in jobs])
+                # "Posted Today" / "3 days ago" are estimates: a later poll may only
+                # move them earlier, or a stale listing keeps looking brand new.
+                estimated = int(all_boards[name].get("ats") in RELATIVE_DATE_ATS)
+                con.executemany(
+                    """INSERT INTO job_details(board, job_id, company, salary, posted)
+                       VALUES (?,?,?,?,?)
+                       ON CONFLICT(board, job_id) DO UPDATE SET
+                         company=excluded.company, salary=excluded.salary,
+                         posted=CASE WHEN ? AND excluded.posted IS NOT NULL AND job_details.posted IS NOT NULL
+                                     THEN MIN(excluded.posted, job_details.posted)
+                                     ELSE COALESCE(excluded.posted, job_details.posted) END""",
+                    [(name, j["id"], j.get("company") or name.replace("_", " "),
+                      j.get("salary") or "", _posted_epoch(j.get("posted")), estimated)
+                     for j in jobs])
+                con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
+                            (ts, name))
+                for j in jobs:
+                    if j.get("description") or j.get("department"):
+                        store_description(con, name, j["id"], j.get("description") or "",
+                                          j.get("department") or "",
+                                          source=j.get("description_source") or "listing")
+                runtime_complete = getattr(jobs, "complete", None)
+                complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
+                                                 else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
+                complete = bool(complete and runtime_complete is not False)
+                coverage_warning = getattr(jobs, "reason", "")
+                if coverage_warning:
+                    log(f"  {name}: {coverage_warning}")
+                source_cfg = due[name]
+                window = {}
+                if source_cfg.get("ats") == "linkedin":
+                    initial = source_cfg.get("_initial_seed", False)
+                    window = {"recency": source_cfg.get("seed_recency" if initial else "recency",
+                                                         source_cfg.get("recency", "r2592000" if initial else "r86400")),
+                              "pages": source_cfg.get("seed_pages" if initial else "pages",
+                                                       source_cfg.get("pages", 3)),
+                              "queries": source_cfg.get("queries") or [source_cfg.get("query", "software engineer intern")]}
+                coverage = {"fetched": len(jobs), "reported_total": getattr(jobs, "total", None),
+                            "complete": bool(runtime_complete if runtime_complete is not None else complete),
+                            "detects_removals": complete,
+                            "reason": coverage_warning, "fetched_at": ts, "window": window}
+                con.execute("INSERT OR REPLACE INTO kv(k,v) VALUES (?,?)",
+                            (f"source_coverage:{name}", json.dumps(coverage)))
+                life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
+                                        {j["id"] for j in fresh}, discovered=bool(seeded))
+                closed_count += life["closed"]
+
+                if not seeded:
+                    for j in jobs:          # a later echo from another source is not new either
+                        mark_alerted(con, j)
+                    log(f"  {name}: seeded {len(jobs)} postings silently")
+                elif fresh:
+                    new_by_board[name] = fresh
+                # Release the write lock before waiting for another network source.
+                # First-run setup stays editable and completed sources appear early.
                 con.commit()
+                report_progress(progress, "source_finished", board=name, outcome="ok", jobs=len(jobs), new=len(fresh),
+                                coverage_complete=complete, coverage_warning=coverage_warning,
+                                reported_total=getattr(jobs, "total", None))
+            except Exception as e:      # one board's bad data must not stop the others
+                con.rollback()
+                ok_count -= 1
+                fail_count += 1
+                new_by_board.pop(name, None)
+                log(f"! {name}: could not store results: {type(e).__name__}: {e}")
                 report_progress(progress, "source_finished", board=name, outcome="failed",
-                                error="Empty response ignored to protect existing postings")
-                continue
-
-            fresh = [j for j in jobs if j["id"] and j["id"] not in known]
-            ts = now()
-            changes = record_changes(con, name, jobs, ts)
-            if changes:
-                change_count += len(changes)
-            con.executemany(
-                """INSERT INTO jobs
-                   (board, job_id, title, location, url, first_seen, last_seen)
-                   VALUES (?,?,?,?,?,?,?)
-                   ON CONFLICT(board, job_id) DO UPDATE SET
-                     title=excluded.title, location=excluded.location,
-                     url=excluded.url, last_seen=excluded.last_seen""",
-                [(name, j["id"], j["title"], j["location"], j["url"], ts, ts)
-                 for j in jobs])
-            con.executemany(
-                """INSERT INTO job_details(board, job_id, company, salary, posted)
-                   VALUES (?,?,?,?,?)
-                   ON CONFLICT(board, job_id) DO UPDATE SET
-                     company=excluded.company, salary=excluded.salary,
-                     posted=COALESCE(excluded.posted, job_details.posted)""",
-                [(name, j["id"], j.get("company") or name.replace("_", " "),
-                  j.get("salary") or "", _posted_epoch(j.get("posted")))
-                 for j in jobs])
-            con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
-                        (ts, name))
-            for j in jobs:
-                if j.get("description") or j.get("department"):
-                    store_description(con, name, j["id"], j.get("description") or "",
-                                      j.get("department") or "",
-                                      source=j.get("description_source") or "listing")
-            runtime_complete = getattr(jobs, "complete", None)
-            complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
-                                             else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
-            complete = bool(complete and runtime_complete is not False)
-            coverage_warning = getattr(jobs, "reason", "")
-            if coverage_warning:
-                log(f"  {name}: {coverage_warning}")
-            source_cfg = due[name]
-            window = {}
-            if source_cfg.get("ats") == "linkedin":
-                initial = source_cfg.get("_initial_seed", False)
-                window = {"recency": source_cfg.get("seed_recency" if initial else "recency",
-                                                     source_cfg.get("recency", "r2592000" if initial else "r86400")),
-                          "pages": source_cfg.get("seed_pages" if initial else "pages",
-                                                   source_cfg.get("pages", 3)),
-                          "queries": source_cfg.get("queries") or [source_cfg.get("query", "software engineer intern")]}
-            coverage = {"fetched": len(jobs), "reported_total": getattr(jobs, "total", None),
-                        "complete": bool(runtime_complete if runtime_complete is not None else complete),
-                        "detects_removals": complete,
-                        "reason": coverage_warning, "fetched_at": ts, "window": window}
-            con.execute("INSERT OR REPLACE INTO kv(k,v) VALUES (?,?)",
-                        (f"source_coverage:{name}", json.dumps(coverage)))
-            life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
-                                    {j["id"] for j in fresh}, discovered=bool(seeded))
-            closed_count += life["closed"]
-
-            if not seeded:
-                for j in jobs:          # a later echo from another source is not new either
-                    mark_alerted(con, j)
-                log(f"  {name}: seeded {len(jobs)} postings silently")
-            elif fresh:
-                new_by_board[name] = fresh
-            # Release the write lock before waiting for another network source.
-            # First-run setup stays editable and completed sources appear early.
-            con.commit()
-            report_progress(progress, "source_finished", board=name, outcome="ok", jobs=len(jobs), new=len(fresh),
-                            coverage_complete=complete, coverage_warning=coverage_warning,
-                            reported_total=getattr(jobs, "total", None))
+                                error=f"{type(e).__name__}: {str(e)[:200]}")
 
     # ---- finance intelligence for everything new or changed (incremental).
     # New postings are classified first so fit-based alerts never wait on
@@ -2586,22 +2611,22 @@ def cycle(config, con, progress=None):
 
     # Closed postings stay visible as history until they age out; anything
     # with an application record is kept for the CRM.
-    con.execute("""DELETE FROM jobs WHERE last_seen < datetime('now', ?)
+    con.execute("""DELETE FROM jobs WHERE last_seen < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)
                    AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)""",
                 (f"-{PRUNE_AFTER_DAYS} days",))
     for table in ("job_details", "job_text", "job_intel", "job_state"):
         con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
                        SELECT 1 FROM jobs WHERE jobs.board={table}.board
                        AND jobs.job_id={table}.job_id)""")
-    con.execute("DELETE FROM job_changes WHERE ts < datetime('now', ?)", (f"-{PRUNE_AFTER_DAYS} days",))
-    con.execute("DELETE FROM alert_log WHERE ts < datetime('now', '-7 days')")
+    con.execute("DELETE FROM job_changes WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)", (f"-{PRUNE_AFTER_DAYS} days",))
+    con.execute("DELETE FROM alert_log WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', '-7 days')")
     if store and store.fts:
         con.execute("DELETE FROM job_fts WHERE rowid NOT IN (SELECT rowid FROM job_intel)")
-    con.execute("DELETE FROM alerted WHERE ts < datetime('now', ?)",
+    con.execute("DELETE FROM alerted WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)",
                 (f"-{PRUNE_AFTER_DAYS} days",))
-    con.execute("DELETE FROM recent WHERE ts < datetime('now', ?)",
+    con.execute("DELETE FROM recent WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)",
                 (f"-{RECENT_DAYS} days",))
-    con.execute("DELETE FROM pending WHERE ts < datetime('now', '-7 days')")
+    con.execute("DELETE FROM pending WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', '-7 days')")
     duration = time.time() - t0
     con.execute(
         "INSERT INTO runs VALUES (?,?,?,?,?,?,?,?,?)",

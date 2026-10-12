@@ -196,8 +196,48 @@ def log_tail(path: Path, lines: int = 15) -> str:
         return ""
 
 
+def responds(url: str, wait: float = 0.0) -> bool:
+    """The server answers /api/status (retrying for up to ``wait`` seconds)."""
+    deadline = time.monotonic() + wait
+    while True:
+        try:
+            with urlopen(url + "/api/status", timeout=3):
+                return True
+        except (OSError, ValueError):
+            if time.monotonic() >= deadline:
+                return False
+        time.sleep(0.3)
+
+
+def wait_for_running(args, data: Path, seconds: float = 90) -> int:
+    """Another start is under way: wait for its server instead of racing it."""
+    state = data / "instance.json"
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        url = instance_url(state)
+        if url and responds(url):
+            print(f"Jobwatch is running: {url}", flush=True)
+            if not args.no_browser:
+                webbrowser.open(url)
+            return 0
+        time.sleep(0.2)
+    print(f"Jobwatch is taking long to start; see {data / 'jobwatch.log'}", flush=True)
+    return 1
+
+
 def launch(args, data: Path) -> int:
     """Start the hidden server (or find the running one), open the browser, exit."""
+    # Double-clicking Start runs two launchers: only one may start a server.
+    launching = acquire_lock(data / "launching.lock")
+    if launching is None:
+        return wait_for_running(args, data)
+    try:
+        return _launch(args, data)
+    finally:
+        launching.close()
+
+
+def _launch(args, data: Path) -> int:
     state = data / "instance.json"
     lock = acquire_lock(data / "running.lock")
     if lock is None:
@@ -211,6 +251,11 @@ def launch(args, data: Path) -> int:
             return 0
         running = json.loads(state.read_text(encoding="utf-8")).get("version", "0")
         if version_key(running) >= version_key(APP_VERSION):
+            # The lock says a server process exists; make sure it actually answers.
+            if not responds(url, wait=10):
+                print(f"Jobwatch is running but not responding at {url}.", flush=True)
+                print(f"See {data / 'jobwatch.log'}; restarting Windows stops it.", flush=True)
+                return 1
             print(f"Jobwatch is already running: {url}", flush=True)
             if not args.no_browser:
                 webbrowser.open(url)
@@ -240,6 +285,8 @@ def launch(args, data: Path) -> int:
     deadline = time.monotonic() + 90
     while time.monotonic() < deadline:
         if child.poll() is not None:
+            if child.returncode == 0:      # another server (e.g. the sign-in start) took the lock first
+                return wait_for_running(args, data)
             print("Jobwatch could not start:", flush=True)
             print(log_tail(data / "jobwatch.log") or f"(exit code {child.returncode})", flush=True)
             return 1

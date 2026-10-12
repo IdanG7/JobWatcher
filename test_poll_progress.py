@@ -52,7 +52,8 @@ class PollProgressTests(ServiceFixture):
         self.service.config["description_budget"] = 0
         self.service.config["boards"]["linkedin_ca"]["min_interval"] = 3600
         with self.service.db() as con:
-            con.execute("INSERT OR REPLACE INTO boards VALUES (?,?,?, ?,?)", ("linkedin_ca", 1, 0, watcher.now(), time.time()))
+            con.execute("INSERT OR REPLACE INTO boards(board, seeded, last_ok, failures, last_poll) VALUES (?,?,?,?,?)",
+                        ("linkedin_ca", 1, watcher.now(), 0, time.time()))
 
         def fetch(name, cfg):
             if name == "demo_quant":

@@ -18,7 +18,7 @@ export async function render(root, ctx) {
   };
   try { await load(); } catch (err) {
     root.innerHTML = errorState(err);
-    root.querySelector('[data-action=retry]')?.addEventListener('click', () => render(root, ctx));
+    root.querySelector('[data-action=retry]')?.addEventListener('click', () => ctx.remount());   // cleans up first
     return null;
   }
   root.addEventListener('click', e => onClick(e, ctx, data));

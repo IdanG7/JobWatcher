@@ -122,6 +122,21 @@ export function toast(message, {error = false, action = null, timeout = 4200} = 
   setTimeout(() => el.remove(), timeout);
 }
 
+// ---------------------------------------------------------------- focus
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Keep Tab / Shift+Tab inside a dialog. Call from its keydown handler. */
+export function trapFocus(container, e) {
+  if (e.key !== 'Tab') return;
+  const items = [...container.querySelectorAll(FOCUSABLE)].filter(n => !n.hidden && n.offsetParent !== null);
+  if (!items.length) { e.preventDefault(); container.focus?.(); return; }
+  const first = items[0];
+  const last = items[items.length - 1];
+  const inside = container.contains(document.activeElement);
+  if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+}
+
 // ---------------------------------------------------------------- modals
 let modalStack = 0;
 export function modalOpen() { return modalStack > 0; }
@@ -155,6 +170,7 @@ export function openModal({title, body, submitLabel = 'Save', cancelLabel = 'Can
     };
     const onKey = e => {
       if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); close(); }
+      else if (wrap === root.lastElementChild) trapFocus(wrap.querySelector('.modal-wrap'), e);
     };
     document.addEventListener('keydown', onKey, true);
     wrap.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => close()));

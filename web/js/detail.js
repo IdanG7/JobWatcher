@@ -3,8 +3,8 @@
 import {del, enc, get, patch, post, put} from './api.js';
 import {ageLong, esc, fmtDay, safeUrl, toEpochMs} from './lib.js';
 import {
-  STATUS_LABELS, STATUS_ORDER, badges, confirmDialog, deadlineCell, fitMeter, icon, logo, openModal, options,
-  prettyKey, statusPill, toast,
+  STATUS_LABELS, STATUS_ORDER, badges, confirmDialog, deadlineCell, fitMeter, icon, logo, modalOpen, openModal, options,
+  prettyKey, statusPill, toast, trapFocus,
 } from './ui.js';
 import {contactForm} from './forms.js';
 import {resumeMatchSection} from './resume.js';
@@ -23,6 +23,9 @@ export async function openDrawer(key, ctx) {
     root.innerHTML = `<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Job details" tabindex="-1"></aside>`;
     const scrim = root.querySelector('.scrim');
     scrim.addEventListener('click', () => ctx.closeJob());
+    const drawer = root.querySelector('.drawer');
+    drawer.addEventListener('keydown', e => { if (!modalOpen()) trapFocus(drawer, e); });
+    current = {key, job: null, el: drawer, opener: document.activeElement};
     // Force a reflow so the slide-in transition runs; rAF would never fire in a
     // background tab, leaving the drawer off-screen.
     void root.offsetWidth;
@@ -30,7 +33,7 @@ export async function openDrawer(key, ctx) {
     root.querySelector('.drawer').classList.add('show');
   }
   const el = root.querySelector('.drawer');
-  current = {key, job: null, el};
+  current = {key, job: null, el, opener: current?.opener || null};
   el.innerHTML = `<div class="drawer-head"><div class="top"><span class="skel" style="width:160px"></span><button class="btn ghost sm icon" data-act="close" aria-label="Close">${icon('x')}</button></div><div class="skel" style="height:20px;width:70%;margin-top:14px"></div></div><div class="skel-rows">${'<div class="skel"></div>'.repeat(8)}</div>`;
   el.querySelector('[data-act=close]').addEventListener('click', () => ctx.closeJob());
   el.focus({preventScroll: true});
@@ -49,7 +52,9 @@ export async function openDrawer(key, ctx) {
 export function closeDrawer() {
   const root = document.getElementById('drawer-root');
   if (!current) return;
+  const opener = current.opener;
   current = null;
+  if (opener?.isConnected) opener.focus({preventScroll: true});
   const drawer = root.querySelector('.drawer');
   const scrim = root.querySelector('.scrim');
   drawer?.classList.remove('show');
@@ -57,8 +62,27 @@ export function closeDrawer() {
   setTimeout(() => { if (!current) root.innerHTML = ''; }, 200);
 }
 
+/** Refresh the open job in place. Unsaved application fields, the cover
+ *  letter and the PDF merge list (with their listeners) are kept. */
 export async function reloadDrawer() {
-  if (current) await openDrawer(current.key, ctxRef);
+  if (!current?.job) { if (current) await openDrawer(current.key, ctxRef); return; }
+  const {key, el} = current;
+  let job;
+  try { job = await get(`/api/jobs/${enc(key)}`); } catch { return; }
+  if (current?.key !== key) return;
+  const drafts = {};
+  el.querySelectorAll('[data-app-form] [name]').forEach(f => { if (f.value !== f.defaultValue) drafts[f.name] = f.value; });
+  const docs = ['[data-cover-root]', '[data-merge-root]'].map(sel => el.querySelector(sel));
+  const body = el.querySelector('.drawer-body');
+  const scroll = body?.scrollTop || 0;
+  const focused = document.activeElement && el.contains(document.activeElement) ? document.activeElement : null;
+  current.job = job;
+  render(el, job, {docs: docs.every(Boolean) ? docs : null});
+  el.querySelectorAll('[data-app-form] [name]').forEach(f => { if (f.name in drafts) f.value = drafts[f.name]; });
+  const fresh = el.querySelector('.drawer-body');
+  if (fresh) fresh.scrollTop = scroll;
+  if (focused?.isConnected) focused.focus({preventScroll: true});
+  else el.focus({preventScroll: true});
 }
 
 const unknown = '<dd class="unknown">Not specified</dd>';
@@ -66,7 +90,7 @@ const dd = (value, raw = false) => (value === null || value === undefined || val
   ? unknown : `<dd>${raw ? value : esc(value)}</dd>`;
 const quote = text => (text ? `<div class="muted" style="font-size:11.5px;margin-top:2px">“${esc(text)}”</div>` : '');
 
-function render(el, job) {
+function render(el, job, {docs = null} = {}) {
   const f = job.facts || {};
   const cls = f.classification || {};
   const sen = f.seniority || {};
@@ -185,7 +209,12 @@ function render(el, job) {
   </div>`;
 
   bind(el, job);
-  mountDocuments(el, job);
+  if (docs) {
+    el.querySelector('[data-cover-root]').replaceWith(docs[0]);
+    el.querySelector('[data-merge-root]').replaceWith(docs[1]);
+  } else {
+    mountDocuments(el, job);
+  }
 }
 
 function applicationSection(job, app) {
@@ -327,7 +356,7 @@ function bind(el, job) {
   el.querySelector('[data-act=hide]')?.addEventListener('click', async () => {
     try {
       await put(`/api/jobs/${enc(job.key)}/override`, {deadline: job.override?.deadline || '', deadline_note: job.override?.deadline_note || '', hidden: !job.override?.hidden});
-      toast(job.override?.hidden ? 'Job visible again' : 'Hidden from lists', job.override?.hidden ? {} : {action: {label: 'Undo', fn: async () => { await put(`/api/jobs/${enc(job.key)}/override`, {deadline: job.override?.deadline || '', hidden: false}); ctx.changed(); }}});
+      toast(job.override?.hidden ? 'Job visible again' : 'Hidden from lists', job.override?.hidden ? {} : {action: {label: 'Undo', fn: async () => { await put(`/api/jobs/${enc(job.key)}/override`, {deadline: job.override?.deadline || '', deadline_note: job.override?.deadline_note || '', hidden: false}); ctx.changed(); }}});
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });

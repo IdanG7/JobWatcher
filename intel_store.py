@@ -454,8 +454,12 @@ class IntelStore:
                     {'1=1 OR ' if force else ''}
                     i.profile_version IS NULL OR i.profile_version != ?
                     OR (i.scored_at < ? AND (COALESCE(d.posted,0) > ? OR j.first_seen > ?
-                        OR i.deadline >= ? OR a.deadline >= ? OR o.deadline >= ?))){scope}""",
-            (FACTS_VERSION, self.version, stale_before, recent_epoch, recent_iso, horizon, horizon, horizon, *scope_args)).fetchall()
+                        OR i.deadline >= ? OR a.deadline >= ? OR o.deadline >= ?))
+                    -- the freshness curve runs to 60 days: older steps change daily at most
+                    OR (i.scored_at < ? AND (COALESCE(d.posted,0) > ? OR j.first_seen > ?))){scope}""",
+            (FACTS_VERSION, self.version, stale_before, recent_epoch, recent_iso, horizon, horizon, horizon,
+             now - 86400, now - 61 * 86400,
+             (datetime.now(timezone.utc) - timedelta(days=61)).isoformat(timespec="seconds"), *scope_args)).fetchall()
         if not rows:
             return 0
         since = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat(timespec="seconds")

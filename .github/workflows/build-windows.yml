@@ -60,6 +60,15 @@ jobs:
         with:
           python-version: "3.14"
           cache: pip
+      - name: Release tag matches version.py
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version=$(python -c "from version import APP_VERSION; print(APP_VERSION)")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match version.py ($version); the app would report the wrong version and miss updates."
+            exit 1
+          fi
       - name: Build clean portable package
         run: python tools/build_windows.py
       - name: Verify batch startup, matching, letters and restart persistence
@@ -96,5 +105,5 @@ jobs:
             gh release create "$GITHUB_REF_NAME" dist/Jobwatch-Windows.zip \
               --repo "$GITHUB_REPOSITORY" --verify-tag \
               --title "Jobwatch $GITHUB_REF_NAME" \
-              --notes "Portable Windows 10/11 x64 package. Extract the ZIP and double-click Start Jobwatch.bat. Python and dependencies are included. Fetching jobs requires internet; keep the console open while using the app. Starts with a clean profile and no sender data or notification accounts."
+              --notes "Portable Windows 10/11 x64 package. Extract the ZIP and double-click Start Jobwatch.bat; Jobwatch runs in the background without a window and opens in your browser. To update, extract over your old folder: your profile, applications and settings are kept. Python and dependencies are included; fetching jobs requires internet. Stop it, or start it when you sign in to Windows, from Settings > Background."
           fi

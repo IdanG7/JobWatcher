@@ -41,13 +41,16 @@ export async function render(root, ctx) {
     return [s, addDays(s, 41)];
   }
 
+  let latest = 0;
   async function load() {
     const [s, e] = range();
+    const ticket = ++latest;      // paging quickly: an older month must not draw over a newer one
     try {
       const data = await get('/api/calendar', {start: isoDay(s), end: isoDay(e)});
+      if (ticket !== latest) return;
       state.items = data.items;
       draw();
-    } catch (err) { $('[data-body]').innerHTML = errorState(err); }
+    } catch (err) { if (ticket === latest) $('[data-body]').innerHTML = errorState(err); }
   }
 
   const evHtml = it => `<span class="ev ${esc(it.kind)}${it.source === 'extracted' ? ' extracted' : ''}" data-ev="${state.items.indexOf(it)}" data-tip="<b>${esc(KIND_LABEL[it.kind] || it.kind)}</b> · ${esc(it.company || '')} ${esc(it.title)}${it.source === 'extracted' ? ` · extracted (${esc(it.confidence || '')} confidence)` : ''}" title="${esc(`${KIND_LABEL[it.kind] || it.kind}: ${it.company ? `${it.company} — ` : ''}${it.title}`)}">${it.time ? `${esc(it.time)} ` : ''}${esc(it.company ? `${it.company} · ` : '')}${esc(it.title)}</span>`;
