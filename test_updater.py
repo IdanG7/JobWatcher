@@ -243,9 +243,15 @@ class UpdateApiTests(ServiceFixture):
         self.assertEqual((info["state"], info["latest"], info["available"]), ("ready", "9.9.9", True))
         self.assertTrue(info["url"].startswith("https://github.com/IdanG7/JobWatcher/releases/"))
         launched = []
-        with patch("updater.subprocess.Popen", side_effect=lambda cmd, **kw: launched.append(cmd)), \
+        # Model Windows even when the regression suite runs on Linux, where
+        # subprocess omits these constants. Popen remains mocked on both systems.
+        with patch.multiple("updater.subprocess", DETACHED_PROCESS=0x8,
+                            CREATE_NEW_PROCESS_GROUP=0x200, CREATE_BREAKAWAY_FROM_JOB=0x1000000,
+                            create=True), \
+                patch("updater.subprocess.Popen", side_effect=lambda cmd, **kw: launched.append(cmd)) as popen, \
                 patch("dashboard.threading.Timer") as timer:
             self.assertEqual(self.service.apply_update(), {"ok": True})
+        self.assertEqual(popen.call_args.kwargs["creationflags"], 0x1000208)
         self.assertTrue(launched[0][0].endswith("Jobwatch-Setup-9.9.9.exe"))
         timer.assert_called_once()
         timer.return_value.start.assert_called_once()
