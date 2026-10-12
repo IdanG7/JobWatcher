@@ -143,8 +143,11 @@ export function setDensity(value) {
 // ---------------------------------------------------------------- status & nav counts
 async function refreshNav() {
   try {
+    // Count what Opportunities shows by default: the profile's interests.
+    await Promise.all([ctx.profile || ctx.loadProfile().catch(() => null), ctx.meta || ctx.loadMeta().catch(() => null)]);
+    const families = opportunities.interestsFromTargets(ctx.profile?.target_roles || [], (ctx.meta?.taxonomy || []).map(c => c.key));
     const [jobs, apps] = await Promise.all([
-      get('/api/jobs', {family: 'finance', per_page: 1, facets: 0}),
+      get('/api/jobs', {...(families.length ? {family: families.join(',')} : {}), per_page: 1, facets: 0}),
       get('/api/applications'),
     ]);
     document.getElementById('nav-opps').textContent = compact(jobs.total);

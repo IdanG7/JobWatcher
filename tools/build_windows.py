@@ -125,10 +125,11 @@ def stage_app(source: Path, destination: Path) -> None:
     app.mkdir(parents=True)
     for name in MODULES:
         shutil.copyfile(source / name, app / name)
-    for folder, suffixes in (("intel", {".py"}), ("web", {".html", ".js", ".css", ".svg", ".ico"})):
+    for folder, suffixes in (("intel", {".py"}), ("web", {".html", ".js", ".css", ".svg", ".ico", ".woff2", ".txt"})):
         for path in (source / folder).rglob("*"):
             if (path.is_file() and path.suffix in suffixes
-                    and not {"tests", "__pycache__"}.intersection(path.relative_to(source).parts)):
+                    and not {"tests", "__pycache__", "preview"}.intersection(path.relative_to(source).parts)
+                    and path.name != "preview.html"):
                 target = app / path.relative_to(source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, target)

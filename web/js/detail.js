@@ -16,6 +16,17 @@ let ctxRef = null;
 export function drawerOpen() { return !!current; }
 export function drawerJob() { return current?.job || null; }
 
+// Docked: the posting sits beside the list (wide Opportunities) instead of over it,
+// so it is a plain region, not a modal: no scrim, no focus trap.
+let docked = false;
+export function setDrawerDocked(value) {
+  docked = !!value;
+  const drawer = document.querySelector('#drawer-root .drawer');
+  if (!drawer) return;
+  drawer.setAttribute('role', docked ? 'region' : 'dialog');
+  if (docked) drawer.removeAttribute('aria-modal'); else drawer.setAttribute('aria-modal', 'true');
+}
+
 export async function openDrawer(key, ctx) {
   ctxRef = ctx;
   const root = document.getElementById('drawer-root');
@@ -24,7 +35,8 @@ export async function openDrawer(key, ctx) {
     const scrim = root.querySelector('.scrim');
     scrim.addEventListener('click', () => ctx.closeJob());
     const drawer = root.querySelector('.drawer');
-    drawer.addEventListener('keydown', e => { if (!modalOpen()) trapFocus(drawer, e); });
+    drawer.addEventListener('keydown', e => { if (!docked && !modalOpen()) trapFocus(drawer, e); });
+    setDrawerDocked(docked);
     current = {key, job: null, el: drawer, opener: document.activeElement};
     // Force a reflow so the slide-in transition runs; rAF would never fire in a
     // background tab, leaving the drawer off-screen.

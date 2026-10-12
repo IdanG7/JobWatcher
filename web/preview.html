@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Jobwatch · Design preview (sample data)</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <!-- Design preview: answers /api calls with fictional sample data. Not shipped in builds. -->
+  <link rel="stylesheet" href="/js/preview/preview.css">
+  <script type="module" src="/js/preview/mock.js"></script>
+  <script defer src="/js/start.js"></script>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="topnav">
+    <a class="brand" href="#/overview" aria-label="Jobwatch overview">
+      <span class="brand-mark" aria-hidden="true">JW</span>
+      <span class="brand-text"><strong>Jobwatch</strong><small>Career command center</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#/overview" data-nav="overview">Overview</a>
+      <a href="#/opportunities" data-nav="opportunities">Opportunities <span class="count" id="nav-opps"></span></a>
+      <a href="#/applications" data-nav="applications">Applications <span class="count" id="nav-apps"></span></a>
+      <a href="#/companies" data-nav="companies">Companies</a>
+      <a href="#/calendar" data-nav="calendar">Calendar</a>
+      <a href="#/analytics" data-nav="analytics">Analytics</a>
+      <a href="#/sources" data-nav="sources">Sources</a>
+      <a href="#/settings" data-nav="settings">Settings</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="cmdk-trigger" id="cmdk-open" type="button" aria-label="Open command palette">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span class="label-text">Search or jump to…</span>
+        <kbd id="cmdk-kbd">Ctrl K</kbd>
+      </button>
+      <button class="nav-icon" id="poll-now" type="button" title="Poll sources now" aria-label="Poll sources now">
+        <span class="live-dot" id="live-dot" aria-hidden="true"></span>
+      </button>
+      <button class="nav-icon" id="theme-toggle" type="button" title="Toggle theme (light / dark)" aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section id="collection-status" class="collection-status" role="status" aria-live="polite" aria-atomic="true">
+      <div class="collection-heading"><strong>Connecting to Jobwatch…</strong><a class="link" href="#/sources">View sources</a></div>
+      <p>Your dashboard is loading. Source collection runs in the background.</p>
+    </section>
+    <div id="view"><div class="panel panel-body">Loading your dashboard…</div></div>
+  </main>
+
+  <div class="hint-bar" id="hint-bar" aria-hidden="true">
+    <span><kbd>?</kbd> shortcuts</span>
+    <span><kbd>/</kbd> search</span>
+    <span><kbd>g</kbd><kbd>o</kbd> opportunities</span>
+  </div>
+
+  <div id="drawer-root"></div>
+  <div id="modal-root"></div>
+  <div id="palette-root"></div>
+  <div class="toast-zone" id="toasts" role="status" aria-live="polite"></div>
+  <div class="tooltip" id="tooltip" hidden></div>
+  <noscript><p style="padding:24px">Jobwatch needs JavaScript enabled to render the dashboard.</p></noscript>
+</body>
+</html>

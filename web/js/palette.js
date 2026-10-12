@@ -23,12 +23,12 @@ function baseCommands(ctx) {
     nav('Sources', ['sources'], {}, 'refresh', 'g s'),
     nav('Settings & profile', ['settings'], {}, 'settings', 'g ,'),
     nav('Networking contacts', ['applications'], {tab: 'contacts'}, 'users'),
-    {group: 'Views', label: '🔥 High fit roles', icon: 'filter', run: () => ctx.navigate(['opportunities'], {family: 'finance', min_fit: 75})},
-    {group: 'Views', label: '⚡ Posted today', icon: 'filter', run: () => ctx.navigate(['opportunities'], {family: 'finance', posted: 'today', sort: 'newest'})},
-    {group: 'Views', label: '⏰ Closing within 7 days', icon: 'filter', run: () => ctx.navigate(['opportunities'], {deadline: '7d', sort: 'deadline'})},
-    {group: 'Views', label: '🏦 Investment banking', icon: 'filter', run: () => ctx.navigate(['opportunities'], {category: 'investment_banking'})},
-    {group: 'Views', label: '🎓 2027 internships', icon: 'filter', run: () => ctx.navigate(['opportunities'], {family: 'finance', cycle: '2027', stage: 'internship'})},
-    {group: 'Views', label: '⭐ Watchlist companies', icon: 'star', run: () => ctx.navigate(['opportunities'], {watchlist: 1})},
+    {group: 'Views', label: 'High fit roles', icon: 'filter', run: () => ctx.navigate(['opportunities'], {min_fit: 75})},
+    {group: 'Views', label: 'Posted today', icon: 'filter', run: () => ctx.navigate(['opportunities'], {posted: 'today', sort: 'newest'})},
+    {group: 'Views', label: 'Closing within 7 days', icon: 'filter', run: () => ctx.navigate(['opportunities'], {deadline: '7d', sort: 'deadline'})},
+    {group: 'Views', label: 'Investment banking', icon: 'filter', run: () => ctx.navigate(['opportunities'], {category: 'investment_banking'})},
+    {group: 'Views', label: '2027 internships', icon: 'filter', run: () => ctx.navigate(['opportunities'], {cycle: '2027', stage: 'internship'})},
+    {group: 'Views', label: 'Watchlist companies', icon: 'star', run: () => ctx.navigate(['opportunities'], {watchlist: 1})},
     {group: 'Actions', label: 'Poll all sources now', icon: 'refresh', run: () => actions.pollNow?.()},
     {group: 'Actions', label: 'Toggle light / dark theme', icon: 'moon', run: () => actions.toggleTheme?.()},
     {group: 'Actions', label: 'Compact table density', icon: 'rows', run: () => actions.setDensity?.('compact')},
@@ -36,7 +36,7 @@ function baseCommands(ctx) {
     {group: 'Actions', label: 'Add networking contact', icon: 'user', run: () => contactForm({}, ctx).then(r => r && ctx.changed())},
     {group: 'Actions', label: 'Add calendar event', icon: 'calendar', run: () => eventForm().then(r => r && ctx.changed())},
     {group: 'Actions', label: 'Export current filters to CSV', icon: 'download', run: () => {
-      const params = ctx.route.path[0] === 'opportunities' ? {...ctx.route.params} : {family: 'finance'};
+      const params = ctx.route.path[0] === 'opportunities' ? {...ctx.route.params} : {};
       delete params.job; delete params.page;
       window.location.href = `/api/export.csv?${new URLSearchParams(params)}`;
     }},

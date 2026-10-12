@@ -33,7 +33,7 @@ export async function render(root, ctx) {
         <button role="tab" data-tab="contacts">${icon('users')} Networking</button>
       </div>
       <button class="btn primary" data-act="add-contact" hidden>${icon('plus')} Add contact</button>
-      <a class="btn primary" data-act="find" href="#/opportunities?family=finance&min_fit=70&status=untracked">${icon('plus')} Find roles</a>
+      <a class="btn primary" data-act="find" href="#/opportunities?min_fit=70&status=untracked">${icon('plus')} Find roles</a>
     </div>
   </div>
   <div data-body>${skeletonRows(6)}</div>`;
@@ -71,7 +71,7 @@ export async function render(root, ctx) {
       : `${active} active · ${state.apps.filter(a => INTERVIEWING.includes(a.status)).length} interviewing · ${state.apps.filter(a => a.status === 'offer').length} offers${ctx.route.params.status === 'interviewing' ? ' · <a class="link" href="#/applications">showing interviews only — clear</a>' : ''}`;
     if (state.tab === 'contacts') return drawContacts();
     if (!state.apps.length) {
-      body.innerHTML = `<div class="panel">${emptyState('No applications yet', 'Press <kbd>s</kbd> on any opportunity to save it here, then drag it across the board as you progress.', '<a class="btn primary sm" href="#/opportunities?family=finance">Browse opportunities</a>')}</div>`;
+      body.innerHTML = `<div class="panel">${emptyState('No applications yet', 'Press <kbd>s</kbd> on any opportunity to save it here, then drag it across the board as you progress.', '<a class="btn primary sm" href="#/opportunities">Browse opportunities</a>')}</div>`;
       return;
     }
     return state.tab === 'table' ? drawTable() : drawBoard();

@@ -45,13 +45,13 @@ function draw(root, d, ctx) {
     </div>
     <div class="page-actions">
       <span class="muted" style="font-size:12px">${s.tracked_jobs ? `${compact(s.tracked_jobs)} postings tracked across ${d.sources.enabled} sources` : ''}</span>
-      <a class="btn primary" href="#/opportunities?family=finance&min_fit=${alerts.high_fit || 75}">${icon('filter')} Best matches</a>
+      <a class="btn primary" href="#/opportunities?min_fit=${alerts.high_fit || 75}">${icon('filter')} Best matches</a>
     </div>
   </div>
   ${pending ? `<div class="banner">${icon('refresh')} Analyzing ${compact(pending)} postings in the background — scores and categories fill in as they're processed.</div>` : ''}
   ${d.sources.failing ? `<div class="banner" style="background:var(--warn-soft)">${icon('bell')} ${d.sources.failing} source${d.sources.failing === 1 ? ' is' : 's are'} failing. <a class="link" href="#/sources">Review sources</a></div>` : ''}
   <div class="kpis">
-    ${kpi('New today', s.new_today, 'finance roles, last 24h', '#/opportunities?family=finance&posted=today&sort=newest', '', 'acc')}
+    ${kpi('New today', s.new_today, 'finance roles, last 24h', '#/opportunities?posted=today&sort=newest', '', 'acc')}
     ${kpi('High fit', s.high_fit, `fit ≥ ${alerts.high_fit || 75}`, `#/opportunities?min_fit=${alerts.high_fit || 75}`, s.high_fit ? 'good' : '', 'pos')}
     ${kpi('Closing soon', s.closing_soon, 'deadline within 7 days', '#/opportunities?deadline=7d&sort=deadline', s.closing_soon ? 'alert' : '', 'warn')}
     ${kpi('Applications', s.applications, 'active in pipeline', '#/applications')}
@@ -61,7 +61,7 @@ function draw(root, d, ctx) {
   <div class="grid-main">
     <div class="stack">
       <section class="panel">
-        <div class="panel-head"><h2>Top opportunities <span class="count">ranked by fit</span></h2><a class="link" href="#/opportunities?family=finance">View all</a></div>
+        <div class="panel-head"><h2>Top opportunities <span class="count">ranked by fit</span></h2><a class="link" href="#/opportunities">View all</a></div>
         ${d.top.length ? `<div class="opp-list">${d.top.map(oppRow).join('')}</div>`
           : emptyState('No scored opportunities yet', pending ? 'Jobwatch is still analyzing postings.' : 'Run <code>python watcher.py --once</code> to collect postings, then refresh.')}
       </section>
