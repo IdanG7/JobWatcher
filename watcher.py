@@ -2486,7 +2486,7 @@ def cycle(config, con, progress=None):
     try:
         store = IntelStore(con, config)
         store.facts_pass(keys=[(b, j["id"]) for b, js in new_by_board.items() for j in js])
-        store.score_pass()
+        store.score_pass(commit_batches=True)
         con.commit()
     except Exception as e:      # intelligence must never stop collection or alerts
         log(f"! intel refresh failed: {type(e).__name__}: {e}")
@@ -2567,7 +2567,7 @@ def cycle(config, con, progress=None):
         report_progress(progress, "phase", phase="indexing")
         try:
             store.facts_pass(config.get("facts_per_cycle", 5000))
-            store.score_pass()
+            store.score_pass(commit_batches=True)
             con.commit()
         except Exception as e:
             log(f"! backlog indexing failed: {type(e).__name__}: {e}")
@@ -2585,7 +2585,7 @@ def cycle(config, con, progress=None):
                 # only the enriched rows: an unbounded pass would chew through
                 # the whole backlog (every row on a fresh Actions runner)
                 store.facts_pass(keys=fetched)
-                store.score_pass()
+                store.score_pass(commit_batches=True)
             notify_saved_searches(config, con, subs, store)
             con.commit()
         except Exception as e:

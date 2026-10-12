@@ -261,7 +261,7 @@ class IntelStore:
                 break
             n = self._facts_rows(limit=step)
             if incremental_score and n:
-                self._batch_scored += self.score_pass()
+                self._batch_scored += self.score_pass(commit_batches=True)
             self.con.commit()
             done += n
             if n < step:
@@ -403,8 +403,16 @@ class IntelStore:
             self.con.executemany("UPDATE job_intel SET is_canonical=? WHERE board=? AND job_id=?", updates)
 
     # ---- scoring
-    def score_pass(self, force: bool = False, keys: list[tuple[str, str]] | None = None) -> int:
+    def score_pass(self, force: bool = False, keys: list[tuple[str, str]] | None = None,
+                   *, commit_batches: bool = False) -> int:
+        """Score jobs; background callers opt into short committed write batches.
+
+        Scoped dashboard edits keep the caller's transaction atomic by default.
+        Bulk indexing releases preceding facts writes before expensive scoring.
+        """
         from intel.matching import match_resume
+        if commit_batches:
+            self.con.commit()
         resume = self.con.execute("SELECT version FROM candidate_resume WHERE id=1").fetchone()
         # Only profile mutations advance the authoritative resume version.
         # If a profile edit races with this pass, old results stay invisible
@@ -417,9 +425,18 @@ class IntelStore:
             current = profile_version(load_profile(self.con, self.config), sorted(watched_companies(self.con)))
             if not self._stored_profile or current != self.version:
                 return 0
-            self.con.execute("UPDATE candidate_resume SET version=? WHERE id=1", (self.version,))
+            repaired = self.con.execute("UPDATE candidate_resume SET version=? WHERE id=1 AND version=?",
+                                        (self.version, resume[0])).rowcount
+            if not repaired:
+                # A profile edit won the race after validation. Keep its version
+                # authoritative and leave scoring to a store with that profile.
+                if commit_batches:
+                    self.con.commit()
+                return 0
             self.con.execute("UPDATE job_intel SET profile_version=NULL WHERE profile_version IS NOT NULL "
                              "AND profile_version != ?", (self.version,))
+        if commit_batches:
+            self.con.commit()  # version repair must not lock collection while scores are computed
         now = time.time()
         stale_before = now - RESCORE_SECONDS
         recent_iso = (datetime.now(timezone.utc) - timedelta(days=32)).isoformat(timespec="seconds")
@@ -441,7 +458,8 @@ class IntelStore:
                                  WHERE i2.cluster_key=i.cluster_key), j.first_seen),
                        COALESCE(s.discovered,0), COALESCE(s.status,'active'),
                        NULLIF(COALESCE(NULLIF(o.deadline,''), a.deadline), ''),
-                       i.company_key
+                       i.company_key, i.input_hash, i.facts_version, i.kb_version,
+                       i.profile_version, i.scored_at
                 FROM job_intel i
                 JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
                 LEFT JOIN job_details d ON d.board=i.board AND d.job_id=i.job_id
@@ -466,7 +484,8 @@ class IntelStore:
             (since,))}
         updates = []
         matches = []
-        for board, job_id, facts_json, posted, first_seen, discovered, status, override, ckey in rows:
+        for (board, job_id, facts_json, posted, first_seen, discovered, status, override, ckey,
+             sampled_hash, facts_version, kb_version, scored_version, scored_at) in rows:
             facts = json.loads(facts_json)
             dyn = {"posted": float(posted) if posted else None, "first_seen": iso_epoch(first_seen),
                    "discovered": bool(discovered), "status": status, "deadline_override": override,
@@ -480,22 +499,40 @@ class IntelStore:
             updates.append((result["fit"], json.dumps(detail, separators=(",", ":")), result["urgency"],
                             result["window_status"], " ".join(b.replace(" ", "_") for b in result["badges"]),
                             result["deadline"], dyn["posted"] or (dyn["first_seen"] if discovered else None),
-                            self.version, now, board, job_id))
-        self.con.executemany(
-            """UPDATE job_intel SET fit=?, fit_detail=?, urgency=?, window_status=?, badges=?,
-                 eff_deadline=?, posted_ref=?, profile_version=?, scored_at=? WHERE board=? AND job_id=?""", updates)
-        self.con.executemany("""INSERT INTO resume_matches VALUES (?,?,?,?,?)
-            ON CONFLICT(board,job_id) DO UPDATE SET matched=excluded.matched,
-            detail=excluded.detail, profile_version=excluded.profile_version""", matches)
-        return len(rows)
+                            self.version, now, board, job_id, sampled_hash, facts_version, kb_version,
+                            facts_json, scored_version, scored_at, int(bool(resume)), self.version))
+        applied = 0
+        for start in range(0, len(updates), 500):
+            accepted_matches = []
+            for index in range(start, min(start + 500, len(updates))):
+                # Calculation runs without a writer lock. Collection may rebuild
+                # facts, or a dashboard edit may rescore this job in the meantime.
+                # Save only if the sampled inputs and score revision still agree.
+                changed = self.con.execute(
+                    """UPDATE job_intel SET fit=?, fit_detail=?, urgency=?, window_status=?, badges=?,
+                         eff_deadline=?, posted_ref=?, profile_version=?, scored_at=?
+                       WHERE board=? AND job_id=? AND input_hash IS ? AND facts_version IS ?
+                         AND kb_version IS ? AND facts IS ? AND profile_version IS ? AND scored_at IS ?
+                         AND (?=0 OR EXISTS (SELECT 1 FROM candidate_resume WHERE id=1 AND version=?))""",
+                    updates[index]).rowcount
+                applied += changed
+                if changed and resume:
+                    accepted_matches.append(matches[index])
+            self.con.executemany("""INSERT INTO resume_matches VALUES (?,?,?,?,?)
+                ON CONFLICT(board,job_id) DO UPDATE SET matched=excluded.matched,
+                detail=excluded.detail, profile_version=excluded.profile_version""", accepted_matches)
+            if commit_batches:
+                self.con.commit()
+        return applied
 
     def refresh(self, max_facts: int | None = None, force_score: bool = False) -> dict:
         t0 = time.time()
         self._batch_scored = 0
         resume = bool(self.con.execute("SELECT 1 FROM candidate_resume WHERE id=1").fetchone())
         self.recluster_if_ranks_changed()
+        self.con.commit()  # release upgrade writes before building facts for the backlog
         facts = self.facts_pass(max_facts, incremental_score=resume)
-        scored = self.score_pass(force_score) + self._batch_scored
+        scored = self.score_pass(force_score, commit_batches=True) + self._batch_scored
         self.con.commit()
         return {"facts": facts, "scored": scored, "seconds": round(time.time() - t0, 2)}
 
