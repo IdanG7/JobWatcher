@@ -114,12 +114,17 @@ def build_where(params: dict, fts: bool, watched: set[str] | None = None,
                 where.append("i.search_text LIKE ?")
                 args.append(f"%{term}%")
 
-    family = p.get("family")
-    if family == "finance":
-        where.append("i.is_finance=1")
-    elif family:
-        where.append("i.family=?")
-        args.append(family)
+    # One or more job families (interests); 'finance' means any finance category.
+    families = _list(p.get("family"))
+    if families:
+        parts = []
+        for family in families:
+            if family == "finance":
+                parts.append("i.is_finance=1")
+            else:
+                parts.append("i.family=?")
+                args.append(family)
+        where.append("(" + " OR ".join(parts) + ")")
 
     def any_of(column: str, values: list[str]):
         if values:

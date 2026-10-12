@@ -1,0 +1,1154 @@
+{
+ "taxonomy": [
+  {
+   "key": "investment_banking",
+   "label": "Investment Banking",
+   "short": "IB",
+   "competitive": true,
+   "subcategories": [
+    {
+     "key": "ma",
+     "label": "M&A"
+    },
+    {
+     "key": "ecm",
+     "label": "ECM"
+    },
+    {
+     "key": "dcm",
+     "label": "DCM"
+    },
+    {
+     "key": "leveraged_finance",
+     "label": "Leveraged Finance"
+    },
+    {
+     "key": "restructuring",
+     "label": "Restructuring"
+    },
+    {
+     "key": "coverage",
+     "label": "Industry Coverage"
+    }
+   ]
+  },
+  {
+   "key": "private_markets",
+   "label": "Private Markets",
+   "short": "PM",
+   "competitive": true,
+   "subcategories": [
+    {
+     "key": "private_equity",
+     "label": "Private Equity"
+    },
+    {
+     "key": "growth_equity",
+     "label": "Growth Equity"
+    },
+    {
+     "key": "venture_capital",
+     "label": "Venture Capital"
+    },
+    {
+     "key": "private_credit",
+     "label": "Private Credit"
+    },
+    {
+     "key": "infrastructure",
+     "label": "Infrastructure"
+    },
+    {
+     "key": "real_estate",
+     "label": "Real Estate"
+    }
+   ]
+  },
+  {
+   "key": "public_markets",
+   "label": "Public Markets",
+   "short": "Public",
+   "competitive": true,
+   "subcategories": [
+    {
+     "key": "equity_research",
+     "label": "Equity Research"
+    },
+    {
+     "key": "asset_management",
+     "label": "Asset Management"
+    },
+    {
+     "key": "hedge_fund",
+     "label": "Hedge Fund"
+    },
+    {
+     "key": "portfolio_management",
+     "label": "Portfolio Management"
+    }
+   ]
+  },
+  {
+   "key": "markets",
+   "label": "Sales & Trading",
+   "short": "Markets",
+   "competitive": true,
+   "subcategories": [
+    {
+     "key": "sales_trading",
+     "label": "Sales & Trading"
+    },
+    {
+     "key": "fixed_income",
+     "label": "Fixed Income"
+    },
+    {
+     "key": "equities",
+     "label": "Equities"
+    },
+    {
+     "key": "fx",
+     "label": "FX"
+    },
+    {
+     "key": "commodities",
+     "label": "Commodities"
+    },
+    {
+     "key": "derivatives",
+     "label": "Derivatives"
+    }
+   ]
+  },
+  {
+   "key": "quant",
+   "label": "Quant",
+   "short": "Quant",
+   "competitive": true,
+   "subcategories": [
+    {
+     "key": "quant_trading",
+     "label": "Quant Trading"
+    },
+    {
+     "key": "quant_research",
+     "label": "Quant Research"
+    },
+    {
+     "key": "quant_developer",
+     "label": "Quant Developer"
+    },
+    {
+     "key": "systematic",
+     "label": "Systematic"
+    }
+   ]
+  },
+  {
+   "key": "banking",
+   "label": "Corporate & Commercial Banking",
+   "short": "Banking",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "corporate_banking",
+     "label": "Corporate Banking"
+    },
+    {
+     "key": "commercial_banking",
+     "label": "Commercial Banking"
+    },
+    {
+     "key": "credit",
+     "label": "Credit"
+    },
+    {
+     "key": "lending",
+     "label": "Lending"
+    }
+   ]
+  },
+  {
+   "key": "corporate_finance",
+   "label": "Corporate Finance",
+   "short": "CorpFin",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "fpa",
+     "label": "FP&A"
+    },
+    {
+     "key": "treasury",
+     "label": "Treasury"
+    },
+    {
+     "key": "corporate_development",
+     "label": "Corporate Development"
+    },
+    {
+     "key": "strategic_finance",
+     "label": "Strategic Finance"
+    },
+    {
+     "key": "accounting",
+     "label": "Accounting"
+    }
+   ]
+  },
+  {
+   "key": "wealth",
+   "label": "Wealth Management",
+   "short": "Wealth",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "wealth_management",
+     "label": "Wealth Management"
+    },
+    {
+     "key": "private_wealth",
+     "label": "Private Wealth"
+    }
+   ]
+  },
+  {
+   "key": "risk",
+   "label": "Risk",
+   "short": "Risk",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "market_risk",
+     "label": "Market Risk"
+    },
+    {
+     "key": "credit_risk",
+     "label": "Credit Risk"
+    },
+    {
+     "key": "model_risk",
+     "label": "Model Risk"
+    },
+    {
+     "key": "operational_risk",
+     "label": "Operational Risk"
+    }
+   ]
+  },
+  {
+   "key": "insurance",
+   "label": "Insurance & Actuarial",
+   "short": "Insurance",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "actuarial",
+     "label": "Actuarial"
+    },
+    {
+     "key": "underwriting",
+     "label": "Underwriting"
+    }
+   ]
+  },
+  {
+   "key": "fintech",
+   "label": "FinTech",
+   "short": "FinTech",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "payments",
+     "label": "Payments"
+    },
+    {
+     "key": "digital_assets",
+     "label": "Digital Assets"
+    },
+    {
+     "key": "fintech_business",
+     "label": "FinTech Business"
+    }
+   ]
+  },
+  {
+   "key": "strategy",
+   "label": "Strategy",
+   "short": "Strategy",
+   "competitive": false,
+   "subcategories": [
+    {
+     "key": "economic_research",
+     "label": "Economic Research"
+    },
+    {
+     "key": "corporate_strategy",
+     "label": "Corporate Strategy"
+    },
+    {
+     "key": "consulting",
+     "label": "Consulting"
+    }
+   ]
+  }
+ ],
+ "families": [
+  {
+   "key": "healthcare",
+   "label": "Healthcare & Science"
+  },
+  {
+   "key": "data_ml",
+   "label": "AI & Data"
+  },
+  {
+   "key": "software",
+   "label": "Software"
+  },
+  {
+   "key": "hardware",
+   "label": "Hardware"
+  },
+  {
+   "key": "product",
+   "label": "Product"
+  },
+  {
+   "key": "design",
+   "label": "Design"
+  },
+  {
+   "key": "sales",
+   "label": "Sales & Growth"
+  },
+  {
+   "key": "operations",
+   "label": "Operations"
+  },
+  {
+   "key": "people_legal",
+   "label": "People & Legal"
+  }
+ ],
+ "company_types": [
+  {
+   "key": "bulge_bracket",
+   "label": "Bulge Bracket",
+   "group": "Bulge Brackets"
+  },
+  {
+   "key": "elite_boutique",
+   "label": "Elite Boutique",
+   "group": "Elite Boutiques"
+  },
+  {
+   "key": "middle_market_bank",
+   "label": "Middle-Market Bank",
+   "group": "Middle Market"
+  },
+  {
+   "key": "global_bank",
+   "label": "Global Bank",
+   "group": "Global Banks"
+  },
+  {
+   "key": "canadian_bank",
+   "label": "Canadian Bank",
+   "group": "Canadian Banks"
+  },
+  {
+   "key": "commercial_bank",
+   "label": "Commercial Bank",
+   "group": "U.S. Commercial Banks"
+  },
+  {
+   "key": "private_equity",
+   "label": "Private Equity",
+   "group": "Private Equity"
+  },
+  {
+   "key": "venture_capital",
+   "label": "Venture Capital",
+   "group": "Venture Capital"
+  },
+  {
+   "key": "hedge_fund",
+   "label": "Hedge Fund",
+   "group": "Hedge Funds"
+  },
+  {
+   "key": "quant_firm",
+   "label": "Quant / Trading Firm",
+   "group": "Quant / Trading"
+  },
+  {
+   "key": "asset_manager",
+   "label": "Asset Manager",
+   "group": "Asset Managers"
+  },
+  {
+   "key": "pension_fund",
+   "label": "Pension Fund",
+   "group": "Pension Funds"
+  },
+  {
+   "key": "insurance",
+   "label": "Insurance",
+   "group": "Insurance"
+  },
+  {
+   "key": "fintech",
+   "label": "FinTech",
+   "group": "FinTech"
+  },
+  {
+   "key": "market_infrastructure",
+   "label": "Exchanges & Data",
+   "group": "Exchanges & Data"
+  },
+  {
+   "key": "accounting_advisory",
+   "label": "Accounting & Advisory",
+   "group": "Accounting & Advisory"
+  },
+  {
+   "key": "consulting",
+   "label": "Consulting",
+   "group": "Consulting"
+  },
+  {
+   "key": "corporate",
+   "label": "Corporate",
+   "group": "Corporate"
+  },
+  {
+   "key": "unknown",
+   "label": "Unclassified",
+   "group": "Other"
+  }
+ ],
+ "cities": [
+  {
+   "key": "toronto",
+   "label": "Toronto",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "new_york",
+   "label": "New York",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "chicago",
+   "label": "Chicago",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "boston",
+   "label": "Boston",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "montreal",
+   "label": "Montréal",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "vancouver",
+   "label": "Vancouver",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "san_francisco",
+   "label": "San Francisco",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "london",
+   "label": "London",
+   "country": "UK",
+   "target": false
+  },
+  {
+   "key": "london_on",
+   "label": "London, ON",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "jersey_city",
+   "label": "Jersey City",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "greenwich",
+   "label": "Greenwich / Stamford",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "calgary",
+   "label": "Calgary",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "edmonton",
+   "label": "Edmonton",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "ottawa",
+   "label": "Ottawa",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "waterloo",
+   "label": "Waterloo",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "quebec_city",
+   "label": "Québec City",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "winnipeg",
+   "label": "Winnipeg",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "halifax",
+   "label": "Halifax",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "victoria",
+   "label": "Victoria",
+   "country": "CA",
+   "target": false
+  },
+  {
+   "key": "charlotte",
+   "label": "Charlotte",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "philadelphia",
+   "label": "Philadelphia",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "washington_dc",
+   "label": "Washington, DC",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "miami",
+   "label": "Miami",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "houston",
+   "label": "Houston",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "dallas",
+   "label": "Dallas",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "austin",
+   "label": "Austin",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "los_angeles",
+   "label": "Los Angeles",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "seattle",
+   "label": "Seattle",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "denver",
+   "label": "Denver",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "atlanta",
+   "label": "Atlanta",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "minneapolis",
+   "label": "Minneapolis",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "pittsburgh",
+   "label": "Pittsburgh",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "baltimore",
+   "label": "Baltimore",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "salt_lake_city",
+   "label": "Salt Lake City",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "st_louis",
+   "label": "St. Louis",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "richmond",
+   "label": "Richmond",
+   "country": "US",
+   "target": false
+  },
+  {
+   "key": "hong_kong",
+   "label": "Hong Kong",
+   "country": "HK",
+   "target": false
+  },
+  {
+   "key": "singapore",
+   "label": "Singapore",
+   "country": "SG",
+   "target": false
+  },
+  {
+   "key": "amsterdam",
+   "label": "Amsterdam",
+   "country": "NL",
+   "target": false
+  },
+  {
+   "key": "dublin",
+   "label": "Dublin",
+   "country": "IE",
+   "target": false
+  },
+  {
+   "key": "zurich",
+   "label": "Zürich",
+   "country": "CH",
+   "target": false
+  },
+  {
+   "key": "paris",
+   "label": "Paris",
+   "country": "FR",
+   "target": false
+  },
+  {
+   "key": "frankfurt",
+   "label": "Frankfurt",
+   "country": "DE",
+   "target": false
+  },
+  {
+   "key": "sydney",
+   "label": "Sydney",
+   "country": "AU",
+   "target": false
+  },
+  {
+   "key": "tokyo",
+   "label": "Tokyo",
+   "country": "JP",
+   "target": false
+  },
+  {
+   "key": "india_metro",
+   "label": "India (metro)",
+   "country": "IN",
+   "target": false
+  }
+ ],
+ "skills": [
+  {
+   "key": "financial_modeling",
+   "label": "Financial Modeling",
+   "group": "modeling"
+  },
+  {
+   "key": "three_statement",
+   "label": "Three-Statement Modeling",
+   "group": "modeling"
+  },
+  {
+   "key": "dcf",
+   "label": "DCF",
+   "group": "modeling"
+  },
+  {
+   "key": "lbo",
+   "label": "LBO",
+   "group": "modeling"
+  },
+  {
+   "key": "comps",
+   "label": "Comparable Companies",
+   "group": "modeling"
+  },
+  {
+   "key": "precedents",
+   "label": "Precedent Transactions",
+   "group": "modeling"
+  },
+  {
+   "key": "valuation",
+   "label": "Valuation",
+   "group": "modeling"
+  },
+  {
+   "key": "merger_model",
+   "label": "Merger Modeling",
+   "group": "modeling"
+  },
+  {
+   "key": "due_diligence",
+   "label": "Due Diligence",
+   "group": "modeling"
+  },
+  {
+   "key": "industry_research",
+   "label": "Industry Research",
+   "group": "modeling"
+  },
+  {
+   "key": "credit_analysis",
+   "label": "Credit Analysis",
+   "group": "modeling"
+  },
+  {
+   "key": "accounting",
+   "label": "Accounting",
+   "group": "accounting"
+  },
+  {
+   "key": "financial_statements",
+   "label": "Financial Statement Analysis",
+   "group": "accounting"
+  },
+  {
+   "key": "gaap_ifrs",
+   "label": "GAAP / IFRS",
+   "group": "accounting"
+  },
+  {
+   "key": "cfa",
+   "label": "CFA",
+   "group": "accounting"
+  },
+  {
+   "key": "cpa",
+   "label": "CPA",
+   "group": "accounting"
+  },
+  {
+   "key": "excel",
+   "label": "Excel",
+   "group": "tools"
+  },
+  {
+   "key": "powerpoint",
+   "label": "PowerPoint",
+   "group": "tools"
+  },
+  {
+   "key": "vba",
+   "label": "VBA",
+   "group": "tools"
+  },
+  {
+   "key": "bloomberg",
+   "label": "Bloomberg",
+   "group": "tools"
+  },
+  {
+   "key": "capital_iq",
+   "label": "Capital IQ",
+   "group": "tools"
+  },
+  {
+   "key": "factset",
+   "label": "FactSet",
+   "group": "tools"
+  },
+  {
+   "key": "pitchbook",
+   "label": "PitchBook",
+   "group": "tools"
+  },
+  {
+   "key": "refinitiv",
+   "label": "Refinitiv",
+   "group": "tools"
+  },
+  {
+   "key": "tableau",
+   "label": "Tableau / Power BI",
+   "group": "tools"
+  },
+  {
+   "key": "python",
+   "label": "Python",
+   "group": "programming"
+  },
+  {
+   "key": "sql",
+   "label": "SQL",
+   "group": "programming"
+  },
+  {
+   "key": "r",
+   "label": "R",
+   "group": "programming"
+  },
+  {
+   "key": "cpp",
+   "label": "C++",
+   "group": "programming"
+  },
+  {
+   "key": "java",
+   "label": "Java",
+   "group": "programming"
+  },
+  {
+   "key": "matlab",
+   "label": "MATLAB",
+   "group": "programming"
+  },
+  {
+   "key": "kdb",
+   "label": "kdb+/q",
+   "group": "programming"
+  },
+  {
+   "key": "ocaml",
+   "label": "OCaml",
+   "group": "programming"
+  },
+  {
+   "key": "rust",
+   "label": "Rust",
+   "group": "programming"
+  },
+  {
+   "key": "derivatives",
+   "label": "Derivatives",
+   "group": "markets"
+  },
+  {
+   "key": "options",
+   "label": "Options",
+   "group": "markets"
+  },
+  {
+   "key": "fixed_income",
+   "label": "Fixed Income",
+   "group": "markets"
+  },
+  {
+   "key": "equities",
+   "label": "Equities",
+   "group": "markets"
+  },
+  {
+   "key": "fx",
+   "label": "FX",
+   "group": "markets"
+  },
+  {
+   "key": "commodities",
+   "label": "Commodities",
+   "group": "markets"
+  },
+  {
+   "key": "portfolio_construction",
+   "label": "Portfolio Construction",
+   "group": "markets"
+  },
+  {
+   "key": "risk_management",
+   "label": "Risk Management",
+   "group": "markets"
+  },
+  {
+   "key": "macroeconomics",
+   "label": "Macroeconomics",
+   "group": "markets"
+  },
+  {
+   "key": "capital_markets",
+   "label": "Capital Markets",
+   "group": "markets"
+  },
+  {
+   "key": "probability",
+   "label": "Probability",
+   "group": "quant"
+  },
+  {
+   "key": "statistics",
+   "label": "Statistics",
+   "group": "quant"
+  },
+  {
+   "key": "stochastic_calculus",
+   "label": "Stochastic Calculus",
+   "group": "quant"
+  },
+  {
+   "key": "machine_learning",
+   "label": "Machine Learning",
+   "group": "quant"
+  },
+  {
+   "key": "time_series",
+   "label": "Time Series",
+   "group": "quant"
+  },
+  {
+   "key": "optimization",
+   "label": "Optimization",
+   "group": "quant"
+  },
+  {
+   "key": "low_latency",
+   "label": "Low Latency",
+   "group": "quant"
+  },
+  {
+   "key": "market_microstructure",
+   "label": "Market Microstructure",
+   "group": "quant"
+  },
+  {
+   "key": "linear_algebra",
+   "label": "Linear Algebra",
+   "group": "quant"
+  },
+  {
+   "key": "client_communication",
+   "label": "Client Communication",
+   "group": "soft"
+  },
+  {
+   "key": "presentations",
+   "label": "Presentations",
+   "group": "soft"
+  },
+  {
+   "key": "teamwork",
+   "label": "Teamwork",
+   "group": "soft"
+  },
+  {
+   "key": "attention_to_detail",
+   "label": "Attention to Detail",
+   "group": "soft"
+  }
+ ],
+ "skill_groups": {
+  "modeling": "Modeling & Valuation",
+  "accounting": "Accounting",
+  "tools": "Tools & Data",
+  "programming": "Programming",
+  "markets": "Markets",
+  "quant": "Quant",
+  "soft": "Client & Communication"
+ },
+ "statuses": [
+  {
+   "key": "discovered",
+   "label": "Discovered"
+  },
+  {
+   "key": "saved",
+   "label": "Saved"
+  },
+  {
+   "key": "preparing",
+   "label": "Preparing"
+  },
+  {
+   "key": "applied",
+   "label": "Applied"
+  },
+  {
+   "key": "assessment",
+   "label": "OA / Assessment"
+  },
+  {
+   "key": "phone_screen",
+   "label": "Phone Screen"
+  },
+  {
+   "key": "first_round",
+   "label": "First Round"
+  },
+  {
+   "key": "final_round",
+   "label": "Superday / Final"
+  },
+  {
+   "key": "offer",
+   "label": "Offer"
+  },
+  {
+   "key": "rejected",
+   "label": "Rejected"
+  },
+  {
+   "key": "withdrawn",
+   "label": "Withdrawn"
+  },
+  {
+   "key": "archived",
+   "label": "Archived"
+  }
+ ],
+ "relationships": [
+  "alumni",
+  "recruiter",
+  "analyst",
+  "associate",
+  "vp",
+  "referral",
+  "other"
+ ],
+ "cycles": [
+  {
+   "key": "summer_2027",
+   "label": "Summer 2027"
+  },
+  {
+   "key": "summer_2026",
+   "label": "Summer 2026"
+  },
+  {
+   "key": "winter_2026",
+   "label": "Winter 2026"
+  },
+  {
+   "key": "winter_2027",
+   "label": "Winter 2027"
+  },
+  {
+   "key": "spring_2027",
+   "label": "Spring 2027"
+  },
+  {
+   "key": "fall_2026",
+   "label": "Fall 2026"
+  },
+  {
+   "key": "new_grad_2026",
+   "label": "New Grad 2026"
+  },
+  {
+   "key": "new_grad_2027",
+   "label": "New Grad 2027"
+  },
+  {
+   "key": "fall_2027",
+   "label": "Fall 2027"
+  },
+  {
+   "key": "summer_2025",
+   "label": "Summer 2025"
+  },
+  {
+   "key": "new_grad_2025",
+   "label": "New Grad 2025"
+  },
+  {
+   "key": "spring_2026",
+   "label": "Spring 2026"
+  },
+  {
+   "key": "winter_2028",
+   "label": "Winter 2028"
+  },
+  {
+   "key": "off_cycle",
+   "label": "Off cycle"
+  },
+  {
+   "key": "spring_2028",
+   "label": "Spring 2028"
+  },
+  {
+   "key": "new_grad_2028",
+   "label": "New Grad 2028"
+  },
+  {
+   "key": "summer_2022",
+   "label": "Summer 2022"
+  },
+  {
+   "key": "summer_2024",
+   "label": "Summer 2024"
+  },
+  {
+   "key": "summer_2028",
+   "label": "Summer 2028"
+  },
+  {
+   "key": "off_cycle_2027",
+   "label": "Off-Cycle 2027"
+  }
+ ],
+ "stages": [
+  "internship",
+  "new_grad",
+  "entry",
+  "experienced",
+  "senior"
+ ],
+ "_note": "Copied from /api/meta (config taxonomy, company types, cities). Contains no user data."
+}

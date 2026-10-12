@@ -3,7 +3,7 @@ import {test} from 'node:test';
 
 import {funnel, hBars, heatmap} from '../js/charts.js';
 import {badge, fitMeter, options} from '../js/ui.js';
-import {apiParams, resumeCategories} from '../js/views/opportunities.js';
+import {apiParams, interestsFromTargets, resumeCategories} from '../js/views/opportunities.js';
 
 test('resume match picks each parent category with its groups', () => {
   assert.equal(resumeCategories(['public_markets.asset_management', 'corporate_finance.fpa', 'corporate_finance.treasury', 'quant']),
@@ -11,10 +11,20 @@ test('resume match picks each parent category with its groups', () => {
   assert.equal(resumeCategories([]), '');
 });
 
-test('opportunities default to finance roles, family=all lifts the scope', () => {
-  assert.deepEqual(apiParams({}), {family: 'finance'});
-  assert.deepEqual(apiParams({family: 'all', q: 'rbc', job: 'x:1', saved: '3'}), {q: 'rbc'});
-  assert.deepEqual(apiParams({family: 'software'}), {family: 'software'});
+test('opportunities follow the profile interests; family=all or an explicit list overrides them', () => {
+  // No profile interests: every job family, nothing hidden.
+  assert.deepEqual(apiParams({}), {});
+  assert.deepEqual(apiParams({}, ['software', 'data_ml']), {family: 'software,data_ml'});
+  assert.deepEqual(apiParams({family: 'all', q: 'rbc', job: 'x:1', saved: '3'}, ['finance']), {q: 'rbc'});
+  assert.deepEqual(apiParams({family: 'finance,software'}, ['data_ml']), {family: 'finance,software'});
+});
+
+test('profile targets map to job families without assuming finance', () => {
+  const finance = ['investment_banking', 'markets', 'quant'];
+  assert.deepEqual(interestsFromTargets([], finance), []);
+  assert.deepEqual(interestsFromTargets(['software', 'data_ml'], finance), ['software', 'data_ml']);
+  assert.deepEqual(interestsFromTargets(['investment_banking.ma', 'markets', 'software'], finance), ['finance', 'software']);
+  assert.deepEqual(interestsFromTargets(['quant', 'software', 'data_ml'], finance), ['finance', 'software', 'data_ml']);
 });
 
 test('fit meter and badges encode meaning, not decoration', () => {

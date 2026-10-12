@@ -1,0 +1,23 @@
+/* Design preview only: a fixed strip that says the data is sample data.
+   Not shipped (the Windows build skips web/js/preview and preview.html). */
+.preview-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; height: 40px; padding: 0 16px;
+  display: flex; align-items: center; gap: 14px; font-size: 12.5px;
+  background: var(--warn-soft); color: var(--text); border-top: 1px solid var(--warn-strong);
+  backdrop-filter: blur(8px);
+}
+.preview-bar strong { font-weight: 650; color: var(--warn); }
+.preview-note { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.preview-pick { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--text-2); flex: none; }
+.preview-pick .select { height: 28px; }
+:root { --preview-h: 40px; }
+body { padding-bottom: var(--preview-h); }
+.drawer { bottom: var(--preview-h); }
+.opp-page.reviewing .opp-layout.filters-open .filters { bottom: var(--preview-h); }
+@media (max-width: 900px) {
+  .opp-layout.filters-open .filters { bottom: var(--preview-h); }
+}
+@media (max-width: 640px) {
+  .preview-note { display: none; }
+  .preview-pick > span { display: none; }
+}

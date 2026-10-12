@@ -53,10 +53,16 @@ const BADGE_CLASS = {
   'CLOSED': 'closed', 'POSSIBLY CLOSED': 'closed', 'UPDATED': 'updated',
 };
 
+const BADGE_LABELS = {'POSSIBLY CLOSED': 'May be closed', 'DEADLINE SOON': 'Closing soon', '48H': '2 days', 'CO-OP': 'Co-op'};
+
+/** Badge codes from the API (NEW, DEADLINE SOON, 2027) as sentence-case labels. */
+export function badgeLabel(text = '') {
+  return BADGE_LABELS[text] || (text === text.toUpperCase() ? text.charAt(0) + text.slice(1).toLowerCase() : text);
+}
+
 export function badge(text) {
   const cls = BADGE_CLASS[text] || (/^\d{4}$/.test(text) ? 'year' : 'level');
-  const label = text === 'POSSIBLY CLOSED' ? 'May be closed' : text === 'DEADLINE SOON' ? 'Deadline soon' : text;
-  return `<span class="badge ${cls}">${esc(label)}</span>`;
+  return `<span class="badge ${cls}">${esc(badgeLabel(text))}</span>`;
 }
 
 export function badges(list = [], max = 4) {

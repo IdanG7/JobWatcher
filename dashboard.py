@@ -56,7 +56,8 @@ FUNNEL = [("saved", "Saved"), ("applied", "Applied"), ("interview", "Interview")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 STATIC_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
-                ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon"}
+                ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon",
+                ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8"}
 
 
 DISCORD_WEBHOOK = re.compile(r"^https://(?:canary\.|ptb\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-]+$")

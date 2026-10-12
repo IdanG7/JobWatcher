@@ -45,3 +45,27 @@ class MatchingPolicyTests(unittest.TestCase):
         for location, expected in (("Toronto, CA", ["CA"]), ("Los Angeles, CA", ["US"])):
             facts = build_facts({"title": "Finance Intern", "location": location}, kn)
             self.assertEqual(expected, facts["location"]["countries"])
+
+
+class FamilyFilterTests(unittest.TestCase):
+    """Interests can mix job families: finance (any finance category) plus software, say."""
+
+    def count(self, family):
+        con = sqlite3.connect(":memory:")
+        self.addCleanup(con.close)
+        con.executescript("""CREATE TABLE jobs(title TEXT); INSERT INTO jobs VALUES ('x');
+            CREATE TABLE job_intel(family TEXT, is_finance INT);
+            INSERT INTO job_intel VALUES ('finance', 1), ('software', 0), ('data_ml', 0), ('sales', 0);""")
+        where, args = build_where({"family": family, "all_sources": "1", "include_hidden": "1",
+                                   "include_closed": "1"}, False)
+        return con.execute("SELECT COUNT(*) FROM job_intel i CROSS JOIN jobs j WHERE " +
+                           " AND ".join(where), args).fetchone()[0]
+
+    def test_single_family_keeps_its_meaning(self):
+        self.assertEqual(1, self.count("finance"))
+        self.assertEqual(1, self.count("software"))
+        self.assertEqual(4, self.count(None))
+
+    def test_families_can_be_combined(self):
+        self.assertEqual(2, self.count("software,data_ml"))
+        self.assertEqual(3, self.count("finance,software,data_ml"))
