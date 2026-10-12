@@ -16,6 +16,15 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def verify_builder_path(member: str, content: bytes, home: Path) -> None:
+    # Binary-only wheels are compiled upstream, sometimes under the same
+    # runneradmin profile as CI. Their debug paths are not local builder data.
+    # Continue scanning Python sources and generated executables/wrappers.
+    if member.startswith("Jobwatch/runtime/Lib/site-packages/") and member.endswith(".pyd"):
+        return
+    assert str(home).lower().encode() not in content.lower(), member
+
+
 def verify(bundle: Path, resume: Path | None = None) -> None:
     cache = ROOT / ".build-cache"
     cache.mkdir(exist_ok=True)
@@ -24,7 +33,7 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
         with zipfile.ZipFile(bundle) as archive:
             for member in archive.namelist():
                 assert (fixture / member).resolve().is_relative_to(fixture.resolve())
-                assert str(Path.home()).lower().encode() not in archive.read(member).lower(), member
+                verify_builder_path(member, archive.read(member), Path.home())
                 assert "/site-packages/bin/" not in member, member
             archive.extractall(fixture)
         app = fixture / "Jobwatch"

@@ -10,12 +10,23 @@ import unittest
 from unittest.mock import patch
 
 from tools.build_windows import bundle_files, clean_config, stage_app
+from tools.verify_windows_bundle import verify_builder_path
 from portable_start import initialize_data, instance_url
 from intel import load_knowledge, merge_profile, validate_profile
 import watcher
 
 
 class PortableTests(unittest.TestCase):
+    def test_upstream_binary_build_paths_do_not_mask_private_app_or_wrapper_paths(self):
+        home = Path(r"C:\Users\runneradmin")
+        content = b"compiler source: C:\\Users\\runneradmin\\build\\src"
+        verify_builder_path("Jobwatch/runtime/Lib/site-packages/cryptography/_rust.pyd", content, home)
+        for member in ("Jobwatch/app/watcher.py", "Jobwatch/app/private.pyd",
+                       "Jobwatch/runtime/Lib/site-packages/bin/wrapper.exe",
+                       "Jobwatch/runtime/Lib/site-packages/cryptography/__init__.py"):
+            with self.subTest(member=member), self.assertRaises(AssertionError):
+                verify_builder_path(member, content, home)
+
     def test_source_upgrade_preserves_private_preferences_and_custom_sources(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
