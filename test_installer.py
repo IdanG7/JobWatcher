@@ -95,17 +95,26 @@ class InstalledAppTests(unittest.TestCase):
         self.addCleanup(lock.close)
         self.assertFalse(stop_and_wait(self.data, seconds=0.3))
 
-    def test_waiting_for_exit_ends_a_python_process_that_lingers(self):
+    def test_waiting_for_exit_ends_a_lingering_server_only_when_allowed(self):
         child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
-        self.addCleanup(child.kill)
-        self.assertTrue(wait_for_exit(child.pid, 0.5))
-        self.assertIsNotNone(child.poll())
-
-    def test_waiting_for_exit_never_ends_other_programs(self):
-        child = subprocess.Popen(["ping", "-n", "30", "127.0.0.1"], stdout=subprocess.DEVNULL)
         self.addCleanup(child.kill)
         self.assertFalse(wait_for_exit(child.pid, 0.3))
         self.assertIsNone(child.poll())
+        self.assertTrue(wait_for_exit(child.pid, 0.3, may_end=True))
+        self.assertIsNotNone(child.poll())
+
+    def test_a_reused_process_id_is_neither_waited_for_nor_ended(self):
+        child = subprocess.Popen(["ping", "-n", "30", "127.0.0.1"], stdout=subprocess.DEVNULL)
+        self.addCleanup(child.kill)
+        self.assertTrue(wait_for_exit(child.pid, 5, may_end=True))
+        self.assertIsNone(child.poll())
+
+    def test_stop_waits_for_the_recorded_server_process_to_exit(self):
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(1.5)"])
+        self.addCleanup(child.kill)
+        (self.data / "server.pid").write_text(str(child.pid), encoding="utf-8")
+        self.assertTrue(stop_and_wait(self.data, seconds=10, ask=False))
+        self.assertIsNotNone(child.poll())
 
     def test_waiting_for_a_finished_process_returns_at_once(self):
         child = subprocess.Popen([sys.executable, "-c", "pass"])
@@ -133,6 +142,14 @@ class WindowlessTests(unittest.TestCase):
                 patch.object(portable_start, "main", return_value=0), \
                 patch.object(portable_start, "show_error", shown.append):
             self.assertEqual(portable_start.run([]), 0)
+        self.assertEqual(shown, [])
+
+    def test_stop_failures_never_show_a_message_box(self):
+        shown = []
+        with patch.object(sys, "stdout", None), patch.object(sys, "stderr", None), \
+                patch.object(portable_start, "main", return_value=1), \
+                patch.object(portable_start, "show_error", shown.append):
+            self.assertEqual(portable_start.run(["--stop"]), 1)
         self.assertEqual(shown, [])
 
     def test_console_runs_never_show_a_message_box(self):

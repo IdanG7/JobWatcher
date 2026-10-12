@@ -183,6 +183,8 @@ class JobwatchService:
         self.on_shutdown = None
         self.autostart_command: str | None = None
         self.log_path: Path | None = None
+        self.updater = None                   # updater.Updater in the Windows app
+        self.app_root: Path | None = None     # the folder holding app/ and runtime/
         self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
         self.boards = {k: v for k, v in self.config.get("boards", {}).items() if not k.startswith("_")}
         self.kn = load_knowledge()
@@ -1836,8 +1838,15 @@ class JobwatchService:
         return {**result, "version": APP_VERSION, "pending": self._pending_cache[1] if self._pending_cache else 0}
 
     def update_info(self) -> dict:
-        """Whether a newer GitHub release exists. Cached; failures stay silent."""
+        """Whether a newer release exists, and in the Windows app whether it is downloaded."""
         from version import APP_VERSION
+        if self.updater is not None:
+            snap = self.updater.snapshot()
+            url = snap.get("release_url") or ""
+            return {"current": APP_VERSION, "latest": snap.get("latest"), "state": snap["state"],
+                    "available": snap["state"] in ("ready", "manual"),
+                    "url": url if url.startswith(RELEASES_PAGE) else None,
+                    "error": snap.get("error"), "old_copy": self.old_copy()}
         now = time.time()
         if self._update_cache and now < self._update_cache[0]:
             return self._update_cache[1]
@@ -1855,6 +1864,44 @@ class JobwatchService:
             expires = now + 3600      # offline or rate-limited: try again later
         self._update_cache = (expires, info)
         return info
+
+    def _old_copy_note(self) -> Path | None:
+        return self.updater.dir / "old-copy.txt" if self.updater is not None else None
+
+    def old_copy(self) -> str | None:
+        """A ZIP copy this installation replaced, which the user may now delete."""
+        note = self._old_copy_note()
+        try:
+            folder = Path(note.read_text(encoding="utf-8").strip()) if note else None
+        except OSError:
+            return None
+        if not folder or not folder.is_dir() or (self.app_root and folder.resolve() == self.app_root.resolve()):
+            return None
+        return str(folder)
+
+    def dismiss_old_copy(self) -> dict:
+        note = self._old_copy_note()
+        if note:
+            note.unlink(missing_ok=True)
+        return {"ok": True}
+
+    def apply_update(self) -> dict:
+        """Run the downloaded, verified installer and stop so it can replace this copy."""
+        from updater import UpdateError
+        if self.updater is None or self.on_shutdown is None:
+            raise ApiError("Updates are installed by the Windows app.")
+        try:
+            self.updater.apply()
+        except (UpdateError, OSError) as exc:
+            raise ApiError(f"The update could not start: {exc}") from exc
+        if self.app_root and not (self.app_root / "unins000.exe").exists():
+            try:       # a ZIP copy: once installed, tell the user this folder can go
+                self._old_copy_note().write_text(str(self.app_root), encoding="utf-8")
+            except OSError:
+                pass
+        self.updater.stop()
+        threading.Timer(0.5, self.on_shutdown).start()      # the installer waits for this copy to exit
+        return {"ok": True}
 
     # ------------------------------------------------------------ export
     def csv_export(self, params: dict) -> str:
@@ -1943,6 +1990,8 @@ ROUTES = [
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
     ("GET", r"/api/update", lambda s, m, q, b: s.update_info()),
+    ("POST", r"/api/update/apply", lambda s, m, q, b: s.apply_update()),
+    ("POST", r"/api/update/old-copy/dismiss", lambda s, m, q, b: s.dismiss_old_copy()),
     ("POST", r"/api/refresh", lambda s, m, q, b: s.trigger_poll() if b.get("poll") else (
         s.kick() or {"ok": True, "started": True})),
     ("GET", r"/api/saved-searches", lambda s, m, q, b: s.saved_searches()),

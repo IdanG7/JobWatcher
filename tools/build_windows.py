@@ -28,7 +28,8 @@ RUNTIME_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHO
 # Published at https://www.python.org/downloads/release/python-3148/
 RUNTIME_SHA256 = "a93abe456ab01bd96d7a085b3cdb6566b3063f4241360d114142fbdb07f0a310"
 MODULES = ("watcher.py", "dashboard.py", "db_migrations.py", "intel_store.py",
-           "job_intelligence.py", "job_query.py", "portable_start.py", "version.py")
+           "job_intelligence.py", "job_query.py", "portable_start.py", "version.py", "updater.py",
+           "update_key.py")
 KNOWLEDGE = ("companies.json", "locations.json", "skills.json", "taxonomy.json", "source_defaults_v1.json",
              "source_defaults_history.json")
 BOARD_FIELDS = {"ats", "token", "tenant", "site", "host", "domain", "url", "repo",
@@ -160,17 +161,33 @@ def find_iscc(explicit: Path | None = None) -> Path:
     raise FileNotFoundError("Inno Setup 6 (ISCC.exe) not found; pass --iscc or set ISCC")
 
 
-def build_installer(stage: Path, output_dir: Path, iscc: Path) -> Path:
+def make_test_build(stage: Path, version: str | None, key_file: Path | None) -> None:
+    """Update tests only: another version number, and/or a test signing key with
+    a local update feed allowed (JOBWATCH_UPDATE_FEED). Never used for releases."""
+    app = stage / "app"
+    if version:
+        (app / "version.py").write_text(f'APP_VERSION = "{version}"\n', encoding="utf-8")
+    if key_file:
+        sys.path.insert(0, str(ROOT / "tools"))
+        from sign_release import load_key, public_key_text
+        public = public_key_text(load_key(key_file.read_bytes()))
+        (app / "update_key.py").write_text(
+            '"""TEST BUILD: test signing key and local update feed."""\n\n'
+            f'PUBLIC_KEY = "{public}"\nALLOW_FEED_OVERRIDE = True\n', encoding="utf-8")
+
+
+def build_installer(stage: Path, output_dir: Path, iscc: Path, version: str = APP_VERSION) -> Path:
     """Compile tools/jobwatch.iss over the staged folder into Jobwatch-Setup-<version>.exe."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run([str(iscc), "/Q", f"/DAppVersion={APP_VERSION}", f"/DStageDir={stage}",
+    subprocess.run([str(iscc), "/Q", f"/DAppVersion={version}", f"/DStageDir={stage}",
                     f"/DOutputDir={output_dir}", str(ROOT / "tools/jobwatch.iss")], check=True)
-    setup = output_dir / f"Jobwatch-Setup-{APP_VERSION}.exe"
+    setup = output_dir / f"Jobwatch-Setup-{version}.exe"
     print(f"Ready: {setup} ({setup.stat().st_size / 1024 / 1024:.1f} MB)")
     return setup
 
 
-def build(output: Path, installer: bool = False, iscc: Path | None = None, zip_bundle: bool = True) -> Path:
+def build(output: Path, installer: bool = False, iscc: Path | None = None, zip_bundle: bool = True,
+          version: str | None = None, update_key_file: Path | None = None) -> Path:
     cache = ROOT / ".build-cache"
     cache.mkdir(exist_ok=True)
     archive = runtime_archive(cache)
@@ -178,6 +195,7 @@ def build(output: Path, installer: bool = False, iscc: Path | None = None, zip_b
     with tempfile.TemporaryDirectory(prefix="windows-", dir=cache) as temporary:
         stage = Path(temporary) / "Jobwatch"
         stage_app(ROOT, stage)
+        make_test_build(stage, version, update_key_file)
         runtime = stage / "runtime"
         runtime.mkdir()
         with zipfile.ZipFile(archive) as embedded:
@@ -202,7 +220,7 @@ def build(output: Path, installer: bool = False, iscc: Path | None = None, zip_b
                     "files": files}
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         if installer:
-            build_installer(stage, output.parent, find_iscc(iscc))
+            build_installer(stage, output.parent, find_iscc(iscc), version or APP_VERSION)
         if zip_bundle:
             temporary_zip = output.with_suffix(".building.zip")
             with zipfile.ZipFile(temporary_zip, "w", zipfile.ZIP_DEFLATED) as bundle:
@@ -220,5 +238,9 @@ if __name__ == "__main__":
     parser.add_argument("--installer", action="store_true", help="also build Jobwatch-Setup-<version>.exe")
     parser.add_argument("--no-zip", action="store_true", help="skip the portable ZIP")
     parser.add_argument("--iscc", type=Path, help="path to Inno Setup's ISCC.exe")
+    parser.add_argument("--version", help="TEST BUILDS ONLY: build as this version")
+    parser.add_argument("--update-key-file", type=Path,
+                        help="TEST BUILDS ONLY: trust this signing key and allow a local update feed")
     args = parser.parse_args()
-    build(args.output.resolve(), installer=args.installer, iscc=args.iscc, zip_bundle=not args.no_zip)
+    build(args.output.resolve(), installer=args.installer, iscc=args.iscc, zip_bundle=not args.no_zip,
+          version=args.version, update_key_file=args.update_key_file)

@@ -190,10 +190,10 @@ def stop_running(url: str) -> bool:
         return False
 
 
-def wait_for_exit(pid: int, seconds: float) -> bool:
-    """Wait for a stopped server's process to end (its files stay in use until it
-    does); one still alive after ``seconds`` is ended. Only Python processes are
-    touched, so a reused process id never ends an unrelated program."""
+def wait_for_exit(pid: int, seconds: float, may_end: bool = False) -> bool:
+    """Wait for a stopping server's process to end (its files stay in use until it
+    does). Only a Python process is waited for, so a reused process id never
+    holds things up; with ``may_end`` one still alive after ``seconds`` is ended."""
     import ctypes
     from ctypes import wintypes
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -203,13 +203,15 @@ def wait_for_exit(pid: int, seconds: float) -> bool:
     if not handle:
         return True           # already gone
     try:
-        if kernel32.WaitForSingleObject(handle, int(seconds * 1000)) == 0:
-            return True
         size = wintypes.DWORD(1024)
         name = ctypes.create_unicode_buffer(size.value)
         if not kernel32.QueryFullProcessImageNameW(handle, 0, name, ctypes.byref(size)):
-            return False
+            return True
         if Path(name.value).name.lower() not in ("pythonw.exe", "python.exe"):
+            return True       # the id now belongs to another program
+        if kernel32.WaitForSingleObject(handle, int(seconds * 1000)) == 0:
+            return True
+        if not may_end:
             return False
         kernel32.TerminateProcess(handle, 1)
         return kernel32.WaitForSingleObject(handle, 5000) == 0
@@ -217,18 +219,15 @@ def wait_for_exit(pid: int, seconds: float) -> bool:
         kernel32.CloseHandle(handle)
 
 
-def stop_and_wait(data: Path, seconds: float = 30) -> bool:
-    """Stop the copy serving this data folder and wait until its process has exited."""
-    state = data / "instance.json"
-    url = instance_url(state)
-    pid = None
-    if url:
-        try:
-            pid = int(json.loads(state.read_text(encoding="utf-8")).get("pid"))
-        except (OSError, ValueError, TypeError):
-            pass
-        if not stop_running(url):
-            pid = None        # nothing answered: the recorded process id may be stale
+def stop_and_wait(data: Path, seconds: float = 30, ask: bool = True) -> bool:
+    """Stop the copy serving this data folder and wait until its process has exited.
+    ``ask=False`` only waits for a copy that is already stopping."""
+    try:      # written by the server at start and left behind, unlike instance.json
+        pid = int((data / "server.pid").read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        pid = None
+    url = instance_url(data / "instance.json") if ask else None
+    answered = bool(url) and stop_running(url)
     deadline = time.monotonic() + seconds
     while True:
         lock = acquire_lock(data / "running.lock")
@@ -238,7 +237,10 @@ def stop_and_wait(data: Path, seconds: float = 30) -> bool:
         if time.monotonic() >= deadline:
             return False
         time.sleep(0.2)
-    return wait_for_exit(pid, max(5.0, deadline - time.monotonic())) if pid else True
+    if not pid:
+        return True
+    # Ended only if it answered the stop request: then the id is certainly this server.
+    return wait_for_exit(pid, max(5.0, deadline - time.monotonic()), may_end=answered)
 
 
 def preferred_port(data: Path) -> int:
@@ -403,6 +405,7 @@ def main(argv=None) -> int:
     parser.add_argument("--no-poll", action="store_true", help="offline diagnostics only")
     parser.add_argument("--console", action="store_true", help="run in this window instead of the background")
     parser.add_argument("--stop", action="store_true", help="stop the running copy and wait for it to exit")
+    parser.add_argument("--after-update", action="store_true", help=argparse.SUPPRESS)  # Setup's relaunch
     parser.add_argument("--serve", action="store_true", help=argparse.SUPPRESS)   # the hidden server itself
     args = parser.parse_args(argv)
     if os.name != "nt":
@@ -410,7 +413,10 @@ def main(argv=None) -> int:
     data = args.data_dir.resolve()
     data.mkdir(parents=True, exist_ok=True)
     if args.stop:
-        return 0 if stop_and_wait(data) else 1
+        if stop_and_wait(data):
+            return 0
+        print("Jobwatch could not be stopped.", flush=True)
+        return 1
     lock = None
     if args.serve:
         # Lock first: a second server (e.g. the sign-in start while one runs) exits
@@ -423,6 +429,9 @@ def main(argv=None) -> int:
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     if not (args.serve or args.console):
+        if args.after_update:
+            # The copy that started the update is still exiting; start once it is gone.
+            stop_and_wait(data, seconds=60, ask=False)
         return launch(args, data)
     app = Path(__file__).resolve().parent
     lock = lock or acquire_lock(data / "running.lock")
@@ -463,12 +472,18 @@ def main(argv=None) -> int:
         service.on_shutdown = server.shutdown
         service.autostart_command = subprocess.list2cmdline(server_command(data))
         service.log_path = data / "jobwatch.log" if args.serve else None
+        service.app_root = app.parent
+        if not os.environ.get("JOBWATCH_NO_UPDATES"):
+            from updater import Updater
+            service.updater = Updater(data)
+            service.updater.start()
         current = autostart_value()
         if args.serve and should_repoint_autostart(current, service.autostart_command, data):
             try:      # the sign-in start follows the newest copy opened for the same data
                 set_autostart(service.autostart_command)
             except Exception as exc:
                 print(f"Could not update the sign-in start: {exc}", flush=True)
+        (data / "server.pid").write_text(str(os.getpid()), encoding="utf-8")
         temporary = state.with_suffix(".tmp")
         temporary.write_text(json.dumps({"url": url, "pid": os.getpid(), "version": APP_VERSION}), encoding="utf-8")
         temporary.replace(state)
@@ -505,8 +520,11 @@ def main(argv=None) -> int:
 
 
 def run(argv=None) -> int:
-    """main(), but under pythonw.exe (no console) failures are shown in a message box."""
-    windowless = sys.stdout is None and "--serve" not in (argv or sys.argv[1:])
+    """main(), but under pythonw.exe (no console) a startup failure is shown in a
+    message box. ``--stop`` never shows one: Setup and the uninstaller run it
+    hidden and report a failure themselves."""
+    args = list(sys.argv[1:] if argv is None else argv)
+    windowless = sys.stdout is None and not {"--serve", "--stop"}.intersection(args)
     if windowless:
         sys.stdout = sys.stderr = captured = io.StringIO()
     try:
@@ -517,9 +535,26 @@ def run(argv=None) -> int:
         print(f"Jobwatch could not start: {type(exc).__name__}: {exc}", file=sys.stderr)
         code = 1
     if windowless and code:
-        show_error(captured.getvalue().strip() or "Jobwatch could not start.")
+        show_error(captured.getvalue().strip() or "Jobwatch could not start. Details are in jobwatch.log "
+                   "in your Jobwatch data folder.")
     return code
 
 
+def exit_now(code: int) -> None:
+    """End a stopped server's process at once. Python would otherwise wait for a
+    source check still running in worker threads (minutes), keeping the program
+    files in use so Setup could not replace them. Its database work is in SQLite
+    transactions, which roll back cleanly."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.flush()
+        except (AttributeError, OSError, ValueError):
+            pass
+    os._exit(code)
+
+
 if __name__ == "__main__":
-    raise SystemExit(run())
+    code = run()
+    if {"--serve", "--console"}.intersection(sys.argv[1:]):
+        exit_now(code)
+    raise SystemExit(code)

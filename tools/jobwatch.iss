@@ -69,7 +69,7 @@ Name: "{autodesktop}\Jobwatch"; Filename: "{#Pythonw}"; Parameters: """{#Launche
 [Run]
 Filename: "{#Pythonw}"; Parameters: """{#Launcher}"""; WorkingDir: "{app}"; Description: "Open Jobwatch"; Flags: postinstall nowait skipifsilent
 ; An in-app update runs this installer silently with /RELAUNCH: start again without a new browser tab.
-Filename: "{#Pythonw}"; Parameters: """{#Launcher}"" --no-browser"; WorkingDir: "{app}"; Flags: nowait runhidden; Check: RelaunchRequested
+Filename: "{#Pythonw}"; Parameters: """{#Launcher}"" --no-browser --after-update"; WorkingDir: "{app}"; Flags: nowait runhidden; Check: RelaunchRequested
 
 [UninstallRun]
 Filename: "{#Pythonw}"; Parameters: """{#Launcher}"" --stop"; WorkingDir: "{app}"; Flags: runhidden waituntilterminated; RunOnceId: "StopJobwatch"

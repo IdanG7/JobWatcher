@@ -88,6 +88,7 @@ class UpdateCheckTests(unittest.TestCase):
     def service(self):
         svc = dashboard.JobwatchService.__new__(dashboard.JobwatchService)
         svc._update_cache = None
+        svc.updater = None
         return svc
 
     def reply(self, tag, url=None):

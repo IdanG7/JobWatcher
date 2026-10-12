@@ -212,25 +212,94 @@ async function refreshStatus() {
   }
 }
 
-// A dismissed notice stays hidden until an even newer release appears.
+// Update banners. The app downloads and verifies updates by itself; the banner
+// appears once one is ready. "Later" hides it until an even newer release.
+function notice(id, heading, body, actions) {
+  document.getElementById(id)?.remove();
+  const banner = document.createElement('section');
+  banner.id = id;
+  banner.className = 'collection-status';
+  banner.setAttribute('role', 'status');
+  banner.innerHTML = `<div class="collection-heading"><strong>${heading}</strong><div class="update-actions">${actions}</div></div><p>${body}</p>`;
+  document.getElementById('main').prepend(banner);
+  return banner;
+}
+
 async function checkForUpdate() {
   let info;
   try { info = await get('/api/update'); } catch { return; }
-  const old = document.getElementById('update-banner');
-  if (!info.available || store.get('jw-update-dismissed') === info.latest) { old?.remove(); return; }
-  if (old) return;
-  const banner = document.createElement('section');
-  banner.id = 'update-banner';
-  banner.className = 'collection-status';
-  banner.setAttribute('role', 'status');
-  banner.innerHTML = `<div class="collection-heading"><strong>Jobwatch ${esc(info.latest)} is available</strong>
-    <button type="button" class="btn xs" data-dismiss>Dismiss</button></div>
-    <p>You have ${esc(info.current)}. <a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download the new version</a>, stop Jobwatch in Settings → Background, extract the new version over your old folder and open Start Jobwatch.bat. Your data is kept.</p>`;
+  showOldCopy(info.old_copy);
+  const id = 'update-banner';
+  const shown = document.getElementById(id);
+  const failed = info.state === 'failed' && info.latest && info.url;
+  if (!(info.available || failed) || store.get('jw-update-dismissed') === info.latest) { shown?.remove(); return; }
+  const kind = info.state === 'ready' ? 'ready' : 'manual';
+  if (shown?.dataset.kind === kind && shown.dataset.version === info.latest) return;
+  const later = '<button type="button" class="btn xs" data-dismiss>Later</button>';
+  const banner = kind === 'ready'
+    ? notice(id, `Jobwatch ${esc(info.latest)} is ready`,
+      `You have ${esc(info.current)}. Restarting takes about a minute; your data and settings are kept and this page reconnects by itself.`,
+      `<button type="button" class="btn primary xs" data-apply>Restart to update</button>${later}`)
+    : notice(id, `Jobwatch ${esc(info.latest)} is available`,
+      `${failed ? `It could not be downloaded automatically (${esc(info.error || 'unknown error')}). ` : `You have ${esc(info.current)}. `}<a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download Jobwatch-Setup</a> and run it. Your data and settings are kept.`,
+      later);
+  banner.dataset.kind = kind;
+  banner.dataset.version = info.latest;
   banner.querySelector('[data-dismiss]').addEventListener('click', () => {
     store.set('jw-update-dismissed', info.latest);
     banner.remove();
   });
-  document.getElementById('main').prepend(banner);
+  banner.querySelector('[data-apply]')?.addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = 'Restarting…';
+    try {
+      await post('/api/update/apply', {});
+    } catch (err) {
+      toast(err.message, {error: true, timeout: 9000});
+      btn.disabled = false;
+      btn.textContent = 'Restart to update';
+      return;
+    }
+    waitForUpdate(info.latest);
+  });
+}
+
+// The installer replaces Jobwatch and starts it again on the same address.
+function waitForUpdate(version) {
+  ctx.stop?.();
+  const overlay = document.createElement('div');
+  overlay.className = 'update-overlay';
+  overlay.setAttribute('role', 'alertdialog');
+  overlay.setAttribute('aria-live', 'assertive');
+  overlay.innerHTML = `<div class="panel panel-body"><h2>Updating Jobwatch to ${esc(version)}…</h2>
+    <p class="muted" data-msg>This takes about a minute. This page reloads by itself when the new version is running.</p></div>`;
+  document.body.append(overlay);
+  const started = Date.now();
+  const tick = async () => {
+    try {
+      const res = await fetch('/api/status', {cache: 'no-store'});
+      if (res.ok && (await res.json()).version === version) { location.reload(); return; }
+    } catch { /* restarting */ }
+    if (Date.now() - started > 3 * 60 * 1000) {
+      overlay.querySelector('[data-msg]').textContent = 'The update is taking longer than expected. If Jobwatch does not come back, open it from the Start menu; the installer log is in your Jobwatch data folder under updates\\install.log.';
+    }
+    setTimeout(tick, 2000);
+  };
+  setTimeout(tick, 3000);
+}
+
+function showOldCopy(folder) {
+  const id = 'old-copy-banner';
+  if (!folder) { document.getElementById(id)?.remove(); return; }
+  if (document.getElementById(id)) return;
+  const banner = notice(id, 'Jobwatch is now installed',
+    `The copy you used before, in <b>${esc(folder)}</b>, is no longer needed. You can delete that folder; your data is not stored there. Open Jobwatch from the Start menu from now on.`,
+    '<button type="button" class="btn xs" data-dismiss>Got it</button>');
+  banner.querySelector('[data-dismiss]').addEventListener('click', async () => {
+    banner.remove();
+    try { await post('/api/update/old-copy/dismiss', {}); } catch { /* shown again next time */ }
+  });
 }
 
 async function pollNow() {
@@ -311,7 +380,7 @@ async function boot() {
   refreshStatus();
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
   checkForUpdate();
-  timers.push(setInterval(checkForUpdate, 6 * 3600 * 1000));
+  timers.push(setInterval(checkForUpdate, 10 * 60 * 1000));      // cheap: the server checks GitHub itself
   // The server was stopped from Settings: nothing may poll a page that no longer exists.
   ctx.stop = () => {
     timers.forEach(clearInterval);
