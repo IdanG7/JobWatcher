@@ -90,15 +90,9 @@ def _consume_page(out, page, seen, source, limit):
     if not page:
         missing = out.total - len(out) if out.total is not None else 0
         if missing > 0:
-            # Sites that order same-day postings unstably repeat a few and skip a
-            # few. A tiny gap is safe to treat as complete: closing a job takes 3
-            # consecutive misses over 24h, and a randomly skipped job reappears on
-            # the next read. A larger gap keeps the postings but tracks no removals.
-            if missing <= max(2, out.total // 200):
-                out.reason = f"{source} returned {len(out)} of {out.total} (unstable ordering)"
-                out.complete = True
-            else:
-                out.reason = f"{source} pagination ended at {len(out)} of reported total {out.total}"
+            # Even a small gap can repeatedly omit the same job. Keep fetched
+            # postings, but never use an incomplete snapshot to infer closures.
+            out.reason = f"{source} pagination ended at {len(out)} of reported total {out.total}"
             return True
         out.complete = True
         return True
@@ -395,6 +389,7 @@ def fetch_workday(cfg):
     url = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
     out, offset, seen = SourceListing(), 0, set()
     raw_pages, malformed = set(), 0
+    previous_short_page = False
     limit = _source_limit(cfg)
     capped = None          # estimated size when only the first 2000 can be read
     while offset < limit:
@@ -424,6 +419,9 @@ def fetch_workday(cfg):
             raise RuntimeError(f"Workday pagination returned an inconsistent total at offset {offset}")
         if not posts:
             if out.total is not None and offset < out.total:
+                if out and previous_short_page:
+                    out.reason = f"Workday pagination ended at {len(out)} of reported total {out.total}; valid postings retained"
+                    break
                 raise RuntimeError(f"Workday pagination ended before reported total {out.total} at offset {offset}")
             out.complete = True
             break
@@ -431,6 +429,9 @@ def fetch_workday(cfg):
         # They occupy a result slot but provide no usable public posting URL.
         signature = hashlib.sha256(json.dumps(posts, sort_keys=True).encode()).digest()
         if signature in raw_pages:
+            if out and previous_short_page:
+                out.reason = f"Workday pagination repeated a page after a short final page at offset {offset}; valid postings retained"
+                break
             raise RuntimeError(f"Workday pagination repeated a page at offset {offset}")
         raw_pages.add(signature)
         page = []
@@ -450,25 +451,31 @@ def fetch_workday(cfg):
             })
         # Advance by raw results, including malformed summaries, so a missing
         # record cannot trap collection on one page or fake an exhausted feed.
+        if page and not any(j["id"] not in seen for j in page) and out and previous_short_page:
+            out.reason = f"Workday pagination repeated postings after a short final page at offset {offset}; valid postings retained"
+            break
+        previous_short_page = len(posts) < body["limit"]
         offset += len(posts)
         if page and _consume_page(out, page, seen, "Workday", limit):
             break
         if out.total is not None and offset >= out.total:
-            out.complete = True
+            out.complete = len(out) >= out.total
+            if not out.complete and not malformed:
+                out.reason = f"Workday returned {len(out)} of {out.total} usable postings; listing is incomplete"
             break
     if capped is not None:
         out.complete = False
         out.reason = (f"Workday lists about {capped:,} postings but serves only the first "
                       f"{WORKDAY_TOTAL_CAP:,}; removals are not tracked for this source")
-    _finish_listing(out, "Workday", limit)
     if malformed:
         out.complete = False
         noun = "summary" if malformed == 1 else "summaries"
-        out.reason = (f"Workday returned {malformed} malformed posting {noun} without a title or public path; "
-                      "valid summaries retained; listing is incomplete")
+        warning = (f"Workday returned {malformed} malformed posting {noun} without a title or public path; "
+                   "valid summaries retained; listing is incomplete")
+        out.reason = f"{out.reason}; {warning}" if out.reason else warning
         if offset >= limit and (out.total is None or offset < out.total):
             out.reason += f"; source limit {limit} reached"
-    return out
+    return _finish_listing(out, "Workday", limit)
 
 
 def fetch_amazon_jobs(cfg):

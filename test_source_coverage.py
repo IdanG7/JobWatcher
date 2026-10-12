@@ -2,6 +2,7 @@
 import json
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -25,6 +26,46 @@ def workday_page(start, count, total=None):
 
 
 class SourcePaginationTests(unittest.TestCase):
+    @patch("watcher.requests.post")
+    def test_workday_repeated_tail_retains_usable_postings_without_closures(self, post):
+        # HP returns page one when an offset runs beyond a listing that shrank
+        # during the fetch. Keep what we fetched, but don't infer any removals.
+        post.side_effect = [workday_page(0, 20, 23), workday_page(20, 2, 0), workday_page(0, 20, 23)]
+        jobs = watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x"})
+        self.assertEqual(22, len(jobs))
+        self.assertFalse(jobs.complete)
+        self.assertIn("repeated", jobs.reason)
+        self.assertEqual(3, post.call_count)
+
+    @patch("watcher.requests.post")
+    def test_workday_duplicate_rows_at_reported_end_are_not_complete(self, post):
+        post.side_effect = [workday_page(0, 2, 4), workday_page(1, 2, 0)]
+        jobs = watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x"})
+        self.assertEqual(3, len(jobs))
+        self.assertFalse(jobs.complete)
+        self.assertIn("3 of 4", jobs.reason)
+
+    @patch("watcher.requests.get")
+    def test_oracle_small_ordering_gap_cannot_enable_closure_detection(self, get):
+        get.side_effect = [response({"items": [{"TotalJobsCount": 4, "requisitionList": [
+            {"Id": str(i), "Title": "Analyst"} for i in range(3)]}]}),
+            response({"items": [{"TotalJobsCount": 4, "requisitionList": []}]})]
+        jobs = watcher.fetch_oracle_hcm({"host": "x", "site": "x"})
+        self.assertEqual(3, len(jobs))
+        self.assertFalse(jobs.complete)
+        self.assertIn("3 of reported total 4", jobs.reason)
+
+    @patch("watcher.requests.post")
+    def test_workday_cap_warning_survives_malformed_summary_warning(self, post):
+        post.return_value = response({"total": 2000, "facets": [
+            {"facetParameter": "country", "values": [{"id": "us", "count": 14000}]}],
+            "jobPostings": [{"externalPath": "/job/valid", "title": "Intern"},
+                            {"bulletFields": ["Rmissing"]}]})
+        jobs = watcher.fetch_workday({"host": "x", "tenant": "x", "site": "x", "max": 2})
+        self.assertFalse(jobs.complete)
+        self.assertIn("14,000", jobs.reason)
+        self.assertIn("malformed", jobs.reason)
+
     @patch("watcher.requests.post")
     def test_workday_retains_valid_summaries_but_marks_malformed_listing_partial(self, post):
         post.return_value = response({"total": 3, "jobPostings": [
@@ -166,6 +207,30 @@ class LinkedInCoverageTests(unittest.TestCase):
 
 
 class LifecycleCoverageTests(unittest.TestCase):
+    @patch("watcher.requests.post")
+    def test_workday_repeated_tail_stores_results_without_closing_missing_jobs(self, post):
+        post.side_effect = [workday_page(0, 20, 23), workday_page(20, 2, 0), workday_page(0, 20, 23)]
+        con = watcher.db_open(":memory:")
+        stamp = watcher.now()
+        old = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat(timespec="seconds")
+        con.execute("INSERT INTO jobs VALUES ('sample','missing','Intern','Toronto','u',?,?)", (stamp, old))
+        con.execute("INSERT INTO job_state(board,job_id,status,missing_count) VALUES ('sample','missing','possibly_closed',2)")
+        cfg = {"boards": {"sample": {"ats": "workday", "host": "x", "tenant": "x", "site": "x", "complete_listing": True}},
+               "filters": {}, "profile": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            subs = Path(tmp) / "subs.json"
+            subs.write_text("{}")
+            with patch.object(watcher, "SUBSCRIBERS", subs), patch("watcher.enrich_descriptions", return_value=0):
+                watcher.cycle(cfg, con)
+        self.assertEqual(("possibly_closed", 2), con.execute(
+            "SELECT status,missing_count FROM job_state WHERE job_id='missing'").fetchone())
+        self.assertEqual(22, con.execute("SELECT COUNT(*) FROM jobs WHERE job_id LIKE '/job/%'").fetchone()[0])
+        self.assertEqual(0, con.execute("SELECT failures FROM boards WHERE board='sample'").fetchone()[0])
+        coverage = json.loads(con.execute("SELECT v FROM kv WHERE k='source_coverage:sample'").fetchone()[0])
+        self.assertFalse(coverage["detects_removals"])
+        self.assertIn("repeated", coverage["reason"])
+        con.close()
+
     @patch("watcher.requests.post")
     def test_malformed_workday_summary_cannot_close_missing_posting(self, post):
         post.return_value = response({"total": 2, "jobPostings": [
