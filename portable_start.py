@@ -12,6 +12,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import threading
@@ -41,7 +42,10 @@ def upgrade_sources(app: Path, data: Path) -> None:
     else:
         baseline = json.loads((app / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"]
         history = {name: {k: [v] for k, v in board.items()} for name, board in baseline.items()}
+        history["__since__"] = {name: 1 for name in baseline}
     boards = existing.setdefault("boards", {})
+    since = history.get("__since__", {})
+    installed = existing.get("sources_version", 1)     # configs before versioning held the v1 sources
     identity = {"ats", "tenant", "site", "host", "domain", "token", "repo", "url"}
 
     def shipped(known: dict, key: str, current: dict) -> bool:
@@ -50,8 +54,9 @@ def upgrade_sources(app: Path, data: Path) -> None:
 
     for name, new in bundled.get("boards", {}).items():
         if name not in boards:
-            if name not in history:
-                boards[name] = new          # a source added since; a removed old one stays removed
+            # A source newer than this config is added; one it already had was deleted by the recipient.
+            if name not in history or since.get(name, installed + 1) > installed:
+                boards[name] = new
             continue
         current, known = boards[name], history.get(name)
         if not isinstance(current, dict) or known is None:
@@ -118,17 +123,27 @@ class RotatingLog(io.TextIOBase):
         self._file = self._open()
 
     def _open(self):
-        if self.path.exists() and self.path.stat().st_size > LOG_LIMIT:
-            self.path.replace(self.path.with_suffix(".log.1"))
+        try:
+            if self.path.exists() and self.path.stat().st_size > LOG_LIMIT:
+                self.path.replace(self.path.with_suffix(".log.1"))
+        except OSError:
+            pass      # another process has the log open: keep appending, roll over later
         return self.path.open("a", encoding="utf-8", errors="replace")
 
     def write(self, text):
+        # Logging must never take the server down: a failed write or rollover is dropped.
         with self._lock:
-            self._file.write(text)
-            self._file.flush()
-            if self._file.tell() > LOG_LIMIT:
-                self._file.close()
-                self._file = self._open()
+            try:
+                self._file.write(text)
+                self._file.flush()
+                if self._file.tell() > LOG_LIMIT:
+                    self._file.close()
+                    self._file = self._open()
+            except (OSError, ValueError):
+                try:
+                    self._file = self._open()
+                except OSError:
+                    pass
         return len(text)
 
     def writable(self):
@@ -144,6 +159,23 @@ def server_command(data: Path) -> list[str]:
     pythonw = Path(sys.executable).with_name("pythonw.exe")
     return [str(pythonw if pythonw.exists() else Path(sys.executable)),
             str(Path(__file__).resolve()), "--serve", "--data-dir", str(data)]
+
+
+def should_repoint_autostart(current: str | None, command: str, data: Path) -> bool:
+    """Move the sign-in start to this copy only when it already starts Jobwatch
+    for this same data folder (a test copy or second data folder never takes it).
+    JOBWATCH_NO_AUTOSTART=1 (the bundle verifier) leaves it alone."""
+    if not current or current == command or "portable_start.py" not in current:
+        return False
+    if os.environ.get("JOBWATCH_NO_AUTOSTART"):
+        return False
+    found = re.search(r'--data-dir\s+(?:"([^"]+)"|(\S+))', current)
+    if not found:
+        return False
+    try:
+        return Path(found.group(1) or found.group(2)).resolve() == data.resolve()
+    except OSError:
+        return False
 
 
 def stop_running(url: str) -> bool:
@@ -243,7 +275,13 @@ def main(argv=None) -> int:
         parser.error("This package runs on Windows 10/11 (64-bit).")
     data = args.data_dir.resolve()
     data.mkdir(parents=True, exist_ok=True)
+    lock = None
     if args.serve:
+        # Lock first: a second server (e.g. the sign-in start while one runs) exits
+        # without touching the log, so it can never block the log's rollover.
+        lock = acquire_lock(data / "running.lock")
+        if lock is None:
+            return 0
         sys.stdout = sys.stderr = RotatingLog(data / "jobwatch.log")
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -251,11 +289,9 @@ def main(argv=None) -> int:
     if not (args.serve or args.console):
         return launch(args, data)
     app = Path(__file__).resolve().parent
-    lock = acquire_lock(data / "running.lock")
+    lock = lock or acquire_lock(data / "running.lock")
     state = data / "instance.json"
     if lock is None:
-        if args.serve:
-            return 0          # e.g. the sign-in start while another copy already runs
         for _ in range(20):
             url = instance_url(state)
             if url:
@@ -291,8 +327,8 @@ def main(argv=None) -> int:
         service.autostart_command = subprocess.list2cmdline(server_command(data))
         service.log_path = data / "jobwatch.log" if args.serve else None
         current = autostart_value()
-        if current and "portable_start.py" in current and current != service.autostart_command:
-            try:      # the sign-in start follows the newest copy that was opened
+        if args.serve and should_repoint_autostart(current, service.autostart_command, data):
+            try:      # the sign-in start follows the newest copy opened for the same data
                 set_autostart(service.autostart_command)
             except Exception as exc:
                 print(f"Could not update the sign-in start: {exc}", flush=True)

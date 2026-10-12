@@ -38,7 +38,8 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
         assert config["profile"]["graduation_year"] is None
         assert not config["healthcheck_url"]
         runtime = app / "runtime/python.exe"
-        env = {**os.environ, "PATH": str(Path(os.environ["SystemRoot"]) / "System32"),
+        env = {**os.environ, "JOBWATCH_NO_AUTOSTART": "1",   # never move the real sign-in start
+               "PATH": str(Path(os.environ["SystemRoot"]) / "System32"),
                "PYTHONHOME": "Z:\\no-global-python", "PYTHONPATH": "Z:\\no-global-packages"}
         isolated = subprocess.check_output([str(runtime), "-c",
             "import sys,requests,pypdf,watcher,sqlite3; print(sys.executable); print(requests.__file__); print(pypdf.__file__); print(watcher.__file__); c=sqlite3.connect(':memory:'); c.execute('CREATE VIRTUAL TABLE f USING fts5(body)'); c.close()"],

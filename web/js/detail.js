@@ -241,13 +241,19 @@ export async function saveJob(job, status = 'saved') {
     location: job.location, url: job.url, salary: job.salary, posted: job.posted}});
 }
 
+// Shortcuts must never move a tracked application backwards or delete it.
+const EARLY_STATUSES = ['discovered', 'saved', 'preparing'];
+
 export async function quickAction(action, job, ctx) {
+  const status = job.app_status || job.application?.status;
   try {
     if (action === 'save') {
+      if (status) { toast(`Already in your tracker as ${STATUS_LABELS[status] || status}`); return; }
       await saveJob(job, 'saved');
       toast(`Saved · ${job.company} — ${job.title}`, {action: {label: 'Undo', fn: async () => { await del(`/api/applications/${enc(job.key)}`); ctx.changed(); }}});
     } else if (action === 'applied') {
-      if (job.app_status || job.application) await patch(`/api/applications/${enc(job.key)}`, {status: 'applied'});
+      if (status && !EARLY_STATUSES.includes(status)) { toast(`Already marked ${STATUS_LABELS[status] || status}`); return; }
+      if (status) await patch(`/api/applications/${enc(job.key)}`, {status: 'applied'});
       else await saveJob(job, 'applied');
       toast(`Marked applied · ${job.company}`);
     } else if (action === 'open') {

@@ -29,7 +29,10 @@ from intel import (CONFIG_DIR, FACTS_VERSION, build_facts, config_fingerprint, i
 # Adapters that return the board's complete listing.  Only for these does
 # "missing from a successful poll" mean the posting was taken down; the rest
 # are windows (newest N, last 24h) where jobs simply scroll out of view.
-COMPLETE_LISTING_ATS = {"greenhouse", "lever", "ashby", "janestreet", "marqeta", "github_listings", "github_md"}
+# Markdown READMEs (github_md) are left out: many show only a window of the newest
+# rows (zapply ~600, zshah "648 of 1182"), so a row scrolling off is not a removal.
+# A README verified to list everything can opt in with "complete_listing": true.
+COMPLETE_LISTING_ATS = {"greenhouse", "lever", "ashby", "janestreet", "marqeta", "github_listings"}
 SOURCE_RANK = {"linkedin": 0, "github_listings": 1, "github_md": 1}
 DIRECT_RANK = 3
 INDIRECT_RANK = -1      # lists whose links often miss the posting (config: indirect_links)
@@ -231,6 +234,7 @@ class IntelStore:
         self.kb_version = config_fingerprint(config_dir)
         self.boards = {k: v for k, v in (config.get("boards") or {}).items() if not k.startswith("_")}
         self.sections = board_sections(config)
+        self._stored_profile = profile is None
         self.profile = profile if profile is not None else load_profile(con, config)
         self.watched = set(watched_companies(con))
         self.version = profile_version(self.profile, sorted(self.watched))
@@ -402,7 +406,16 @@ class IntelStore:
         # If a profile edit races with this pass, old results stay invisible
         # because queries join against that authoritative version.
         if resume and resume[0] != self.version:
-            return 0
+            # Either this store is stale (the profile changed after it was built:
+            # skip, the next pass scores) or the saved version drifted because the
+            # version's inputs changed (e.g. a new profile default in an update).
+            # The second would stop scoring for good, so re-sync it.
+            current = profile_version(load_profile(self.con, self.config), sorted(watched_companies(self.con)))
+            if not self._stored_profile or current != self.version:
+                return 0
+            self.con.execute("UPDATE candidate_resume SET version=? WHERE id=1", (self.version,))
+            self.con.execute("UPDATE job_intel SET profile_version=NULL WHERE profile_version IS NOT NULL "
+                             "AND profile_version != ?", (self.version,))
         now = time.time()
         stale_before = now - RESCORE_SECONDS
         recent_iso = (datetime.now(timezone.utc) - timedelta(days=32)).isoformat(timespec="seconds")

@@ -827,6 +827,8 @@ class JobwatchService:
             if not title:
                 raise ApiError("job title and key are required")
             existing = con.execute("SELECT * FROM applications WHERE job_key=?", (key,)).fetchone()
+            if existing and status == "saved":
+                status = existing["status"]     # saving again never resets progress; PATCH changes status
             ts = utcnow()
             fields = self._application_fields(payload, existing)
             if status == "applied" and not fields["applied_date"]:

@@ -340,12 +340,60 @@ def fetch_smartrecruiters(cfg):
     return out
 
 
+# Workday stops at 2000: "total" never exceeds it and offsets past it repeat
+# earlier pages (Citi: ~4,200 postings). Bigger searches are split by a facet.
+WORKDAY_TOTAL_CAP = 2000
+
+
+def _workday_split_facet(facets, applied, limit):
+    """(estimated size, [(parameter, value id), ...]) for the flat facet that
+    covers the most postings, or None when no facet covers the capped search
+    or the search is larger than the source limit. Parts still at the cap are
+    split again by another facet."""
+    best = None
+    for facet in facets or []:
+        param, values = facet.get("facetParameter"), facet.get("values") or []
+        if not param or param in applied or not values or any("values" in v for v in values):
+            continue
+        parts = [(param, v["id"], v.get("count", 0)) for v in values if v.get("id")]
+        coverage = sum(c for _, _, c in parts)
+        if not parts or len(parts) > 100 or coverage < WORKDAY_TOTAL_CAP:
+            continue          # e.g. a "remote" facet covering 10 of 14,000 postings
+        key = (coverage, -max(c for _, _, c in parts))
+        if best is None or key > best[0]:
+            best = (key, [(p, i) for p, i, _ in parts])
+    if best is None or best[0][0] > limit:
+        return None
+    return best[0][0], best[1]
+
+
+def _fetch_workday_split(cfg, parts, limit):
+    applied = cfg.get("facets", {}) or {}
+    out, seen = SourceListing(), set()
+    out.complete = True
+    for param, value in parts:
+        part = fetch_workday({**cfg, "facets": {**applied, param: [value]}, "max": limit})
+        for job in part:
+            if job["id"] not in seen and len(out) < limit:
+                seen.add(job["id"])
+                out.append(job)
+        if not part.complete:
+            out.complete = False
+            out.reason = part.reason
+    if len(out) >= limit:
+        out.complete = False
+        out.reason = f"Workday reached source limit {limit}"
+    out.total = len(out) if out.complete else None
+    return out
+
+
 def fetch_workday(cfg):
     host, tenant, site = cfg["host"], cfg["tenant"], cfg["site"]
     url = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
     out, offset, seen = SourceListing(), 0, set()
     raw_pages, malformed = set(), 0
     limit = _source_limit(cfg)
+    capped = None          # estimated size when only the first 2000 can be read
     while offset < limit:
         body = {"appliedFacets": cfg.get("facets", {}), "limit": min(20, limit - offset),
                 "offset": offset, "searchText": cfg.get("search", "")}
@@ -354,7 +402,17 @@ def fetch_workday(cfg):
                                    "Content-Type": "application/json"})
         r.raise_for_status()
         data = r.json()
-        if out.total is None and isinstance(data.get("total"), int):
+        if offset == 0 and isinstance(data.get("total"), int) and data["total"] >= WORKDAY_TOTAL_CAP:
+            split = _workday_split_facet(data.get("facets"), cfg.get("facets", {}) or {}, limit)
+            if split:
+                return _fetch_workday_split(cfg, split[1], limit)
+            # Too large (or unsplittable) to read in full: keep the first 2000,
+            # but never treat them as the whole listing.
+            sizes = [sum(v.get("count", 0) for v in f.get("values") or [])
+                     for f in data.get("facets") or [] if not any("values" in v for v in f.get("values") or [])]
+            capped = max(sizes + [WORKDAY_TOTAL_CAP])
+            limit = min(limit, WORKDAY_TOTAL_CAP)
+        if out.total is None and capped is None and isinstance(data.get("total"), int):
             out.total = data["total"]
         posts = data.get("jobPostings")
         if not isinstance(posts, list):
@@ -395,6 +453,10 @@ def fetch_workday(cfg):
         if out.total is not None and offset >= out.total:
             out.complete = True
             break
+    if capped is not None:
+        out.complete = False
+        out.reason = (f"Workday lists about {capped:,} postings but serves only the first "
+                      f"{WORKDAY_TOTAL_CAP:,}; removals are not tracked for this source")
     _finish_listing(out, "Workday", limit)
     if malformed:
         out.complete = False
@@ -1837,14 +1899,38 @@ def send_finance_alerts(webhook, cards, tier, mention=""):
     if mention and tier == "urgent":
         content = f"{mention}\n{content}"
     ok = True
-    for i in range(0, len(cards), 10):
-        payload = {"embeds": cards[i:i + 10]}
-        if i == 0:
+    for n, chunk in enumerate(_embed_chunks(cards)):
+        payload = {"embeds": chunk}
+        if n == 0:
             payload["content"] = content
         if tier != "urgent":
             payload["flags"] = 4096         # high-fit: visible, but no push buzz
         ok &= _post_with_retry(lambda p=payload: requests.post(webhook, json=p, timeout=10), "discord")
     return ok
+
+
+DISCORD_EMBED_CHARS = 5500      # Discord rejects a message whose embeds total over 6000 characters
+
+
+def _embed_size(card):
+    parts = [card.get("title", ""), card.get("description", ""),
+             (card.get("footer") or {}).get("text", ""), (card.get("author") or {}).get("name", "")]
+    parts += [f.get("name", "") + f.get("value", "") for f in card.get("fields") or []]
+    return sum(len(str(p)) for p in parts)
+
+
+def _embed_chunks(cards):
+    """Up to 10 embeds per message and under Discord's total character limit."""
+    chunk, size = [], 0
+    for card in cards:
+        n = _embed_size(card)
+        if chunk and (len(chunk) == 10 or size + n > DISCORD_EMBED_CHARS):
+            yield chunk
+            chunk, size = [], 0
+        chunk.append(card)
+        size += n
+    if chunk:
+        yield chunk
 
 
 def deliver_fit(sub, jobs, intel_rows, con, config, profile):
@@ -1889,8 +1975,10 @@ def deliver_fit(sub, jobs, intel_rows, con, config, profile):
                 or sub["discord"])
         cards = [_finance_card({**job, "_board": board}, intel, company, tier, dashboard_url)
                  for board, job, intel, company in shown]
-        if hook:
-            ok &= send_finance_alerts(hook, cards, tier, sub["mention"])
+        if hook and not send_finance_alerts(hook, cards, tier, sub["mention"]):
+            ok = False
+            buckets["digest"].extend(shown)     # not lost: the queued feed retries delivery
+            continue
         if sub["telegram_chat"]:
             text = "\n\n".join(
                 f"{'🚨' if tier == 'urgent' else '⭐'} {company} — {job['title']}\n"
@@ -1962,28 +2050,50 @@ def flush_feeds(config, con, subs, force=False):
                 continue
             seen.add(key)
             by_tier.setdefault(tier, []).append(
-                ("", {"company": company, "title": title, "url": url,
+                (ts, {"company": company, "title": title, "url": url,
                       "location": location, "salary": salary, "posted": posted}))
-        main = sub["discord"]
         watch = sub.get("watch")
-        ok = True
-        if by_tier["intern"]:
-            hook = sub["feeds"].get("intern") or main
+        headers = {"intern": ("🛠️ {n} new internship{s}", 0x5865F2, "intern"),
+                   "ft": ("💼 {n} new-grad / full-time role{s}", 0x95A5A6, "full_time")}
+        for tier, queued in by_tier.items():
+            if not queued:
+                continue
+            title_fmt, color, feed = headers.get(tier, headers["ft"])
+            channels = {}
+            hook = sub["feeds"].get(feed) or sub["discord"]
             if hook:
-                ok &= send_discord_feed(hook, "🛠️ {n} new internship{s}",
-                                        by_tier["intern"], 0x5865F2, watch)
-        if by_tier["ft"]:
-            hook = sub["feeds"].get("full_time") or main
-            if hook:
-                ok &= send_discord_feed(hook,
-                                        "💼 {n} new-grad / full-time role{s}",
-                                        by_tier["ft"], 0x95A5A6, watch)
-        if sub["telegram_chat"]:
-            everything = by_tier["intern"] + by_tier["ft"]
-            ok &= send_telegram(sub["telegram_chat"], _telegram_text(everything))
-        if ok:
-            con.execute("DELETE FROM pending WHERE sub=?", (sub["name"],))
-            log(f"  -> {sub['name']}: flushed {len(rows)} queued feed job(s)")
+                channels["discord"] = lambda items, h=hook: send_discord_feed(h, title_fmt, items, color, watch)
+            if sub["telegram_chat"]:
+                channels["telegram"] = lambda items: send_telegram(sub["telegram_chat"], _telegram_text(items))
+            # Each channel remembers how far it got, so one failing channel never
+            # makes the others resend; a failing channel waits before retrying.
+            reached = [_deliver_feed(con, sub["name"], tier, name, send, queued)
+                       for name, send in channels.items()]
+            cutoff = min(reached) if reached else max(ts for ts, _ in queued)
+            if cutoff:
+                con.execute("DELETE FROM pending WHERE sub=? AND tier=? AND ts<=?", (sub["name"], tier, cutoff))
+        log(f"  -> {sub['name']}: flushed queued feed jobs")
+
+
+FEED_RETRY_SECONDS = 1800
+
+
+def _deliver_feed(con, sub, tier, channel, send, queued):
+    """Send this channel the queued jobs it has not had yet; returns the newest
+    queue timestamp it has received ('' when none)."""
+    key = f"feed_sent:{sub}:{tier}:{channel}"
+    row = con.execute("SELECT v FROM kv WHERE k=?", (key,)).fetchone()
+    state = json.loads(row[0]) if row else {}
+    upto = state.get("upto", "")
+    fresh = [(ts, item) for ts, item in queued if ts > upto]
+    if not fresh or time.time() - state.get("failed_at", 0) < FEED_RETRY_SECONDS:
+        return upto
+    if send([("", item) for _, item in fresh]):
+        state = {"upto": max(ts for ts, _ in fresh)}
+    else:
+        state["failed_at"] = time.time()
+    con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", (key, json.dumps(state)))
+    return state.get("upto", "")
 
 
 def maybe_digest(config, con, subs):

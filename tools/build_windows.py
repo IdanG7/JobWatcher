@@ -86,7 +86,7 @@ def clean_config(source: dict) -> dict:
                    target_cycles=[], target_locations=[], target_company_types=[],
                    skills=[], languages=[], work_authorization={"CA": "unknown", "US": "unknown"})
     return {
-        "sources_version": 4,
+        "sources_version": 5,
         "interval_seconds": 300, "feed_flush_minutes": 90, "digest_hour_utc": None,
         "healthcheck_url": "", "dashboard_url": "", "description_budget": 60,
         "description_per_board": 12, "facts_per_cycle": 5000, "profile": profile,
@@ -113,9 +113,9 @@ def stage_app(source: Path, destination: Path) -> None:
     original = json.loads((source / "config.json").read_text(encoding="utf-8"))
     cleaned = clean_config(original)
     # Record this release's source defaults so later upgrades recognise them as unedited.
-    from tools.source_history import load_history, merge_history, save_history
+    from tools.source_history import load_history, record_release, save_history
     history_path = source / "config" / "source_defaults_history.json"
-    save_history(merge_history(load_history(history_path), cleaned["boards"]), history_path)
+    save_history(record_release(load_history(history_path), cleaned["boards"], cleaned["sources_version"]), history_path)
     (app / "config").mkdir()
     for name in KNOWLEDGE:
         shutil.copyfile(source / "config" / name, app / "config" / name)
