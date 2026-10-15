@@ -152,6 +152,14 @@ export function greeting(date = new Date()) {
   return h < 5 ? 'Working late.' : h < 12 ? 'Good morning.' : h < 18 ? 'Good afternoon.' : 'Good evening.';
 }
 
+/** Sticky `top` (px) for a side panel without a scrollbar of its own, after the page
+ *  scrolled by `delta`. One that fits stays pinned at `base`; a taller one moves with
+ *  the page until its end (scrolling down) or its start (scrolling up) is in view. */
+export function followTop(top, delta, {base, height, viewport, gap = 16}) {
+  if (height <= viewport - base - gap) return base;
+  return Math.min(base, Math.max(viewport - height - gap, top - delta));
+}
+
 export function debounce(fn, ms = 200) {
   let timer;
   return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };

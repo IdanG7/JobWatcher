@@ -373,7 +373,6 @@ async function boot() {
   document.addEventListener('keydown', onKey);
   ctx.applyTheme = () => { applyTheme(); current.view?.redraw?.(); };
   initPalette(ctx, {toggleTheme, pollNow, setDensity});
-  if (store.get('jw-hints') === 'off') document.getElementById('hint-bar').hidden = true;
 
   // Each tab paints its loading/empty state immediately. Metadata and profile
   // requests must not gate the entire application shell.
@@ -382,6 +381,7 @@ async function boot() {
   refreshNav();
   refreshStatus();
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
+  ctx.checkForUpdate = checkForUpdate;      // Settings → Check for updates
   checkForUpdate();
   timers.push(setInterval(checkForUpdate, 10 * 60 * 1000));      // cheap: the server checks GitHub itself
   // The server was stopped from Settings: nothing may poll a page that no longer exists.

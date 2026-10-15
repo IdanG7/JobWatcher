@@ -2,7 +2,7 @@
 // Interests (job families) come from the reviewed profile and can be changed
 // per search; categories and quick filters follow them.
 import {get} from '../api.js';
-import {age, compact, debounce, esc, listParam, safeUrl, toggleListParam} from '../lib.js';
+import {age, compact, debounce, esc, followTop, listParam, safeUrl, toggleListParam} from '../lib.js';
 import {
   STATUS_LABELS, badgeLabel, deadlineCell, emptyState, errorState, fitMeter, icon, locationText, logo,
   options, prettyKey, skeletonRows, statusPill,
@@ -12,6 +12,8 @@ import {setDrawerDocked} from '../detail.js';
 
 const PER_PAGE = 50;
 const LIST_KEYS = new Set(['category', 'location', 'cycle', 'stage', 'company_type']);
+// Whole-country location filters (job_query.py matches 'canada', 'us' and two-letter codes).
+export const COUNTRY_FILTERS = [{key: 'canada', label: 'Canada'}, {key: 'us', label: 'United States'}, {key: 'UK', label: 'United Kingdom'}];
 const COLUMNS = [
   {key: 'fit', label: 'Fit', sort: 'fit', cls: 'c-fit'},
   {key: 'role', label: 'Role', sort: 'title', cls: 'c-role'},
@@ -286,7 +288,7 @@ export async function render(root, ctx) {
     return (meta.cycles || []).find(x => x.key === c)?.label || (c.startsWith('new_grad_') ? `New Grad ${c.slice(-4)}` : prettyKey(c));
   }
   function cityText(c) {
-    return c === 'remote' ? 'Remote' : (meta.cities || []).find(x => x.key === c)?.label || {canada: 'Canada', us: 'United States'}[c] || prettyKey(c);
+    return c === 'remote' ? 'Remote' : (meta.cities || []).find(x => x.key === c)?.label || COUNTRY_FILTERS.find(x => x.key === c)?.label || prettyKey(c);
   }
 
   function quickActive(q) {
@@ -383,7 +385,7 @@ export async function render(root, ctx) {
         <p class="fnote">${otherFams.length === 1 ? esc(otherFams[0].label) : 'These families'} ${otherFams.length === 1 ? 'is' : 'are'} not split into subcategories yet; search or Level narrows them further.</p></div>`);
     }
     const cityCounts = fmap('city');
-    const locations = [{key: 'canada', label: 'Canada (all)'}, {key: 'us', label: 'United States (all)'}, {key: 'remote', label: 'Remote'},
+    const locations = [...COUNTRY_FILTERS.map(c => ({key: c.key, label: `${c.label} (all)`})), {key: 'remote', label: 'Remote'},
       ...(meta.cities || []).filter(c => c.target || cityCounts[c.key] || (ctx.profile?.target_locations || []).includes(c.key))
         .sort((a, b) => (cityCounts[b.key] || 0) - (cityCounts[a.key] || 0))];
     const cycles = (facets.cycle || []).map(c => ({key: c.key, label: c.label}));
@@ -530,6 +532,27 @@ export async function render(root, ctx) {
     state.filtersOpen = false;
   }
   $('.opp-filters-btn').setAttribute('aria-expanded', String(!state.filtersHidden));
+
+  // Docked filters have no scrollbar of their own, so the wheel always scrolls the page;
+  // a panel taller than the window rides along until its end or start is in view.
+  const panel = $('[data-filters]');
+  const follow = {y: scrollY, top: null, base: 0};
+  function followPage() {
+    const delta = scrollY - follow.y;
+    follow.y = scrollY;
+    if (getComputedStyle(panel).position !== 'sticky' || !panel.offsetHeight) return;
+    if (follow.top === null) {      // where the stylesheet pins it, below the nav
+      panel.style.removeProperty('--filters-top');
+      follow.base = follow.top = parseFloat(getComputedStyle(panel).top) || 0;
+    }
+    follow.top = followTop(follow.top, delta, {base: follow.base, height: panel.offsetHeight, viewport: innerHeight});
+    panel.style.setProperty('--filters-top', `${follow.top}px`);
+  }
+  const onResize = () => { follow.top = null; followPage(); };
+  const panelSize = new ResizeObserver(() => followPage());     // groups opening, filters shown again
+  panelSize.observe(panel);
+  addEventListener('scroll', followPage, {passive: true});
+  addEventListener('resize', onResize);
 
   const set = (patch) => ctx.setParams({...patch, page: null, saved: patch.saved ?? null});
 
@@ -722,6 +745,9 @@ export async function render(root, ctx) {
       clearTimeout(state.timer);
       wide.removeEventListener('change', syncReview);
       document.removeEventListener('click', onDocClick);
+      removeEventListener('scroll', followPage);
+      removeEventListener('resize', onResize);
+      panelSize.disconnect();
       document.body.classList.remove('review-docked');
       setDrawerDocked(false);
     },

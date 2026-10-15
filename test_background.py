@@ -23,7 +23,9 @@ class BackgroundTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_dev_server_cannot_be_stopped_or_autostarted_remotely(self):
-        self.assertEqual({"can_stop": False, "installed": False, "autostart_supported": False, "autostart": False, "log": ""},
+        from version import APP_VERSION
+        self.assertEqual({"can_stop": False, "version": APP_VERSION, "updates": False, "installed": False,
+                          "autostart_supported": False, "autostart": False, "log": ""},
                          self.service.background_info())
         with self.assertRaises(ApiError):
             self.service.shutdown()

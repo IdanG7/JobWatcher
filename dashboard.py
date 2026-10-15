@@ -1536,7 +1536,9 @@ class JobwatchService:
 
     # ------------------------------------------------------------ background running
     def background_info(self) -> dict:
+        from version import APP_VERSION
         return {"can_stop": self.on_shutdown is not None,
+                "version": APP_VERSION, "updates": self.updater is not None,
                 "installed": bool(self.app_root and (self.app_root / "unins000.exe").exists()),
                 "autostart_supported": bool(self.autostart_command),
                 "autostart": autostart_value() == self.autostart_command if self.autostart_command else False,
@@ -1867,6 +1869,14 @@ class JobwatchService:
         self._update_cache = (expires, info)
         return info
 
+    def check_update(self) -> dict:
+        """Check GitHub now (Settings); the Windows app then downloads in the background."""
+        if self.updater is not None:
+            self.updater.check_now()
+        else:
+            self._update_cache = None
+        return self.update_info()
+
     def _old_copy_note(self) -> Path | None:
         return self.updater.dir / "old-copy.txt" if self.updater is not None else None
 
@@ -1992,6 +2002,7 @@ ROUTES = [
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
     ("GET", r"/api/update", lambda s, m, q, b: s.update_info()),
+    ("POST", r"/api/update/check", lambda s, m, q, b: s.check_update()),
     ("POST", r"/api/update/apply", lambda s, m, q, b: s.apply_update()),
     ("POST", r"/api/update/old-copy/dismiss", lambda s, m, q, b: s.dismiss_old_copy()),
     ("POST", r"/api/refresh", lambda s, m, q, b: s.trigger_poll() if b.get("poll") else (

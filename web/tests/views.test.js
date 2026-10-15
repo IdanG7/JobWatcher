@@ -3,7 +3,7 @@ import {test} from 'node:test';
 
 import {funnel, hBars, heatmap} from '../js/charts.js';
 import {badge, fitMeter, options} from '../js/ui.js';
-import {apiParams, interestsFromTargets, resumeCategories} from '../js/views/opportunities.js';
+import {COUNTRY_FILTERS, apiParams, interestsFromTargets, resumeCategories} from '../js/views/opportunities.js';
 
 test('resume match picks each parent category with its groups', () => {
   assert.equal(resumeCategories(['public_markets.asset_management', 'corporate_finance.fpa', 'corporate_finance.treasury', 'quant']),
@@ -57,4 +57,11 @@ test('charts: horizontal bars, funnel conversion and heatmap levels', () => {
   const h = heatmap(matrix);
   assert.match(h, /data-l="5" data-tip="<b>Mon 09:00 UTC<\/b> · 10 postings"/);
   assert.match(h, /data-l="1" data-tip="<b>Mon 10:00 UTC<\/b> · 1 posting"/);
+});
+
+test('location filter offers whole countries the server matches by country, the UK included', () => {
+  assert.deepEqual(COUNTRY_FILTERS.map(c => c.key), ['canada', 'us', 'UK']);
+  // job_query.py treats 'canada', 'us' and two-letter upper-case codes as countries
+  for (const {key} of COUNTRY_FILTERS) assert.ok(['canada', 'us'].includes(key) || /^[A-Z]{2}$/.test(key), key);
+  assert.equal(COUNTRY_FILTERS.find(c => c.key === 'UK').label, 'United Kingdom');
 });

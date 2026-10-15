@@ -56,6 +56,15 @@ def merge_profile(*layers: dict | None) -> dict:
                 result[key] = {**result[key], **value}
             else:
                 result[key] = copy.deepcopy(value)
+    # Settings once saved the United Kingdom as GB; locations are tagged UK.
+    if isinstance(result.get("target_countries"), list):
+        result["target_countries"] = list(dict.fromkeys(
+            "UK" if c == "GB" else c for c in result["target_countries"]))
+    auth = result.get("work_authorization")
+    if isinstance(auth, dict) and "GB" in auth:
+        gb = auth.pop("GB")
+        if auth.get("UK") in (None, "unknown"):
+            auth["UK"] = gb
     return result
 
 

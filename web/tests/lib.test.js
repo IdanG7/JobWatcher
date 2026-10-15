@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
 import {
-  age, buildHash, cleanParams, cycleLabel, daysUntil, deadlineText, esc, fitBand, niceMax,
+  age, buildHash, cleanParams, cycleLabel, daysUntil, deadlineText, esc, fitBand, followTop, niceMax,
   parseHash, safeUrl, toggleListParam,
 } from '../js/lib.js';
 
@@ -48,4 +48,14 @@ test('labels, bands and axis maths', () => {
   assert.equal(fitBand(10), 'low');
   assert.equal(niceMax(37), 40);
   assert.equal(niceMax(1234), 1500);
+});
+
+test('a side panel taller than the window follows the page to its end and back to its start', () => {
+  const box = {base: 68, height: 1276, viewport: 860};      // 16px gap: lowest top is 860 - 1276 - 16
+  assert.equal(followTop(68, 100, box), -32);               // scrolling down moves it with the page
+  assert.equal(followTop(-400, 100, box), -432);            // ...until its end is in view
+  assert.equal(followTop(-432, 300, box), -432);            // then it stays put
+  assert.equal(followTop(-432, -100, box), -332);           // scrolling up brings its start back
+  assert.equal(followTop(0, -200, box), 68);                // ...and pins it under the nav
+  assert.equal(followTop(-300, 0, {...box, height: 600}), 68);   // a panel that fits stays pinned
 });

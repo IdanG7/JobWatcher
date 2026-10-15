@@ -40,6 +40,38 @@ class MatchingPolicyTests(unittest.TestCase):
         self.assertEqual(2, con.execute("SELECT COUNT(*) FROM job_intel i CROSS JOIN jobs j WHERE " +
                                        " AND ".join(where), args).fetchone()[0])
 
+    def test_united_kingdom_filter_covers_the_whole_country(self):
+        con = sqlite3.connect(":memory:")
+        self.addCleanup(con.close)
+        con.executescript("""CREATE TABLE jobs(title TEXT); INSERT INTO jobs VALUES ('intern');
+            CREATE TABLE job_intel(country TEXT, location_bucket TEXT, facts TEXT);
+            CREATE TABLE job_state(status TEXT); INSERT INTO job_state VALUES ('active');""")
+        kn = load_knowledge()
+        for location in ("London, United Kingdom", "Edinburgh, Scotland", "Manchester, England, UK",
+                         "London, ON", "New York, NY"):
+            facts = build_facts({"title": "Finance Intern", "location": location}, kn)
+            loc = facts["location"]
+            con.execute("INSERT INTO job_intel VALUES (?,?,?)",
+                        ((loc["countries"] or [None])[0], loc["bucket"], json.dumps(facts)))
+        where, args = build_where({"location": "UK", "all_sources": "1", "include_hidden": "1",
+                                   "include_closed": "1"}, False)
+        self.assertEqual(3, con.execute("SELECT COUNT(*) FROM job_intel i CROSS JOIN jobs j WHERE " +
+                                       " AND ".join(where), args).fetchone()[0])
+
+    def test_saved_united_kingdom_choices_use_the_location_code(self):
+        # Settings once saved the United Kingdom as GB; postings are tagged UK.
+        profile = merge_profile({"target_countries": ["CA", "GB"],
+                                 "work_authorization": {"CA": "citizen", "GB": "citizen"}})
+        self.assertEqual(["CA", "UK"], profile["target_countries"])
+        self.assertEqual("citizen", profile["work_authorization"]["UK"])
+        self.assertNotIn("GB", profile["work_authorization"])
+        kn = load_knowledge()
+        facts = build_facts({"title": "Investment Banking Summer Analyst", "location": "London, United Kingdom"}, kn)
+        result = match_resume(facts, profile, score_job(facts, profile, kn))
+        notes = [*result.get("exclusions", []), *result.get("review", [])]
+        self.assertNotIn("Location is outside your target countries", notes)
+        self.assertNotIn("Work authorization is not confirmed for the posting location", notes)
+
     def test_canadian_city_disambiguates_ca_but_california_still_us(self):
         kn = load_knowledge()
         for location, expected in (("Toronto, CA", ["CA"]), ("Los Angeles, CA", ["US"])):

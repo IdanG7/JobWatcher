@@ -50,7 +50,7 @@ function matches(job, p) {
   if (cycles.length && !cycles.some(c => (/^\d{4}$/.test(c) ? job.cycle_year === Number(c) : job.cycle === c))) return false;
   const locs = list(p.location);
   if (locs.length && !locs.some(l => (l === 'canada' ? job.country === 'CA' || (job.remote && job.country !== 'US')
-    : l === 'us' ? job.country === 'US' : l === 'remote' ? job.remote : job.cities.split(' ').includes(l)))) return false;
+    : l === 'us' ? job.country === 'US' : /^[A-Z]{2}$/.test(l) ? job.country === l : l === 'remote' ? job.remote : job.cities.split(' ').includes(l)))) return false;
   if (POSTED[p.posted] && job.posted_ref < Date.now() / 1000 - POSTED[p.posted] * 3600) return false;
   if (p.deadline) {
     if (p.deadline === 'rolling') return false;          // no rolling roles in the sample

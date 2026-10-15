@@ -115,6 +115,18 @@ class UpdateCheckTests(unittest.TestCase):
                     mock.patch.object(watcher.requests, "get", return_value=self.reply(tag, url)):
                 self.assertFalse(svc.update_info()["available"], tag)
 
+    def test_checking_from_settings_skips_the_cache(self):
+        svc = self.service()
+        with mock.patch("version.APP_VERSION", "0.1.6"), \
+                mock.patch.object(watcher.requests, "get", return_value=self.reply("v0.1.6")) as get:
+            self.assertFalse(svc.update_info()["available"])
+            get.return_value = self.reply("v0.1.7")
+            self.assertFalse(svc.update_info()["available"])      # cached for hours
+            info = svc.check_update()
+        self.assertEqual(2, get.call_count)
+        self.assertTrue(info["available"])
+        self.assertEqual("0.1.7", info["latest"])
+
     def test_offline_is_silent(self):
         svc = self.service()
         with mock.patch.object(watcher.requests, "get", side_effect=watcher.requests.ConnectionError()):

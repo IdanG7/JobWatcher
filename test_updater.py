@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from unittest.mock import patch
 
@@ -212,6 +214,38 @@ class UpdaterTests(unittest.TestCase):
             with self.assertRaises(UpdateError, msg=bad):
                 verify_manifest(*signed({**good, **bad}), public(self.key))
 
+    def settle(self, u):
+        deadline = time.monotonic() + 5
+        while u.snapshot()["state"] in ("checking", "downloading") and time.monotonic() < deadline:
+            time.sleep(0.01)
+        return u.snapshot()
+
+    def test_check_now_runs_one_background_check(self):
+        self.publish()
+        gate = threading.Event()
+        github = self.github
+
+        class Slow:
+            def get(self, url, **kwargs):
+                gate.wait(5)
+                return github.get(url, **kwargs)
+        u = Updater(self.root / "data", current="0.2.0", session=Slow(), public_key=public(self.key))
+        self.assertEqual(u.check_now()["state"], "checking")       # answers at once
+        self.assertEqual(u.check_now()["state"], "checking")       # a second press joins it
+        gate.set()
+        self.assertEqual(self.settle(u)["state"], "ready")
+        self.assertEqual(self.github.requests.count(API), 1)
+        self.github.requests.clear()
+        self.assertEqual(u.check_now()["state"], "ready")          # nothing more to fetch
+        self.assertEqual(self.github.requests, [])
+
+    def test_check_now_after_a_failure_tries_again(self):
+        self.publish()
+        u = self.updater()
+        u._set(state="failed", error="offline")
+        u.check_now()
+        self.assertEqual(self.settle(u)["state"], "ready")
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -262,6 +296,18 @@ class UpdateApiTests(ServiceFixture):
         self.assertEqual(self.service.update_info()["old_copy"], str(self.root / "zip copy"))
         self.service.dismiss_old_copy()
         self.assertIsNone(self.service.old_copy())
+
+    def test_check_from_settings(self):
+        info = self.service.background_info()
+        self.assertTrue(info["updates"])
+        self.assertEqual(info["version"], __import__("version").APP_VERSION)
+        info = self.service.check_update()
+        self.assertIn(info["state"], ("checking", "downloading", "ready"))
+        state = UpdaterTests.settle(self, self.service.updater)
+        self.assertEqual(state["state"], "ready")
+        self.assertTrue(self.service.update_info()["available"])
+        self.service.updater = None
+        self.assertFalse(self.service.background_info()["updates"])
 
     def test_apply_without_a_download_or_outside_the_app(self):
         with self.assertRaises(ApiError):

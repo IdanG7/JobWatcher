@@ -7,7 +7,7 @@ import {mountResume} from '../resume.js';
 
 const STAGES = [['internship', 'Internships'], ['new_grad', 'New grad / analyst programs'], ['entry', 'Entry level'], ['experienced', 'Experienced'], ['senior', 'Senior']];
 const WORK_AUTH = ['citizen', 'permanent_resident', 'authorized', 'needs_sponsorship', 'unknown'];
-const COUNTRIES = [['CA', 'Canada'], ['US', 'United States'], ['GB', 'United Kingdom']];
+const COUNTRIES = [['CA', 'Canada'], ['US', 'United States'], ['UK', 'United Kingdom']];
 
 export async function render(root, ctx) {
   root.innerHTML = `<div class="panel">${skeletonRows(10)}</div>`;
@@ -34,7 +34,7 @@ export async function render(root, ctx) {
 
   const checks = (name, items, selected) => items.map(([key, label]) => `<label class="check"><input type="checkbox" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}> ${esc(label)}</label>`).join('');
 
-  const discordHtml = () => `<h2>Discord notifications</h2>
+  const discordHtml = () => `<h3>Discord</h3>
         <p>Get Discord messages for new postings that match your profile, a morning summary of upcoming deadlines, interviews and follow-ups, and saved jobs that get taken down. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
         ${discord.configured ? `<p class="muted">Connected (webhook ${esc(discord.webhook_hint)}).</p>` : ''}
         ${discord.configured ? `<div class="field-row"><label class="field"><span>Which new postings to send</span><select class="select" data-discord-mode>
@@ -59,11 +59,50 @@ export async function render(root, ctx) {
 
   // The installed app is opened from the Start menu; a ZIP copy from its batch file.
   const startHint = () => (background.installed ? '<b>Jobwatch</b> from the Start menu' : '<b>Start Jobwatch.bat</b>');
-  const backgroundHtml = () => `<h2>Background</h2>
+  const backgroundHtml = () => `<h3>Running in the background</h3>
         <p>Jobwatch runs in the background without a window and keeps checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
         ${background.autostart_supported ? `<label class="check"><input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}> Start Jobwatch automatically when I sign in to Windows</label>` : ''}
         ${background.log ? `<p class="muted" style="font-size:11.5px">Log file: <code>${esc(background.log)}</code></p>` : ''}
         ${background.can_stop ? '<div class="save-bar"><button type="button" class="btn danger" data-act="shutdown">Stop Jobwatch</button></div>' : ''}`;
+
+  const updatesHtml = () => `<h3>Updates</h3>
+        <p>You have Jobwatch <b>${esc(background.version || '')}</b>. ${background.updates
+          ? 'It looks for a new version every 6 hours and downloads it in the background, then a banner at the top offers to restart.'
+          : 'This copy runs from source: a banner links to new releases instead of installing them.'}</p>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn sm" data-act="update-check">Check for updates</button>
+          <span class="muted" data-update-msg role="status" aria-live="polite"></span></div>`;
+
+  // Checks now, follows the download, then leaves "Restart to update" to the banner.
+  async function checkUpdates(btn) {
+    const say = text => { const out = root.querySelector('[data-update-msg]'); if (out) out.textContent = text; };
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    say('');
+    try {
+      let info = await post('/api/update/check', {});
+      for (const until = Date.now() + 5 * 60 * 1000; ['checking', 'downloading'].includes(info.state) && Date.now() < until;) {
+        say(info.state === 'downloading' ? `Downloading Jobwatch ${info.latest}…` : 'Asking GitHub for the latest release…');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (!root.isConnected) return;
+        info = await get('/api/update');
+      }
+      if (info.available || info.state === 'failed') {
+        ctx.store.set('jw-update-dismissed', null);      // asked on purpose: show it even after "Later"
+        ctx.checkForUpdate();
+      }
+      say(info.state === 'ready' ? `Jobwatch ${info.latest} is downloaded. Use “Restart to update” at the top of the page.`
+        : info.available ? `Jobwatch ${info.latest} is available. Use the download link at the top of the page.`
+        : info.state === 'failed' ? `Could not check for updates: ${info.error || 'unknown error'}`
+        : ['checking', 'downloading'].includes(info.state) ? 'Still working on it. The banner appears when the update is ready.'
+        : !info.latest ? 'Could not reach GitHub. Check your connection and try again.'
+        : `You have the latest version (${info.current}).`);
+    } catch (err) {
+      say(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Check for updates';
+    }
+  }
 
   function draw() {
     const roles = profile.target_roles || [];
@@ -75,16 +114,12 @@ export async function render(root, ctx) {
     <div class="page-head"><div><h1>Settings</h1><p class="sub">Your profile drives every fit score. It is stored in the local database only — never in config files or GitHub state.</p></div></div>
     <div class="settings-grid">
       <nav class="settings-nav" aria-label="Settings sections">
-        <a href="#s-resume" data-jump>Resume & matching</a><a href="#s-profile" data-jump>Candidate profile</a><a href="#s-roles" data-jump>Target roles</a><a href="#s-prefs" data-jump>Stages, cycles & locations</a>
-        <a href="#s-employers" data-jump>Employers</a><a href="#s-elig" data-jump>Eligibility</a><a href="#s-skills" data-jump>Skills</a>
-        <a href="#s-discord" data-jump>Discord</a><a href="#s-ai" data-jump>AI cover letters</a><a href="#s-background" data-jump>Background</a><a href="#s-alerts" data-jump>Alerts</a><a href="#s-views" data-jump>Saved views</a><a href="#s-appearance" data-jump>Appearance</a><a href="#s-privacy" data-jump>Privacy</a>
+        <a href="#s-resume" data-jump>Resume & matching</a><a href="#s-about" data-jump>About you</a><a href="#s-targets" data-jump>What you’re looking for</a>
+        <a href="#s-notify" data-jump>Notifications</a><a href="#s-ai" data-jump>Cover letters</a><a href="#s-app" data-jump>App</a>
       </nav>
       <div class="stack"><section class="panel settings-section" id="s-resume" data-resume-panel></section>
-      <section class="panel settings-section" id="s-discord">${discordHtml()}</section>
-      <section class="panel settings-section" id="s-ai">${aiHtml()}</section>
-      <section class="panel settings-section" id="s-background">${backgroundHtml()}</section>
-      <form class="stack" data-form novalidate>
-        <section class="panel settings-section" id="s-profile"><h2>Candidate profile</h2><p>Used to explain matches and check eligibility. Nothing here is required.</p>
+      <form class="stack" id="profile-form" data-form novalidate>
+        <section class="panel settings-section" id="s-about"><h2>About you</h2><p>Used to explain matches and check eligibility. Nothing here is required.</p>
           <div class="field-row"><label class="field"><span>Profile name</span><input class="input" name="name" value="${esc(profile.name || '')}"></label>
           <label class="field"><span>Headline</span><input class="input" name="headline" value="${esc(profile.headline || '')}"></label></div>
           <div class="field-row three">
@@ -97,66 +132,71 @@ export async function render(root, ctx) {
             <label class="field"><span>Program <span class="muted">(optional)</span></span><input class="input" name="edu_program" value="${esc(edu.program || '')}" placeholder="Commerce, Finance"></label>
             <label class="field"><span>GPA <span class="muted">(optional, 4.0 scale)</span></span><input class="input" name="edu_gpa" inputmode="decimal" value="${esc(edu.gpa ?? '')}"></label>
           </div>
+          <div class="settings-sub" id="s-elig"><h3>Eligibility</h3><p>Only compared against requirements a posting states explicitly; unknowns never penalize you.</p>
+            <div class="field-row three">${COUNTRIES.map(([k, label]) => `<label class="field"><span>Work authorization · ${label}</span><select class="select" name="auth_${k}">${options(WORK_AUTH.map(v => ({key: v, label: prettyKey(v)})), (profile.work_authorization || {})[k] || 'unknown')}</select></label>`).join('')}</div>
+            <label class="field"><span>Languages</span><input class="input" name="languages" value="${esc((profile.languages || []).join(', '))}" placeholder="English, French"></label>
+          </div>
+          <div class="settings-sub" id="s-skills"><h3>Skills</h3><p>Matched against skills extracted from descriptions (synonyms normalized, e.g. “DCF” → Valuation).</p>
+            <div class="tree">${Object.entries(skillGroups).map(([g, list]) => `<div class="tree-cat"><div style="font-weight:600;margin-bottom:4px">${esc(meta.skill_groups?.[g]?.label || meta.skill_groups?.[g] || prettyKey(g))}</div>${checks('skill', list.map(s => [s.key, s.label]), profile.skills || [])}</div>`).join('')}</div>
+          </div>
         </section>
 
-        <section class="panel settings-section" id="s-roles"><h2>Target roles</h2><p>Check a whole category or specific groups. Role match is worth up to 25 fit points.</p>
-          <div class="tree">${meta.taxonomy.map(c => `<div class="tree-cat"><label class="check"><input type="checkbox" name="role" value="${esc(c.key)}"${roles.includes(c.key) ? ' checked' : ''}> ${esc(c.label)}</label>
-            <div class="tree-subs">${c.subcategories.map(s => `<label class="check"><input type="checkbox" name="role" value="${esc(`${c.key}.${s.key}`)}"${roles.includes(`${c.key}.${s.key}`) ? ' checked' : ''}> ${esc(s.label)}</label>`).join('')}</div></div>`).join('')}</div>
-        </section>
-
-        <section class="panel settings-section" id="s-prefs"><h2>Stages, cycles & locations</h2>
-          <div class="field-row"><div class="field"><span>Stages</span>${checks('stage', STAGES, profile.target_stages || [])}</div>
-            <div class="field"><span>Recruiting cycles</span><input class="input" name="cycles" value="${esc((profile.target_cycles || []).join(', '))}" placeholder="summer_2027, new_grad_2027"><span class="muted" style="font-size:11.5px">Seen in data: ${esc((meta.cycles || []).slice(0, 6).map(c => c.key).join(', ') || '—')}</span>
-              <label class="check" style="margin-top:8px"><input type="checkbox" name="open_to_remote"${profile.open_to_remote ? ' checked' : ''}> Open to remote roles</label></div></div>
-          <div class="field"><span>Target cities</span><div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0 16px">${checks('city', cities.map(c => [c.key, c.label]), profile.target_locations || [])}</div></div>
-          <div class="field"><span>Target countries</span><div class="chips">${checks('country', COUNTRIES, profile.target_countries || [])}</div></div>
-        </section>
-
-        <section class="panel settings-section" id="s-employers"><h2>Preferred employer types</h2><p>Company fit is worth up to 15 points; watchlist companies get a boost too.</p>
-          <div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 16px">${checks('ctype', meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t.label]), profile.target_company_types || [])}</div>
-        </section>
-
-        <section class="panel settings-section" id="s-elig"><h2>Eligibility</h2><p>Only compared against requirements a posting states explicitly; unknowns never penalize you.</p>
-          <div class="field-row three">${COUNTRIES.map(([k, label]) => `<label class="field"><span>Work authorization · ${label}</span><select class="select" name="auth_${k}">${options(WORK_AUTH.map(v => ({key: v, label: prettyKey(v)})), (profile.work_authorization || {})[k] || 'unknown')}</select></label>`).join('')}</div>
-          <label class="field"><span>Languages</span><input class="input" name="languages" value="${esc((profile.languages || []).join(', '))}" placeholder="English, French"></label>
-        </section>
-
-        <section class="panel settings-section" id="s-skills"><h2>Skills</h2><p>Matched against skills extracted from descriptions (synonyms normalized, e.g. “DCF” → Valuation).</p>
-          <div class="tree">${Object.entries(skillGroups).map(([g, list]) => `<div class="tree-cat"><div style="font-weight:600;margin-bottom:4px">${esc(meta.skill_groups?.[g]?.label || meta.skill_groups?.[g] || prettyKey(g))}</div>${checks('skill', list.map(s => [s.key, s.label]), profile.skills || [])}</div>`).join('')}</div>
-        </section>
-
-        <section class="panel settings-section" id="s-alerts"><h2>Alert thresholds</h2><p>Used by fit-mode subscribers in <code>subscribers.json</code> and by the dashboard’s High fit counts.</p>
-          <div class="field-row three">
-            <label class="field"><span>Urgent (instant ping)</span><input class="input" type="number" min="0" max="100" name="urgent_fit" value="${esc(profile.alerts?.urgent_fit ?? 90)}"></label>
-            <label class="field"><span>High (instant, no ping)</span><input class="input" type="number" min="0" max="100" name="high_fit" value="${esc(profile.alerts?.high_fit ?? 75)}"></label>
-            <label class="field"><span>Digest</span><input class="input" type="number" min="0" max="100" name="digest_fit" value="${esc(profile.alerts?.digest_fit ?? 55)}"></label>
+        <section class="panel settings-section" id="s-targets"><h2>What you’re looking for</h2>
+          <div class="settings-sub" id="s-roles"><h3>Roles</h3><p>Check a whole category or specific groups. Role match is worth up to 25 fit points.</p>
+            <div class="tree">${meta.taxonomy.map(c => `<div class="tree-cat"><label class="check"><input type="checkbox" name="role" value="${esc(c.key)}"${roles.includes(c.key) ? ' checked' : ''}> ${esc(c.label)}</label>
+              <div class="tree-subs">${c.subcategories.map(s => `<label class="check"><input type="checkbox" name="role" value="${esc(`${c.key}.${s.key}`)}"${roles.includes(`${c.key}.${s.key}`) ? ' checked' : ''}> ${esc(s.label)}</label>`).join('')}</div></div>`).join('')}</div>
+          </div>
+          <div class="settings-sub" id="s-prefs"><h3>Stages, cycles & locations</h3>
+            <div class="field-row"><div class="field"><span>Stages</span>${checks('stage', STAGES, profile.target_stages || [])}</div>
+              <div class="field"><span>Recruiting cycles</span><input class="input" name="cycles" value="${esc((profile.target_cycles || []).join(', '))}" placeholder="summer_2027, new_grad_2027"><span class="muted" style="font-size:11.5px">Seen in data: ${esc((meta.cycles || []).slice(0, 6).map(c => c.key).join(', ') || '—')}</span>
+                <label class="check" style="margin-top:8px"><input type="checkbox" name="open_to_remote"${profile.open_to_remote ? ' checked' : ''}> Open to remote roles</label></div></div>
+            <div class="field"><span>Target cities</span><div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0 16px">${checks('city', cities.map(c => [c.key, c.label]), profile.target_locations || [])}</div></div>
+            <div class="field"><span>Target countries</span><div class="chips">${checks('country', COUNTRIES, profile.target_countries || [])}</div></div>
+          </div>
+          <div class="settings-sub" id="s-employers"><h3>Employer types</h3><p>Company fit is worth up to 15 points; watchlist companies get a boost too.</p>
+            <div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 16px">${checks('ctype', meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t.label]), profile.target_company_types || [])}</div>
           </div>
         </section>
 
         <div class="save-bar"><button type="button" class="btn" data-act="reset">Reset to config defaults</button><button type="submit" class="btn primary">Save profile & rescore</button></div>
+      </form>
 
-        <section class="panel settings-section" id="s-views"><h2>Saved views</h2>
+      <section class="panel settings-section" id="s-notify"><h2>Notifications</h2>
+        <div class="settings-sub" id="s-discord">${discordHtml()}</div>
+        <div class="settings-sub" id="s-alerts"><h3>Alert thresholds</h3><p>Fit scores that count as urgent, high or digest-worthy, for Discord alerts and the dashboard’s High fit counts.</p>
+          <div class="field-row three">
+            <label class="field"><span>Urgent (instant ping)</span><input class="input" type="number" min="0" max="100" form="profile-form" name="urgent_fit" value="${esc(profile.alerts?.urgent_fit ?? 90)}"></label>
+            <label class="field"><span>High (instant, no ping)</span><input class="input" type="number" min="0" max="100" form="profile-form" name="high_fit" value="${esc(profile.alerts?.high_fit ?? 75)}"></label>
+            <label class="field"><span>Digest</span><input class="input" type="number" min="0" max="100" form="profile-form" name="digest_fit" value="${esc(profile.alerts?.digest_fit ?? 55)}"></label>
+          </div>
+          <div><button type="submit" form="profile-form" class="btn sm">Save thresholds</button></div>
+        </div>
+        <div class="settings-sub" id="s-views"><h3>Saved views</h3>
           ${searches.length ? `<table class="data"><thead><tr><th>Name</th><th>Filters</th><th class="num">Matches</th><th>Alerts</th><th></th></tr></thead><tbody>${searches.map(s => `<tr data-sid="${s.id}" style="cursor:default"><td><a class="link" href="#/opportunities?${esc(new URLSearchParams({...s.query, saved: s.id}).toString())}">${esc(s.name)}</a></td><td class="muted" style="font-size:12px">${esc(Object.entries(s.query).map(([k, v]) => `${k}=${v}`).join(' · '))}</td><td class="num">${s.total}${s.new_since_visit ? ` <span class="badge new">${s.new_since_visit} new</span>` : ''}</td><td><input type="checkbox" class="switch" data-notify${s.notify ? ' checked' : ''} aria-label="Notify for ${esc(s.name)}"></td><td class="actions"><button type="button" class="btn xs icon danger" data-del-search title="Delete">${icon('trash', 12)}</button></td></tr>`).join('')}</tbody></table>`
             : '<p class="muted" style="margin:0">None yet — use “Save view” on Opportunities.</p>'}
-        </section>
+        </div>
+      </section>
 
-        <section class="panel settings-section" id="s-appearance"><h2>Appearance</h2>
-          <div class="field-row three">
+      <section class="panel settings-section" id="s-ai">${aiHtml()}</section>
+
+      <section class="panel settings-section" id="s-app"><h2>App</h2>
+        <div class="settings-sub" id="s-background">${backgroundHtml()}</div>
+        <div class="settings-sub" id="s-updates">${updatesHtml()}</div>
+        <div class="settings-sub" id="s-appearance"><h3>Appearance</h3>
+          <div class="field-row">
             <label class="field"><span>Theme</span><select class="select" data-pref="theme">${options([{key: '', label: 'Match system'}, {key: 'light', label: 'Light'}, {key: 'dark', label: 'Dark'}], ctx.store.get('jw-theme', ''))}</select></label>
             <label class="field"><span>Table density</span><select class="select" data-pref="density">${options([{key: 'comfortable', label: 'Comfortable'}, {key: 'compact', label: 'Compact'}], ctx.store.get('jw-density', 'comfortable'))}</select></label>
-            <label class="field"><span>Shortcut hints</span><select class="select" data-pref="hints">${options([{key: 'on', label: 'Show'}, {key: 'off', label: 'Hide'}], ctx.store.get('jw-hints', 'on'))}</select></label>
           </div>
-        </section>
-
-        <section class="panel settings-section" id="s-privacy"><h2>Privacy</h2>
+        </div>
+        <div class="settings-sub" id="s-privacy"><h3>Privacy</h3>
           <ul class="reasons">
             <li>Applications, notes, contacts, events and this profile live only in <code>jobwatch.db</code> on this machine (git-ignored).</li>
             <li>The dashboard binds to 127.0.0.1 and rejects cross-origin and DNS-rebinding requests. Binding to a public interface prints a warning — there is no login.</li>
             <li>The GitHub Actions <code>state.json</code> contains only seen job IDs, never notes, contacts or profile data.</li>
             <li>Jobwatch never scrapes LinkedIn profiles; contacts are entered by you.</li>
           </ul>
-        </section>
-      </form></div>
+        </div>
+      </section></div>
     </div>`;
     baseline = formValues();
     mountResume(root.querySelector('[data-resume-panel]'), {meta, canApply: () => formValues() === baseline, onApply(next) {
@@ -239,6 +279,11 @@ export async function render(root, ctx) {
       try { ai = await del('/api/ai'); redrawAi(); toast('Gemini disconnected'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
+    const updateBtn = e.target.closest('[data-act=update-check]');
+    if (updateBtn) {
+      if (!updateBtn.disabled) await checkUpdates(updateBtn);
+      return;
+    }
     if (e.target.closest('[data-act=shutdown]')) {
       if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open it again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
       try {
@@ -268,7 +313,6 @@ export async function render(root, ctx) {
     const pref = e.target.dataset.pref;
     if (pref === 'theme') { ctx.store.set('jw-theme', e.target.value || null); ctx.applyTheme(); }
     if (pref === 'density') { ctx.store.set('jw-density', e.target.value); document.documentElement.dataset.density = e.target.value; }
-    if (pref === 'hints') { ctx.store.set('jw-hints', e.target.value); document.getElementById('hint-bar').hidden = e.target.value === 'off'; }
     if (e.target.matches('[data-discord-mode]')) {
       try { discord = await put('/api/discord/settings', {mode: e.target.value}); toast(discord.mode === 'views_only' ? 'Discord will only send your saved views' : 'Discord will send good matches and your saved views'); }
       catch (err) { toast(err.message, {error: true}); redrawDiscord(); }

@@ -92,6 +92,7 @@ class Updater:
         self.local_feed = allow_local
         self.feed = feed or (os.environ.get("JOBWATCH_UPDATE_FEED") if allow_local else None) or RELEASES_API
         self._lock = threading.Lock()
+        self._checking = threading.Lock()      # the 6-hourly loop and "Check for updates" take turns
         self._stop = threading.Event()
         self.state = {"state": "idle", "current": current, "latest": None, "error": None,
                       "release_url": None, "checked_at": None}
@@ -142,8 +143,22 @@ class Updater:
         with self._lock:
             return dict(self.state)
 
+    def check_now(self) -> dict:
+        """Check in the background at once (Settings); returns the state to poll."""
+        with self._lock:
+            start = self.state["state"] in ("idle", "manual", "failed")
+            if start:
+                self.state.update(state="checking", error=None)
+        if start:
+            threading.Thread(target=self.check, name="jobwatch-update-check", daemon=True).start()
+        return self.snapshot()
+
     def check(self) -> dict:
         """Find, verify and download a newer release; returns the new state."""
+        with self._checking:
+            return self._check()
+
+    def _check(self) -> dict:
         self._set(state="checking", error=None)
         try:
             release = json.loads(self._get(self.feed, MAX_SMALL))
