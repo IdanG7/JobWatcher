@@ -84,6 +84,16 @@ class PortableTests(unittest.TestCase):
         self.assertEqual({"CA": "unknown", "US": "unknown"}, result["profile"]["work_authorization"])
         self.assertEqual([], validate_profile(merge_profile(result["profile"]), load_knowledge()))
 
+    def test_packaged_sources_keep_every_field_their_adapters_use(self):
+        source = json.loads((Path(__file__).parent / "config.json").read_text(encoding="utf-8"))
+        cleaned = clean_config(source)["boards"]
+        for name, board in source["boards"].items():
+            if name.startswith("_") or not isinstance(board, dict):
+                continue
+            with self.subTest(board=name):
+                dropped = set(board) - set(cleaned[name])
+                self.assertFalse({k for k in dropped if not k.startswith("_")}, "fields lost in packaging")
+
     def test_stage_uses_allowlist_without_database_or_personal_files(self):
         with tempfile.TemporaryDirectory() as directory:
             stage = Path(directory) / "Jobwatch"

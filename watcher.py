@@ -33,6 +33,7 @@ import sqlite3
 import sys
 import threading
 import time
+import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -960,8 +961,11 @@ def fetch_eightfold(cfg):
 def fetch_oracle_hcm(cfg):
     """Oracle Recruiting Cloud candidate-experience API (JPMorgan Chase and
     other banks). cfg: host ('jpmc.fa.oraclecloud.com'), site ('CX_1001'),
-    optional query (keyword) and max (safety limit, default 5000)."""
+    optional query (keyword), max (safety limit, default 5000) and url (a
+    posting link template with {id}, for employers whose public site is not
+    the Oracle candidate page, e.g. Goldman Sachs' higher.gs.com)."""
     host, site = cfg["host"], cfg["site"]
+    url_tmpl = cfg.get("url", f"https://{host}/hcmUI/CandidateExperience/en/sites/{site}/job/{{id}}")
     out, offset, seen = SourceListing(), 0, set()
     limit = _source_limit(cfg)
     keyword = cfg.get("query", "")
@@ -990,7 +994,7 @@ def fetch_oracle_hcm(cfg):
                 "id": jid,
                 "title": j.get("Title", ""),
                 "location": j.get("PrimaryLocation") or "",
-                "url": f"https://{host}/hcmUI/CandidateExperience/en/sites/{site}/job/{jid}",
+                "url": url_tmpl.format(id=jid),
                 "posted": _iso_epoch(j.get("PostedDate")),
                 "description": html_to_text(j.get("ShortDescriptionStr") or ""),
             })
@@ -1091,6 +1095,190 @@ def fetch_avature(cfg):
     return _finish_listing(out, "Avature", limit)
 
 
+def _us_date_epoch(value):
+    """'10/14/2026' -> epoch at 12:00 UTC on that day (None if missing or malformed)."""
+    try:
+        return _date_epoch(datetime.strptime(str(value).strip(), "%m/%d/%Y").date().isoformat())
+    except (TypeError, ValueError):
+        return None
+
+
+BOFA_SERVLETS = {"jobssearchservlet", "campusjobssearchservlet"}
+
+
+def fetch_bofa(cfg):
+    """Bank of America's careers search service (careers.bankofamerica.com).
+    cfg: servlet ('jobssearchservlet' for every role, the default, or
+    'campusjobssearchservlet' for student programs) and max."""
+    servlet = cfg.get("servlet", "jobssearchservlet")
+    if servlet not in BOFA_SERVLETS:
+        raise ValueError(f"Bank of America servlet must be one of {sorted(BOFA_SERVLETS)}")
+    root = "https://careers.bankofamerica.com"
+    out, offset, seen = SourceListing(), 0, set()
+    limit = _source_limit(cfg)
+    while offset < limit:
+        # "rows" is the end index (exclusive), not a page size.
+        r = requests.get(f"{root}/services/{servlet}", params={"start": offset, "rows": offset + 100, "search": "getAllJobs"},
+                         headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("totalMatches"), int):
+            out.total = data["totalMatches"]
+        jobs = data.get("jobsList") or []        # null once start passes the end
+        if not isinstance(jobs, list):
+            raise RuntimeError("Bank of America search response has no jobsList")
+        page = [{
+            "id": str(j.get("jobRequisitionId") or ""),
+            "title": j.get("postingTitle") or "",
+            "location": ", ".join(p for p in (j.get("city"), j.get("state"), j.get("country")) if p),
+            "url": urljoin(root, j.get("jcrURL") or ""),
+            "posted": _us_date_epoch(j.get("postedDate")),
+            "department": j.get("lob") or "",
+        } for j in jobs]
+        if _consume_page(out, page, seen, "Bank of America", limit):
+            break
+        offset += len(jobs)
+    return _finish_listing(out, "Bank of America", limit)
+
+
+_ATOM = "{http://www.w3.org/2005/Atom}"
+OLEEO_FEED_CAP = 100      # treat a feed this long as possibly truncated
+
+
+def fetch_oleeo(cfg):
+    """Oleeo (tal.net) vacancy-board Atom feed: Evercore, Jefferies.
+    cfg: feed, the board's .../candidate/jobboard/vacancy/<n>/feed/rss URL.
+    Oleeo publishes these feeds for syndication; its HTML boards sit behind a
+    bot check, which Jobwatch does not try to pass."""
+    feed = cfg["feed"]
+    parts = urlsplit(feed)
+    if parts.scheme != "https" or not (parts.hostname or "").endswith(".tal.net"):
+        raise ValueError("Oleeo feed must be an https://<employer>.tal.net URL")
+    r = requests.get(feed, headers={"User-Agent": UA, "Accept": "application/atom+xml"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    root = ET.fromstring(r.content)
+    if root.tag != f"{_ATOM}feed":
+        raise RuntimeError("Oleeo response is not an Atom feed")
+    out, seen = SourceListing(), set()
+    for entry in root.findall(f"{_ATOM}entry"):
+        link = next((l.get("href") for l in entry.findall(f"{_ATOM}link")
+                     if l.get("rel", "alternate") == "alternate"), None) or entry.findtext(f"{_ATOM}id", "")
+        url = link.split("?", 1)[0]
+        vacancy = re.search(r"/opp/(\d+)", url)
+        if not vacancy:
+            raise RuntimeError("Oleeo feed entry has no vacancy id")
+        if vacancy.group(1) in seen:
+            continue
+        seen.add(vacancy.group(1))
+        content = entry.find(f"{_ATOM}content")
+        out.append({
+            "id": vacancy.group(1),
+            "title": (entry.findtext(f"{_ATOM}title") or "").strip(),
+            "location": "",
+            "url": url,
+            "posted": _iso_epoch(entry.findtext(f"{_ATOM}published") or entry.findtext(f"{_ATOM}updated")),
+            # "Application Deadline: 13 Nov 2026 ..." feeds deadline extraction.
+            "description": re.sub(r"\s*\n\s*", "\n", "".join(content.itertext())).strip() if content is not None else "",
+        })
+    if len(out) >= OLEEO_FEED_CAP:
+        out.reason = f"Oleeo feed lists {len(out)} vacancies and may be truncated; removals are not tracked"
+    else:
+        out.complete = True
+    return out
+
+
+def fetch_radancy(cfg):
+    """Radancy (TalentBrew) career sites, e.g. careers.moodys.com.
+    cfg: host, lang (path prefix, default 'en'), size (page size, default 100), max."""
+    host, lang = cfg["host"], cfg.get("lang", "en")
+    size = cfg.get("size", 100)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= 100:
+        raise ValueError("Radancy size must be an integer from 1 to 100")
+    base = f"https://{host}/{lang}" if lang else f"https://{host}"
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get(f"{base}/search-jobs/results", params={
+            "ActiveFacetID": 0, "CurrentPage": page_no, "RecordsPerPage": size, "Distance": 50,
+            "RadiusUnitType": 0, "Keywords": "", "Location": "", "ShowRadius": "False", "IsPagination": "False",
+            "FacetType": 0, "SearchResultsModuleName": "Search Results", "SearchFiltersModuleName": "Search Filters",
+            "SortCriteria": 0, "SortDirection": 0, "SearchType": 5, "ResultsType": 0},
+            headers={"User-Agent": UA, "Accept": "application/json", "X-Requested-With": "XMLHttpRequest"},
+            timeout=TIMEOUT)
+        r.raise_for_status()
+        results = r.json().get("results")
+        if not isinstance(results, str):
+            raise RuntimeError("Radancy search response has no results markup")
+        total = re.search(r'data-total-results="(\d+)"', results)
+        if out.total is None and total:
+            out.total = int(total.group(1))
+        page = []
+        for href, inner in re.findall(r'<a\b[^>]*href="(/(?:[a-z]{2}(?:-[a-z]{2})?/)?job/[^"]+)"[^>]*>(.*?)</a>',
+                                      results, re.S | re.I):
+            jid = href.rstrip("/").rsplit("/", 1)[-1]
+            title = re.search(r"<h2[^>]*>(.*?)</h2>", inner, re.S)
+            loc = re.search(r'class="job-location"[^>]*>(.*?)</span>', inner, re.S)
+            date = re.search(r'class="job-date-posted"[^>]*>(.*?)</span>', inner, re.S)
+            page.append({"id": jid if jid.isdigit() else "",
+                         "title": html_to_text(title.group(1)) if title else "",
+                         "location": html_to_text(loc.group(1)) if loc else "",
+                         "url": f"https://{host}{href}",
+                         "posted": _us_date_epoch(html_to_text(date.group(1))) if date else None})
+        if _consume_page(out, page, seen, "Radancy", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Radancy", limit)
+
+
+def _icims_location(text):
+    """'US-NY-New York | UK-London' -> 'New York, NY, US; London, UK'."""
+    places = []
+    for part in (p.strip() for p in text.split("|")):
+        bits = part.split("-", 2)
+        places.append(", ".join(reversed(bits)) if len(bits) > 1 and re.fullmatch(r"[A-Z]{2}", bits[0]) else part)
+    return "; ".join(p for p in places if p)
+
+
+def fetch_icims(cfg):
+    """iCIMS career portals' embedded search pages (MSCI). cfg: host, the
+    portal ('globalcareers-msci.icims.com'), and max."""
+    host = cfg["host"]
+    if not re.fullmatch(r"[a-z0-9-]+\.icims\.com", host):
+        raise ValueError("iCIMS host must be a <portal>.icims.com name")
+    out, seen, page_no = SourceListing(), set(), 0
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get(f"https://{host}/jobs/search", params={"ss": 1, "in_iframe": 1, "pr": page_no},
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        if "iCIMS_JobsTable" not in r.text and not re.search(r"no (?:open )?(?:jobs|positions)", r.text, re.I):
+            raise RuntimeError("iCIMS search response has no jobs table")
+        pages = re.search(r"Page\s+\d+\s+of\s+(\d+)", r.text)
+        page = []
+        for card in re.findall(r'<li\b[^>]*class="[^"]*iCIMS_JobCardItem[^"]*"[^>]*>(.*?)</li>', r.text, re.S | re.I):
+            link = re.search(r'<a\b[^>]*href="([^"]*/jobs/(\d+)/[^"]*)"[^>]*>(.*?)</a>', card, re.S | re.I)
+            if not link:
+                raise RuntimeError("iCIMS search page could not parse a result")
+            title = re.search(r"<h3[^>]*>(.*?)</h3>", link.group(3), re.S | re.I)
+            loc = re.search(r"Job Locations</span>\s*</dt>\s*<dd[^>]*>(.*?)</dd>", card, re.S | re.I)
+            posted = re.search(r'<span title="(\d{1,2}/\d{1,2}/\d{4})', card)
+            # Some portals (Susquehanna) show a description snippet instead of location and date.
+            snippet = re.search(r'<div\b[^>]*class="[^"]*\bdescription\b[^"]*"[^>]*>(.*?)</div>', card, re.S | re.I)
+            page.append({"id": link.group(2),
+                         "title": html_to_text(title.group(1) if title else link.group(3)),
+                         "location": _icims_location(html_to_text(loc.group(1))) if loc else "",
+                         "url": html.unescape(link.group(1)).split("?", 1)[0],
+                         "posted": _us_date_epoch(posted.group(1)) if posted else None,
+                         "description": html_to_text(snippet.group(1)) if snippet else ""})
+        if _consume_page(out, page, seen, "iCIMS", limit):
+            break
+        page_no += 1
+        if page_no >= (int(pages.group(1)) if pages else 1):
+            out.complete = True
+            break
+    return _finish_listing(out, "iCIMS", limit)
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -1109,6 +1297,10 @@ ADAPTERS = {
     "janestreet": fetch_janestreet,
     "phenom": fetch_phenom,
     "marqeta": fetch_marqeta,
+    "bofa": fetch_bofa,
+    "oleeo": fetch_oleeo,
+    "radancy": fetch_radancy,
+    "icims": fetch_icims,
 }
 
 

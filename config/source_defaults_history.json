@@ -8,8 +8,8 @@
   ]
  },
  "__shipped__": {
-  "hash": "8f696f85ec81f61d",
-  "version": 5
+  "hash": "ddb8d7057c16c87e",
+  "version": 6
  },
  "__since__": {
   "1password": 1,
@@ -26,27 +26,36 @@
   "amplitude": 1,
   "anduril": 1,
   "anthropic": 1,
+  "apollo": 6,
   "aqr": 1,
   "asana": 1,
   "assemblyai": 1,
   "attio": 1,
   "aurora": 1,
   "autodesk": 1,
+  "bank_of_america": 6,
+  "bank_of_america_students": 6,
   "barclays": 1,
   "baseten": 1,
   "betterment": 1,
   "blackrock": 1,
+  "blackstone": 6,
+  "blackstone_campus": 6,
   "block": 1,
   "bmo": 1,
   "bmo_students": 2,
   "braintrust": 1,
   "brex": 1,
+  "brookfield": 6,
   "browserbase": 1,
   "calendly": 1,
   "canada_intern26": 1,
   "capital_one": 1,
   "capital_one_early": 1,
+  "carlyle": 6,
   "cartesia": 1,
+  "cdpq": 6,
+  "cdpq_students": 6,
   "character_ai": 1,
   "checkr": 1,
   "chime": 1,
@@ -63,6 +72,7 @@
   "coinbase": 1,
   "comcast": 1,
   "commure": 1,
+  "cpp_investments": 6,
   "crusoe": 1,
   "cursor": 1,
   "cvrve_newgrad": 1,
@@ -72,6 +82,7 @@
   "deepmind": 1,
   "derec4_newgrad27": 1,
   "descript": 1,
+  "deutsche_bank": 6,
   "discord": 1,
   "disney": 1,
   "disney_early": 1,
@@ -82,8 +93,11 @@
   "ebay": 1,
   "elastic": 1,
   "elevenlabs": 1,
+  "evercore": 6,
+  "evercore_students": 6,
   "faire": 1,
   "fastly": 1,
+  "fidelity": 6,
   "figma": 1,
   "fireblocks": 1,
   "five_rings": 1,
@@ -95,6 +109,7 @@
   "gitlab": 1,
   "glean": 1,
   "glossier": 1,
+  "goldman_sachs": 6,
   "gopuff": 1,
   "gts": 1,
   "gusto": 1,
@@ -112,11 +127,14 @@
   "intel": 1,
   "intel_early": 1,
   "jane_street": 1,
+  "jefferies_campus": 6,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
   "jump_trading": 1,
+  "kkr": 6,
   "lambda_labs": 1,
   "launchdarkly": 1,
+  "lazard": 6,
   "linear": 1,
   "linkedin_canada": 1,
   "linkedin_quant": 1,
@@ -124,6 +142,7 @@
   "lithic": 1,
   "lyft": 1,
   "man_group": 1,
+  "manulife": 6,
   "marqeta": 1,
   "mastercard": 1,
   "mastercard_early": 1,
@@ -135,8 +154,11 @@
   "modal": 1,
   "moelis": 1,
   "mongodb": 1,
+  "moodys": 6,
   "morgan_stanley": 1,
   "morgan_stanley_early": 1,
+  "msci": 6,
+  "msci_us": 6,
   "nasdaq": 1,
   "national_bank": 2,
   "netflix": 1,
@@ -151,6 +173,7 @@
   "openevidence": 1,
   "optiver_us": 1,
   "oscar_health": 1,
+  "otpp": 6,
   "palantir": 1,
   "paypal": 1,
   "pdt_partners": 1,
@@ -193,6 +216,7 @@
   "smartsheet": 1,
   "sndsh_intern27": 1,
   "sofi": 1,
+  "sp_global": 6,
   "spacex": 1,
   "speedy_ai": 1,
   "speedy_swe": 1,
@@ -202,6 +226,8 @@
   "starburst": 1,
   "stepstone": 1,
   "stripe": 1,
+  "sun_life": 6,
+  "sun_life_students": 6,
   "suno": 1,
   "supabase": 1,
   "sweetgreen": 1,
@@ -214,6 +240,7 @@
   "two_sigma": 1,
   "typeface": 1,
   "upstart": 1,
+  "vanguard": 6,
   "vansh_intern26": 1,
   "vansh_intern27": 1,
   "vansh_newgrad27": 1,
@@ -385,6 +412,38 @@
    "anthropic"
   ]
  },
+ "apollo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "apollo"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "host": [
+   "athene.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Apollo_Careers"
+  ],
+  "tenant": [
+   "athene"
+  ]
+ },
  "aqr": {
   "ats": [
    "greenhouse"
@@ -443,6 +502,58 @@
   ],
   "tenant": [
    "autodesk"
+  ]
+ },
+ "bank_of_america": {
+  "ats": [
+   "bofa"
+  ],
+  "company_key": [
+   "bank_of_america"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "servlet": [
+   "jobssearchservlet"
+  ]
+ },
+ "bank_of_america_students": {
+  "ats": [
+   "bofa"
+  ],
+  "company_key": [
+   "bank_of_america"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "servlet": [
+   "campusjobssearchservlet"
   ]
  },
  "barclays": {
@@ -523,6 +634,70 @@
   ],
   "tenant": [
    "blackrock"
+  ]
+ },
+ "blackstone": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "blackstone"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "host": [
+   "blackstone.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Blackstone_Careers"
+  ],
+  "tenant": [
+   "blackstone"
+  ]
+ },
+ "blackstone_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "blackstone"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "host": [
+   "blackstone.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Blackstone_Campus_Careers"
+  ],
+  "tenant": [
+   "blackstone"
   ]
  },
  "block": {
@@ -619,6 +794,38 @@
    "brex"
   ]
  },
+ "brookfield": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "brookfield"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Asset Managers"
+  ],
+  "host": [
+   "brookfield.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "brookfield"
+  ],
+  "tenant": [
+   "brookfield"
+  ]
+ },
  "browserbase": {
   "ats": [
    "ashby"
@@ -698,12 +905,102 @@
    "capitalone"
   ]
  },
+ "carlyle": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "carlyle"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "host": [
+   "carlyle.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Carlyle"
+  ],
+  "tenant": [
+   "carlyle"
+  ]
+ },
  "cartesia": {
   "ats": [
    "ashby"
   ],
   "token": [
    "cartesia"
+  ]
+ },
+ "cdpq": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cdpq"
+  ],
+  "group": [
+   "Pension Funds"
+  ],
+  "host": [
+   "cdpq.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "CDPQ"
+  ],
+  "tenant": [
+   "cdpq"
+  ]
+ },
+ "cdpq_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cdpq"
+  ],
+  "group": [
+   "Pension Funds"
+  ],
+  "host": [
+   "cdpq.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "CDPQ-recrutement-universitaire"
+  ],
+  "tenant": [
+   "cdpq"
   ]
  },
  "character_ai": {
@@ -956,6 +1253,35 @@
    "commure"
   ]
  },
+ "cpp_investments": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cpp_investments"
+  ],
+  "group": [
+   "Pension Funds"
+  ],
+  "host": [
+   "cppib.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "cppinvestments"
+  ],
+  "tenant": [
+   "cppib"
+  ]
+ },
  "crusoe": {
   "ats": [
    "ashby"
@@ -1043,6 +1369,41 @@
   ],
   "token": [
    "descript"
+  ]
+ },
+ "deutsche_bank": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "deutsche_bank"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "db.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "DBWebsite"
+  ],
+  "tenant": [
+   "db"
   ]
  },
  "discord": {
@@ -1165,6 +1526,52 @@
    "elevenlabs"
   ]
  },
+ "evercore": {
+  "ats": [
+   "oleeo"
+  ],
+  "company_key": [
+   "evercore"
+  ],
+  "feed": [
+   "https://evercore.tal.net/vx/lang-en-GB/mobile-0/channel-1/appcentre-ext/brand-6/candidate/jobboard/vacancy/3/feed/rss"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Elite Boutiques"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ]
+ },
+ "evercore_students": {
+  "ats": [
+   "oleeo"
+  ],
+  "company_key": [
+   "evercore"
+  ],
+  "feed": [
+   "https://evercore.tal.net/vx/lang-en-GB/mobile-0/channel-1/appcentre-ext/brand-6/candidate/jobboard/vacancy/2/feed/rss"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Elite Boutiques"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ]
+ },
  "faire": {
   "ats": [
    "greenhouse"
@@ -1179,6 +1586,41 @@
   ],
   "token": [
    "fastly"
+  ]
+ },
+ "fidelity": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "fidelity"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Asset Managers"
+  ],
+  "host": [
+   "fmr.wd1.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "FidelityCareers"
+  ],
+  "tenant": [
+   "fmr"
   ]
  },
  "figma": {
@@ -1267,6 +1709,38 @@
   ],
   "token": [
    "glossier"
+  ]
+ },
+ "goldman_sachs": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "goldman_sachs"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bulge Brackets"
+  ],
+  "host": [
+   "hdpc.fa.us2.oraclecloud.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "LateralHiring"
+  ],
+  "url": [
+   "https://higher.gs.com/roles/{id}"
   ]
  },
  "gopuff": {
@@ -1504,6 +1978,29 @@
    600
   ]
  },
+ "jefferies_campus": {
+  "ats": [
+   "oleeo"
+  ],
+  "company_key": [
+   "jefferies"
+  ],
+  "feed": [
+   "https://jefferies.tal.net/vx/lang-en-GB/mobile-0/appcentre-ext/brand-4/xf-016c915b0a67/candidate/jobboard/vacancy/2/feed/rss"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Middle Market"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ]
+ },
  "jpmorgan": {
   "ats": [
    "oracle_hcm"
@@ -1572,6 +2069,29 @@
    "jumptrading"
   ]
  },
+ "kkr": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "kkr"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Private Equity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "token": [
+   "stage"
+  ]
+ },
  "lambda_labs": {
   "ats": [
    "ashby"
@@ -1586,6 +2106,35 @@
   ],
   "token": [
    "launchdarkly"
+  ]
+ },
+ "lazard": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "lazard"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Elite Boutiques"
+  ],
+  "host": [
+   "icbpjb.fa.ocs.oraclecloud.com"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "LazardProfessionalCareers"
   ]
  },
  "linear": {
@@ -1747,6 +2296,38 @@
    "mangroup"
   ]
  },
+ "manulife": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "manulife"
+  ],
+  "group": [
+   "Insurance"
+  ],
+  "host": [
+   "manulife.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "MFCJH_Jobs"
+  ],
+  "tenant": [
+   "manulife"
+  ]
+ },
  "marqeta": {
   "ats": [
    "marqeta"
@@ -1896,6 +2477,35 @@
    "mongodb"
   ]
  },
+ "moodys": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "moodys"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Ratings & Data"
+  ],
+  "host": [
+   "careers.moodys.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "morgan_stanley": {
   "ats": [
    "workday"
@@ -1958,6 +2568,58 @@
   ],
   "tenant": [
    "ms"
+  ]
+ },
+ "msci": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "msci"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Ratings & Data"
+  ],
+  "host": [
+   "globalcareers-msci.icims.com"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "msci_us": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "msci"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Ratings & Data"
+  ],
+  "host": [
+   "uscareers-msci.icims.com"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "nasdaq": {
@@ -2143,6 +2805,35 @@
   ],
   "token": [
    "oscar"
+  ]
+ },
+ "otpp": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "otpp"
+  ],
+  "group": [
+   "Pension Funds"
+  ],
+  "host": [
+   "otppb.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "OntarioTeachers_Careers"
+  ],
+  "tenant": [
+   "otppb"
   ]
  },
  "palantir": {
@@ -2620,13 +3311,28 @@
  },
  "sig": {
   "ats": [
-   "greenhouse"
+   "greenhouse",
+   "icims"
   ],
   "disabled": [
-   true
+   true,
+   "__missing__"
+  ],
+  "host": [
+   "__missing__",
+   "careers-sig.icims.com"
+  ],
+  "max": [
+   "__missing__",
+   2000
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
   ],
   "token": [
-   "sig"
+   "sig",
+   "__missing__"
   ]
  },
  "simplify_intern26": {
@@ -2698,6 +3404,41 @@
   ],
   "token": [
    "sofi"
+  ]
+ },
+ "sp_global": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sp_global"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Ratings & Data"
+  ],
+  "host": [
+   "spgi.wd5.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "SPGI_Careers"
+  ],
+  "tenant": [
+   "spgi"
   ]
  },
  "spacex": {
@@ -2806,6 +3547,67 @@
   ],
   "token": [
    "stripe"
+  ]
+ },
+ "sun_life": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sun_life"
+  ],
+  "group": [
+   "Insurance"
+  ],
+  "host": [
+   "sunlife.wd3.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Experienced-Jobs"
+  ],
+  "tenant": [
+   "sunlife"
+  ]
+ },
+ "sun_life_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sun_life"
+  ],
+  "group": [
+   "Insurance"
+  ],
+  "host": [
+   "sunlife.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Campus"
+  ],
+  "tenant": [
+   "sunlife"
   ]
  },
  "suno": {
@@ -2972,6 +3774,41 @@
   ],
   "token": [
    "upstart"
+  ]
+ },
+ "vanguard": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "vanguard"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Asset Managers"
+  ],
+  "host": [
+   "vanguard.wd5.myworkdayjobs.com"
+  ],
+  "max": [
+   5000
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "vanguard_external"
+  ],
+  "tenant": [
+   "vanguard"
   ]
  },
  "vansh_intern26": {

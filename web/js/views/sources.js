@@ -4,13 +4,11 @@ import {age, esc, toEpochMs} from '../lib.js';
 import {hBars} from '../charts.js';
 import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toast} from '../ui.js';
 
-// Employers researched for official ATS feeds that could not be confirmed
-// (unknown Workday site ids, SuccessFactors/iCIMS without a public JSON API,
-// or auth-gated endpoints). Covered indirectly via GitHub/LinkedIn sources.
+// Employers without a usable public job feed (researched 2026-10-15).
+// Covered indirectly via GitHub/LinkedIn sources.
 const KNOWN_GAPS = [
-  'Goldman Sachs', 'Bank of America', 'UBS', 'Deutsche Bank', 'Jefferies', 'Evercore', 'Lazard', 'Centerview',
-  'KKR', 'Blackstone', 'Carlyle', 'Apollo', 'Brookfield', 'CPP Investments', 'OTPP', 'CDPQ',
-  'Manulife', 'Sun Life', 'Fidelity', 'Vanguard', "Moody's", 'S&P Global', 'MSCI',
+  ['UBS', 'Job search is behind bot protection'],
+  ['Centerview', 'No public job board; recruits through campuses and directly'],
 ];
 
 function health(s, progress) {
@@ -62,9 +60,9 @@ export async function render(root, ctx) {
       <section class="panel"><div class="panel-head"><h2>Coverage by employer group</h2><span class="muted" style="font-size:12px">finance roles currently open</span></div>
         <div class="panel-body">${hBars(Object.entries(groups).sort((a, b) => b[1].fin - a[1].fin).slice(0, 12).map(([g, v]) => ({label: prettyKey(g), value: v.fin, tip: `<b>${esc(prettyKey(g))}</b> · ${v.n} sources · ${v.fin} finance of ${v.jobs} open roles`})))}</div></section>
       <section class="panel"><div class="panel-head"><h2>Known coverage gaps</h2></div>
-        <div class="panel-body"><p class="muted" style="margin:0 0 10px;font-size:12.5px">No supported public ATS API could be confirmed for these employers, so Jobwatch doesn't scrape them. Their roles still arrive via GitHub listings and LinkedIn guest search when cross-posted.</p>
-        <div class="chips">${KNOWN_GAPS.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>
-        <p class="muted" style="margin:10px 0 0;font-size:12px">Add a source in <code>config.json</code> → <code>boards</code> when you find an official Greenhouse, Lever, Ashby, Workday, Oracle or SmartRecruiters feed.</p></div></section>
+        <div class="panel-body"><p class="muted" style="margin:0 0 10px;font-size:12.5px">These employers have no public job feed Jobwatch can read, so it doesn't scrape them. Their roles still arrive via GitHub listings and LinkedIn guest search when cross-posted.</p>
+        <div class="chips">${KNOWN_GAPS.map(([name, why]) => `<span class="tag" title="${esc(why)}">${esc(name)} · <span class="muted">${esc(why)}</span></span>`).join('')}</div>
+        <p class="muted" style="margin:10px 0 0;font-size:12px">Add a source in <code>config.json</code> → <code>boards</code> when you find an official Greenhouse, Lever, Ashby, Workday, Oracle, SmartRecruiters, iCIMS, Radancy or Oleeo feed.</p></div></section>
     </div>
     <section class="panel" style="overflow:hidden">
       ${list.length ? `<div class="table-wrap" style="max-height:none"><table class="data"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>Group</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th>Last success</th><th>Closure tracking</th></tr></thead>

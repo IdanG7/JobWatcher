@@ -314,5 +314,141 @@ class OfficialHtmlTests(unittest.TestCase):
         self.assertTrue(jobs.complete)
 
 
+class NewEmployerSourceTests(unittest.TestCase):
+    """Adapters added for employers that were listed as coverage gaps."""
+
+    @patch("watcher.requests.get")
+    def test_oracle_link_template_points_at_the_employers_own_site(self, get):
+        get.return_value = response({"items": [{"TotalJobsCount": 1, "requisitionList": [
+            {"Id": "183732", "Title": "2027 | Americas | Chicago | Investment Banking | Summer Associate",
+             "PrimaryLocation": "Chicago, IL", "PostedDate": "2026-10-15"}]}]})
+        jobs = watcher.fetch_oracle_hcm({"host": "hdpc.fa.us2.oraclecloud.com", "site": "LateralHiring",
+                                         "url": "https://higher.gs.com/roles/{id}"})
+        self.assertEqual("https://higher.gs.com/roles/183732", jobs[0]["url"])
+        self.assertTrue(jobs.complete)
+
+    @patch("watcher.requests.get")
+    def test_bank_of_america_pages_the_search_service(self, get):
+        def job(rid, title, city, state, country):
+            return {"jobRequisitionId": rid, "postingTitle": title, "city": city, "state": state, "country": country,
+                    "postedDate": "10/14/2026", "lob": "Global Corporate & Investment Banking",
+                    "jcrURL": f"/en-us/students/job-detail/{rid}/slug"}
+        get.side_effect = [
+            response({"totalMatches": 3, "jobsList": [job("15196", "Investment Banking 2027 Analyst", "Paris", "", "France"),
+                                                      job("14913", "Credit Operations CO-OP", "Toronto", "", "Canada")]}),
+            response({"totalMatches": 3, "jobsList": [job("15183", "Corporate Banking Analyst", "Charlotte",
+                                                          "North Carolina", "United States")]})]
+        jobs = watcher.fetch_bofa({"servlet": "campusjobssearchservlet"})
+        self.assertEqual(["15196", "14913", "15183"], [j["id"] for j in jobs])
+        self.assertEqual("Toronto, Canada", jobs[1]["location"])
+        self.assertEqual("Charlotte, North Carolina, United States", jobs[2]["location"])
+        self.assertEqual("https://careers.bankofamerica.com/en-us/students/job-detail/15196/slug", jobs[0]["url"])
+        self.assertEqual(watcher._date_epoch("2026-10-14"), jobs[0]["posted"])
+        self.assertTrue(jobs.complete)
+        self.assertIn("campusjobssearchservlet", get.call_args_list[0].args[0])
+        # "rows" is an end index, not a page size: start=2, rows=102 is the next 100.
+        self.assertEqual({"start": 0, "rows": 100}, {k: get.call_args_list[0].kwargs["params"][k] for k in ("start", "rows")})
+        self.assertEqual({"start": 2, "rows": 102}, {k: get.call_args_list[1].kwargs["params"][k] for k in ("start", "rows")})
+        with self.assertRaises(ValueError):
+            watcher.fetch_bofa({"servlet": "../admin"})
+
+    @patch("watcher.requests.get")
+    def test_bank_of_america_end_of_listing_returns_no_list(self, get):
+        get.side_effect = [response({"totalMatches": 5, "jobsList": [
+            {"jobRequisitionId": "1", "postingTitle": "Analyst", "jcrURL": "/en-us/job-detail/1/a"}]}),
+            response({"totalMatches": 5, "jobsList": None})]
+        jobs = watcher.fetch_bofa({})
+        self.assertEqual(1, len(jobs))
+        self.assertFalse(jobs.complete)               # 1 of 5: never infer closures
+        self.assertIn("1 of reported total 5", jobs.reason)
+
+    @patch("watcher.requests.get")
+    def test_oleeo_atom_feed(self, get):
+        base = "https://evercore.tal.net/vx/mobile-0/appcentre-ext/brand-4/candidate/so/pm/1/pl/2/opp"
+        get.return_value = Mock(status_code=200, content=f'''<?xml version="1.0" encoding="UTF-8"?>
+            <feed xmlns="http://www.w3.org/2005/Atom"><title>Students and Graduates</title>
+            <entry><id>{base}/3420-2027-Graduate-Programme-RESA-Frankfurt/en-GB</id>
+              <link rel="alternate" href="{base}/3420-2027-Graduate-Programme-RESA-Frankfurt/en-GB?instant=apply" type="text/html"/>
+              <title>2027 Graduate Programme - Real Estate Strategic Advisory (RESA), Frankfurt</title>
+              <published>2026-10-09T16:30:00Z</published>
+              <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">Title:2027 Graduate Programme<br/>
+              Application Deadline:13 Nov 2026 05:30 PM GMT<br/></div></content></entry>
+            <entry><id>{base}/3419-Paris-Off-Cycle-Internship/en-GB</id>
+              <title>2027 Paris Off-Cycle Internship &amp; Industrials</title>
+              <updated>2026-10-09T14:30:00Z</updated></entry></feed>'''.encode())
+        get.return_value.raise_for_status.return_value = None
+        feed = "https://evercore.tal.net/vx/lang-en-GB/mobile-0/channel-1/appcentre-ext/brand-6/candidate/jobboard/vacancy/2/feed/rss"
+        jobs = watcher.fetch_oleeo({"feed": feed})
+        self.assertEqual(["3420", "3419"], [j["id"] for j in jobs])
+        self.assertEqual(f"{base}/3420-2027-Graduate-Programme-RESA-Frankfurt/en-GB", jobs[0]["url"])
+        self.assertEqual("2027 Paris Off-Cycle Internship & Industrials", jobs[1]["title"])
+        self.assertIn("Application Deadline:13 Nov 2026", jobs[0]["description"])
+        self.assertEqual(watcher._iso_epoch("2026-10-09T16:30:00Z"), jobs[0]["posted"])
+        self.assertTrue(jobs.complete)
+        for bad in ("http://evercore.tal.net/feed", "https://evil.example/vacancy/2/feed/rss"):
+            with self.subTest(feed=bad), self.assertRaises(ValueError):
+                watcher.fetch_oleeo({"feed": bad})
+
+    @patch("watcher.requests.get")
+    def test_radancy_results_pages(self, get):
+        def page(*jobs, total=3):
+            cards = "".join(f'''<li><a href="/en/job/{city.lower()}/{slug}/49841/{jid}" data-job-id="{jid}">
+                <h2>{title}</h2><span class="job-location">{loc}</span><span class="job-date-posted">10/14/2026</span></a></li>'''
+                            for jid, slug, title, city, loc in jobs)
+            return response({"results": f'<section id="search-results" data-total-results="{total}" data-total-pages="2"><ul>{cards}</ul></section>',
+                             "hasJobs": True})
+        get.side_effect = [page(("99515739872", "avp-sourcing", "AVP-Sourcing", "New-York", "New York, NY"),
+                                ("100093032528", "data-analyst", "Data Analyst &amp; Insights", "Heredia", "Heredia, Provincia de Heredia")),
+                           page(("101946200240", "economic-research-summer-intern", "Economic Research Summer Intern",
+                                 "New-York", "New York, NY"))]
+        jobs = watcher.fetch_radancy({"host": "careers.moodys.com", "size": 2})
+        self.assertEqual(["99515739872", "100093032528", "101946200240"], [j["id"] for j in jobs])
+        self.assertEqual("Data Analyst & Insights", jobs[1]["title"])
+        self.assertEqual("New York, NY", jobs[0]["location"])
+        self.assertEqual("https://careers.moodys.com/en/job/new-york/avp-sourcing/49841/99515739872", jobs[0]["url"])
+        self.assertTrue(jobs.complete)
+        self.assertEqual(2, get.call_args_list[1].kwargs["params"]["CurrentPage"])
+
+    @patch("watcher.requests.get")
+    def test_icims_portal_pages(self, get):
+        def card(jid, title, loc, posted):
+            return f'''<li class="iCIMS_JobCardItem"><div class="row"><div class="col-xs-6 header right">
+                <span title="{posted} 11:08 PM"> 3 days ago</span></div><div class="col-xs-12 title">
+                <a href="https://globalcareers-msci.icims.com/jobs/{jid}/slug/job?in_iframe=1" class="iCIMS_Anchor" title="{jid} - {title}">
+                <span class="sr-only field-label">Job Posting Title</span><h3 > {title}</h3></a></div>
+                <dl class="iCIMS_JobHeaderGroup"><div class="iCIMS_JobHeaderTag"><dt class="iCIMS_JobHeaderField">
+                <span class="glyphicons glyphicons-map-marker" aria-hidden="true"></span> <span class="sr-only field-label">Job Locations</span>
+                </dt><dd class="iCIMS_JobHeaderData"><span > {loc}</span></dd></div></dl></div></li>'''
+
+        def page(n, *cards):
+            return response(text=f'<div>Page {n} of 2</div><ul class="container-fluid iCIMS_JobsTable">{"".join(cards)}</ul>')
+        get.side_effect = [page(1, card(5993, "Senior Associate, Events, APAC", "HK-Hong Kong", "10/11/2026"),
+                                card(5968, "Client Consultant Real Assets", "US-NY-New York | UK-London", "10/9/2026")),
+                           page(2, card(5967, "Run Rate Auditor", "IN-Mumbai", "10/1/2026"))]
+        jobs = watcher.fetch_icims({"host": "globalcareers-msci.icims.com"})
+        self.assertEqual(["5993", "5968", "5967"], [j["id"] for j in jobs])
+        self.assertEqual("Senior Associate, Events, APAC", jobs[0]["title"])
+        self.assertEqual("Hong Kong, HK", jobs[0]["location"])
+        self.assertEqual("New York, NY, US; London, UK", jobs[1]["location"])
+        self.assertEqual("https://globalcareers-msci.icims.com/jobs/5993/slug/job", jobs[0]["url"])
+        self.assertEqual(watcher._date_epoch("2026-10-11"), jobs[0]["posted"])
+        self.assertTrue(jobs.complete)
+        self.assertEqual(1, get.call_args_list[1].kwargs["params"]["pr"])
+        with self.assertRaises(ValueError):
+            watcher.fetch_icims({"host": "evil.example"})
+
+    @patch("watcher.requests.get")
+    def test_icims_cards_without_location_keep_the_description(self, get):
+        # Susquehanna's portal lists a description snippet instead of location and date.
+        get.return_value = response(text='''<ul class="iCIMS_JobsTable"><li class="iCIMS_JobCardItem"><div class="row">
+            <div class="col-xs-12 title"><a href="https://careers-sig.icims.com/jobs/10966/accounting-internship/job?in_iframe=1"
+            class="iCIMS_Anchor"><h3 > Accounting Internship: Summer 2027</h3></a></div>
+            <div class="col-xs-12 description"> As an intern you&rsquo;ll reconcile ledgers...</div></div></li></ul>''')
+        jobs = watcher.fetch_icims({"host": "careers-sig.icims.com"})
+        self.assertEqual(("10966", ""), (jobs[0]["id"], jobs[0]["location"]))
+        self.assertEqual("As an intern you’ll reconcile ledgers...", jobs[0]["description"])
+        self.assertTrue(jobs.complete)
+
+
 if __name__ == "__main__":
     unittest.main()
