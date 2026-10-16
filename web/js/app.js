@@ -15,10 +15,11 @@ import * as calendar from './views/calendar.js';
 import * as analytics from './views/analytics.js';
 import * as sources from './views/sources.js';
 import * as settings from './views/settings.js';
+import * as welcome from './views/welcome.js';
 
-const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings};
+const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings, welcome};
 const TITLES = {overview: 'Today', opportunities: 'Opportunities', applications: 'Applications', companies: 'Companies',
-  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings'};
+  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings', welcome: 'Set up'};
 
 const store = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
@@ -398,6 +399,10 @@ async function boot() {
   route();
   loadMetadata();
   refreshNav();
+  // First run (no profile saved yet): offer setup, unless it was skipped in this browser.
+  ctx.loadProfile().then(data => {
+    if (data.saved === false && !store.get('jw-setup-skipped') && ctx.route.path[0] !== 'welcome') ctx.navigate(['welcome'], {}, {replace: true});
+  }).catch(() => {});
   refreshStatus();
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
   ctx.checkForUpdate = checkForUpdate;      // Settings → Check for updates

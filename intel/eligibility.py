@@ -49,6 +49,8 @@ _CITIZENSHIP = [
 ]
 _LANGUAGES = ["french", "english", "mandarin", "cantonese", "spanish", "portuguese", "german",
               "japanese", "korean", "arabic", "italian", "hindi", "russian"]
+# The languages a posting's requirements can be matched against (Settings offers these).
+KNOWN_LANGUAGES = tuple(_LANGUAGES)
 _LANG = re.compile(
     rf"\b(?:(?:fluen(?:t|cy)|proficien(?:t|cy)|bilingual(?:ism)?|business[\s-]level|native|working knowledge|written and (?:spoken|oral)|oral and written)[^.\n]{{0,40}}?)\b({'|'.join(_LANGUAGES)})\b|"
     rf"\b({'|'.join(_LANGUAGES)})\b[^.\n]{{0,25}}?\b(?:fluency|proficiency|is required|required|is an asset|is a plus|an asset)\b|"

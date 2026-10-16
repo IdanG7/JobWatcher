@@ -34,6 +34,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version
+from intel.eligibility import KNOWN_LANGUAGES
 from intel.sources import polls, profile_fields, profile_tracks, source_track
 from intel import cover_letter, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
@@ -1445,11 +1446,13 @@ class JobwatchService:
 
     def get_profile(self) -> dict:
         with self.db() as con:
-            return {"profile": self.profile(con), "defaults": merge_profile(self.config.get("profile"))}
+            # "saved" is false until a profile is first saved: the browser offers onboarding then.
+            saved = con.execute("SELECT 1 FROM user_profile WHERE k='profile'").fetchone() is not None
+            return {"profile": self.profile(con), "defaults": merge_profile(self.config.get("profile")), "saved": saved}
 
     def put_profile(self, payload: dict) -> dict:
         incoming = payload.get("profile") or payload
-        allowed = set(merge_profile({}).keys()) | {"role_weights"}
+        allowed = set(merge_profile({}).keys()) | {"role_weights", "fields"}
         cleaned = {k: v for k, v in incoming.items() if k in allowed}
         profile = merge_profile(self.config.get("profile"), cleaned)
         gpa = (profile.get("education") or {}).get("gpa")
@@ -1715,6 +1718,8 @@ class JobwatchService:
             "company_types": [{"key": k, **v} for k, v in self.kn.company_types.items()],
             "cities": [{"key": c["key"], "label": c["label"], "country": c["country"], "target": bool(c.get("target"))}
                        for c in self.kn.cities],
+            "countries": [{"key": k, "label": v["label"]} for k, v in self.kn.countries.items()],
+            "languages": sorted(lang.title() for lang in KNOWN_LANGUAGES),
             "skills": [{"key": s.key, "label": s.label, "group": s.group} for s in self.kn.skills],
             "skill_groups": self.kn.skill_groups,
             "statuses": [{"key": s, "label": STATUS_LABELS[s]} for s in APP_STATUSES],
