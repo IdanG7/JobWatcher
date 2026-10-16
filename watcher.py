@@ -2116,7 +2116,7 @@ def _finance_card(job, intel, company, tier, dashboard_url):
     key = f"{job.get('_board', '')}:{job['id']}"
     links = f"[Apply ↗]({job['url']})"
     if dashboard_url:
-        links += f" · [View in Jobwatch]({dashboard_url.rstrip('/')}/#/opportunities?job={key})"
+        links += f" · [View in Foothold]({dashboard_url.rstrip('/')}/#/opportunities?job={key})"
     lines.append("\n" + links)
     color = {"urgent": 0xE5484D, "high": 0x30A46C}.get(tier, 0x8B95A7)
     return {
@@ -2477,7 +2477,7 @@ def maybe_reminders(con, subs, now_local=None):
     lines = reminder_lines(con, today)
     if lines:
         for sub in targets:
-            send_discord_note(sub["discord"], f"📅 Jobwatch today — {today:%a %b %d}", "\n".join(lines), 0x3E63DD)
+            send_discord_note(sub["discord"], f"📅 Foothold today — {today:%a %b %d}", "\n".join(lines), 0x3E63DD)
 
 
 # ================================================================ core cycle

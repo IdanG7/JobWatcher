@@ -1,6 +1,6 @@
 """Windows entry point; all recipient data lives outside the app.
 
-The Start menu shortcut (pythonw.exe, no window) or Start Jobwatch.bat runs
+The Start menu shortcut (pythonw.exe, no window) or Start Foothold.bat runs
 this as a short-lived launcher: it starts the server as a windowless
 pythonw.exe process (or finds the one already running), opens the browser and
 exits. ``--console`` keeps the old run-in-this-window behaviour for
@@ -272,7 +272,7 @@ def show_error(text: str) -> None:
     """No console under pythonw.exe: a startup problem is shown in a message box."""
     try:
         import ctypes
-        ctypes.windll.user32.MessageBoxW(None, text[-1800:], "Jobwatch", 0x10)    # MB_ICONERROR
+        ctypes.windll.user32.MessageBoxW(None, text[-1800:], "Foothold", 0x10)    # MB_ICONERROR
     except (ImportError, AttributeError, OSError):
         pass
 
@@ -304,12 +304,12 @@ def wait_for_running(args, data: Path, seconds: float = 90) -> int:
     while time.monotonic() < deadline:
         url = instance_url(state)
         if url and responds(url):
-            print(f"Jobwatch is running: {url}", flush=True)
+            print(f"Foothold is running: {url}", flush=True)
             if not args.no_browser:
                 webbrowser.open(url)
             return 0
         time.sleep(0.2)
-    print(f"Jobwatch is taking long to start; see {data / 'jobwatch.log'}", flush=True)
+    print(f"Foothold is taking long to start; see {data / 'jobwatch.log'}", flush=True)
     return 1
 
 
@@ -335,20 +335,20 @@ def _launch(args, data: Path) -> int:
                 break
             time.sleep(0.1)
         else:
-            print("Jobwatch is still starting. Please wait a moment and try again.", flush=True)
+            print("Foothold is still starting. Please wait a moment and try again.", flush=True)
             return 0
         running = json.loads(state.read_text(encoding="utf-8")).get("version", "0")
         if version_key(running) >= version_key(APP_VERSION):
             # The lock says a server process exists; make sure it actually answers.
             if not responds(url, wait=10):
-                print(f"Jobwatch is running but not responding at {url}.", flush=True)
+                print(f"Foothold is running but not responding at {url}.", flush=True)
                 print(f"See {data / 'jobwatch.log'}; restarting Windows stops it.", flush=True)
                 return 1
-            print(f"Jobwatch is already running: {url}", flush=True)
+            print(f"Foothold is already running: {url}", flush=True)
             if not args.no_browser:
                 webbrowser.open(url)
             return 0
-        print(f"Replacing the older Jobwatch {running} that is running...", flush=True)
+        print(f"Replacing the older Foothold {running} that is running...", flush=True)
         if stop_running(url):
             for _ in range(150):
                 lock = acquire_lock(data / "running.lock")
@@ -356,7 +356,7 @@ def _launch(args, data: Path) -> int:
                     break
                 time.sleep(0.1)
         if lock is None:
-            print(f"An older Jobwatch copy is still running: {url}", flush=True)
+            print(f"An older Foothold copy is still running: {url}", flush=True)
             print("Stop it in Settings > Background, then start this updated copy again.", flush=True)
             return 1
     lock.close()          # the server takes the lock itself
@@ -365,17 +365,17 @@ def _launch(args, data: Path) -> int:
     flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
     quiet = {"cwd": str(data), "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL,
              "stderr": subprocess.DEVNULL, "close_fds": True}
-    try:      # leave the console's job object so closing the window never stops Jobwatch
+    try:      # leave the console's job object so closing the window never stops Foothold
         child = subprocess.Popen(command, creationflags=flags | subprocess.CREATE_BREAKAWAY_FROM_JOB, **quiet)
     except OSError:
         child = subprocess.Popen(command, creationflags=flags, **quiet)
-    print("Starting Jobwatch in the background...", flush=True)
+    print("Starting Foothold in the background...", flush=True)
     deadline = time.monotonic() + 90
     while time.monotonic() < deadline:
         if child.poll() is not None:
             if child.returncode == 0:      # another server (e.g. the sign-in start) took the lock first
                 return wait_for_running(args, data)
-            print("Jobwatch could not start:", flush=True)
+            print("Foothold could not start:", flush=True)
             print(log_tail(data / "jobwatch.log") or f"(exit code {child.returncode})", flush=True)
             return 1
         url = instance_url(state)
@@ -387,11 +387,11 @@ def _launch(args, data: Path) -> int:
             pass
         time.sleep(0.2)
     else:
-        print(f"Jobwatch is taking long to start; see {data / 'jobwatch.log'}", flush=True)
+        print(f"Foothold is taking long to start; see {data / 'jobwatch.log'}", flush=True)
         return 1
-    print(f"\nJobwatch is running in the background: {url}", flush=True)
-    print("This window closes by itself; Jobwatch keeps running without a window.", flush=True)
-    print("Open Jobwatch again any time to reopen the dashboard.", flush=True)
+    print(f"\nFoothold is running in the background: {url}", flush=True)
+    print("This window closes by itself; Foothold keeps running without a window.", flush=True)
+    print("Open Foothold again any time to reopen the dashboard.", flush=True)
     print("To stop it, or to start it when you sign in to Windows: Settings > Background.\n", flush=True)
     if not args.no_browser:
         webbrowser.open(url)
@@ -399,7 +399,8 @@ def _launch(args, data: Path) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Start the portable Jobwatch dashboard")
+    parser = argparse.ArgumentParser(description="Start the portable Foothold dashboard")
+    # Foothold was called Jobwatch; existing data stays in the folder of that name.
     parser.add_argument("--data-dir", type=Path, default=Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Jobwatch")
     parser.add_argument("--no-browser", action="store_true")
     parser.add_argument("--no-poll", action="store_true", help="offline diagnostics only")
@@ -415,7 +416,7 @@ def main(argv=None) -> int:
     if args.stop:
         if stop_and_wait(data):
             return 0
-        print("Jobwatch could not be stopped.", flush=True)
+        print("Foothold could not be stopped.", flush=True)
         return 1
     lock = None
     if args.serve:
@@ -442,15 +443,15 @@ def main(argv=None) -> int:
             if url:
                 running = json.loads(state.read_text(encoding="utf-8"))
                 if running.get("version") != APP_VERSION:
-                    print(f"An older Jobwatch copy is still running: {url}", flush=True)
+                    print(f"An older Foothold copy is still running: {url}", flush=True)
                     print("Stop it in Settings > Background, then start this updated copy again.", flush=True)
                     return 1
-                print(f"Jobwatch is already running: {url}", flush=True)
+                print(f"Foothold is already running: {url}", flush=True)
                 if not args.no_browser:
                     webbrowser.open(url)
                 return 0
             time.sleep(0.1)
-        print("Jobwatch is starting in another window. Please wait a moment.")
+        print("Foothold is starting in another window. Please wait a moment.")
         return 0
     try:
         initialize_data(app, data)
@@ -487,11 +488,11 @@ def main(argv=None) -> int:
         temporary = state.with_suffix(".tmp")
         temporary.write_text(json.dumps({"url": url, "pid": os.getpid(), "version": APP_VERSION}), encoding="utf-8")
         temporary.replace(state)
-        print(f"\nJobwatch is ready: {url}", flush=True)
+        print(f"\nFoothold is ready: {url}", flush=True)
         print(f"Version: {APP_VERSION}", flush=True)
         print(f"Your private data: {data}", flush=True)
         if args.console:
-            print("Keep this window open. Close it or press Ctrl+C to stop Jobwatch.", flush=True)
+            print("Keep this window open. Close it or press Ctrl+C to stop Foothold.", flush=True)
             print("Open Settings to choose your targets and upload your own resume.\n", flush=True)
         service.start_background()
         if not args.no_poll:
@@ -509,7 +510,7 @@ def main(argv=None) -> int:
         except KeyboardInterrupt:
             pass
         finally:
-            print("\nJobwatch stopped.", flush=True)
+            print("\nFoothold stopped.", flush=True)
             service._stop.set()
             service._wake.set()
             server.server_close()
@@ -532,11 +533,11 @@ def run(argv=None) -> int:
     except SystemExit as exc:          # argparse errors
         code = exc.code if isinstance(exc.code, int) else 1
     except Exception as exc:
-        print(f"Jobwatch could not start: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"Foothold could not start: {type(exc).__name__}: {exc}", file=sys.stderr)
         code = 1
     if windowless and code:
-        show_error(captured.getvalue().strip() or "Jobwatch could not start. Details are in jobwatch.log "
-                   "in your Jobwatch data folder.")
+        show_error(captured.getvalue().strip() or "Foothold could not start. Details are in jobwatch.log "
+                   "in your data folder, %LOCALAPPDATA%\\Jobwatch.")
     return code
 
 

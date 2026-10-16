@@ -20,7 +20,7 @@ def verify_builder_path(member: str, content: bytes, home: Path) -> None:
     # Binary-only wheels are compiled upstream, sometimes under the same
     # runneradmin profile as CI. Their debug paths are not local builder data.
     # Continue scanning Python sources and generated executables/wrappers.
-    if member.startswith("Jobwatch/runtime/Lib/site-packages/") and member.endswith(".pyd"):
+    if member.startswith("Foothold/runtime/Lib/site-packages/") and member.endswith(".pyd"):
         return
     assert str(home).lower().encode() not in content.lower(), member
 
@@ -36,7 +36,7 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
                 verify_builder_path(member, archive.read(member), Path.home())
                 assert "/site-packages/bin/" not in member, member
             archive.extractall(fixture)
-        app = fixture / "Jobwatch"
+        app = fixture / "Foothold"
         manifest = json.loads((app / "manifest.json").read_text())
         for name, digest in manifest["files"].items():
             assert hashlib.sha256((app / name).read_bytes()).hexdigest() == digest, name
@@ -60,7 +60,7 @@ def verify(bundle: Path, resume: Path | None = None) -> None:
         # Exercise automatic polling safely with no external sources in this test.
         config["boards"] = {}
         (data / "config.json").write_text(json.dumps(config), encoding="utf-8")
-        batch = app / "Start Jobwatch.bat"
+        batch = app / "Start Foothold.bat"
         command = f'cmd.exe /d /c ""{batch}" --data-dir "{data}" --no-browser"'
         log = fixture / "startup.log"
 

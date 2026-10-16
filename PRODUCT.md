@@ -12,7 +12,7 @@ Job seekers comparing openings, tracking applications, and preparing application
 
 ## Product Purpose
 
-Jobwatch collects openings from employer and listing sources, helps users find relevant jobs, and keeps applications and deadlines organized. Success means the user can trust the extracted resume facts, understand recommendations, and act on relevant openings quickly.
+Foothold collects openings from employer and listing sources, helps users find relevant jobs, and keeps applications and deadlines organized. Success means the user can trust the extracted resume facts, understand recommendations, and act on relevant openings quickly.
 
 ## Operating Context
 
@@ -29,9 +29,19 @@ A local Python service runs in the background on Windows and serves a browser in
 
 ## Brand Commitments
 
-Keep the Jobwatch name. The user explicitly requested Impeccable and Emil Kowalski's design engineering principles to make the interface more modern and intuitive.
+The product is named Foothold (renamed from Jobwatch on 2026-10-16; tagline "Get a foothold."). The interface, Start menu entry, shortcuts, launcher, Discord messages and generated PDFs say Foothold. The data folder (%LOCALAPPDATA%\Jobwatch) and its log file, the setup file name (Jobwatch-Setup-*.exe), the installer's AppId and the sign-in start entry keep the Jobwatch name so existing installs upgrade in place and keep their data; on-screen copy names those literally where the user has to find them.
 
-Visual direction (user's standing preference, 2026-10-12): a modern, professional, conventional work-tool look at the craft level of Linear and Height. No themed or conceptual worlds ("nothing this crazy"). Light and dark themes are equal citizens. Avoid the generic-SaaS template look (stock indigo accent, Inter, rounded cards everywhere). Keep the redesigned Opportunities layout and behavior.
+Identity: a step mark (a ledge) in paper on an ink tile, used for the favicon, the Windows icon and the header lockup, with a lowercase condensed "foothold" wordmark.
+
+Visual direction (2026-10-16): paper and ink in both themes. Selected and active states invert to ink. Green marks good fit, new roles and positive states, amber marks deadlines and warnings, and red marks failures. The user rejected a highlighter-yellow accent, so don't use highlight bands or yellow. Instrument Sans for text (condensed widths for headings and large figures) and JetBrains Mono for figures that line up (fit, dates, counts). Hierarchy comes from type, rules and whitespace. Today is unboxed, with ruled sections like a printed brief, while data tables, settings, the board and the calendar keep light containers.
+
+Controls stay quiet: at most one primary (ink) action per view. Secondary actions go in a single menu (View or ⋯), and row actions appear on hover or focus. Collection progress lives in a hover card on the header's Live button rather than a banner. Settings and Sources aren't tabs: the gear sits beside the theme toggle, and Sources is linked from the Live card. Settings works like an app's settings window, not a long page: a sidebar of sections (Profile, Alerts, App) shows one section at a time (`#/settings?tab=…`), and each section is titled cards of rows with the label on the left and its control on the right. Long multi-select lists are toggle chips with a filter. One floating save bar covers profile edits across sections, and a dot marks sections with unsaved changes.
+
+The posting panel shows only what is known. The facts that decide whether to apply (deadline, pay, level, work model, cycle, when it was posted) sit in one strip under the header, and anything the posting doesn't state is left out rather than listed as "Not specified". Requirements appear only when stated, with the posting's own words cut at whole words. Confidence scores, internal source names and setup jargon never appear in the panel. Cover letter, application PDF and contacts sit together under Prepare, and where the listing came from is small print at the end.
+
+Fields tailor the app. A first run (no saved profile) opens a short setup at `#/welcome` that asks for fields (finance and/or job families such as software or AI & data), finance areas if finance was picked, specialties if Software or AI & Data was picked (frontend, backend, ML engineering, data science…), study stage, graduation and cycles, and where to work. The chosen fields are stored as the profile's `fields` and decide what Settings shows: finance areas and finance employer types only for finance, specialties only for their field, tech employer types (Big Tech, startups, AI labs…) for the tech fields, and skill groups that fit the fields. Fields never hide saved choices, and setup can be re-run from Settings without losing the rest of the profile. Fields also decide which sources are polled. Each source serves finance, tech or both (from its employer's type, or its own `track` in config.json): a Software profile skips bank, boutique and asset-manager boards and finance LinkedIn searches, a Finance profile skips tech employers, and shared lists that carry both kinds of roles are polled for everyone. Sources shows the skipped ones as "Not polled".
+
+Standing preferences: a modern, intuitive, professional work tool with real UI elements and its own identity rather than an AI-generated template look. Avoid stock indigo or purple accents, Inter, rounded bordered cards around everything, rows of buttons, unlabeled status dots and greeting headlines. No themed or conceptual worlds. Light and dark themes are equal citizens. Keep the redesigned Opportunities layout and behavior.
 
 ## Product Principles
 

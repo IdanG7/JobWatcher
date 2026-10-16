@@ -1512,7 +1512,7 @@ class JobwatchService:
             raise ApiError("That is not a Discord webhook URL. In Discord: channel settings → Integrations → "
                            "Webhooks → Copy Webhook URL.")
         if not watcher.send_discord_note(
-                webhook, "✅ Jobwatch connected",
+                webhook, "✅ Foothold connected",
                 "New matching postings, a morning summary of deadlines, interviews and follow-ups, "
                 "and saved jobs that get taken down will be posted in this channel.", 0x3E63DD):
             raise ApiError("Discord rejected the webhook. Check that it still exists and try again.")
@@ -1534,7 +1534,7 @@ class JobwatchService:
         if not hook:
             raise ApiError("Discord is not connected yet.")
         if not watcher.send_discord_note(
-                hook, "🧪 Jobwatch test",
+                hook, "🧪 Foothold test",
                 "If you can read this, Discord alerts are working.", 0x3E63DD):
             raise ApiError("Discord rejected the message. The webhook may have been deleted; reconnect it.")
         return {"ok": True}
@@ -1566,7 +1566,7 @@ class JobwatchService:
 
     def shutdown(self) -> dict:
         if self.on_shutdown is None:
-            raise ApiError("Stop this copy of Jobwatch from the window it is running in.")
+            raise ApiError("Stop this copy of Foothold from the window it is running in.")
         threading.Timer(0.3, self.on_shutdown).start()      # let this response reach the browser first
         return {"ok": True}
 
@@ -2241,7 +2241,7 @@ def serve(host="127.0.0.1", port=8787, open_browser=True, db_path=watcher.DB_PAT
                     "allow_any_host": host in ("0.0.0.0", "::")})
     server = JobwatchHTTPServer((host, port), handler)
     url = f"http://{'127.0.0.1' if host in ('0.0.0.0', '::') else host}:{server.server_port}"
-    print(f"Jobwatch · Finance Recruiting Intelligence → {url}")
+    print(f"Foothold · Recruiting dashboard → {url}")
     print("Applications, contacts, notes and your profile stay in the local SQLite database.")
     if host not in {"127.0.0.1", "localhost", "::1"}:
         print("WARNING: bound to a non-loopback address. This dashboard has NO authentication —\n"
@@ -2259,7 +2259,7 @@ def serve(host="127.0.0.1", port=8787, open_browser=True, db_path=watcher.DB_PAT
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Jobwatch local finance recruiting dashboard")
+    parser = argparse.ArgumentParser(description="Foothold local recruiting dashboard")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8787)
     parser.add_argument("--no-browser", action="store_true")

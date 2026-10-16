@@ -117,7 +117,7 @@ def text_pdf(text: str, title: str = "Cover letter") -> bytes:
                        b"/Contents %d 0 R >>" % (PAGE_W, PAGE_H, len(objects)))
         kids.append(len(objects))
     info_title = ("﻿" + title[:200]).encode("utf-16-be").hex().encode()   # text strings are not cp1252
-    objects.append(b"<< /Title <" + info_title + b"> /Producer (Jobwatch) >>")
+    objects.append(b"<< /Title <" + info_title + b"> /Producer (Foothold) >>")
     objects[0] = b"<< /Type /Catalog /Pages 2 0 R >>"
     objects[1] = b"<< /Type /Pages /Kids [%s] /Count %d >>" % (
         b" ".join(b"%d 0 R" % k for k in kids), len(kids))
@@ -137,6 +137,6 @@ def text_pdf(text: str, title: str = "Cover letter") -> bytes:
 
 def safe_filename(*parts: str, suffix: str = ".pdf") -> str:
     """'RBC - Summer Analyst.pdf' with characters Windows rejects removed."""
-    name = " - ".join(p.strip() for p in parts if p and p.strip()) or "Jobwatch"
+    name = " - ".join(p.strip() for p in parts if p and p.strip()) or "Foothold"
     name = "".join(c for c in name if c not in '<>:"/\\|?*' and ord(c) >= 32)
     return textwrap.shorten(name, 120, placeholder="…").strip(" .") + suffix

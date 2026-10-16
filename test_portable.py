@@ -20,10 +20,10 @@ class PortableTests(unittest.TestCase):
     def test_upstream_binary_build_paths_do_not_mask_private_app_or_wrapper_paths(self):
         home = Path(r"C:\Users\runneradmin")
         content = b"compiler source: C:\\Users\\runneradmin\\build\\src"
-        verify_builder_path("Jobwatch/runtime/Lib/site-packages/cryptography/_rust.pyd", content, home)
-        for member in ("Jobwatch/app/watcher.py", "Jobwatch/app/private.pyd",
-                       "Jobwatch/runtime/Lib/site-packages/bin/wrapper.exe",
-                       "Jobwatch/runtime/Lib/site-packages/cryptography/__init__.py"):
+        verify_builder_path("Foothold/runtime/Lib/site-packages/cryptography/_rust.pyd", content, home)
+        for member in ("Foothold/app/watcher.py", "Foothold/app/private.pyd",
+                       "Foothold/runtime/Lib/site-packages/bin/wrapper.exe",
+                       "Foothold/runtime/Lib/site-packages/cryptography/__init__.py"):
             with self.subTest(member=member), self.assertRaises(AssertionError):
                 verify_builder_path(member, content, home)
 
@@ -96,9 +96,9 @@ class PortableTests(unittest.TestCase):
 
     def test_stage_uses_allowlist_without_database_or_personal_files(self):
         with tempfile.TemporaryDirectory() as directory:
-            stage = Path(directory) / "Jobwatch"
+            stage = Path(directory) / "Foothold"
             stage_app(Path(__file__).parent, stage)
-            self.assertTrue((stage / "Start Jobwatch.bat").is_file())
+            self.assertTrue((stage / "Start Foothold.bat").is_file())
             self.assertTrue((stage / "app/web/js/views/settings.js").is_file())
             self.assertTrue((stage / "app/intel/resume.py").is_file())
             self.assertEqual({}, json.loads((stage / "app/subscribers.json").read_text()))
