@@ -1474,7 +1474,9 @@ def db_open(path=None):
     from db_migrations import migrate
     target = path if path is not None else DB_PATH
     con = sqlite3.connect(target)
-    con.execute("PRAGMA busy_timeout=5000")
+    # Outwait dashboard writes (a full rescore invalidation takes seconds on a
+    # large database) rather than fail a whole poll; matches the refresh thread.
+    con.execute("PRAGMA busy_timeout=15000")
     if str(target) != ":memory:":
         # The dashboard reads while the watcher writes; WAL keeps both moving.
         con.execute("PRAGMA journal_mode=WAL")
@@ -2525,6 +2527,11 @@ def repair_workday_posted(con, config):
         marks = ",".join("?" * len(part))
         keys = con.execute(f"""SELECT board, job_id FROM job_details WHERE board IN ({marks})
                                AND posted IS NOT NULL AND posted != CAST(posted AS INTEGER)""", part).fetchall()
+        if not keys:
+            # executemany() with no rows still opens a transaction. Later reads
+            # would pin a snapshot, and the next write after any other commit
+            # fails at once with "database is locked", ignoring busy_timeout.
+            continue
         con.executemany("UPDATE job_details SET posted=NULL WHERE board=? AND job_id=?", keys)
         con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", keys)
         cleared += len(keys)

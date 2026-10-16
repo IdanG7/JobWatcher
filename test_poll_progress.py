@@ -1,3 +1,5 @@
+from contextlib import closing
+import sqlite3
 import threading
 import time
 from unittest.mock import patch
@@ -72,6 +74,41 @@ class PollProgressTests(ServiceFixture):
         self.assertEqual("ok", finished["rbc"]["outcome"])
         self.assertEqual("failed", finished["demo_quant"]["outcome"])
         self.assertTrue(any(event == "phase" and data["phase"] == "indexing" for event, data in events))
+
+    def test_new_source_is_added_after_a_concurrent_commit(self):
+        # Workday date repair has nothing to clear here. It must not leave a
+        # deferred transaction open: the source scan would then pin a read
+        # snapshot, and adding a source row after the background refresh
+        # commits fails at once with "database is locked", ignoring busy_timeout.
+        # The name matches Workday Inc., a tech employer this finance profile would skip.
+        self.service.config["boards"]["demo_workday"] = {"ats": "workday", "track": "both"}
+        self.service.config["description_budget"] = 0
+        real_backoff = watcher.failure_backoff
+        refreshed = []
+
+        def backoff(failures):
+            if not refreshed:   # the background refresh commits mid-scan
+                with closing(sqlite3.connect(self.db_path)) as other:
+                    other.execute("INSERT OR REPLACE INTO kv VALUES ('refresh_probe', 'done')")
+                    other.commit()
+                refreshed.append(True)
+            return real_backoff(failures)
+
+        def fetch(name, cfg):
+            raise TimeoutError("offline fixture")
+
+        with patch.object(watcher, "failure_backoff", side_effect=backoff), \
+                patch.object(watcher, "fetch_board", side_effect=fetch), \
+                patch.object(watcher, "load_subscribers", return_value=[]):
+            con = watcher.db_open(self.db_path)
+            try:
+                watcher.cycle(self.service.config, con)
+            finally:
+                con.close()
+        self.assertTrue(refreshed)
+        with self.service.db() as con:
+            added = {r[0] for r in con.execute("SELECT board FROM boards")}
+        self.assertLessEqual({"demo_quant", "linkedin_ca", "demo_workday"}, added)
 
     def test_fatal_poll_error_remains_visible(self):
         with patch.object(watcher, "cycle", side_effect=RuntimeError("fixture error")):
