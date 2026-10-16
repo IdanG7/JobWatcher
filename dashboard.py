@@ -34,6 +34,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version
+from intel.sources import polls, profile_fields, profile_tracks, source_track
 from intel import cover_letter, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
@@ -1275,12 +1276,17 @@ class JobwatchService:
     # ------------------------------------------------------------ sources
     def sources(self) -> dict:
         with self.db() as con:
+            profile = self.profile(con)
+            fields = sorted(profile_fields(profile, self.kn))
+            tracks = profile_tracks(profile, self.kn)
             rows = {r["board"]: dict(r) for r in con.execute(
                 "SELECT board, seeded, last_ok, failures, last_poll FROM boards")}
-            counts = {r[0]: (r[1], r[2], r[3]) for r in con.execute(
-                """SELECT i.board, COUNT(*), SUM(i.is_finance), SUM(i.fit >= 75) FROM job_intel i
+            # Open roles in the profile's fields (every role when it names none).
+            in_fields = f"i.family IN ({','.join('?' * len(fields))})" if fields else "1"
+            counts = {r[0]: (r[1], r[2], r[3], r[4]) for r in con.execute(
+                f"""SELECT i.board, COUNT(*), SUM(i.is_finance), SUM(i.fit >= 75), SUM({in_fields}) FROM job_intel i
                    LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
-                   WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""")}
+                   WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""", fields)}
             last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
             coverage = {}
             for r in con.execute("SELECT k,v FROM kv WHERE k LIKE 'source_coverage:%'"):
@@ -1299,7 +1305,8 @@ class JobwatchService:
                 None if cfg.get("ats") in ("linkedin", "github_listings", "github_md")
                 else self.kn.match_company(name.replace("_", " ")))
             ctype = cfg.get("company_type") or (company.type if company else "")
-            jobs, finance, high = counts.get(name, (0, 0, 0))
+            jobs, finance, high, field_jobs = counts.get(name, (0, 0, 0, 0))
+            track = source_track(name, cfg, self.kn)
             sources.append({
                 "name": name, "label": self.source_label(name), "adapter": cfg.get("ats"),
                 "disabled": bool(cfg.get("disabled")), "note": cfg.get("_note", ""),
@@ -1311,10 +1318,12 @@ class JobwatchService:
                 "seeded": bool(state.get("seeded")), "last_ok": state.get("last_ok"),
                 "failures": state.get("failures", 0), "last_poll": state.get("last_poll", 0),
                 "jobs": jobs or 0, "finance_jobs": finance or 0, "high_fit": high or 0,
+                "field_jobs": field_jobs or 0, "track": track, "polled": polls(track, tracks),
                 "coverage": coverage.get(name),
             })
-        sources.sort(key=lambda s: (s["disabled"], -s["failures"], s["group"] or "", s["label"]))
-        return {"sources": sources, "last_run": dict(last_run) if last_run else None}
+        sources.sort(key=lambda s: (s["disabled"], not s["polled"], -s["failures"], s["group"] or "", s["label"]))
+        return {"sources": sources, "last_run": dict(last_run) if last_run else None,
+                "fields": fields, "tracks": sorted(tracks)}
 
     # ------------------------------------------------------------ profile & meta
     def _update_resume_version(self, con) -> str:
@@ -1702,7 +1711,7 @@ class JobwatchService:
                 "SELECT cycle FROM job_intel WHERE cycle IS NOT NULL GROUP BY cycle ORDER BY COUNT(*) DESC LIMIT 20")]
         return {
             "taxonomy": self.kn.taxonomy_tree(),
-            "families": [{"key": k, "label": n.label} for k, n in self.kn.families.items()],
+            "families": self.kn.family_tree(),
             "company_types": [{"key": k, **v} for k, v in self.kn.company_types.items()],
             "cities": [{"key": c["key"], "label": c["label"], "country": c["country"], "target": bool(c.get("target"))}
                        for c in self.kn.cities],

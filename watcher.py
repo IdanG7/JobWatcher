@@ -41,7 +41,9 @@ from urllib.parse import parse_qs, urljoin, urlsplit
 
 import requests
 
-from intel_store import (COMPLETE_LISTING_ATS, IntelStore, record_changes, store_description,
+from intel import load_knowledge
+from intel.sources import polls, profile_tracks, source_track
+from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_description,
                          update_lifecycle)
 
 HERE = Path(__file__).parent
@@ -1369,20 +1371,21 @@ FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank"
                          "hedge_fund", "quant_firm", "asset_manager", "pension_fund", "insurance")
 
 
-def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
+def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, boards=None):
     """Fetch descriptions for the postings that benefit most, politely.
 
     Priority: tracked applications, then finance roles, then finance
     employers, newest first.  A per-board cap spreads load; failures back
     off for six hours and give up after three attempts.  ``fetched`` (a list)
     collects the (board, job_id) keys that received a description.
+    ``boards`` is the poll's field_boards(); without it they are worked out here.
     """
     from intel_store import store_description, utcnow
     budget = config.get("description_budget", 60) if budget is None else budget
     if budget <= 0:
         return 0
-    boards = {k: v for k, v in config["boards"].items()
-              if not k.startswith("_") and not v.get("disabled") and v.get("ats") in DETAIL_FETCHERS}
+    boards = {k: v for k, v in (field_boards(config, con) if boards is None else boards).items()
+              if v.get("ats") in DETAIL_FETCHERS}
     if not boards:
         return 0
     per_board = config.get("description_per_board", 12)
@@ -2531,11 +2534,19 @@ def repair_workday_posted(con, config):
     return cleared
 
 
+def field_boards(config, con):
+    """Enabled boards that serve the profile's fields: a Software profile skips bank and
+    boutique boards, a Finance one skips tech employers (intel/sources.py)."""
+    boards = {k: v for k, v in config["boards"].items() if not k.startswith("_") and not v.get("disabled")}
+    kn = load_knowledge()
+    tracks = profile_tracks(load_profile(con, config), kn)
+    return {k: v for k, v in boards.items() if polls(source_track(k, v, kn), tracks)}
+
+
 def cycle(config, con, progress=None):
     t0 = time.time()
     started_at = now()
-    all_boards = {k: v for k, v in config["boards"].items()
-                  if not k.startswith("_") and not v.get("disabled")}
+    all_boards = field_boards(config, con)
     subs = load_subscribers(config.get("filters", {}))
     repair_workday_posted(con, config)
     new_by_board = {}
@@ -2778,7 +2789,7 @@ def cycle(config, con, progress=None):
     if store and not EPHEMERAL:
         try:
             fetched = []
-            enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress)
+            enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress, boards=all_boards)
             if enriched:
                 report_progress(progress, "phase", phase="indexing")
                 # only the enriched rows: an unbounded pass would chew through

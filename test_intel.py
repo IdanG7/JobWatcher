@@ -87,6 +87,18 @@ class TaxonomyTests(unittest.TestCase):
             result = cls(title, company_type=ctype)
             self.assertFalse(result["is_finance"], (title, result))
 
+    def test_engineering_outside_software_is_not_software(self):
+        for title in ("Civil Engineering Intern", "Water Infrastructure Engineering Intern",
+                      "Environmental Engineering Co-op", "Welding Engineer (Starship)",
+                      "Chemical Process Engineer", "Water Systems Engineer"):
+            self.assertNotEqual("software", cls(title)["family"], title)
+        self.assertEqual("hardware", cls("Mechanical Engineering Intern")["family"])
+        for title in ("Infrastructure Engineer Intern", "Cloud Infrastructure Engineer",
+                      "Software Engineer, Energy Trading", "Data Platform Engineer, Utilities",
+                      "Privacy & Civil Liberties Engineer - New Grad",
+                      "IT Systems Engineer, Propellant Generation & Industrial Systems"):
+            self.assertIn(cls(title)["family"], ("software", "data_ml"), title)
+
     def test_banking_corporate_finance_and_risk(self):
         self.assertCategory(cls("Corporate Banking Analyst"), "banking", "corporate_banking")
         self.assertCategory(cls("Commercial Banking Associate"), "banking", "commercial_banking")
@@ -396,6 +408,179 @@ class FitScoreTests(unittest.TestCase):
         self.assertEqual([], validate_profile(merge_profile({}), KN))
         problems = validate_profile(merge_profile({"target_roles": ["astrology"], "graduation_year": 1990}), KN)
         self.assertEqual(2, len(problems))
+
+
+class TechTaxonomyTests(unittest.TestCase):
+    """Software and AI & data specialties, tech employers and CS skills."""
+
+    def assertSpecialty(self, title, family, sub, **kw):
+        result = cls(title, **kw)
+        self.assertEqual((family, sub), (result["family"], result["subcategory"]), (title, result["evidence"]))
+        self.assertFalse(result["is_finance"])
+        return result
+
+    def test_specialties_share_the_subcategory_namespace(self):
+        families = {f["key"]: f for f in KN.family_tree()}
+        self.assertEqual({"frontend", "backend", "full_stack", "mobile", "infrastructure", "security", "embedded", "qa"},
+                         {s["key"] for s in families["software"]["subcategories"]})
+        self.assertEqual({"ml_engineering", "data_engineering", "data_science", "analytics", "research"},
+                         {s["key"] for s in families["data_ml"]["subcategories"]})
+        self.assertTrue(all(s["note"] for s in families["software"]["subcategories"]))
+        self.assertEqual([], families["sales"]["subcategories"])
+        self.assertEqual("Backend", KN.subcategory_label("software", "backend"))
+        # Finance categories keep only their own groups.
+        self.assertNotIn("backend", {s["key"] for c in KN.taxonomy_tree() for s in c["subcategories"]})
+
+    def test_titles_place_software_roles_in_specialties(self):
+        for title, sub in (("Frontend Developer", "frontend"), ("Front-End Engineer - React", "frontend"),
+                           ("Software Engineer Intern - Backend (Summer 2027)", "backend"),
+                           ("Full Stack Web Developer", "full_stack"), ("iOS Engineer", "mobile"),
+                           ("Android Developer", "mobile"), ("Site Reliability Engineer", "infrastructure"),
+                           ("DevOps Engineer", "infrastructure"), ("Software Engineer, Infrastructure", "infrastructure"),
+                           ("Cybersecurity Engineer – Summer Internship", "security"),
+                           ("Information Security Analyst", "security"), ("Firmware Engineer", "embedded"),
+                           ("Embedded Software Engineer", "embedded"), ("SDET", "qa"), ("QA Automation Engineer", "qa"),
+                           ("Software Development Engineer in Test", "qa")):
+            self.assertSpecialty(title, "software", sub)
+        self.assertSpecialty("Software Engineer Intern", "software", None)
+
+    def test_titles_place_data_roles_in_specialties(self):
+        for title, sub in (("Machine Learning Engineer", "ml_engineering"), ("NLP Engineer", "ml_engineering"),
+                           ("Software Engineer - Machine Learning", "ml_engineering"),
+                           ("Data Engineer", "data_engineering"), ("Analytics Engineer", "data_engineering"),
+                           ("Data Engineering Intern", "data_engineering"), ("Analytics Engineering Co-op", "data_engineering"),
+                           ("Data Scientist", "data_science"), ("Data Analyst Intern", "analytics"),
+                           ("Business Intelligence Developer", "analytics"), ("Research Scientist, LLMs", "research"),
+                           ("AI Researcher, LLMs", "research"), ("Applied ML Scientist", "research"),
+                           ("Campus ML Research Engineer (Intern)", "research")):
+            self.assertSpecialty(title, "data_ml", sub)
+
+    def test_the_occupation_before_the_comma_outranks_the_team_after_it(self):
+        result = self.assertSpecialty("Backend Engineer, Payments Infrastructure", "software", "backend")
+        self.assertIn("infrastructure", result["secondary_subcategories"])
+        self.assertEqual("Backend", result["subcategory_label"])
+        # The description can't override a specialty the title names.
+        self.assertSpecialty("Backend Engineer - Data Platform", "software", "backend",
+                             description="Kubernetes, Terraform, CI/CD and observability for our platform.")
+
+    def test_a_specialty_from_the_description_alone_needs_clear_evidence(self):
+        frontend = "You will build React components in TypeScript with CSS and HTML5, and own our design system."
+        result = self.assertSpecialty("Software Engineer", "software", "frontend", description=frontend)
+        self.assertIn("description: CSS", result["evidence"])
+        # Cloud vendors and a tool or two are in every posting: no specialty from them.
+        self.assertSpecialty("Software Development Engineer", "software", None,
+                             description="Our teams run on AWS. Experience with Docker and Python is a plus.")
+        self.assertSpecialty("Software Engineer, Core Product", "software", "backend", department="Backend",
+                             description="Build distributed systems and backend services.")
+
+    def test_subject_words_do_not_override_a_business_occupation(self):
+        self.assertSpecialty("Cybersecurity Analyst", "software", "security")
+        self.assertSpecialty("2027 Summer Intern - Cyber Security", "software", "security")
+        self.assertSpecialty("AI Research Intern", "data_ml", "research")
+        self.assertEqual("product", cls("Principal Product Manager - Identity Threat Detection & Response")["family"])
+        self.assertEqual("people_legal", cls("Recruiter, AI Research")["family"])
+        self.assertEqual("people_legal", cls("Senior Legal Counsel – Cybersecurity & Data Protection")["family"])
+        self.assertEqual("sales", cls("Product Marketing Manager, Cybersecurity")["family"])
+        self.assertEqual("hardware", cls("Hardware Test Automation Engineer")["family"])
+
+    def test_finance_roles_stay_finance(self):
+        result = cls("2027 Investment Banking Summer Analyst")
+        self.assertTrue(result["is_finance"])
+        self.assertEqual("investment_banking", result["category"])
+        self.assertTrue(cls("Quantitative Research Intern (NLP)", company_type="quant_firm")["is_finance"])
+
+    def test_tech_employers_resolve_to_tech_types(self):
+        for name, key, ctype in (("Google LLC", "google", "big_tech"), ("Google DeepMind", "deepmind", "ai_lab"),
+                                 ("Amazon Web Services", "amazon", "big_tech"), ("OpenAI", "openai", "ai_lab"),
+                                 ("Databricks", "databricks", "scale_up"), ("Shopify", "shopify", "established_tech"),
+                                 ("Salesforce", "salesforce", "enterprise_software"), ("Micron Technology", "micron", "semiconductors"),
+                                 ("L3Harris Technologies", "l3harris", "defense_aerospace"), ("Infosys", "infosys", "it_services"),
+                                 ("Booz Allen", "booz_allen", "public_sector"), ("Target", "target", "corporate")):
+            company = resolve_company(name, KN)
+            self.assertEqual((key, ctype), (company["key"], company["type"]), name)
+        self.assertEqual("Big Tech", resolve_company("Microsoft", KN)["type_label"])
+
+    def test_exact_only_aliases_keep_the_display_name_exact(self):
+        # '=harvey' and '=cohere': other firms that merely contain the word stay unknown.
+        for name in ("Harvey Nash", "Cohere Health", "Apple Bank", "Google Gemini Team"):
+            self.assertNotIn(resolve_company(name, KN)["key"], {"harvey", "cohere", "apple", "gemini"}, name)
+        self.assertEqual("harvey", resolve_company("Harvey", KN)["key"])
+        self.assertEqual("gemini", resolve_company("Gemini", KN)["key"])
+
+    def test_board_sections_type_unknown_tech_employers(self):
+        self.assertEqual("big_tech", resolve_company("Newco", KN, section="_big_tech_direct")["type"])
+        self.assertEqual("established_tech", resolve_company("Newco", KN, section="_established_tech")["type"])
+        self.assertEqual("startup", resolve_company("Newco", KN, section="_startups_fintech_consumer")["type"])
+        self.assertEqual("fintech", resolve_company("Newco", KN, section="_fintech")["type"])
+
+    def test_cs_skills(self):
+        labels = {s["label"] for s in extract_skills(
+            "We use React.js, TypeScript and Node.js on AWS with Kubernetes, Terraform and CI/CD. Data flows "
+            "through Kafka and Apache Spark into Snowflake. Models are trained in PyTorch. Strong data structures "
+            "and algorithms, system design, Go (golang) and C# / .NET experience.", KN, limit=60)}
+        for label in ("React.js", "TypeScript", "Node.js", "AWS", "Kubernetes", "Terraform / IaC", "CI/CD", "Kafka",
+                      "Apache Spark", "Data Warehousing", "PyTorch", "Data Structures & Algorithms", "System Design",
+                      "Go (Golang)", "C# / .NET"):
+            self.assertIn(label, labels)
+        self.assertEqual({"web", "cloud", "data", "ml", "cs"}, set(KN.skill_groups) - {
+            "modeling", "accounting", "tools", "programming", "markets", "quant", "soft"})
+
+    def test_cs_skill_words_need_their_technical_sense(self):
+        labels = {s["label"] for s in extract_skills(
+            "React quickly to clients. Spring 2027 internship. Good airflow in the data hall. "
+            "Go to market with our team on the go.", KN, limit=60)}
+        self.assertEqual(set(), labels & {"React.js", "Apache Airflow", "Go (Golang)"})
+
+
+class TechFitTests(unittest.TestCase):
+    PROFILE = {"fields": ["software"], "target_roles": ["software.backend", "data_ml.ml_engineering"],
+               "target_company_types": ["big_tech"], "target_locations": ["new_york"], "target_countries": ["US"]}
+
+    def score(self, title, company="Acme Robotics", **extra):
+        job = {"title": title, "company": company, "location": "New York, NY", "posted": NOW - 3600, **extra}
+        result = analyze(job, self.PROFILE)
+        return result, {s["key"]: s for s in result["subscores"]}
+
+    def test_specialty_targets_validate(self):
+        self.assertEqual([], validate_profile(merge_profile(self.PROFILE), KN))
+        problems = validate_profile(merge_profile({"target_roles": ["software.nope"], "fields": ["software.backend"],
+                                                   "target_company_types": ["big_tech", "moonbase"]}), KN)
+        self.assertEqual(3, len(problems), problems)
+
+    def test_specialties_rank_exact_then_related_then_siblings(self):
+        points = {title: self.score(title)[1]["role"]["points"] for title in (
+            "Backend Engineer Intern", "Full Stack Engineer Intern", "Software Engineer Intern",
+            "Frontend Engineer Intern", "Machine Learning Engineer Intern", "Research Scientist Intern")}
+        self.assertEqual(25, points["Backend Engineer Intern"])
+        self.assertEqual(25, points["Machine Learning Engineer Intern"])
+        self.assertEqual(14, points["Full Stack Engineer Intern"])           # related to Backend
+        self.assertEqual(14, points["Research Scientist Intern"])            # related to ML Engineering
+        self.assertEqual(14, points["Software Engineer Intern"])             # no specialty named
+        self.assertEqual(9, points["Frontend Engineer Intern"])
+        detail = self.score("Full Stack Engineer Intern")[1]["role"]["detail"]
+        self.assertIn("related to your Backend target", detail)
+
+    def test_specialty_targets_are_not_a_finance_mismatch(self):
+        result, _ = self.score("Frontend Engineer Intern")
+        self.assertNotIn("role_mismatch", {p["key"] for p in result["penalties"]})
+        mismatch, _ = self.score("Account Executive")
+        self.assertNotIn("role_mismatch", {p["key"] for p in mismatch["penalties"]})
+
+    def test_tech_employers_score_like_finance_employers(self):
+        self.assertEqual(12, self.score("Backend Engineer", company="Google")[1]["company"]["points"])
+        company = self.score("Backend Engineer", company="Databricks")[1]["company"]
+        self.assertEqual((7, "Scale-up — recognized tech employer"), (company["points"], company["detail"]))
+        self.assertEqual(4, self.score("Backend Engineer")[1]["company"]["points"])
+
+    def test_resume_match_keeps_sibling_specialties_and_drops_other_fields(self):
+        from intel.matching import match_resume
+        sibling, _ = self.score("Frontend Engineer Intern")
+        verdict = match_resume(sibling, self.PROFILE, sibling)
+        self.assertNotIn("Role is outside finance and your selected career targets", verdict["exclusions"])
+        self.assertTrue(any("outside your specialties" in r for r in verdict["reasons"]), verdict)
+        other, _ = self.score("Account Executive")
+        self.assertIn("Role is outside finance and your selected career targets",
+                      match_resume(other, self.PROFILE, other)["exclusions"])
 
 
 if __name__ == "__main__":
