@@ -78,7 +78,9 @@ class FieldBoardsTests(unittest.TestCase):
         # Descriptions are fetched from the poll's own boards, not worked out a second time.
         with tempfile.TemporaryDirectory() as tmp, closing(watcher.db_open(Path(tmp) / "t.db")) as con:
             save_profile(con, {"target_roles": ["software"]})
-            with patch.object(watcher, "field_boards", wraps=watcher.field_boards) as boards, \
+            # A local install: on GitHub Actions (EPHEMERAL) a poll skips descriptions altogether.
+            with patch.object(watcher, "EPHEMERAL", False), \
+                    patch.object(watcher, "field_boards", wraps=watcher.field_boards) as boards, \
                     patch.object(watcher, "enrich_descriptions", return_value=0) as enrich, \
                     patch.object(watcher, "fetch_board", side_effect=lambda name, cfg: (name, [])), \
                     patch.object(watcher, "load_subscribers", return_value=[]):
