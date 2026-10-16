@@ -28,22 +28,33 @@ test('an error from a departed tab does not replace the current tab', async () =
 });
 
 test('fetch progress shows real counts, active sources, failures, and escaped labels', () => {
-  const status = {poll_running: true, progress: {phase: 'fetching', total: 5, completed: 2, jobs: 100, failed: 1, elapsed: 14,
-    sources: {one: {state: 'running', label: '<RBC>'}}}};
-  assert.match(collectionMarkup(status), /value="2"/);
-  assert.match(collectionMarkup(status), /2 \/ 5 sources checked/);
-  assert.match(collectionMarkup(status), /1 failed/);
-  assert.match(collectionMarkup(status), /&lt;RBC&gt;/);
+  const status = {poll_running: true, progress: {phase: 'fetching', total: 5, completed: 2, jobs: 100, new: 7, failed: 1, elapsed: 134,
+    sources: {one: {state: 'running', label: '<RBC>'}, two: {state: 'running', label: '<RBC>'}, three: {state: 'queued', label: 'TD'}}}};
+  const markup = collectionMarkup(status);
+  assert.match(markup, /value="2"/);
+  assert.match(markup, /2 of 5/);
+  assert.match(markup, /<dt>New jobs<\/dt><dd>7<\/dd>/);
+  assert.match(markup, /<dt>Elapsed<\/dt><dd>2m 14s<\/dd>/);
+  assert.match(markup, /<dt>Failed<\/dt><dd>1<\/dd>/);
+  assert.match(markup, /Now checking &lt;RBC&gt;\./, 'shared labels are listed once');
+  status.progress.failed = 0;
+  assert.doesNotMatch(collectionMarkup(status), /Failed/, 'no failure count when nothing failed');
   status.progress.phase = 'indexing';
   assert.equal(collectionStatus(status).value, null);
   assert.doesNotMatch(collectionMarkup(status), / value=/, '100% sources is not 100% overall processing');
 });
 
 test('completion, indexing, zero sources and server errors have useful states', () => {
-  assert.match(collectionMarkup({indexing: true}), /Matching and ranking/);
-  assert.match(collectionMarkup({progress: {phase: 'complete', completed: 0, jobs: 0, failed: 0}}), /Collection complete/);
+  assert.match(collectionMarkup({indexing: true}), /Ranking new jobs/);
+  assert.match(collectionMarkup({progress: {phase: 'complete', completed: 0, jobs: 0, failed: 0}}), /Up to date/);
   assert.match(collectionMarkup({error: '<offline>'}), /&lt;offline&gt;/);
   assert.match(collectionMarkup({progress: {phase: 'failed', error: 'Poll timed out'}}), /Poll timed out/);
+  const locked = collectionMarkup({error: 'poll failed: OperationalError: database is locked'});
+  assert.match(locked, /Last check didn&#39;t finish/);
+  assert.match(locked, /using the database/);
+  assert.match(locked, /<code class="collection-code">OperationalError: database is locked<\/code>/);
+  assert.match(collectionMarkup({offline: true}), /reach Foothold/);
+  assert.match(collectionStatus({offline: true}).detail, /open Foothold from the Start menu/);
   assert.equal(collectionMarkup({}), '');
 });
 

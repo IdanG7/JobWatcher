@@ -9,7 +9,7 @@ import('./app.js').then(app => app.ready).catch(error => {
   const message = document.createElement('p');
   message.textContent = `An application file could not load: ${error.message || error}`;
   const help = document.createElement('p');
-  help.textContent = 'Open Jobwatch again and refresh this page. If this persists, check jobwatch.log in your Jobwatch data folder and whether your browser blocked an application file.';
+  help.textContent = 'Open Foothold again and refresh this page. If this persists, check jobwatch.log in your data folder (%LOCALAPPDATA%\\Jobwatch) and whether your browser blocked an application file.';
   const retry = document.createElement('button');
   retry.className = 'btn primary';
   retry.textContent = 'Retry';

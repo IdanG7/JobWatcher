@@ -8,8 +8,8 @@
   ]
  },
  "__shipped__": {
-  "hash": "ddb8d7057c16c87e",
-  "version": 6
+  "hash": "1e0167bb253bf356",
+  "version": 7
  },
  "__since__": {
   "1password": 1,
@@ -24,9 +24,12 @@
   "amazon": 1,
   "amazon_newgrad": 1,
   "amplitude": 1,
+  "analog_devices": 7,
   "anduril": 1,
   "anthropic": 1,
+  "anyscale": 7,
   "apollo": 6,
+  "applied_materials": 7,
   "aqr": 1,
   "asana": 1,
   "assemblyai": 1,
@@ -37,6 +40,7 @@
   "bank_of_america_students": 6,
   "barclays": 1,
   "baseten": 1,
+  "benevity": 7,
   "betterment": 1,
   "blackrock": 1,
   "blackstone": 6,
@@ -44,10 +48,13 @@
   "block": 1,
   "bmo": 1,
   "bmo_students": 2,
+  "box": 7,
   "braintrust": 1,
   "brex": 1,
+  "broadcom": 7,
   "brookfield": 6,
   "browserbase": 1,
+  "cadence": 7,
   "calendly": 1,
   "canada_intern26": 1,
   "capital_one": 1,
@@ -61,6 +68,7 @@
   "chime": 1,
   "cibc": 1,
   "cibc_students": 2,
+  "ciena": 7,
   "citadel": 1,
   "citadel_sec": 1,
   "citi": 1,
@@ -72,12 +80,16 @@
   "coinbase": 1,
   "comcast": 1,
   "commure": 1,
+  "coreweave": 7,
+  "coursera": 7,
   "cpp_investments": 6,
+  "crowdstrike": 7,
   "crusoe": 1,
   "cursor": 1,
   "cvrve_newgrad": 1,
   "databricks": 1,
   "datadog": 1,
+  "dataiku": 7,
   "decagon": 1,
   "deepmind": 1,
   "derec4_newgrad27": 1,
@@ -93,6 +105,7 @@
   "ebay": 1,
   "elastic": 1,
   "elevenlabs": 1,
+  "epic_games": 7,
   "evercore": 6,
   "evercore_students": 6,
   "faire": 1,
@@ -106,11 +119,13 @@
   "flow_traders": 1,
   "gemini": 1,
   "geneva_trading": 1,
+  "geotab": 7,
   "gitlab": 1,
   "glean": 1,
   "glossier": 1,
   "goldman_sachs": 6,
   "gopuff": 1,
+  "grafana_labs": 7,
   "gts": 1,
   "gusto": 1,
   "harvey": 1,
@@ -120,6 +135,7 @@
   "houlihan_lokey": 1,
   "houlihan_lokey_campus": 1,
   "hp": 1,
+  "hpe": 7,
   "hrt": 1,
   "imbue": 1,
   "imc": 1,
@@ -132,24 +148,30 @@
   "jpmorgan_early": 1,
   "jump_trading": 1,
   "kkr": 6,
+  "koho": 7,
   "lambda_labs": 1,
   "launchdarkly": 1,
   "lazard": 6,
   "linear": 1,
   "linkedin_canada": 1,
+  "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
   "linkedin_us": 1,
+  "linkedin_us_tech": 7,
   "lithic": 1,
   "lyft": 1,
   "man_group": 1,
   "manulife": 6,
   "marqeta": 1,
+  "marvell": 7,
   "mastercard": 1,
   "mastercard_early": 1,
   "mercor": 1,
   "mercury": 1,
+  "micron": 7,
   "microsoft": 1,
   "midjourney": 1,
+  "miro": 7,
   "mixpanel": 1,
   "modal": 1,
   "moelis": 1,
@@ -157,28 +179,36 @@
   "moodys": 6,
   "morgan_stanley": 1,
   "morgan_stanley_early": 1,
+  "motorola_solutions": 7,
+  "mozilla": 7,
   "msci": 6,
   "msci_us": 6,
   "nasdaq": 1,
   "national_bank": 2,
+  "neo_financial": 7,
   "netflix": 1,
   "neuralink": 1,
+  "new_relic": 7,
+  "nextdoor": 7,
   "notion": 1,
   "nuro": 1,
   "nvidia": 1,
   "nwfintech_quant27": 1,
   "offseason_fall26": 1,
+  "okta": 7,
   "old_mission": 1,
   "openai": 1,
   "openevidence": 1,
   "optiver_us": 1,
   "oscar_health": 1,
   "otpp": 6,
+  "pagerduty": 7,
   "palantir": 1,
   "paypal": 1,
   "pdt_partners": 1,
   "peloton": 1,
   "perplexity": 1,
+  "pinecone": 7,
   "pinterest": 1,
   "piper_sandler": 1,
   "pjt_partners": 1,
@@ -186,17 +216,25 @@
   "planetscale": 1,
   "point72": 1,
   "poolside": 1,
+  "posthog": 7,
   "postman": 1,
+  "pure_storage": 7,
   "qube_rt": 1,
+  "quora": 7,
   "ramp": 1,
   "rbc": 1,
   "rbc_early": 1,
   "rbc_students": 2,
   "reddit": 1,
+  "replit": 7,
   "retool": 1,
+  "riot_games": 7,
   "rippling": 1,
+  "ritual": 7,
   "robinhood": 1,
   "roblox": 1,
+  "roku": 7,
+  "rubrik": 7,
   "runpod": 1,
   "runway": 1,
   "salesforce": 1,
@@ -206,6 +244,7 @@
   "schonfeld": 1,
   "scotiabank_students": 2,
   "seatgeek": 1,
+  "sentry": 7,
   "servicenow": 1,
   "shield_ai": 1,
   "sierra": 1,
@@ -215,6 +254,7 @@
   "simplify_newgrad": 1,
   "smartsheet": 1,
   "sndsh_intern27": 1,
+  "snowflake": 7,
   "sofi": 1,
   "sp_global": 6,
   "spacex": 1,
@@ -223,6 +263,7 @@
   "spotify": 1,
   "squarepoint": 1,
   "squarespace": 1,
+  "stackadapt": 7,
   "starburst": 1,
   "stepstone": 1,
   "stripe": 1,
@@ -234,9 +275,13 @@
   "target": 1,
   "td": 1,
   "td_students": 2,
+  "temporal": 7,
+  "thomson_reuters": 7,
+  "toast": 7,
   "together_ai": 1,
   "tower_research": 1,
   "twilio": 1,
+  "twitch": 7,
   "two_sigma": 1,
   "typeface": 1,
   "upstart": 1,
@@ -252,6 +297,7 @@
   "voleon": 1,
   "waabi": 1,
   "warp": 1,
+  "wattpad": 7,
   "waymo": 1,
   "wealthsimple": 1,
   "webflow": 1,
@@ -261,13 +307,16 @@
   "worldquant": 1,
   "writer": 1,
   "xai": 1,
+  "zapier": 7,
   "zapply_ca_intern": 1,
   "zapply_ca_jobs": 1,
   "zapply_intern27": 1,
   "zapply_newgrad27": 1,
   "zapply_swe_newgrad": 1,
+  "zillow": 7,
   "zoom": 1,
-  "zoox": 1
+  "zoox": 1,
+  "zscaler": 7
  },
  "abridge": {
   "ats": [
@@ -396,6 +445,26 @@
    "amplitude"
   ]
  },
+ "analog_devices": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "analogdevices.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "analogdevices"
+  ]
+ },
  "anduril": {
   "ats": [
    "greenhouse"
@@ -410,6 +479,14 @@
   ],
   "token": [
    "anthropic"
+  ]
+ },
+ "anyscale": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "anyscale"
   ]
  },
  "apollo": {
@@ -442,6 +519,26 @@
   ],
   "tenant": [
    "athene"
+  ]
+ },
+ "applied_materials": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "amat.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "amat"
   ]
  },
  "aqr": {
@@ -594,6 +691,14 @@
   ],
   "token": [
    "baseten"
+  ]
+ },
+ "benevity": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "benevity"
   ]
  },
  "betterment": {
@@ -778,6 +883,14 @@
    "bmo"
   ]
  },
+ "box": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "boxinc"
+  ]
+ },
  "braintrust": {
   "ats": [
    "ashby"
@@ -792,6 +905,26 @@
   ],
   "token": [
    "brex"
+  ]
+ },
+ "broadcom": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "broadcom.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External_Career"
+  ],
+  "tenant": [
+   "broadcom"
   ]
  },
  "brookfield": {
@@ -834,6 +967,26 @@
    "browserbase"
   ]
  },
+ "cadence": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "cadence.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External_Careers"
+  ],
+  "tenant": [
+   "cadence"
+  ]
+ },
  "calendly": {
   "ats": [
    "greenhouse"
@@ -859,6 +1012,10 @@
   ],
   "repo": [
    "negarprh/Canadian-Tech-Internships-2026"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
   ]
  },
  "capital_one": {
@@ -879,6 +1036,10 @@
   ],
   "tenant": [
    "capitalone"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "capital_one_early": {
@@ -903,6 +1064,10 @@
   ],
   "tenant": [
    "capitalone"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "carlyle": {
@@ -1097,6 +1262,26 @@
    "cibc"
   ]
  },
+ "ciena": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "ciena.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "ciena"
+  ]
+ },
  "citadel": {
   "ats": [
    "greenhouse"
@@ -1111,6 +1296,10 @@
  "citadel_sec": {
   "ats": [
    "greenhouse"
+  ],
+  "company_key": [
+   "__missing__",
+   "citadel_securities"
   ],
   "disabled": [
    true
@@ -1253,6 +1442,22 @@
    "commure"
   ]
  },
+ "coreweave": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "coreweave"
+  ]
+ },
+ "coursera": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "coursera"
+  ]
+ },
  "cpp_investments": {
   "ats": [
    "workday"
@@ -1282,6 +1487,26 @@
    "cppib"
   ]
  },
+ "crowdstrike": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "crowdstrike.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "crowdstrikecareers"
+  ],
+  "tenant": [
+   "crowdstrike"
+  ]
+ },
  "crusoe": {
   "ats": [
    "ashby"
@@ -1307,6 +1532,10 @@
   ],
   "repo": [
    "cvrve/New-Grad"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "databricks": {
@@ -1323,6 +1552,14 @@
   ],
   "token": [
    "datadog"
+  ]
+ },
+ "dataiku": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "dataiku"
   ]
  },
  "decagon": {
@@ -1361,6 +1598,10 @@
   ],
   "repo": [
    "DereC4/internships-and-newgrad"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "descript": {
@@ -1526,6 +1767,14 @@
    "elevenlabs"
   ]
  },
+ "epic_games": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "epicgames"
+  ]
+ },
  "evercore": {
   "ats": [
    "oleeo"
@@ -1687,6 +1936,14 @@
    "genevatrading"
   ]
  },
+ "geotab": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "geotab"
+  ]
+ },
  "gitlab": {
   "ats": [
    "greenhouse"
@@ -1749,6 +2006,14 @@
   ],
   "token": [
    "gopuff"
+  ]
+ },
+ "grafana_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "grafanalabs"
   ]
  },
  "gts": {
@@ -1892,6 +2157,26 @@
   ],
   "tenant": [
    "hp"
+  ]
+ },
+ "hpe": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "hpe.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Jobsathpe"
+  ],
+  "tenant": [
+   "hpe"
   ]
  },
  "hrt": {
@@ -2092,6 +2377,14 @@
    "stage"
   ]
  },
+ "koho": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "koho"
+  ]
+ },
  "lambda_labs": {
   "ats": [
    "ashby"
@@ -2179,6 +2472,19 @@
     "new graduate analyst",
     "software engineer intern",
     "software engineer new grad"
+   ],
+   [
+    "finance internship",
+    "investment banking intern",
+    "summer analyst",
+    "sales trading internship",
+    "asset management internship",
+    "equity research intern",
+    "private equity intern",
+    "pension internship",
+    "finance co-op",
+    "finance student",
+    "new graduate analyst"
    ]
   ],
   "recency": [
@@ -2192,6 +2498,46 @@
   "seed_recency": [
    "__missing__",
    "r7776000"
+  ],
+  "track": [
+   "__missing__",
+   "finance"
+  ]
+ },
+ "linkedin_canada_tech": {
+  "ats": [
+   "linkedin"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "queries": [
+   [
+    "software engineer intern",
+    "software developer co-op",
+    "software engineer new grad",
+    "machine learning intern",
+    "data science co-op",
+    "data analyst intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ],
+  "track": [
+   "tech"
   ]
  },
  "linkedin_quant": {
@@ -2210,6 +2556,10 @@
     "quantitative research intern",
     "quantitative trader 2026"
    ]
+  ],
+  "track": [
+   "__missing__",
+   "finance"
   ]
  },
  "linkedin_us": {
@@ -2245,6 +2595,14 @@
     "software engineer intern",
     "software engineer new grad",
     "machine learning intern"
+   ],
+   [
+    "finance internship",
+    "investment banking summer analyst",
+    "equity research intern",
+    "asset management internship",
+    "private equity intern",
+    "finance new graduate"
    ]
   ],
   "recency": [
@@ -2258,6 +2616,46 @@
   "seed_recency": [
    "__missing__",
    "r7776000"
+  ],
+  "track": [
+   "__missing__",
+   "finance"
+  ]
+ },
+ "linkedin_us_tech": {
+  "ats": [
+   "linkedin"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "queries": [
+   [
+    "software engineer intern",
+    "software engineer new grad",
+    "machine learning intern",
+    "data science intern",
+    "data engineer new grad",
+    "hardware engineer intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ],
+  "track": [
+   "tech"
   ]
  },
  "lithic": {
@@ -2336,6 +2734,26 @@
    "https://www.marqeta.com"
   ]
  },
+ "marvell": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "marvell.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "MarvellCareers"
+  ],
+  "tenant": [
+   "marvell"
+  ]
+ },
  "mastercard": {
   "ats": [
    "workday"
@@ -2396,6 +2814,26 @@
    "mercury"
   ]
  },
+ "micron": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "micron.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "micron"
+  ]
+ },
  "microsoft": {
   "ats": [
    "microsoft"
@@ -2416,6 +2854,14 @@
   ],
   "token": [
    "midjourney"
+  ]
+ },
+ "miro": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "realtimeboardglobal"
   ]
  },
  "mixpanel": {
@@ -2570,6 +3016,34 @@
    "ms"
   ]
  },
+ "motorola_solutions": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "motorolasolutions.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "motorolasolutions"
+  ]
+ },
+ "mozilla": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "mozilla"
+  ]
+ },
  "msci": {
   "ats": [
    "icims"
@@ -2665,6 +3139,14 @@
    "https://emplois.bnc.ca/en_CA/careers/searchjobs/"
   ]
  },
+ "neo_financial": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "neofinancial"
+  ]
+ },
  "netflix": {
   "ats": [
    "eightfold"
@@ -2685,6 +3167,22 @@
   ],
   "token": [
    "neuralink"
+  ]
+ },
+ "new_relic": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "newrelic"
+  ]
+ },
+ "nextdoor": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "nextdoor"
   ]
  },
  "notion": {
@@ -2740,6 +3238,10 @@
   ],
   "repo": [
    "northwesternfintech/2027QuantInternships"
+  ],
+  "track": [
+   "__missing__",
+   "finance"
   ]
  },
  "offseason_fall26": {
@@ -2765,6 +3267,18 @@
   ],
   "repo": [
    "zshah101/Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
+  ]
+ },
+ "okta": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "okta"
   ]
  },
  "old_mission": {
@@ -2805,6 +3319,10 @@
   ],
   "token": [
    "oscar"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "otpp": {
@@ -2834,6 +3352,14 @@
   ],
   "tenant": [
    "otppb"
+  ]
+ },
+ "pagerduty": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "pagerduty"
   ]
  },
  "palantir": {
@@ -2886,6 +3412,14 @@
   ],
   "token": [
    "perplexity"
+  ]
+ },
+ "pinecone": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "pinecone"
   ]
  },
  "pinterest": {
@@ -2988,6 +3522,10 @@
   ],
   "token": [
    "point72"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "poolside": {
@@ -2996,6 +3534,14 @@
   ],
   "token": [
    "poolside"
+  ]
+ },
+ "posthog": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "posthog"
   ]
  },
  "postman": {
@@ -3015,12 +3561,32 @@
    "postman"
   ]
  },
- "qube_rt": {
+ "pure_storage": {
   "ats": [
    "greenhouse"
   ],
   "token": [
+   "purestorage"
+  ]
+ },
+ "qube_rt": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "__missing__",
+   "qube"
+  ],
+  "token": [
    "quberesearchandtechnologies"
+  ]
+ },
+ "quora": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "quora"
   ]
  },
  "ramp": {
@@ -3132,6 +3698,14 @@
    "reddit"
   ]
  },
+ "replit": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "replit"
+  ]
+ },
  "retool": {
   "ats": [
    "ashby"
@@ -3143,6 +3717,14 @@
    "retool"
   ]
  },
+ "riot_games": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "riotgames"
+  ]
+ },
  "rippling": {
   "ats": [
    "greenhouse"
@@ -3152,6 +3734,14 @@
   ],
   "token": [
    "rippling"
+  ]
+ },
+ "ritual": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "ritual"
   ]
  },
  "robinhood": {
@@ -3168,6 +3758,22 @@
   ],
   "token": [
    "roblox"
+  ]
+ },
+ "roku": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "roku"
+  ]
+ },
+ "rubrik": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "rubrik"
   ]
  },
  "runpod": {
@@ -3252,6 +3858,10 @@
   ],
   "token": [
    "schonfeld"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "scotiabank_students": {
@@ -3283,6 +3893,14 @@
   ],
   "token": [
    "seatgeek"
+  ]
+ },
+ "sentry": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "sentry"
   ]
  },
  "servicenow": {
@@ -3344,6 +3962,10 @@
   ],
   "repo": [
    "SimplifyJobs/Summer2026-Internships"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "simplify_intern27": {
@@ -3358,6 +3980,10 @@
   ],
   "repo": [
    "SimplifyJobs/Summer2027-Internships"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "simplify_newgrad": {
@@ -3369,6 +3995,10 @@
   ],
   "repo": [
    "SimplifyJobs/New-Grad-Positions"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "smartsheet": {
@@ -3396,6 +4026,18 @@
   ],
   "repo": [
    "sndsh404/summer-2027-internships"
+  ],
+  "track": [
+   "__missing__",
+   "both"
+  ]
+ },
+ "snowflake": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "snowflake"
   ]
  },
  "sofi": {
@@ -3467,6 +4109,10 @@
   ],
   "repo": [
    "speedyapply/2027-AI-College-Jobs"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
   ]
  },
  "speedy_swe": {
@@ -3487,6 +4133,10 @@
   ],
   "repo": [
    "speedyapply/2027-SWE-College-Jobs"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
   ]
  },
  "spotify": {
@@ -3511,6 +4161,14 @@
   ],
   "token": [
    "squarespace"
+  ]
+ },
+ "stackadapt": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "stackadapt"
   ]
  },
  "starburst": {
@@ -3725,6 +4383,42 @@
    "td"
   ]
  },
+ "temporal": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "temporal"
+  ]
+ },
+ "thomson_reuters": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "thomsonreuters.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External_Career_Site"
+  ],
+  "tenant": [
+   "thomsonreuters"
+  ]
+ },
+ "toast": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "toast"
+  ]
+ },
  "together_ai": {
   "ats": [
    "greenhouse"
@@ -3747,6 +4441,14 @@
   ],
   "token": [
    "twilio"
+  ]
+ },
+ "twitch": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "twitch"
   ]
  },
  "two_sigma": {
@@ -3820,6 +4522,10 @@
   ],
   "repo": [
    "vanshb03/Summer2026-Internships"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "vansh_intern27": {
@@ -3831,6 +4537,10 @@
   ],
   "repo": [
    "vanshb03/Summer2027-Internships"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "vansh_newgrad27": {
@@ -3842,6 +4552,10 @@
   ],
   "repo": [
    "vanshb03/New-Grad-2027"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "vanta": {
@@ -3906,6 +4620,14 @@
   ],
   "token": [
    "warp"
+  ]
+ },
+ "wattpad": {
+  "ats": [
+   "lever"
+  ],
+  "token": [
+   "wattpad"
   ]
  },
  "waymo": {
@@ -4028,6 +4750,14 @@
    "xai"
   ]
  },
+ "zapier": {
+  "ats": [
+   "ashby"
+  ],
+  "token": [
+   "zapier"
+  ]
+ },
  "zapply_ca_intern": {
   "ats": [
    "github_md"
@@ -4062,6 +4792,10 @@
   ],
   "repo": [
    "zapplyjobs/Canada-Internships-2027"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
   ]
  },
  "zapply_ca_jobs": {
@@ -4098,6 +4832,10 @@
   ],
   "repo": [
    "zapplyjobs/Canada-Jobs-2027"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "zapply_intern27": {
@@ -4128,6 +4866,10 @@
   ],
   "repo": [
    "zapplyjobs/Internships-2027"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "zapply_newgrad27": {
@@ -4158,6 +4900,10 @@
   ],
   "repo": [
    "zapplyjobs/New-Grad-Jobs-2027"
+  ],
+  "track": [
+   "__missing__",
+   "both"
   ]
  },
  "zapply_swe_newgrad": {
@@ -4188,6 +4934,30 @@
   ],
   "repo": [
    "zapplyjobs/New-Grad-Software-Engineering-Jobs-2027"
+  ],
+  "track": [
+   "__missing__",
+   "tech"
+  ]
+ },
+ "zillow": {
+  "ats": [
+   "workday"
+  ],
+  "host": [
+   "zillow.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Zillow_Group_External"
+  ],
+  "tenant": [
+   "zillow"
   ]
  },
  "zoom": {
@@ -4216,6 +4986,14 @@
   ],
   "token": [
    "zoox"
+  ]
+ },
+ "zscaler": {
+  "ats": [
+   "greenhouse"
+  ],
+  "token": [
+   "zscaler"
   ]
  }
 }

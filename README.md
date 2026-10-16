@@ -1,9 +1,13 @@
-# Jobwatch
+# Foothold
 
 Your private career command center: broad job-market coverage, focused daily
 ranking, fast alerts, and a lightweight application CRM.
 
-Jobwatch continuously checks configured sources across company ATSs,
+Foothold was called Jobwatch. The repository, the setup file
+(`Jobwatch-Setup-<version>.exe`), the program and data folders, the database and the
+update files keep that name, so existing installs keep updating and keep their data.
+
+Foothold continuously checks configured sources across company ATSs,
 startup boards, quant firms, banks, big tech, LinkedIn, and community listing
 repos. It indexes every role it sees, ranks each one against a transparent
 profile, and only interrupts you for the matches that meet your notification
@@ -21,28 +25,30 @@ all searchable.
 
 Download **Jobwatch-Setup-<version>.exe** from [the latest release](https://github.com/IdanG7/JobWatcher/releases/latest)
 and run it. It installs for the current user only (no administrator rights) into
-`%LOCALAPPDATA%\Programs\Jobwatch` and adds Jobwatch to the Start menu. The installer
+`%LOCALAPPDATA%\Programs\Jobwatch` and adds Foothold to the Start menu. The installer
 is not code-signed yet, so Windows may show **Windows protected your PC**: choose
 **More info**, then **Run anyway**. Python and the dependencies are included; no API
 key or account is required. The app opens in the browser and fetches jobs
 automatically in the background, without a window (Settings > Background can start
 it at sign-in or stop it). Open it again any time from the Start menu.
 
-**Updates download automatically.** Jobwatch checks for a new release every six hours
+**Updates download automatically.** Foothold checks for a new release every six hours
 and downloads it in the background. When it is ready, a banner offers **Restart to
 update**: when installation finishes, the page reloads on the new version, with your data
-and settings kept. An update is installed only if it is signed with the Jobwatch
+and settings kept. An update is installed only if it is signed with the
 release key built into the app, matches its release and is newer than the running
 version. To uninstall, use **Settings > Apps** in Windows; it asks whether to keep
 your data (the default) or delete it.
 
-The portable **Jobwatch-Windows.zip** is still published for 0.2.0: extract it and
-double-click **Start Jobwatch.bat**. Its update banner installs Jobwatch into Programs,
-which takes over the same data; the old folder can then be deleted. Later releases
-ship the installer only. Copies from 0.1.13 or earlier need a manual upgrade: stop
-Jobwatch in Settings > Background, run Setup, and open Jobwatch from the Start
-menu. It uses the same data folder; delete the old extracted folder once you have
-checked that your data is there.
+The portable **Jobwatch-Windows.zip** is still published for 0.2.0, from before the
+rename: extract it and double-click **Start Jobwatch.bat**. Its update banner installs
+the app into Programs, which takes over the same data; the old folder can then be
+deleted. Later releases ship the installer only. Copies from 0.1.13 or earlier need a
+manual upgrade: stop the old copy in Settings > Background, run Setup, and open Foothold
+from the Start menu. It uses the same data folder; delete the old extracted folder once
+you have checked that your data is there.
+Upgrading replaces the old **Jobwatch** Start menu entry with **Foothold**; pin it again if
+you had pinned it to Start.
 Internet access is needed to fetch postings. The first fetch can take several minutes.
 The dashboard shows live collection progress, active sources and failures while
 you use any tab. Results refresh as sources finish; **Sources** shows individual
@@ -65,7 +71,7 @@ mean it cannot guarantee every LinkedIn posting.
 The bundle starts with a clean profile and no notification accounts. It excludes
 the sender's database, resume, subscriber configuration, letters and portable state.
 Recipient settings and private data live in `%LOCALAPPDATA%\Jobwatch`, apart from
-the program, so updates and reinstalls keep them. Stop Jobwatch (Settings > Background)
+the program, so updates and reinstalls keep them. Stop Foothold (Settings > Background)
 before backing up that data folder.
 Updated source defaults are merged on upgrade while preserving customized sources,
 deleted defaults, private preferences and notification settings.
@@ -77,7 +83,7 @@ not in a standard location):
 
 ```powershell
 python tools/build_windows.py --installer
-python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
+python tools/verify_windows_bundle.py dist/Foothold-Windows.zip
 python tools/verify_windows_installer.py dist/Jobwatch-Setup-<version>.exe
 python tools/verify_windows_update.py      # version N updates itself to N+1 (throwaway key)
 ```
@@ -85,7 +91,9 @@ python tools/verify_windows_update.py      # version N updates itself to N+1 (th
 After 0.2.0, build with `--installer --no-zip` and skip the ZIP verifier.
 The installer and update verifiers use a temporary installation and temporary
 `%LOCALAPPDATA%`, and always uninstall afterwards. The ZIP verifier also uses
-temporary app and data folders, so a Jobwatch you already run is not touched.
+temporary app and data folders, so a copy you already run is not touched. The
+installer verifier does use this account's real Start menu: it replaces a **Jobwatch**
+or **Foothold** entry there and removes it on uninstall.
 Releases are built by CI from a `v<version>` tag matching `version.py`. CI signs
 the update manifest with the `JOBWATCH_UPDATE_KEY` secret (an ed25519 key whose
 public half is in `update_key.py`) and refuses to publish without it.
@@ -218,7 +226,7 @@ Cross-source deduplication prefers direct apply links and remembers alerts for
 
 ## Notifications
 
-Jobwatch uses a two-speed model:
+Foothold uses a two-speed model:
 
 - **Apply now:** a ranked, capped, loud alert for matching categories at
   watchlist companies.
@@ -241,7 +249,7 @@ and configure secrets in GitHub Actions to enable the scheduled poller:
 
 The Windows app can send Discord alerts too: open **Settings → Discord notifications**, paste a channel
 webhook URL and press **Connect & send test**. New postings that match your profile are posted
-while Jobwatch is running.
+while Foothold is running.
 
 Webhook values in `subscribers.json` use `env:SECRET_NAME`; URLs do not belong
 in the repository.

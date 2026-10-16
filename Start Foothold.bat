@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title Jobwatch
+title Foothold
 chcp 65001 >nul
 pushd "%~dp0"
 if errorlevel 1 goto :missing
@@ -12,7 +12,7 @@ popd
 if not "%jobwatch_exit%"=="0" pause
 exit /b %jobwatch_exit%
 :missing
-echo Please extract the entire Jobwatch ZIP first, then open Start Jobwatch.bat
+echo Please extract the entire Foothold ZIP first, then open Start Foothold.bat
 echo from the extracted folder. Keep the app and runtime folders beside this file.
 pause
 exit /b 1

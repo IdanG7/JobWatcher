@@ -60,6 +60,16 @@ export function resumeCategories(targets = []) {
   return keys.join(',');
 }
 
+/** Toggle a category filter. Picking a group or specialty ('software.backend') drops its
+ *  parent, which would otherwise keep the whole field listed; picking the parent drops its groups. */
+export function toggleCategory(current, value) {
+  const adding = !listParam(current).includes(value);
+  const parent = value.split('.')[0];
+  const items = listParam(toggleListParam(current, value))
+    .filter(k => !adding || k === value || (value.includes('.') ? k !== parent : !k.startsWith(`${value}.`)));
+  return items.join(',');
+}
+
 /** API params from URL params. `family` carries the interests: one or more job
  *  families, or 'all'; without it the profile's interests apply. */
 export function apiParams(params, defaultInterests = []) {
@@ -81,20 +91,29 @@ export async function render(root, ctx) {
     filtersHidden: ctx.store.get('jw-filters') === 'hidden', filtersOpen: false, visitedSaved: null,
     open: new Set(JSON.parse(ctx.store.get('jw-filter-groups') || '["role","where","timing"]'))};
 
+  // One query bar (search, interests, filters, view), one row of quick toggles,
+  // then the applied filters as a light inline line.
   root.innerHTML = `
   <div class="opp-page" data-opp>
     <header class="opp-head">
       <div class="opp-title"><h1>Opportunities</h1><p class="sub" data-summary role="status" aria-live="polite">Loading…</p></div>
-      <div class="opp-head-actions">
-        <div class="segmented" role="group" aria-label="Row density"><button type="button" data-density="comfortable" title="Comfortable rows" aria-label="Comfortable rows">${icon('rows')}</button><button type="button" data-density="compact" title="Compact rows" aria-label="Compact rows">${icon('list')}</button></div>
-        <button type="button" class="btn" data-act="save-view">${icon('bookmark')} Save view</button>
-        <button type="button" class="btn icon" data-act="export" title="Export these results to CSV" aria-label="Export these results to CSV">${icon('download')}</button>
-      </div>
     </header>
     <div class="opp-toolbar">
       <label class="search opp-search"><span class="sr-only">Search opportunities</span>${icon('search')}<input class="input" data-search type="search" placeholder="Search titles, companies, skills…" value="${esc(state.params.q || '')}" autocomplete="off"><kbd>/</kbd></label>
-      <div class="interests" data-interests></div>
-      <button type="button" class="btn opp-filters-btn" data-act="filters" aria-controls="opp-filters" title="Show or hide filters (f)">${icon('filter')} Filters <span class="count" data-filter-count></span></button>
+      <div class="opp-bar-tools">
+        <div class="interests" data-interests></div>
+        <button type="button" class="btn opp-filters-btn" data-act="filters" aria-controls="opp-filters" title="Show or hide filters (f)">${icon('filter')}<span>Filters</span><span class="count" data-filter-count></span></button>
+        <div class="opp-head-actions menu-wrap" data-view-menu>
+          <button type="button" class="btn opp-view-btn" data-act="view-menu" aria-haspopup="true" aria-expanded="false" aria-controls="opp-view-menu" title="Row density, saved views and export">${icon('sliders')}<span>View</span></button>
+          <div class="menu" id="opp-view-menu" role="group" aria-label="View options" hidden>
+            <p class="menu-label">Rows</p>
+            <div class="segmented menu-seg" role="group" aria-label="Row density"><button type="button" data-density="comfortable">Comfortable</button><button type="button" data-density="compact">Compact</button></div>
+            <hr class="menu-sep">
+            <button type="button" class="menu-item" data-act="save-view">${icon('bookmark')} Save this view…</button>
+            <button type="button" class="menu-item" data-act="export">${icon('download')} Export results to CSV</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="opp-quick" data-quick role="group" aria-label="Quick filters"></div>
     <div class="opp-applied" data-active></div>
@@ -201,7 +220,7 @@ export async function render(root, ctx) {
     parts.push(`sorted by ${esc(sortLabel(state.params.sort))}`);
     if (rm?.active) parts.push(`resume eligibility on, ${rm.excluded_total || 0} of ${(rm.unfiltered_total ?? d.total).toLocaleString()} excluded`);
     if (rm?.active && rm.pending) parts.push(`checking ${rm.pending.toLocaleString()} postings`);
-    if (rm?.outdated) parts.push('<a class="link" href="#/settings">re-upload your resume</a> for better matching');
+    if (rm?.outdated) parts.push('<a class="link" href="#/settings?tab=resume">re-upload your resume</a> for better matching');
     $('[data-summary]').innerHTML = parts.join(' · ');
   }
 
@@ -219,7 +238,7 @@ export async function render(root, ctx) {
         <p class="interest-help">${fromProfile() ? (prof.length ? 'Set from your profile’s target roles.' : 'Your profile has no target roles yet, so every job family is shown.') : 'Changed for this search.'}
           ${fromProfile() ? '' : '<button type="button" class="link-btn" data-interest-reset>Use my profile’s interests</button>'}</p>
         <div class="interest-list">${families.map(f => `<label class="check"><input type="checkbox" data-interest="${esc(f.key)}"${list.includes(f.key) ? ' checked' : ''}><span>${esc(f.label)}</span>${prof.includes(f.key) ? '<span class="tag-min">profile</span>' : ''}</label>`).join('')}</div>
-        <div class="interest-foot"><button type="button" class="btn sm" data-interest-all>Show every job family</button><a class="link" href="#/settings">Edit targets in Settings</a></div>
+        <div class="interest-foot"><button type="button" class="btn sm" data-interest-all>Show every job family</button><a class="link" href="#/settings?tab=roles">Edit targets in Settings</a></div>
       </div>`;
   }
 
@@ -272,15 +291,23 @@ export async function render(root, ctx) {
       }
       // Several interests: one chip per non-finance family to narrow to it.
       if (list.length > 1) for (const k of list.filter(x => x !== 'finance')) items.push({group: 'role', label: familyLabel[k] || prettyKey(k), params: {category: k}});
+      // Specialties named in the profile (Backend, ML Engineering) get a chip each, like finance groups.
+      const specialties = (prof.target_roles || []).filter(t => t.includes('.') && list.includes(t.split('.')[0]));
+      for (const key of specialties.slice(0, 4)) {
+        const [fam, sub] = key.split('.');
+        const label = (meta.families || []).find(f => f.key === fam)?.subcategories?.find(s => s.key === sub)?.label;
+        if (label) items.push({group: 'role', label, params: {category: key}});
+      }
     }
-    // Profile targets, kept short: the full lists live in the filter panel.
-    for (const st of (prof.target_stages || []).slice(0, 2)) items.push({group: 'profile', label: STAGE_SHORT[st] || prettyKey(st), params: {stage: st}});
-    for (const c of (prof.target_cycles || []).slice(0, 1)) items.push({group: 'profile', label: cycleText(c), params: {cycle: c}});
-    for (const loc of (prof.target_locations || []).slice(0, 2)) items.push({group: 'profile', label: cityText(loc), params: {location: loc}});
     items.push({group: 'any', label: 'High fit', params: {min_fit: '75'}, title: 'Fit 75 or more'});
     items.push({group: 'any', label: 'Posted today', params: {posted: 'today'}});
     items.push({group: 'any', label: 'Closing soon', params: {deadline: '7d'}, title: 'Deadline within 7 days'});
-    items.push({group: 'any', label: 'Watchlist', params: {watchlist: '1'}});
+    // The rest sit one click away under "More": profile targets (kept short; the
+    // full lists live in the filter panel) and the watchlist.
+    for (const st of (prof.target_stages || []).slice(0, 2)) items.push({group: 'profile', more: true, label: STAGE_SHORT[st] || prettyKey(st), params: {stage: st}});
+    for (const c of (prof.target_cycles || []).slice(0, 1)) items.push({group: 'profile', more: true, label: cycleText(c), params: {cycle: c}});
+    for (const loc of (prof.target_locations || []).slice(0, 2)) items.push({group: 'profile', more: true, label: cityText(loc), params: {location: loc}});
+    items.push({group: 'tracking', more: true, label: 'Watchlist companies', params: {watchlist: '1'}});
     return items;
   }
 
@@ -295,18 +322,47 @@ export async function render(root, ctx) {
     return Object.entries(q.params).every(([k, v]) => (LIST_KEYS.has(k) ? listParam(state.params[k]).includes(v) : state.params[k] === v));
   }
 
+  const SEP = '<span class="quick-sep" aria-hidden="true"></span>';
+  const MORE_LABELS = {profile: 'From your profile', tracking: 'Tracking'};
+
   function drawQuick() {
     const resume = state.data?.resume_matching;
     state.quick = quickItems();
+    const items = state.quick.map((q, i) => ({...q, i, on: quickActive(q)}));
+    const tip = q => (q.title ? ` title="${esc(q.title)}"` : '');
     let last = null;
-    const chips = state.quick.map((q, i) => {
-      const sep = last && last !== q.group ? '<span class="quick-sep" aria-hidden="true"></span>' : '';
+    const shown = items.filter(q => !q.more).map(q => {
+      const sep = last && last !== q.group ? SEP : '';
       last = q.group;
-      const on = quickActive(q);
-      return `${sep}<button type="button" class="chip${on ? ' on' : ''}" data-quick-i="${i}" aria-pressed="${on}"${q.title ? ` title="${esc(q.title)}"` : ''}>${on ? icon('check', 12) : ''}${esc(q.label)}</button>`;
+      return `${sep}<button type="button" class="qf${q.on ? ' on' : ''}" data-quick-i="${q.i}" aria-pressed="${q.on}"${tip(q)}>${esc(q.label)}</button>`;
     }).join('');
-    const rm = `<button type="button" class="chip chip-resume${resume?.active ? ' on' : ''}" data-resume-match aria-pressed="${!!resume?.active}" title="${resume?.enabled ? 'Hide roles your resume is clearly ineligible for; unknown requirements stay visible with review notes.' : 'Set up resume matching in Settings'}">${icon(resume?.active ? 'check' : 'user', 12)}Resume match</button>`;
-    $('[data-quick]').innerHTML = `${rm}<span class="quick-sep" aria-hidden="true"></span>${chips}`;
+    const hidden = items.filter(q => q.more);
+    let group = null;
+    const menuItems = hidden.map(q => {
+      const head = q.group !== group ? `${group ? '<hr class="menu-sep">' : ''}<p class="menu-label">${MORE_LABELS[q.group] || ''}</p>` : '';
+      group = q.group;
+      return `${head}<button type="button" class="menu-item check-item" data-quick-i="${q.i}" aria-pressed="${q.on}"${tip(q)}><span class="mcheck" aria-hidden="true">${icon('check', 12)}</span>${esc(q.label)}</button>`;
+    }).join('');
+    const onHidden = hidden.filter(q => q.on).length;
+    const open = !!state.quickMenu && hidden.length > 0;
+    const more = hidden.length ? `<div class="menu-wrap quick-more" data-quick-more>
+        <button type="button" class="qf qf-more" data-act="quick-more" aria-haspopup="true" aria-expanded="${open}" aria-controls="opp-quick-menu">More${onHidden ? `<span class="qf-count" aria-label="${onHidden} on">${onHidden}</span>` : ''}${icon('chevronDown', 12)}</button>
+        <div class="menu quick-menu" id="opp-quick-menu" role="group" aria-label="More quick filters"${open ? '' : ' hidden'}>${menuItems}</div>
+      </div>` : '';
+    const rm = resume?.enabled
+      ? `<button type="button" class="qswitch${resume.active ? ' on' : ''}" data-resume-match role="switch" aria-checked="${!!resume.active}" title="Hide roles your resume is clearly ineligible for; unknown requirements stay visible with review notes."><span class="track" aria-hidden="true"></span>Resume match</button>`
+      : `<button type="button" class="qf qf-setup" data-resume-match title="Set up resume matching in Settings">${icon('user', 12)}Resume match</button>`;
+    $('[data-quick]').innerHTML = `${rm}${SEP}<div class="quick-scroll">${shown}</div>${more}`;
+  }
+
+  function toggleQuickMenu(force) {
+    const menu = $('#opp-quick-menu');
+    if (!menu) { state.quickMenu = false; return; }
+    const show = force ?? menu.hidden;
+    state.quickMenu = show;
+    menu.hidden = !show;
+    $('[data-act=quick-more]').setAttribute('aria-expanded', String(show));
+    if (show) menu.querySelector('button')?.focus({preventScroll: true});
   }
 
   // ------------------------------------------------------------ applied filters
@@ -315,7 +371,9 @@ export async function render(root, ctx) {
       const [cat, sub] = v.split('.');
       const node = (meta.taxonomy || []).find(c => c.key === cat);
       const subNode = node?.subcategories.find(s => s.key === sub);
-      return subNode ? `${node.short || node.label} · ${subNode.label}` : node?.label || familyLabel[v] || prettyKey(v);
+      if (subNode) return `${node.short || node.label} · ${subNode.label}`;
+      const specialty = sub && (meta.families || []).find(f => f.key === cat)?.subcategories?.find(s => s.key === sub);
+      return specialty ? `${familyLabel[cat]} · ${specialty.label}` : node?.label || familyLabel[v] || prettyKey(v);
     }
     if (k === 'location') return cityText(v);
     if (k === 'company_type') return (meta.company_types || []).find(t => t.key === v)?.label || v;
@@ -341,7 +399,7 @@ export async function render(root, ctx) {
     const filterCount = chips.length;
     $('[data-filter-count]').textContent = filterCount ? String(filterCount) : '';
     $('[data-active]').innerHTML = chips.length
-      ? `<span class="applied-label">Filtered by</span>${chips.map(c => `<button type="button" class="chip on removable" data-remove="${esc(c.k)}" data-value="${esc(c.v)}" ${c.single ? 'data-single="1"' : ''} aria-label="Remove filter: ${esc(c.text)}">${esc(c.text)}<span class="x">${icon('x', 11)}</span></button>`).join('')}<button type="button" class="btn ghost sm" data-act="clear">Clear all</button>`
+      ? `<span class="applied-label">Filtered by</span>${chips.map(c => `<button type="button" class="ftoken" data-remove="${esc(c.k)}" data-value="${esc(c.v)}" ${c.single ? 'data-single="1"' : ''} aria-label="Remove filter: ${esc(c.text)}" title="Remove">${esc(c.text)}<span class="x">${icon('x', 11)}</span></button>`).join('')}<button type="button" class="link-btn applied-clear" data-act="clear">Clear all</button>`
       : '';
     $('[data-active]').hidden = !chips.length;
   }
@@ -370,19 +428,29 @@ export async function render(root, ctx) {
     const selectedCats = listParam(state.params.category);
     const list = interests();
     const showFinance = !list.length || list.includes('finance');
+    // A category or family opens to its groups once it (or one of them) is picked.
+    const opened = key => selectedCats.includes(key) || selectedCats.some(s => s.startsWith(`${key}.`));
+    const subTree = (key, subs) => `<div class="tree-subs">${subs.map(s => `<label class="check"><input type="checkbox" data-list="category" value="${esc(`${key}.${s.key}`)}"${selectedCats.includes(`${key}.${s.key}`) ? ' checked' : ''}><span>${esc(s.label)}</span></label>`).join('')}</div>`;
     const financeCats = showFinance ? (meta.taxonomy || []).map(c => ({
-      key: c.key, label: c.label,
-      children: selectedCats.includes(c.key) || selectedCats.some(s => s.startsWith(`${c.key}.`))
-        ? `<div class="tree-subs">${c.subcategories.map(s => `<label class="check"><input type="checkbox" data-list="category" value="${esc(`${c.key}.${s.key}`)}"${selectedCats.includes(`${c.key}.${s.key}`) ? ' checked' : ''}><span>${esc(s.label)}</span></label>`).join('')}</div>` : '',
+      key: c.key, label: c.label, children: opened(c.key) ? subTree(c.key, c.subcategories) : '',
     })).sort((a, b) => (catCounts[b.key] || 0) - (catCounts[a.key] || 0)) : [];
-    const otherFams = (list.length ? list.filter(k => k !== 'finance') : families.filter(f => f.key !== 'finance').map(f => f.key))
-      .map(k => ({key: k, label: familyLabel[k] || prettyKey(k)}))
+    const specialtiesOf = key => (meta.families || []).find(f => f.key === key)?.subcategories || [];
+    const famKeys = list.length ? list.filter(k => k !== 'finance') : families.filter(f => f.key !== 'finance').map(f => f.key);
+    // The only field on screen shows its specialties straight away.
+    const alone = !financeCats.length && famKeys.length === 1;
+    const otherFams = famKeys
+      .map(k => ({key: k, label: familyLabel[k] || prettyKey(k),
+        children: specialtiesOf(k).length && (alone || opened(k)) ? subTree(k, specialtiesOf(k)) : ''}))
       .sort((a, b) => (catCounts[b.key] || 0) - (catCounts[a.key] || 0));
     const catBlocks = [];
     if (financeCats.length) catBlocks.push(`<div class="fsub">${showFinance && otherFams.length ? '<h4>Finance</h4>' : ''}${checkList('category', financeCats, catCounts, {limit: 8})}</div>`);
     if (otherFams.length) {
+      const flat = otherFams.filter(f => !specialtiesOf(f.key).length);
+      const note = !flat.length ? (alone ? '' : 'Pick a family to narrow it to specialties.')
+        : flat.length < otherFams.length ? 'Pick a family to narrow it to specialties. The others aren’t split yet; search or Level narrows them.'
+        : `${otherFams.length === 1 ? esc(otherFams[0].label) : 'These families'} ${otherFams.length === 1 ? 'is' : 'are'} not split into subcategories yet; search or Level narrows them further.`;
       catBlocks.push(`<div class="fsub">${financeCats.length ? '<h4>Other job families</h4>' : ''}${checkList('family_category', otherFams, catCounts, {limit: 6, param: 'category'})}
-        <p class="fnote">${otherFams.length === 1 ? esc(otherFams[0].label) : 'These families'} ${otherFams.length === 1 ? 'is' : 'are'} not split into subcategories yet; search or Level narrows them further.</p></div>`);
+        ${note ? `<p class="fnote">${note}</p>` : ''}</div>`);
     }
     const cityCounts = fmap('city');
     const locations = [...COUNTRY_FILTERS.map(c => ({key: c.key, label: `${c.label} (all)`})), {key: 'remote', label: 'Remote'},
@@ -462,19 +530,20 @@ export async function render(root, ctx) {
     // At most one time signal and one level tag: the rest lives in the posting.
     const signal = j.badges.find(b => SIGNAL.has(b));
     const level = j.badges.find(b => !SIGNAL.has(b) && !/^\d{4}$/.test(b));
-    const tags = [signal, level].filter(Boolean).map(tag).join('');
+    // The level reads as part of the meta line; only a time signal gets a tag.
+    const lvl = level ? `<span class="lvl">${esc(badgeLabel(level))}</span>` : '';
     return `<tr data-i="${i}" data-key="${esc(j.key)}" class="${i === state.cursor ? 'cursor' : ''}${closed ? ' closed' : ''}${j.key === ctx.route.params.job ? ' reviewing' : ''}" aria-selected="${i === state.cursor}">
       <td class="c-fit">${fitMeter(j.fit)}</td>
       <td class="c-role"><div class="role">
         <a class="t" href="#/opportunities?job=${encodeURIComponent(j.key)}" data-open-job title="${esc(j.title)}">${esc(j.title)}</a>
-        <div class="m">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>${tags ? `<span class="tags">${tags}</span>` : ''}</div>
+        <div class="m">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>${lvl}${signal ? `<span class="tags">${tag(signal)}</span>` : ''}</div>
       </div></td>
       <td class="c-cat"><div class="cat">${esc(j.category_label || prettyKey(j.family || ''))}${j.subcategory_label && j.subcategory_label !== j.category_label ? `<small>${esc(j.subcategory_label)}</small>` : ''}</div></td>
       <td class="c-loc" title="${esc(j.location || '')}"><span class="clip">${esc(locationText(j) || '—')}</span></td>
       <td class="c-cycle nowrap">${esc(j.cycle_label || '—')}</td>
       <td class="c-posted nowrap num" title="${j.posted_ref ? esc(new Date(j.posted_ref * 1000).toLocaleString()) : 'Unknown'}">${esc(age(j.posted_ref))}</td>
       <td class="c-deadline nowrap">${deadlineCell(j.deadline, j.window_status)}</td>
-      <td class="c-status">${j.app_status ? statusPill(j.app_status) : '<span class="muted">—</span>'}</td>
+      <td class="c-status">${j.app_status ? statusPill(j.app_status) : '<span class="sr-only">Not tracked</span>'}</td>
       <td class="actions">${j.app_status ? '' : `<button type="button" class="btn xs icon" data-row-act="save" title="Save (s)" aria-label="Save ${esc(j.title)}">${icon('bookmark', 13)}</button>`}<a class="btn xs icon" href="${esc(safeUrl(j.url))}" target="_blank" rel="noopener noreferrer" data-row-act="open" title="Open posting (o)" aria-label="Open posting for ${esc(j.title)}">${icon('external', 13)}</a></td>
     </tr>`;
   }
@@ -483,9 +552,10 @@ export async function render(root, ctx) {
     const d = state.data;
     const start = d.total ? (d.page - 1) * d.per_page + 1 : 0;
     const end = Math.min(d.total, d.page * d.per_page);
-    $('[data-pager]').innerHTML = `<span class="num">${start.toLocaleString()}–${end.toLocaleString()} of ${d.total.toLocaleString()}</span>
-      <span class="keys" aria-hidden="true"><kbd>j</kbd><kbd>k</kbd> move <kbd>Enter</kbd> open <kbd>s</kbd> save <kbd>a</kbd> applied <kbd>o</kbd> posting <kbd>f</kbd> filters</span>
-      <span class="controls"><button type="button" class="btn sm icon" data-page="${d.page - 1}" ${d.page <= 1 ? 'disabled' : ''} aria-label="Previous page">${icon('chevronLeft')}</button><span class="num">Page ${d.page} of ${d.pages}</span><button type="button" class="btn sm icon" data-page="${d.page + 1}" ${d.page >= d.pages ? 'disabled' : ''} aria-label="Next page">${icon('chevronRight')}</button></span>`;
+    $('[data-pager]').hidden = !d.total;      // the empty state says it already
+    $('[data-pager]').innerHTML = `<span class="range"><b class="num">${start.toLocaleString()}–${end.toLocaleString()}</b> of <span class="num">${d.total.toLocaleString()}</span></span>
+      <span class="keys" aria-hidden="true"><span><kbd>j</kbd><kbd>k</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>s</kbd> save</span><span><kbd>a</kbd> applied</span><span><kbd>o</kbd> posting</span><span><kbd>f</kbd> filters</span></span>
+      <span class="controls"${d.pages > 1 ? '' : ' hidden'}><button type="button" class="btn ghost sm icon" data-page="${d.page - 1}" ${d.page <= 1 ? 'disabled' : ''} aria-label="Previous page">${icon('chevronLeft')}</button><span class="num" aria-label="Page ${d.page} of ${d.pages}">${d.page} / ${d.pages}</span><button type="button" class="btn ghost sm icon" data-page="${d.page + 1}" ${d.page >= d.pages ? 'disabled' : ''} aria-label="Next page">${icon('chevronRight')}</button></span>`;
   }
 
   function setCursor(i, {scroll = true} = {}) {
@@ -566,9 +636,19 @@ export async function render(root, ctx) {
     if (e.key === 'Escape') e.preventDefault();
   });
 
+  function toggleViewMenu(force) {
+    const menu = $('#opp-view-menu');
+    const show = force ?? menu.hidden;
+    menu.hidden = !show;
+    $('[data-act=view-menu]').setAttribute('aria-expanded', String(show));
+    if (show) menu.querySelector('button')?.focus({preventScroll: true});
+  }
+
   const onDocClick = e => {
     const pop = root.querySelector('.interest-pop');
     if (pop?.classList.contains('show') && !e.target.closest('[data-interests]')) toggleInterestPop(false);
+    if (!$('#opp-view-menu').hidden && !e.target.closest('[data-view-menu]')) toggleViewMenu(false);
+    if (state.quickMenu && !e.target.closest('[data-quick-more]')) toggleQuickMenu(false);
   };
   document.addEventListener('click', onDocClick);
 
@@ -578,18 +658,22 @@ export async function render(root, ctx) {
     if (t.closest('[data-interest-reset]')) { set({family: null}); return; }
     if (t.closest('[data-interest-all]')) { set({family: 'all'}); return; }
     if (t.closest('[data-resume-match]')) {
-      if (!state.data?.resume_matching?.enabled) ctx.navigate(['settings'], {});
+      if (!state.data?.resume_matching?.enabled) ctx.navigate(['settings'], {tab: 'resume'});
       else set({resume_match: state.data.resume_matching.active ? '0' : '1'});
       return;
     }
+    if (t.closest('[data-act=quick-more]')) { toggleQuickMenu(); return; }
     const quick = t.closest('[data-quick-i]');
     if (quick) {
       const q = state.quick[Number(quick.dataset.quickI)];
       const active = quickActive(q);
       const patch = {};
       for (const [k, v] of Object.entries(q.params)) {
-        patch[k] = LIST_KEYS.has(k) ? toggleListParam(state.params[k], v) || null : active ? null : v;
+        patch[k] = k === 'category' ? toggleCategory(state.params[k], v) || null
+          : LIST_KEYS.has(k) ? toggleListParam(state.params[k], v) || null : active ? null : v;
       }
+      // Keep keyboard focus on the toggle after the row redraws (the More menu stays open).
+      state.refocus = `[data-quick-i="${quick.dataset.quickI}"]`;
       set(patch);
       return;
     }
@@ -634,8 +718,10 @@ export async function render(root, ctx) {
     const density = t.closest('button[data-density]');   // <html> carries data-density too
     if (density) { document.documentElement.dataset.density = density.dataset.density; ctx.store.set('jw-density', density.dataset.density); setDensityButtons(); return; }
     if (t.closest('[data-act=filters]')) { toggleFilters(); return; }
-    if (t.closest('[data-act=save-view]')) { saveSearchForm(apiParamsForSave(state.params), ctx); return; }
+    if (t.closest('[data-act=view-menu]')) { toggleViewMenu(); return; }
+    if (t.closest('[data-act=save-view]')) { toggleViewMenu(false); saveSearchForm(apiParamsForSave(state.params), ctx); return; }
     if (t.closest('[data-act=export]')) {
+      toggleViewMenu(false);
       const q = new URLSearchParams(apiParams(state.params, profileInterests()));
       q.delete('page');
       window.location.href = `/api/export.csv?${q}`;
@@ -670,6 +756,8 @@ export async function render(root, ctx) {
 
   root.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      if (!$('#opp-view-menu').hidden) { e.stopPropagation(); toggleViewMenu(false); $('[data-act=view-menu]').focus(); return; }
+      if (state.quickMenu) { e.stopPropagation(); toggleQuickMenu(false); $('[data-act=quick-more]')?.focus(); return; }
       if (root.querySelector('.interest-pop.show')) { e.stopPropagation(); toggleInterestPop(false); $('[data-act=interests]').focus(); return; }
       if ($('[data-layout]').classList.contains('filters-open')) { e.stopPropagation(); toggleFilters(); }
     }
@@ -683,7 +771,8 @@ export async function render(root, ctx) {
       setInterests(list);
       return;
     }
-    if (t.dataset.list) set({[t.dataset.list]: toggleListParam(state.params[t.dataset.list], t.value) || null});
+    if (t.dataset.list === 'category') set({category: toggleCategory(state.params.category, t.value) || null});
+    else if (t.dataset.list) set({[t.dataset.list]: toggleListParam(state.params[t.dataset.list], t.value) || null});
     else if (t.dataset.single) set({[t.dataset.single]: t.value || null});
     else if (t.dataset.toggle) set({[t.dataset.toggle]: t.checked ? '1' : null});
     else if (t.dataset.range) set({[t.dataset.range]: Number(t.value) > 0 ? t.value : null});

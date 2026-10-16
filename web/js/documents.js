@@ -2,10 +2,13 @@
 // for this posting, and one merged PDF (resume, letter, transcript…) to upload.
 import {api, download, enc, fileToBase64, get, put} from './api.js';
 import {esc, fmtDay} from './lib.js';
-import {confirmDialog, toast} from './ui.js';
+import {confirmDialog, icon, toast} from './ui.js';
+
+// Sub-headings: the drawer groups these under its "Prepare" section.
+const head = (title, aside = '') => `<div class="section-head"><h4>${title}</h4>${aside}</div>`;
 
 export function documentsSections() {
-  return `<section class="section" data-cover-root><h3>Cover letter</h3><p class="muted" style="margin:0">Loading…</p></section>
+  return `<section class="section" data-cover-root>${head('Cover letter')}<p class="section-empty">Loading…</p></section>
     <section class="section" data-merge-root></section>`;
 }
 
@@ -36,48 +39,59 @@ export async function mountDocuments(el, job, deps = {}) {
   const drawCover = (draft = {}) => {
     const l = state.letter;
     if (loadError) {
-      cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">Could not load the cover letter: ${esc(loadError.message)}</p>
-        <button type="button" class="btn sm" data-cover-act="reload" style="margin-top:8px">Try again</button>`;
+      cover.innerHTML = `${head('Cover letter')}<p class="section-empty">Couldn’t load the cover letter: ${esc(loadError.message)}</p>
+        <div class="doc-actions"><button type="button" class="btn sm" data-cover-act="reload">${icon('refresh')}Try again</button></div>`;
       return;
     }
     if (!state.ai || !state.resume) {
-      cover.innerHTML = `<h3>Cover letter</h3><p class="muted" style="margin:0">${!state.ai
-        ? 'Write a letter for this posting with Gemini. Connect a free Gemini API key in <a class="link" href="#/settings">Settings → AI cover letters</a>.'
-        : 'Upload your resume in <a class="link" href="#/settings">Settings</a> first; letters are written from it.'}</p>`;
+      cover.innerHTML = `${head('Cover letter')}<p class="section-empty">${!state.ai
+        ? 'Write a letter for this posting with Gemini. Connect a free Gemini API key in <a class="link" href="#/settings?tab=letters">Settings → Cover letters</a>.'
+        : 'Upload your resume in <a class="link" href="#/settings?tab=resume">Settings</a> first; letters are written from it.'}</p>`;
       return;
     }
-    cover.innerHTML = `<h3>Cover letter</h3>
+    const body = draft.body ?? l?.body ?? '';
+    const dirty = !!l && body !== l.body;
+    cover.innerHTML = `${head('Cover letter', l ? `<span class="section-aside">${l.model ? `Written by ${esc(l.model)}` : 'Written by you'}${l.created_at ? ` · ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span>` : '')}
       <label class="field"><span>Anything to emphasize? <span class="muted">(optional)</span></span>
         <input class="input" data-cover-notes maxlength="1000" value="${esc(draft.notes ?? l?.notes ?? '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>
-      ${l ? `<label class="field" style="margin-top:8px"><span>Letter <span class="muted">· ${l.model ? `written by ${esc(l.model)}` : 'written by you'} ${l.created_at ? `· ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span></span>
-        <textarea class="input" data-cover-body rows="14">${esc(draft.body ?? l.body)}</textarea></label>` : ''}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button type="button" class="btn${l ? '' : ' primary'} sm" data-cover-act="generate"${busy ? ' disabled' : ''}>${busy ? 'Writing…' : l ? 'Rewrite with Gemini' : 'Write with Gemini'}</button>
-        ${l ? `<button type="button" class="btn primary sm" data-cover-act="save">Save edits</button>
-          <button type="button" class="btn sm" data-cover-act="copy">Copy</button>
-          <button type="button" class="btn sm" data-cover-act="pdf">Download PDF</button>` : ''}
+      ${l ? `<label class="field doc-letter"><span class="sr-only">Letter</span>
+        <textarea class="input" data-cover-body rows="14">${esc(body)}</textarea></label>` : ''}
+      <div class="doc-actions">
+        <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy ? ' disabled aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${busy ? 'Writing…' : l ? 'Rewrite with Gemini' : 'Write with Gemini'}</button>
+        ${l ? `<span class="doc-gap"></span>
+          <button type="button" class="btn ghost sm icon" data-cover-act="copy" aria-label="Copy letter" title="Copy letter">${icon('copy')}</button>
+          <button type="button" class="btn ghost sm icon" data-cover-act="pdf" aria-label="Download as PDF" title="Download as PDF">${icon('download')}</button>
+          <button type="button" class="btn sm${dirty ? ' primary' : ''}" data-cover-act="save"${dirty ? '' : ' disabled'}>Save edits</button>` : ''}
       </div>
-      <p class="muted" style="font-size:11.5px;margin:8px 0 0">${state.reference
+      <p class="doc-note">${state.reference
         ? `Matches the style of your past letter (${esc(state.reference.filename)}).`
         : 'Tip: add a past cover letter in Settings so new letters match your style.'} Check every letter before sending.</p>`;
   };
 
   const drawMerge = () => {
-    merge.innerHTML = `<h3>Application PDF</h3>
-      <p class="muted" style="margin:0 0 8px">Combine your resume, cover letter, transcript and other PDFs into one file.</p>
-      ${items.length ? `<ol class="mini-list" style="margin:0 -14px 8px;list-style:none;padding:0">${items.map((it, i) => `<li data-merge-i="${i}"><div class="grow"><div class="t">${i + 1}. ${esc(it.kind === 'letter' ? 'Cover letter (from above)' : it.file.name)}</div></div>
-        <button type="button" class="btn xs" data-merge-act="up"${i ? '' : ' disabled'} aria-label="Move up">↑</button>
-        <button type="button" class="btn xs" data-merge-act="down"${i < items.length - 1 ? '' : ' disabled'} aria-label="Move down">↓</button>
-        <button type="button" class="btn xs danger" data-merge-act="remove" aria-label="Remove">✕</button></li>`).join('')}</ol>` : ''}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label class="btn sm">Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
-        ${state.letter && !items.some(it => it.kind === 'letter') ? '<button type="button" class="btn sm" data-merge-act="letter">Add cover letter</button>' : ''}
-        <button type="button" class="btn primary sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>Merge &amp; download</button>
+    merge.innerHTML = `${head('Application PDF')}
+      <p class="section-empty">Combine your resume, cover letter, transcript and other PDFs into one file.</p>
+      ${items.length ? `<ol class="merge-list">${items.map((it, i) => `<li data-merge-i="${i}">${icon('file')}<div class="grow"><div class="t">${i + 1}. ${esc(it.kind === 'letter' ? 'Cover letter (from above)' : it.file.name)}</div></div>
+        <button type="button" class="btn ghost xs icon" data-merge-act="up"${i ? '' : ' disabled'} aria-label="Move up" title="Move up">${icon('chevronUp', 13)}</button>
+        <button type="button" class="btn ghost xs icon" data-merge-act="down"${i < items.length - 1 ? '' : ' disabled'} aria-label="Move down" title="Move down">${icon('chevronDown', 13)}</button>
+        <button type="button" class="btn ghost xs icon" data-merge-act="remove" aria-label="Remove" title="Remove">${icon('x', 13)}</button></li>`).join('')}</ol>` : ''}
+      <div class="doc-actions">
+        <label class="btn sm">${icon('upload')}Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
+        ${state.letter && !items.some(it => it.kind === 'letter') ? `<button type="button" class="btn ghost sm" data-merge-act="letter">${icon('plus')}Add cover letter</button>` : ''}
+        <span class="doc-gap"></span>
+        <button type="button" class="btn sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>${icon('download')}Merge &amp; download</button>
       </div>`;
   };
 
   const redraw = () => { drawCover(); drawMerge(); };
   redraw();
+
+  cover.addEventListener('input', e => {
+    if (!e.target.matches?.('[data-cover-body]') || !state.letter) return;
+    const btn = cover.querySelector('[data-cover-act=save]');
+    const dirty = e.target.value !== state.letter.body;
+    if (btn) { btn.disabled = !dirty; btn.classList.toggle('primary', dirty); }
+  });
 
   cover.addEventListener('click', async e => {
     const act = e.target.closest('[data-cover-act]')?.dataset.coverAct;

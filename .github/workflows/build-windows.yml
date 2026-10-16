@@ -102,7 +102,7 @@ jobs:
           python tools/build_windows.py "${args[@]}"
       - name: Verify batch startup, matching, letters and restart persistence
         if: steps.packaging.outputs.bridge == 'true'
-        run: python tools/verify_windows_bundle.py dist/Jobwatch-Windows.zip
+        run: python tools/verify_windows_bundle.py dist/Foothold-Windows.zip
       - name: Verify install, start, upgrade in place and uninstall
         shell: bash
         run: python tools/verify_windows_installer.py dist/Jobwatch-Setup-*.exe
@@ -114,7 +114,7 @@ jobs:
           name: windows-package
           path: |
             dist/Jobwatch-Setup-*.exe
-            dist/Jobwatch-Windows.zip
+            dist/Foothold-Windows.zip
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
@@ -154,22 +154,24 @@ jobs:
           files=(dist/Jobwatch-Setup-*.exe dist/jobwatch-update.json dist/jobwatch-update.json.sig)
           notes="$RUNNER_TEMP/release-notes.md"
           cat > "$notes" <<'NOTES'
-          Windows 10/11 x64. Download **Jobwatch-Setup** and run it; no administrator rights are needed.
+          Windows 10/11 x64. Download **Jobwatch-Setup** and run it to install Foothold; no administrator rights are needed.
+
+          Foothold was called Jobwatch. The setup file and the data folder keep that name, so installed copies update in place and keep their data.
 
           Windows may show **Windows protected your PC** because the installer is not code-signed: choose **More info**, then **Run anyway**.
 
-          Jobwatch opens in your browser and keeps running in the background. Open it again from the Start menu. When a newer version has downloaded and passed signature verification, choose **Restart to update**. Your profile, applications and settings are kept across updates and reinstalls.
+          Foothold opens in your browser and keeps running in the background. Open **Foothold** again from the Start menu. When a newer version has downloaded and passed signature verification, choose **Restart to update**. Your profile, applications and settings are kept across updates and reinstalls.
 
           To uninstall, use **Windows Settings > Apps**. Keeping your data for a later reinstall is the default.
 
-          Upgrading an older ZIP copy? Stop Jobwatch in Settings > Background, then run Setup. The installed app uses the same data folder. Once it opens successfully, you can delete the old extracted folder.
+          Upgrading an older ZIP copy? Stop it in Settings > Background, then run Setup. The installed app uses the same data folder. Once it opens successfully, you can delete the old extracted folder.
           NOTES
           version=$(python -c "from version import APP_VERSION; print(APP_VERSION)")
           if [ "$version" = "0.2.0" ]; then
-            files+=(dist/Jobwatch-Windows.zip)
+            files+=(dist/Foothold-Windows.zip)
             cat >> "$notes" <<'NOTES'
 
-          **Final portable ZIP release:** 0.2.0 includes Jobwatch-Windows.zip. Extract it and double-click Start Jobwatch.bat. Its next update installs Jobwatch and keeps your data; later releases provide the installer only.
+          **Final portable ZIP release:** 0.2.0 includes Foothold-Windows.zip. Extract it and double-click Start Foothold.bat. Its next update installs Foothold and keeps your data; later releases provide the installer only.
           NOTES
           fi
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
@@ -178,7 +180,7 @@ jobs:
             # A draft until every file is uploaded: installed copies only ever see a complete release.
             gh release create "$GITHUB_REF_NAME" "${files[@]}" \
               --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
-              --title "Jobwatch $GITHUB_REF_NAME" \
+              --title "Foothold $GITHUB_REF_NAME" \
               --notes-file "$notes"
           fi
           gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \

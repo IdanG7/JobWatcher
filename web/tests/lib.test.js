@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
 import {
-  age, buildHash, cleanParams, cycleLabel, daysUntil, deadlineText, esc, fitBand, followTop, niceMax,
-  parseHash, safeUrl, toggleListParam,
+  age, buildHash, cleanParams, cleanQuote, cycleLabel, daysUntil, deadlineText, esc, fitBand, followTop, levelText, niceMax,
+  parseHash, safeUrl, sourceName, toggleListParam,
 } from '../js/lib.js';
 
 test('escaping and URL safety', () => {
@@ -58,4 +58,18 @@ test('a side panel taller than the window follows the page to its end and back t
   assert.equal(followTop(-432, -100, box), -332);           // scrolling up brings its start back
   assert.equal(followTop(0, -200, box), 68);                // ...and pins it under the nav
   assert.equal(followTop(-300, 0, {...box, height: 600}), 68);   // a panel that fits stays pinned
+});
+
+test('posting text reads cleanly: levels said once, quotes cut at whole words, readable sources', () => {
+  assert.equal(levelText({level_label: 'Intern', stage: 'internship'}), 'Intern');
+  assert.equal(levelText({level_label: 'Associate', stage: 'experienced'}), 'Associate · Experienced hire');
+  assert.equal(levelText({stage: 'new_grad'}), 'New grad program');
+  assert.equal(levelText({}), '');
+  assert.equal(cleanQuote('ion reimbursement\n\n Posting End Date: \n\n16 Oct 2026 * Jo'), '…reimbursement Posting End Date: 16 Oct 2026…');
+  assert.equal(cleanQuote('Candidates must be enrolled in a degree program.'), 'Candidates must be enrolled in a degree program.');
+  assert.equal(cleanQuote(''), '');
+  assert.ok(cleanQuote('word '.repeat(80), 40).length <= 42);
+  assert.equal(sourceName('GitHub · Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships'), 'GitHub · Summer 2027 and Fall 2026 Tech Internships');
+  assert.equal(sourceName('Wells Fargo Careers'), 'Wells Fargo Careers');
+  assert.equal(sourceName('LinkedIn · Toronto · Finance'), 'LinkedIn · Toronto · Finance');
 });

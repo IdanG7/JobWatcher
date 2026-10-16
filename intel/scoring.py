@@ -21,6 +21,8 @@ from .knowledge import Knowledge
 FINANCE_TYPES = {"bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank", "canadian_bank",
                  "commercial_bank", "private_equity", "venture_capital", "hedge_fund", "quant_firm",
                  "asset_manager", "pension_fund", "insurance", "fintech", "market_infrastructure"}
+TECH_TYPES = {"big_tech", "established_tech", "scale_up", "startup", "ai_lab", "enterprise_software",
+              "semiconductors", "defense_aerospace", "it_services", "public_sector"}
 STEEP = [(3, 10), (6, 9), (12, 8), (24, 7), (48, 5), (72, 4), (168, 2), (336, 1)]
 GENTLE = [(24, 10), (72, 9), (168, 7), (336, 5), (720, 3), (1440, 1)]
 LEVEL_BADGES = {"summer_analyst": "SUMMER ANALYST", "summer_associate": "SUMMER ASSOCIATE",
@@ -63,6 +65,19 @@ def _target_match(targets: list[str], category: str, sub: str | None) -> tuple[s
     return "", None
 
 
+def _related_target(kn: Knowledge, targets: list[str], category: str, sub: str | None) -> str | None:
+    """A targeted specialty the posting's specialty is related to (Full-Stack and Backend)."""
+    if not sub:
+        return None
+    mine = kn.subcategories.get(f"{category}.{sub}")
+    for target in targets:
+        node = kn.subcategories.get(target)
+        if node and mine and node.parent == category and (
+                node.key in (mine.meta.get("related") or []) or sub in (node.meta.get("related") or [])):
+            return target
+    return None
+
+
 def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None,
               now: float | None = None) -> dict:
     """Score one job.  ``dyn`` carries mutable state: posted, first_seen,
@@ -100,9 +115,12 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{kn.category_label(cls['category'])} target")
     elif match == "category":
         # A sibling of a target (Accounting next to an FP&A target) is related
-        # work, not a target: partial credit only.
-        pts = 14 if not cls.get("subcategory") else 9
-        detail = (f"{role_label}: same division as your "
+        # work, not a target: partial credit only.  Specialties the taxonomy
+        # marks as related (Full-Stack next to Backend) earn more.
+        related = _related_target(kn, targets, cls["category"], cls.get("subcategory"))
+        which = related or which
+        pts = 14 if not cls.get("subcategory") or related else 9
+        detail = (f"{role_label}: {'related to' if related else 'same division as'} your "
                   f"{kn.subcategory_label(*which.split('.')) or kn.category_label(which)} target")
     elif any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or []):
         pts, detail = 14, f"{role_label}; secondary fit with a target ({', '.join(cls.get('secondary_labels') or [])})"
@@ -127,7 +145,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
                 f"{role_label} is not one of your target roles")
     elif targets and cls["category"] == "other":
         penalty("off_target", "Not a target role", 6, "Couldn't place this role in any of your targets")
-    has_nonfinance_target = any(t in kn.families for t in targets)
+    has_nonfinance_target = any(t.split(".")[0] in kn.families for t in targets)
     if not cls.get("is_finance") and targets and not has_nonfinance_target and cls["category"] != "other":
         penalty("role_mismatch", "Role mismatch", 10, f"{cls['category_label']} role; your targets are finance roles")
 
@@ -169,6 +187,8 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{company['type_label']} priority")
     elif company["type"] in FINANCE_TYPES:
         pts, detail = 7, f"{company['type_label']} — recognized finance employer"
+    elif company["type"] in TECH_TYPES:
+        pts, detail = 7, f"{company['type_label']} — recognized tech employer"
     elif company["type"] in ("consulting", "accounting_advisory"):
         pts, detail = 6, f"{company['type_label']}"
     else:
@@ -245,7 +265,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     mine = set(profile.get("skills") or [])
     if not job_skills:
         pts = 5 if not facts.get("has_description") else 4
-        detail = "No description available yet" if not facts.get("has_description") else "No finance skills detected"
+        detail = "No description available yet" if not facts.get("has_description") else "No listed skills detected"
     else:
         matched = [s for s in job_skills if s["key"] in mine]
         denom = min(4, len(job_skills))

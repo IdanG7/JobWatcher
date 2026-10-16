@@ -180,3 +180,31 @@ export function initials(name = '') {
   if (!words.length) return '?';
   return (words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0, 2)).toUpperCase();
 }
+const STAGE_TEXT = {internship: 'Internship', new_grad: 'New grad program', entry: 'Entry level', experienced: 'Experienced hire', senior: 'Senior'};
+
+/** A posting's level without saying it twice: 'Intern', not 'Intern · Internship'. */
+export function levelText({level_label: level = '', stage = ''} = {}) {
+  const kind = STAGE_TEXT[stage] || '';
+  if (!level || !kind) return level || kind;
+  const a = level.toLowerCase(), b = kind.toLowerCase();
+  return b.includes(a) || a.includes(b) ? level : `${level} · ${kind}`;
+}
+
+/** The posting's words a fact was read from. Extracts start and end mid-word
+ *  ('ion reimbursement … 2026 * Jo'), so broken ends are cut and marked with an ellipsis. */
+export function cleanQuote(text = '', max = 180) {
+  let words = String(text || '').replace(/\s*[*•▪●]\s+/g, ' · ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  if (!words.length) return '';
+  let head = false, tail = false;
+  if (words.length > 3 && /^[a-z]/.test(words[0])) { words = words.slice(1); head = true; }
+  if (words.length > 3 && !/[.!?:;)\]]$/.test(words[words.length - 1])) { words = words.slice(0, -1); tail = true; }
+  let out = words.join(' ').replace(/^[\s·,;:–-]+|[\s·,;–-]+$/g, '');
+  if (out.length > max) { out = out.slice(0, max).replace(/\s+\S*$/, ''); tail = true; }
+  return `${head ? '…' : ''}${out}${tail ? '…' : ''}`;
+}
+
+/** Readable source names: a repository slug after ' · ' becomes words. */
+export function sourceName(label = '') {
+  return String(label || '').split(' · ').map((part, i) => (i && /[-_]/.test(part) && !/\s/.test(part)
+    ? part.replace(/[-_]+/g, ' ').replace(/^automated list of\s+/i, '').trim() : part)).join(' · ');
+}

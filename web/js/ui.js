@@ -27,6 +27,14 @@ const ICONS = {
   users: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M16 4.5a3.5 3.5 0 0 1 0 7M22 20a7 7 0 0 0-4-6.3"/>',
   building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/>',
   bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/>',
+  tag: '<path d="M3.5 12.3V4.5a1 1 0 0 1 1-1h7.8l8.2 8.2a1 1 0 0 1 0 1.4l-6.6 6.6a1 1 0 0 1-1.4 0z"/><circle cx="8" cy="8" r="1.3"/>',
+  pin: '<path d="M12 21s-6.5-5.6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/>',
+  contrast: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/>',
+  monitor: '<rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/>',
+  code: '<path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5l-3 14"/>',
+  cpu: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/><path d="M10 3v3.5M14 3v3.5M10 17.5V21M14 17.5V21M3 10h3.5M3 14h3.5M17.5 10H21M17.5 14H21"/>',
+  spark: '<path d="M12 3.5c.6 4.2 2.3 5.9 6.5 6.5-4.2.6-5.9 2.3-6.5 6.5-.6-4.2-2.3-5.9-6.5-6.5 4.2-.6 5.9-2.3 6.5-6.5zM18.5 15.5c.25 1.6.9 2.25 2.5 2.5-1.6.25-2.25.9-2.5 2.5-.25-1.6-.9-2.25-2.5-2.5 1.6-.25 2.25-.9 2.5-2.5z"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
@@ -36,6 +44,16 @@ const ICONS = {
   eyeOff: '<path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3 3.6M6.6 6.6A17 17 0 0 0 2.5 12S6 18 12 18a9.7 9.7 0 0 0 4.4-1"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
   command: '<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',
+  sliders: '<path d="M3 6h11M18 6h3M3 12h3M10 12h11M3 18h13M20 18h1"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+  chevronUp: '<path d="m6 15 6-6 6 6"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/>',
+  file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  upload: '<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>',
+  enter: '<path d="M20 5v7a3 3 0 0 1-3 3H5M9 11l-4 4 4 4"/>',
 };
 
 export function icon(name, size = 14) {
@@ -109,23 +127,98 @@ export function skeletonRows(n = 6) {
     `<div class="skel-row"><div class="skel" style="height:28px"></div><div><div class="skel" style="width:${70 - (i % 3) * 12}%"></div><div class="skel" style="width:${40 + (i % 4) * 8}%;margin-top:7px;height:9px"></div></div><div class="skel"></div></div>`).join('')}</div>`;
 }
 
+/** `text` and `action` are trusted HTML built by the caller. */
 export function emptyState(title, text = '', action = '') {
   return `<div class="empty"><strong>${esc(title)}</strong>${text ? `<p>${text}</p>` : ''}${action}</div>`;
 }
 
 export function errorState(err, retry = true) {
-  return `<div class="empty"><strong>Something went wrong</strong><p>${esc(err?.message || String(err))}</p>${retry ? '<button class="btn sm" data-action="retry">Retry</button>' : ''}</div>`;
+  return `<div class="empty error-state" role="alert"><span class="state-icon">${icon('alert', 18)}</span><strong>Couldn’t load this</strong><p>${esc(err?.message || String(err))}</p>${retry ? `<button class="btn sm" data-action="retry">${icon('refresh')} Try again</button>` : ''}</div>`;
+}
+
+/** Platform modifier for shortcut hints: ⌘ on Apple devices, Ctrl elsewhere. */
+export function modKey() {
+  const nav = typeof navigator === 'undefined' ? null : navigator;
+  return /Mac|iPhone|iPad/.test(nav?.platform || nav?.userAgent || '') ? '⌘' : 'Ctrl';
+}
+
+// ---------------------------------------------------------------- menus
+/**
+ * Wire a `.menu-wrap` (trigger `[data-menu-trigger]` + `.menu` with `.menu-item`s): click or
+ * ArrowDown opens it and focuses the first item, arrows/Home/End move, Escape closes and returns
+ * focus to the trigger, an outside press or Tab closes it, and choosing an item closes it first
+ * (so a dialog the item opens returns focus to the trigger). Item actions are bound by the caller.
+ */
+export function bindMenu(wrap) {
+  const trigger = wrap?.querySelector('[data-menu-trigger]');
+  const menu = wrap?.querySelector('.menu');
+  if (!trigger || !menu) return {open() {}, close() {}};
+  const items = () => [...menu.querySelectorAll('.menu-item:not([disabled])')];
+  const onOutside = e => { if (!wrap.contains(e.target)) close(); };
+  function open() {
+    if (!menu.hidden) return;
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    document.addEventListener('pointerdown', onOutside, true);
+    items()[0]?.focus({preventScroll: true});
+  }
+  function close(refocus = false) {
+    document.removeEventListener('pointerdown', onOutside, true);
+    if (menu.hidden) return;
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    if (refocus && trigger.isConnected) trigger.focus({preventScroll: true});
+  }
+  trigger.addEventListener('click', () => (menu.hidden ? open() : close()));
+  // Capture: close before the item's own handler runs, so focus is back on the trigger.
+  menu.addEventListener('click', e => { if (e.target.closest('.menu-item')) close(true); }, true);
+  wrap.addEventListener('keydown', e => {
+    if (menu.hidden) {
+      if (e.target === trigger && e.key === 'ArrowDown') { e.preventDefault(); open(); }
+      return;
+    }
+    const list = items();
+    const i = list.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); }
+    else if (e.key === 'Tab') close();
+    else if (e.key === 'ArrowDown') { e.preventDefault(); list[(i + 1) % list.length]?.focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); list[(i - 1 + list.length) % list.length]?.focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); list[0]?.focus(); }
+    else if (e.key === 'End') { e.preventDefault(); list.at(-1)?.focus(); }
+  });
+  return {open, close};
 }
 
 // ---------------------------------------------------------------- toasts
+const MAX_TOASTS = 3;
+
+/** Bottom toasts: hover pauses the timer, a hidden tab holds it, at most three stay on screen. */
 export function toast(message, {error = false, action = null, timeout = 4200} = {}) {
   const zone = document.getElementById('toasts');
+  if (!zone) return;
   const el = document.createElement('div');
   el.className = `toast${error ? ' error' : ''}`;
-  el.innerHTML = `<span>${esc(message)}</span>${action ? `<button type="button">${esc(action.label)}</button>` : ''}`;
-  if (action) el.querySelector('button').addEventListener('click', () => { action.fn(); el.remove(); });
+  if (error) el.setAttribute('role', 'alert');
+  el.innerHTML = `${error ? `<span class="toast-icon" aria-hidden="true">${icon('alert', 15)}</span>` : ''}<span class="toast-msg">${esc(message)}</span>${action ? `<button type="button" class="toast-action">${esc(action.label)}</button>` : ''}`;
+  let timer = 0;
+  let remaining = timeout;
+  let started = 0;
+  const dismiss = () => {
+    if (el.dataset.leaving) return;
+    el.dataset.leaving = '1';
+    clearTimeout(timer);
+    el.classList.add('leaving');
+    setTimeout(() => el.remove(), 160);
+  };
+  const expire = () => { if (document.hidden) timer = setTimeout(expire, 1000); else dismiss(); };
+  const run = () => { started = Date.now(); clearTimeout(timer); timer = setTimeout(expire, Math.max(remaining, 600)); };
+  el.addEventListener('mouseenter', () => { clearTimeout(timer); remaining -= Date.now() - started; });
+  el.addEventListener('mouseleave', run);
+  if (action) el.querySelector('.toast-action').addEventListener('click', () => { action.fn(); dismiss(); });
+  el.dismiss = dismiss;
   zone.appendChild(el);
-  setTimeout(() => el.remove(), timeout);
+  [...zone.children].filter(n => !n.dataset.leaving).slice(0, -MAX_TOASTS).forEach(n => n.dismiss?.());
+  run();
 }
 
 // ---------------------------------------------------------------- focus
@@ -145,37 +238,49 @@ export function trapFocus(container, e) {
 
 // ---------------------------------------------------------------- modals
 let modalStack = 0;
+let modalSeq = 0;
 export function modalOpen() { return modalStack > 0; }
 
 /**
  * openModal({title, body, submitLabel, wide, danger, onMount, onSubmit}) -> Promise<result|null>
  * `body` is trusted HTML built by the caller (all user values escaped there).
  * onSubmit(form, data) may return a value (resolves) or throw (shows error, stays open).
+ * Enter in a field or Ctrl/⌘+Enter anywhere submits; Escape, the scrim or Cancel closes.
  */
 export function openModal({title, body, submitLabel = 'Save', cancelLabel = 'Cancel', wide = false, danger = false,
   onMount, onSubmit, extraFoot = ''}) {
   return new Promise(resolve => {
     const root = document.getElementById('modal-root');
     const wrap = document.createElement('div');
-    wrap.innerHTML = `<div class="scrim show"></div><div class="modal-wrap" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    const id = `modal-${++modalSeq}`;
+    wrap.className = 'modal-layer';
+    wrap.innerHTML = `<div class="scrim show"></div><div class="modal-wrap" role="dialog" aria-modal="true" aria-labelledby="${id}-title">
       <form class="modal${wide ? ' wide' : ''}" novalidate>
-        <div class="modal-head"><h2>${esc(title)}</h2><button type="button" class="btn ghost sm icon" data-close aria-label="Close">${icon('x')}</button></div>
-        <div class="modal-body">${body}<div class="callout neg" data-error hidden></div></div>
-        <div class="modal-foot">${extraFoot}<span style="flex:1"></span><button type="button" class="btn" data-close>${esc(cancelLabel)}</button>${submitLabel ? `<button type="submit" class="btn ${danger ? 'danger' : 'primary'}">${esc(submitLabel)}</button>` : ''}</div>
+        <div class="modal-head"><h2 id="${id}-title">${esc(title)}</h2><button type="button" class="btn ghost sm icon" data-close aria-label="Close" title="Close (Esc)">${icon('x')}</button></div>
+        <div class="modal-body">${body}<div class="callout neg" data-error role="alert" hidden></div></div>
+        <div class="modal-foot">${extraFoot}<span class="modal-foot-gap"></span><button type="button" class="btn" data-close data-cancel>${esc(cancelLabel)}</button>${submitLabel
+          ? `<button type="submit" class="btn ${danger ? 'danger solid' : 'primary'}">${esc(submitLabel)}<kbd class="kbd-hint" aria-hidden="true">${modKey()} ↵</kbd></button>` : ''}</div>
       </form></div>`;
     root.appendChild(wrap);
     modalStack += 1;
     const previous = document.activeElement;
     const form = wrap.querySelector('form');
+    const submit = form.querySelector('[type=submit]');
+    let closed = false;
     const close = (value = null) => {
+      if (closed) return;
+      closed = true;
       modalStack -= 1;
-      wrap.remove();
       document.removeEventListener('keydown', onKey, true);
-      previous?.focus?.();
+      wrap.classList.add('leaving');
+      wrap.inert = true;
+      setTimeout(() => wrap.remove(), 140);
+      previous?.focus?.({preventScroll: true});
       resolve(value);
     };
     const onKey = e => {
       if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); close(); }
+      else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && submit && wrap === root.lastElementChild) { e.preventDefault(); form.requestSubmit(); }
       else if (wrap === root.lastElementChild) trapFocus(wrap.querySelector('.modal-wrap'), e);
     };
     document.addEventListener('keydown', onKey, true);
@@ -183,24 +288,39 @@ export function openModal({title, body, submitLabel = 'Save', cancelLabel = 'Can
     wrap.querySelector('.modal-wrap').addEventListener('mousedown', e => { if (e.target.classList.contains('modal-wrap')) close(); });
     form.addEventListener('submit', async e => {
       e.preventDefault();
+      if (submit?.disabled) return;
       const data = Object.fromEntries(new FormData(form).entries());
       form.querySelectorAll('input[type=checkbox][name]').forEach(cb => { data[cb.name] = cb.checked; });
       const errorBox = form.querySelector('[data-error]');
+      const showError = text => { errorBox.innerHTML = `${icon('alert')}<div>${esc(text)}</div>`; errorBox.hidden = false; };
+      form.querySelectorAll('[aria-invalid]').forEach(f => f.removeAttribute('aria-invalid'));
+      const missing = [...form.querySelectorAll('[required]')].find(f => !String(f.value).trim());
+      if (missing) {
+        const label = missing.closest('.field')?.querySelector('span')?.textContent.trim() || 'This field';
+        missing.setAttribute('aria-invalid', 'true');
+        showError(`${label} is required.`);
+        missing.focus();
+        return;
+      }
+      if (submit) { submit.disabled = true; submit.setAttribute('aria-busy', 'true'); }
       try {
         const result = onSubmit ? await onSubmit(form, data) : data;
         close(result === undefined ? data : result);
       } catch (err) {
-        errorBox.textContent = err.message || String(err);
-        errorBox.hidden = false;
+        showError(err.message || String(err));
+        if (submit) { submit.disabled = false; submit.removeAttribute('aria-busy'); }
       }
     });
     onMount?.(form, close);
-    (form.querySelector('[autofocus]') || form.querySelector('input, select, textarea, button[type=submit]'))?.focus();
+    // A destructive confirm starts on Cancel, so a stray Enter never deletes anything.
+    const cancel = form.querySelector('[data-cancel]');
+    (form.querySelector('[autofocus]') || form.querySelector('input:not([type=hidden]), select, textarea')
+      || (danger ? cancel : submit) || cancel)?.focus();
   });
 }
 
 export async function confirmDialog(message, {title = 'Are you sure?', confirmLabel = 'Delete', danger = true} = {}) {
-  const result = await openModal({title, body: `<p style="margin:0">${esc(message)}</p>`, submitLabel: confirmLabel, danger,
+  const result = await openModal({title, body: `<p class="modal-text">${esc(message)}</p>`, submitLabel: confirmLabel, danger,
     onSubmit: () => true});
   return result === true;
 }

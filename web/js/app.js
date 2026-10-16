@@ -1,7 +1,7 @@
 // Router, global state, theme, live status. Every view module exports
 // render(root, ctx) -> optional {update(params), onKey(e), cleanup()}.
 import {get, post} from './api.js';
-import {buildHash, compact, esc, parseHash} from './lib.js';
+import {ageLong, buildHash, compact, esc, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
@@ -15,10 +15,11 @@ import * as calendar from './views/calendar.js';
 import * as analytics from './views/analytics.js';
 import * as sources from './views/sources.js';
 import * as settings from './views/settings.js';
+import * as welcome from './views/welcome.js';
 
-const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings};
-const TITLES = {overview: 'Overview', opportunities: 'Opportunities', applications: 'Applications', companies: 'Companies',
-  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings'};
+const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings, welcome};
+const TITLES = {overview: 'Today', opportunities: 'Opportunities', applications: 'Applications', companies: 'Companies',
+  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings', welcome: 'Set up'};
 
 const store = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
@@ -86,7 +87,7 @@ async function route() {
     a.classList.toggle('active', active);
     if (active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
-  document.title = `${TITLES[name]} · Jobwatch`;
+  document.title = `${TITLES[name]} · Foothold`;
 
   if (key !== current.key) {
     // A fresh container per render: views attach delegated listeners to their
@@ -175,7 +176,7 @@ async function refreshStatus() {
   if (statusInFlight) return;
   statusInFlight = true;
   const dot = document.getElementById('live-dot');
-  const btn = document.getElementById('poll-now');
+  const label = document.getElementById('live-label');
   try {
     const s = await get('/api/status');
     if (!ctx.meta && !ctx.metaRequest) loadMetadata();
@@ -184,15 +185,13 @@ async function refreshStatus() {
     const statusError = s.error || s.progress?.error;
     const busy = s.poll_running || s.indexing || s.pending > 0;
     const panel = document.getElementById('collection-status');
-    const markup = collectionMarkup(s);
+    const markup = collectionMarkup(s) || idleMarkup(s);
     // Keep the live region quiet when the status has not changed.
     if (panel.innerHTML !== markup) panel.innerHTML = markup;
-    panel.hidden = !markup;
     panel.classList.toggle('collection-error', Boolean(statusError));
     current.view?.status?.(s);
     dot.className = `live-dot ${statusError ? 'warn' : busy ? 'busy' : 'ok'}`;
-    btn.title = statusError ? `Last error: ${statusError}` : s.poll_running ? 'Polling sources…'
-      : s.pending > 0 ? `Indexing ${s.pending} jobs…` : `Live · last refresh ${s.last_refresh ? new Date(s.last_refresh).toLocaleTimeString() : 'pending'} · click to poll now`;
+    label.textContent = statusError ? 'Needs attention' : s.poll_running ? 'Collecting' : busy ? 'Ranking' : 'Live';
     if (s.last_poll && lastPollSeen && s.last_poll !== lastPollSeen) {
       toast('New poll finished', {action: {label: 'Refresh', fn: () => ctx.changed()}});
     }
@@ -205,14 +204,26 @@ async function refreshStatus() {
     if ((collectionDirty && since > 10000) || (busy && since > 30000)) refreshCollectionView();
   } catch {
     dot.className = 'live-dot warn';
-    btn.title = 'Dashboard server unreachable';
+    label.textContent = 'Offline';
     const panel = document.getElementById('collection-status');
-    panel.innerHTML = collectionMarkup({error: 'Connection lost. If Jobwatch was stopped, open Jobwatch again; reconnecting automatically.'});
-    panel.hidden = false;
+    panel.innerHTML = collectionMarkup({offline: true});
     panel.classList.add('collection-error');
   } finally {
     statusInFlight = false;
   }
+}
+
+/** The Live card when nothing is running: when sources were last checked. */
+function idleMarkup(s) {
+  const last = s.last_poll || s.last_refresh;
+  return `<div class="collection-heading"><strong>Up to date</strong></div>
+    <p>${last ? `Last checked ${esc(ageLong(last))}.` : 'Waiting for the first check.'} Foothold keeps checking in the background.</p>`;
+}
+
+// The Live button: hovering shows collection status; a click pins it open (and is how touch opens it).
+function setStatusCard(open) {
+  document.getElementById('status-menu').classList.toggle('open', open);
+  document.getElementById('status-toggle').setAttribute('aria-expanded', String(open));
 }
 
 // Update banners. The app downloads and verifies updates by itself; the banner
@@ -240,11 +251,11 @@ async function checkForUpdate() {
   if (shown?.dataset.kind === kind && shown.dataset.version === info.latest) return;
   const later = '<button type="button" class="btn xs" data-dismiss>Later</button>';
   const banner = kind === 'ready'
-    ? notice(id, `Jobwatch ${esc(info.latest)} is ready`,
+    ? notice(id, `Foothold ${esc(info.latest)} is ready`,
       `You have ${esc(info.current)}. Restarting takes about a minute; your data and settings are kept and this page reconnects by itself.`,
       `<button type="button" class="btn primary xs" data-apply>Restart to update</button>${later}`)
-    : notice(id, `Jobwatch ${esc(info.latest)} is available`,
-      `${failed ? `It could not be downloaded automatically (${esc(info.error || 'unknown error')}). ` : `You have ${esc(info.current)}. `}<a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download Jobwatch-Setup</a> and run it. Your data and settings are kept.`,
+    : notice(id, `Foothold ${esc(info.latest)} is available`,
+      `${failed ? `It could not be downloaded automatically (${esc(info.error || 'unknown error')}). ` : `You have ${esc(info.current)}. `}<a class="link" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Download the installer</a> and run it. Your data and settings are kept.`,
       later);
   banner.dataset.kind = kind;
   banner.dataset.version = info.latest;
@@ -268,14 +279,14 @@ async function checkForUpdate() {
   });
 }
 
-// The installer replaces Jobwatch and starts it again on the same address.
+// The installer replaces Foothold and starts it again on the same address.
 function waitForUpdate(version) {
   ctx.stop?.();
   const overlay = document.createElement('div');
   overlay.className = 'update-overlay';
   overlay.setAttribute('role', 'alertdialog');
   overlay.setAttribute('aria-live', 'assertive');
-  overlay.innerHTML = `<div class="panel panel-body"><h2>Updating Jobwatch to ${esc(version)}…</h2>
+  overlay.innerHTML = `<div class="panel panel-body"><h2>Updating Foothold to ${esc(version)}…</h2>
     <p class="muted" data-msg>This takes about a minute. This page reloads by itself when the new version is running.</p></div>`;
   document.body.append(overlay);
   const started = Date.now();
@@ -285,7 +296,7 @@ function waitForUpdate(version) {
       if (res.ok && (await res.json()).version === version) { location.reload(); return; }
     } catch { /* restarting */ }
     if (Date.now() - started > 3 * 60 * 1000) {
-      overlay.querySelector('[data-msg]').textContent = 'The update is taking longer than expected. If Jobwatch does not come back, open it from the Start menu; the installer log is in your Jobwatch data folder under updates\\install.log.';
+      overlay.querySelector('[data-msg]').textContent = 'The update is taking longer than expected. If it does not come back, open Foothold from the Start menu; the installer log is in your data folder (%LOCALAPPDATA%\\Jobwatch) under updates\\install.log.';
     }
     setTimeout(tick, 2000);
   };
@@ -296,8 +307,8 @@ function showOldCopy(folder) {
   const id = 'old-copy-banner';
   if (!folder) { document.getElementById(id)?.remove(); return; }
   if (document.getElementById(id)) return;
-  const banner = notice(id, 'Jobwatch is now installed',
-    `The copy you used before, in <b>${esc(folder)}</b>, is no longer needed. You can delete that folder; your data is not stored there. Open Jobwatch from the Start menu from now on.`,
+  const banner = notice(id, 'Foothold is now installed',
+    `The copy you used before, in <b>${esc(folder)}</b>, is no longer needed. You can delete that folder; your data is not stored there. Open Foothold from the Start menu from now on.`,
     '<button type="button" class="btn xs" data-dismiss>Got it</button>');
   banner.querySelector('[data-dismiss]').addEventListener('click', async () => {
     banner.remove();
@@ -325,6 +336,11 @@ const G_MAP = {o: 'opportunities', a: 'applications', h: 'overview', c: 'compani
 function onKey(e) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(ctx); return; }
   if (modalOpen() || paletteOpen()) return;
+  if (e.key === 'Escape' && document.getElementById('status-menu').classList.contains('open')) {
+    setStatusCard(false);
+    document.getElementById('status-toggle').focus();
+    return;
+  }
   if (e.key === 'Escape') {
     if (isTyping(e)) { e.target.blur(); return; }
     if (drawerOpen()) { ctx.closeJob(); return; }
@@ -366,7 +382,11 @@ async function boot() {
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   document.getElementById('cmdk-kbd').textContent = isMac ? '⌘K' : 'Ctrl K';
   document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-  document.getElementById('poll-now').addEventListener('click', pollNow);
+  document.getElementById('poll-run').addEventListener('click', pollNow);
+  document.getElementById('status-toggle').addEventListener('click', () =>
+    setStatusCard(!document.getElementById('status-menu').classList.contains('open')));
+  document.addEventListener('click', e => { if (!e.target.closest('#status-menu')) setStatusCard(false); });
+  document.getElementById('status-card').addEventListener('click', e => { if (e.target.closest('a')) setStatusCard(false); });
   document.getElementById('cmdk-open').addEventListener('click', () => openPalette(ctx));
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { applyTheme(); current.view?.redraw?.(); });
   window.addEventListener('hashchange', route);
@@ -379,6 +399,10 @@ async function boot() {
   route();
   loadMetadata();
   refreshNav();
+  // First run (no profile saved yet): offer setup, unless it was skipped in this browser.
+  ctx.loadProfile().then(data => {
+    if (data.saved === false && !store.get('jw-setup-skipped') && ctx.route.path[0] !== 'welcome') ctx.navigate(['welcome'], {}, {replace: true});
+  }).catch(() => {});
   refreshStatus();
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
   ctx.checkForUpdate = checkForUpdate;      // Settings → Check for updates

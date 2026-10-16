@@ -4,6 +4,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import subprocess
 import sys
@@ -15,7 +16,9 @@ from unittest.mock import patch
 import portable_start
 from portable_start import acquire_lock, bind_server, preferred_port, stop_and_wait, wait_for_exit
 from dashboard import JobwatchHTTPServer
+import updater
 
+ROOT = Path(__file__).resolve().parent
 
 class Quiet(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -159,6 +162,36 @@ class WindowlessTests(unittest.TestCase):
                 patch.object(portable_start, "show_error", shown.append):
             self.assertEqual(portable_start.run([]), 1)
         self.assertEqual(shown, [])
+
+
+class InstallerScriptTests(unittest.TestCase):
+    """The installer shows Foothold; what installed Jobwatch copies rely on stays."""
+    script = (ROOT / "tools/jobwatch.iss").read_text(encoding="utf-8")
+    setup = dict(line.split("=", 1) for line in script.split("[Setup]")[1].split("\n[")[0].splitlines()
+                 if "=" in line and not line.startswith(";"))
+
+    def test_upgrades_replace_the_installed_copy(self):
+        self.assertEqual(self.setup["AppId"], "{{1AE8ADC1-F27E-4DCC-AA4E-691280798458}")
+
+    def test_installed_copies_still_accept_the_setup_file_as_an_update(self):
+        name = self.setup["OutputBaseFilename"].replace("{#AppVersion}", "1.2.3") + ".exe"
+        shipped = re.compile(r"Jobwatch-Setup-\d+(?:\.\d+){1,3}\.exe")    # updater.py up to 0.2.5
+        self.assertTrue(shipped.fullmatch(name), name)
+        self.assertTrue(updater.INSTALLER_NAME.fullmatch(name), name)
+
+    def test_the_app_and_its_shortcuts_are_named_foothold(self):
+        for key in ("AppName", "AppPublisher", "UninstallDisplayName"):
+            self.assertEqual(self.setup[key], "Foothold", key)
+        self.assertIn('Name: "{autoprograms}\\Foothold"', self.script)
+        self.assertIn('Name: "{autoprograms}\\Jobwatch.lnk"', self.script.split("[InstallDelete]")[1])
+
+    def test_icons_point_at_the_foothold_icon(self):
+        icons = set(re.findall(r"\\app\\web\\([\w.]+\.ico)", self.script))
+        self.assertEqual(icons, {"foothold.ico"})
+        self.assertTrue((ROOT / "web/foothold.ico").is_file())
+
+    def test_the_data_folder_is_unchanged(self):
+        self.assertIn("{localappdata}\\Jobwatch", self.script)
 
 
 if __name__ == "__main__":

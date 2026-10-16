@@ -1,17 +1,93 @@
 // Settings: candidate profile (drives Fit Score 2.0), alerts, saved views,
-// appearance and privacy notes.
+// appearance and privacy notes. Laid out like an app's settings window: a
+// sidebar of sections, one section on screen at a time (#/settings?tab=…).
 import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
 import {confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
+import {FIELD_INFO, countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, wantsTechEmployers} from '../fields.js';
 
-const STAGES = [['internship', 'Internships'], ['new_grad', 'New grad / analyst programs'], ['entry', 'Entry level'], ['experienced', 'Experienced'], ['senior', 'Senior']];
-const WORK_AUTH = ['citizen', 'permanent_resident', 'authorized', 'needs_sponsorship', 'unknown'];
-const COUNTRIES = [['CA', 'Canada'], ['US', 'United States'], ['UK', 'United Kingdom']];
+const STAGES = [
+  ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
+  ['new_grad', 'New grad & analyst programs', 'Full-time programs that start after you graduate'],
+  ['entry', 'Entry level', 'Junior full-time roles outside formal programs'],
+  ['experienced', 'Experienced', 'Roles that ask for a few years of experience'],
+  ['senior', 'Senior', 'Senior, lead and management roles'],
+];
+const LEVELS = [
+  ['undergraduate', 'Undergraduate', 'Bachelor’s or equivalent'],
+  ['masters', 'Master’s', 'MSc, MFin, MEng and similar'],
+  ['mba', 'MBA', 'Including post-MBA programs'],
+  ['phd', 'PhD', 'Doctoral programs'],
+  ['other', 'Other', 'Diploma, certificate or other'],
+];
+const WORK_AUTH = [['citizen', 'Citizen'], ['permanent_resident', 'Permanent resident'], ['authorized', 'Authorized to work (visa or permit)'],
+  ['needs_sponsorship', 'Will need sponsorship'], ['unknown', 'Not sure / prefer not to say']];
+const SEASONS = [['summer', 'Summer'], ['fall', 'Fall'], ['winter', 'Winter'], ['spring', 'Spring'], ['off_cycle', 'Off-cycle'], ['new_grad', 'New grad']];
+// role_weights multiply a role's fit points (capped at 1).
+const PRIORITIES = [['1', 'Top choice'], ['0.75', 'Interested'], ['0.5', 'Backup']];
+const EMPLOYER_SECTIONS = [
+  ['Banks', ['bulge_bracket', 'elite_boutique', 'middle_market_bank', 'global_bank', 'canadian_bank', 'commercial_bank']],
+  ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
+  ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
+  ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']],
+];
+// Tech employers, for software, AI & data and the other tech fields. Quant firms
+// and FinTech are in both lists; their two checkboxes stay in step.
+const TECH_EMPLOYER_SECTIONS = [
+  ['Tech companies', ['big_tech', 'established_tech', 'scale_up', 'startup', 'ai_lab']],
+  ['By industry', ['enterprise_software', 'semiconductors', 'defense_aerospace', 'quant_firm', 'fintech']],
+  ['Services & public sector', ['it_services', 'public_sector']],
+];
+// Servers older than this page don't send these lists with /api/meta.
+const FALLBACK_LANGUAGES = ['Arabic', 'Cantonese', 'English', 'French', 'German', 'Hindi', 'Italian', 'Japanese', 'Korean', 'Mandarin', 'Portuguese', 'Russian', 'Spanish'];
+
+/** "summer_2027" → "Summer 2027", "off_cycle" → "Off-cycle". */
+export function cycleLabel(key) {
+  const m = /^(.*)_(\d{4})$/.exec(key);
+  const season = m ? m[1] : key;
+  const name = SEASONS.find(([s]) => s === season)?.[1] || season.replace(/_/g, ' ');
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)}${m ? ` ${m[2]}` : ''}`;
+}
+const TABS = [
+  ['Profile', [['resume', 'Resume', 'file'], ['about', 'About you', 'user'], ['skills', 'Skills', 'tag'],
+    ['roles', 'Roles & employers', 'building'], ['places', 'Locations & timing', 'pin']]],
+  ['Alerts', [['alerts', 'Notifications', 'bell'], ['views', 'Saved views', 'bookmark']]],
+  ['App', [['letters', 'Cover letters', 'mail'], ['appearance', 'Appearance', 'contrast'], ['system', 'System', 'monitor']]],
+];
+const TAB_IDS = TABS.flatMap(([, items]) => items.map(([id]) => id));
+export const settingsTab = id => (TAB_IDS.includes(id) ? id : TAB_IDS[0]);
+
+/** A small connected / not connected status line. */
+const conn = (on, text) => `<span class="conn${on ? ' on' : ''}"><i aria-hidden="true"></i>${text}</span>`;
+const seg = (pref, label, items, current) => `<div class="segmented" role="group" aria-label="${esc(label)}">${items.map(([value, text]) =>
+  `<button type="button" data-pref="${pref}" data-value="${esc(value)}" class="${value === current ? 'on' : ''}" aria-pressed="${value === current}">${esc(text)}</button>`).join('')}</div>`;
+
+// Layout pieces. A group is a titled card of rows; a row puts the label on the
+// left and its control on the right, the way desktop settings windows do.
+const group = (title, note, body, {tools = '', scope = false, attrs = ''} = {}) => `<div class="set-group"${scope ? ' data-pick-scope' : ''}${attrs}>${title ? `<div class="set-group-head"><h3${scope ? ' data-scope-label' : ''}>${title}</h3>${tools}</div>` : ''}${note ? `<p class="set-note">${note}</p>` : ''}<div class="set-card">${body}</div></div>`;
+const label = (text, help = '') => `<span class="set-label"><b>${text}</b>${help ? `<small>${help}</small>` : ''}</span>`;
+const row = (text, help, control) => `<label class="set-row">${label(text, help)}<span class="set-control">${control}</span></label>`;
+const block = body => `<div class="set-block">${body}</div>`;
+const panel = (id, title, intro, body) => `<section class="set-panel" id="tab-${id}" data-panel="${id}" aria-labelledby="tablink-${id}" hidden>
+  ${title ? `<header class="set-head"><h2>${title}</h2>${intro ? `<p>${intro}</p>` : ''}</header>` : ''}${body}</section>`;
+// Toggle chips. An item is [value, text, small print]; `marked` values get a dot (e.g. cycles with postings now).
+const picks = (name, items, selected, marked = null) => `<div class="picks">${items.map(([key, text, sub]) => {
+  const dot = marked?.has(key);
+  return `<label class="pick${dot ? ' marked' : ''}"${dot ? ' title="Open postings right now"' : ''}><input type="checkbox" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}><span>${esc(text)}</span>${sub ? `<small>${esc(sub)}</small>` : ''}${dot ? '<span class="sr-only">, has open postings</span>' : ''}</label>`;
+}).join('')}</div>`;
+// Option cards: a title and one line of explanation each (radio for one choice, checkbox for several).
+const choices = (type, name, items, selected) => `<div class="choices">${items.map(([key, title, desc]) =>
+  `<label class="choice"><input type="${type}" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}><span class="choice-mark" aria-hidden="true"></span><span class="choice-text"><b>${esc(title)}</b>${desc ? `<small>${esc(desc)}</small>` : ''}</span></label>`).join('')}</div>`;
+const field = (title, help, body) => `<div class="set-block" role="group" aria-label="${esc(title)}"><span class="set-label"><b>${esc(title)}</b>${help ? `<small>${help}</small>` : ''}</span>${body}</div>`;
+const chosen = name => `<span class="set-count" data-count="${name}"></span>`;
+const scopeTools = () => `<span class="set-tools"><span class="set-count" data-scope-count></span><button type="button" class="set-link" data-pick-set="all">Select all</button><button type="button" class="set-link" data-pick-set="none">Clear</button></span>`;
+const filter = (what, label) => `<div class="set-filter">${icon('search', 14)}<input class="input" type="search" placeholder="Filter ${what}" aria-label="${esc(label)}" data-pick-filter autocomplete="off" spellcheck="false"></div>`;
 
 export async function render(root, ctx) {
-  root.innerHTML = `<div class="panel">${skeletonRows(10)}</div>`;
+  root.innerHTML = skeletonRows(10);
   let profile;
+  let saved;
   let searches = [];
   let discord = {configured: false, webhook_hint: ''};
   let ai = {configured: false, key_hint: '', model: '', reference: null};
@@ -22,6 +98,7 @@ export async function render(root, ctx) {
     ai = a;
     background = b;
     profile = structuredClone(p.profile);
+    saved = structuredClone(p.profile);
     searches = s.saved_searches;
   } catch (err) {
     root.innerHTML = errorState(err);
@@ -29,48 +106,60 @@ export async function render(root, ctx) {
     return null;
   }
   const meta = ctx.meta;
+  // Job families split into specialties: like Finance, each is a field with a card of options.
+  const specialtyKeys = new Set(specialtyFamilies(meta).map(f => f.key));
+  let tab = settingsTab(ctx.route.params.tab);
   let baseline = '';
+  let panelBaselines = new Map();
   const formValues = () => new URLSearchParams(new FormData(root.querySelector('[data-form]'))).toString();
+  // What a section's profile fields hold now, to mark sections with unsaved edits.
+  const panelValues = section => [...section.querySelectorAll('[name]')].map(el =>
+    (el.type === 'checkbox' || el.type === 'radio' ? `${el.name}:${el.value}:${el.checked}` : `${el.name}=${el.value}`)).join('&');
+  let weights = {};
+  let showAllSkills = false;
 
-  const checks = (name, items, selected) => items.map(([key, label]) => `<label class="check"><input type="checkbox" name="${name}" value="${esc(key)}"${selected.includes(key) ? ' checked' : ''}> ${esc(label)}</label>`).join('');
-
-  const discordHtml = () => `<h3>Discord</h3>
-        <p>Get Discord messages for new postings that match your profile, a morning summary of upcoming deadlines, interviews and follow-ups, and saved jobs that get taken down. Jobwatch has to be running to check for jobs. In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>
-        ${discord.configured ? `<p class="muted">Connected (webhook ${esc(discord.webhook_hint)}).</p>` : ''}
-        ${discord.configured ? `<div class="field-row"><label class="field"><span>Which new postings to send</span><select class="select" data-discord-mode>
-          <option value="matches_and_views"${discord.mode !== 'views_only' ? ' selected' : ''}>Good matches for my profile, plus my saved views</option>
-          <option value="views_only"${discord.mode === 'views_only' ? ' selected' : ''}>Only my saved views (my own filters)</option></select></label></div>
-        <p class="muted">To set filters: open <a class="link" href="#/opportunities">Opportunities</a>, choose filters (role, location, company, keywords…), press <b>Save view</b>, then switch <b>Alerts</b> on for that view under <a class="link" href="#s-views" data-jump>Saved views</a>. Reminders and taken-down alerts are sent either way.</p>` : ''}
-        <div class="field-row"><label class="field"><span>${discord.configured ? 'Replace webhook URL' : 'Webhook URL'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-discord-url placeholder="https://discord.com/api/webhooks/…"></label></div>
-        <div class="save-bar"><button type="button" class="btn primary" data-act="discord-save">Connect &amp; send test</button>${discord.configured ? '<button type="button" class="btn" data-act="discord-test">Send test message</button><button type="button" class="btn danger" data-act="discord-remove">Disconnect</button>' : ''}</div>`;
+  const webhookField = () => `<div class="inline-field"><label class="field"><span>${discord.configured ? 'New webhook URL' : 'Webhook URL'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-discord-url placeholder="https://discord.com/api/webhooks/…"></label><button type="button" class="btn" data-act="discord-save">Connect &amp; send test</button></div>
+        <p class="fine">In Discord: channel settings → Integrations → Webhooks → New Webhook → Copy Webhook URL.</p>`;
+  const discordHtml = () => group('Discord', 'New postings that match your profile, a morning summary of upcoming deadlines, interviews and follow-ups, and saved jobs that get taken down. Foothold has to be running to check for jobs.',
+    discord.configured
+      ? `<div class="set-row">${label('Connection', conn(true, `Connected · webhook ${esc(discord.webhook_hint)}`))}<span class="set-control"><button type="button" class="btn sm" data-act="discord-test">Send test</button><button type="button" class="btn sm ghost danger" data-act="discord-remove">Disconnect</button></span></div>
+        ${row('Which new postings to send', 'Reminders and taken-down alerts are sent either way.', `<select class="select" data-discord-mode>
+          <option value="matches_and_views"${discord.mode !== 'views_only' ? ' selected' : ''}>Good matches and saved views</option>
+          <option value="views_only"${discord.mode === 'views_only' ? ' selected' : ''}>Only my saved views</option></select>`)}
+        ${block(`<details class="disclose"><summary>Replace webhook URL</summary>${webhookField()}</details>`)}`
+      : `<div class="set-row">${label('Connection', conn(false, 'Not connected'))}</div>${block(webhookField())}`)
+    + (discord.configured ? '<p class="fine set-after">To alert on your own filters: on <a class="link" href="#/opportunities">Opportunities</a>, pick <b>Save this view</b> from the <b>View</b> menu, then switch its alerts on under <a class="link" href="#/settings?tab=views">Saved views</a>.</p>' : '');
   const redrawDiscord = () => { root.querySelector('#s-discord').innerHTML = discordHtml(); };
 
-  const aiHtml = () => `<h2>AI cover letters (Gemini)</h2>
-        <p>Write a cover letter for any posting from its job page, based on your resume and in the style of a past letter. It uses your own Google Gemini API key, which is free (no credit card):</p>
-        <ol style="margin:4px 0 10px;padding-left:20px;line-height:1.7"><li>Open <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a> and sign in with your Google account.</li><li>Click <b>Create API key</b> and copy it.</li><li>Paste it below and press <b>Connect</b>.</li></ol>
-        ${ai.configured ? `<p class="muted">Connected (key ${esc(ai.key_hint)}${ai.model ? `, using ${esc(ai.model)}` : ''}).</p>` : ''}
-        <div class="field-row"><label class="field"><span>${ai.configured ? 'Replace API key' : 'Gemini API key'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-ai-key placeholder="AIza…"></label></div>
-        <div class="save-bar"><button type="button" class="btn primary" data-act="ai-save">Connect</button>${ai.configured ? '<button type="button" class="btn danger" data-act="ai-remove">Disconnect</button>' : ''}</div>
-        <div class="field" style="margin-top:12px"><span>Past cover letter <span class="muted">(optional, used for tone and structure)</span></span>
-          ${ai.reference ? `<p class="muted" style="margin:4px 0">${esc(ai.reference.filename)} · added ${esc(String(ai.reference.updated_at).slice(0, 10))}</p>` : ''}
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn sm">${ai.reference ? 'Replace letter' : 'Upload letter'}<input type="file" accept=".pdf,.docx,.txt,.md" hidden data-ai-reference></label>${ai.reference ? '<button type="button" class="btn sm danger" data-act="ai-ref-remove">Remove</button>' : ''}</div></div>
-        <p class="muted" style="font-size:11.5px">To write each letter, the posting, your resume and your past letter are sent to Google. On the free tier Google may use them to improve its products. The key is stored only on this computer.</p>`;
+  const keyField = () => `<div class="inline-field"><label class="field"><span>${ai.configured ? 'New API key' : 'Gemini API key'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-ai-key placeholder="AIza…"></label><button type="button" class="btn" data-act="ai-save">Connect</button></div>`;
+  const aiHtml = () => group('Google Gemini', '', ai.configured
+    ? `<div class="set-row">${label('Connection', conn(true, `Connected · key ${esc(ai.key_hint)}${ai.model ? ` · ${esc(ai.model)}` : ''}`))}<span class="set-control"><button type="button" class="btn sm ghost danger" data-act="ai-remove">Disconnect</button></span></div>
+      ${block(`<details class="disclose"><summary>Replace API key</summary>${keyField()}</details>`)}`
+    : `<div class="set-row">${label('Connection', conn(false, 'Not connected'))}</div>
+      ${block(`<ol class="steps"><li>Open <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a> and sign in with your Google account.</li><li>Click <b>Create API key</b> and copy it.</li><li>Paste it below and press <b>Connect</b>.</li></ol>${keyField()}`)}`)
+    + group('Past cover letter', 'Optional. Used for tone and structure.',
+      `<div class="set-row">${ai.reference
+        ? label(esc(ai.reference.filename), `Added ${esc(String(ai.reference.updated_at).slice(0, 10))}`)
+        : label('No letter yet', 'PDF, DOCX, TXT or Markdown')}
+        <span class="set-control"><label class="btn sm">${icon(ai.reference ? 'refresh' : 'upload', 13)} ${ai.reference ? 'Replace' : 'Upload letter'}<input type="file" accept=".pdf,.docx,.txt,.md" hidden data-ai-reference></label>${ai.reference ? '<button type="button" class="btn sm ghost danger" data-act="ai-ref-remove">Remove</button>' : ''}</span></div>`)
+    + '<p class="fine set-after">To write each letter, the posting, your resume and your past letter are sent to Google. On the free tier Google may use them to improve its products. The key is stored only on this computer.</p>';
   const redrawAi = () => { root.querySelector('#s-ai').innerHTML = aiHtml(); };
 
   // The installed app is opened from the Start menu; a ZIP copy from its batch file.
-  const startHint = () => (background.installed ? '<b>Jobwatch</b> from the Start menu' : '<b>Start Jobwatch.bat</b>');
-  const backgroundHtml = () => `<h3>Running in the background</h3>
-        <p>Jobwatch runs in the background without a window and keeps checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
-        ${background.autostart_supported ? `<label class="check"><input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}> Start Jobwatch automatically when I sign in to Windows</label>` : ''}
-        ${background.log ? `<p class="muted" style="font-size:11.5px">Log file: <code>${esc(background.log)}</code></p>` : ''}
-        ${background.can_stop ? '<div class="save-bar"><button type="button" class="btn danger" data-act="shutdown">Stop Jobwatch</button></div>' : ''}`;
+  const startHint = () => (background.installed ? '<b>Foothold</b> from the Start menu' : '<b>Start Foothold.bat</b>');
+  const backgroundHtml = () => {
+    const rows = (background.autostart_supported ? row('Start at sign-in', 'Start Foothold automatically when you sign in to Windows', `<input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}>`) : '')
+      + (background.can_stop ? `<div class="set-row">${label('Stop Foothold', 'It stops checking for jobs and sending alerts until you open it again.')}<span class="set-control"><button type="button" class="btn sm danger" data-act="shutdown">Stop Foothold</button></span></div>` : '');
+    return `<div class="set-group"><div class="set-group-head"><h3>Running in the background</h3></div>
+      <p class="set-note">Foothold runs without a window, checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
+      ${rows ? `<div class="set-card">${rows}</div>` : ''}</div>
+      ${background.log ? `<p class="fine set-after">Log file: <code>${esc(background.log)}</code></p>` : ''}`;
+  };
 
-  const updatesHtml = () => `<h3>Updates</h3>
-        <p>You have Jobwatch <b>${esc(background.version || '')}</b>. ${background.updates
-          ? 'It looks for a new version every 6 hours and downloads it in the background, then a banner at the top offers to restart.'
-          : 'This copy runs from source: a banner links to new releases instead of installing them.'}</p>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn sm" data-act="update-check">Check for updates</button>
-          <span class="muted" data-update-msg role="status" aria-live="polite"></span></div>`;
+  const updatesHtml = () => group('Updates', '', `<div class="set-row">${label(`Foothold ${esc(background.version || '')}`, background.updates
+    ? 'Looks for a new version every 6 hours and downloads it in the background, then a banner at the top offers to restart.'
+    : 'This copy runs from source: a banner links to new releases instead of installing them.')}<span class="set-control"><button type="button" class="btn sm" data-act="update-check">Check for updates</button></span></div>`)
+    + '<p class="fine set-after" data-update-msg role="status" aria-live="polite"></p>';
 
   // Checks now, follows the download, then leaves "Restart to update" to the banner.
   async function checkUpdates(btn) {
@@ -81,7 +170,7 @@ export async function render(root, ctx) {
     try {
       let info = await post('/api/update/check', {});
       for (const until = Date.now() + 5 * 60 * 1000; ['checking', 'downloading'].includes(info.state) && Date.now() < until;) {
-        say(info.state === 'downloading' ? `Downloading Jobwatch ${info.latest}…` : 'Asking GitHub for the latest release…');
+        say(info.state === 'downloading' ? `Downloading Foothold ${info.latest}…` : 'Asking GitHub for the latest release…');
         await new Promise(resolve => setTimeout(resolve, 1500));
         if (!root.isConnected) return;
         info = await get('/api/update');
@@ -90,8 +179,8 @@ export async function render(root, ctx) {
         ctx.store.set('jw-update-dismissed', null);      // asked on purpose: show it even after "Later"
         ctx.checkForUpdate();
       }
-      say(info.state === 'ready' ? `Jobwatch ${info.latest} is downloaded. Use “Restart to update” at the top of the page.`
-        : info.available ? `Jobwatch ${info.latest} is available. Use the download link at the top of the page.`
+      say(info.state === 'ready' ? `Foothold ${info.latest} is downloaded. Use “Restart to update” at the top of the page.`
+        : info.available ? `Foothold ${info.latest} is available. Use the download link at the top of the page.`
         : info.state === 'failed' ? `Could not check for updates: ${info.error || 'unknown error'}`
         : ['checking', 'downloading'].includes(info.state) ? 'Still working on it. The banner appears when the update is ready.'
         : !info.latest ? 'Could not reach GitHub. Check your connection and try again.'
@@ -107,117 +196,349 @@ export async function render(root, ctx) {
   function draw() {
     const roles = profile.target_roles || [];
     const edu = profile.education || {};
+    const auth = profile.work_authorization || {};
+    weights = {...(profile.role_weights || {})};
+    const fields = profileFields(profile, meta.taxonomy.map(c => c.key));
+    showAllSkills = false;
+    const countries = countryList(meta, profile);
     const skillGroups = {};
     for (const s of meta.skills) (skillGroups[s.group] ||= []).push(s);
-    const cities = [...meta.cities].sort((a, b) => Number(b.target) - Number(a.target) || a.label.localeCompare(b.label));
-    root.innerHTML = `
-    <div class="page-head"><div><h1>Settings</h1><p class="sub">Your profile drives every fit score. It is stored in the local database only — never in config files or GitHub state.</p></div></div>
-    <div class="settings-grid">
-      <nav class="settings-nav" aria-label="Settings sections">
-        <a href="#s-resume" data-jump>Resume & matching</a><a href="#s-about" data-jump>About you</a><a href="#s-targets" data-jump>What you’re looking for</a>
-        <a href="#s-notify" data-jump>Notifications</a><a href="#s-ai" data-jump>Cover letters</a><a href="#s-app" data-jump>App</a>
-      </nav>
-      <div class="stack"><section class="panel settings-section" id="s-resume" data-resume-panel></section>
-      <form class="stack" id="profile-form" data-form novalidate>
-        <section class="panel settings-section" id="s-about"><h2>About you</h2><p>Used to explain matches and check eligibility. Nothing here is required.</p>
-          <div class="field-row"><label class="field"><span>Profile name</span><input class="input" name="name" value="${esc(profile.name || '')}"></label>
-          <label class="field"><span>Headline</span><input class="input" name="headline" value="${esc(profile.headline || '')}"></label></div>
-          <div class="field-row three">
-            <label class="field"><span>Graduation year</span><input class="input" type="number" min="2020" max="2040" name="graduation_year" value="${esc(profile.graduation_year ?? '')}"></label>
-            <label class="field"><span>Graduation month</span><select class="select" name="graduation_month">${options(Array.from({length: 12}, (_, i) => ({key: String(i + 1), label: new Date(2000, i, 1).toLocaleDateString(undefined, {month: 'long'})})), String(profile.graduation_month || 5))}</select></label>
-            <label class="field"><span>Education level</span><select class="select" name="edu_level">${options(['undergraduate', 'masters', 'mba', 'phd', 'other'].map(k => ({key: k, label: prettyKey(k)})), edu.level || 'undergraduate')}</select></label>
-          </div>
-          <div class="field-row three">
-            <label class="field"><span>School <span class="muted">(optional)</span></span><input class="input" name="edu_school" value="${esc(edu.school || '')}"></label>
-            <label class="field"><span>Program <span class="muted">(optional)</span></span><input class="input" name="edu_program" value="${esc(edu.program || '')}" placeholder="Commerce, Finance"></label>
-            <label class="field"><span>GPA <span class="muted">(optional, 4.0 scale)</span></span><input class="input" name="edu_gpa" inputmode="decimal" value="${esc(edu.gpa ?? '')}"></label>
-          </div>
-          <div class="settings-sub" id="s-elig"><h3>Eligibility</h3><p>Only compared against requirements a posting states explicitly; unknowns never penalize you.</p>
-            <div class="field-row three">${COUNTRIES.map(([k, label]) => `<label class="field"><span>Work authorization · ${label}</span><select class="select" name="auth_${k}">${options(WORK_AUTH.map(v => ({key: v, label: prettyKey(v)})), (profile.work_authorization || {})[k] || 'unknown')}</select></label>`).join('')}</div>
-            <label class="field"><span>Languages</span><input class="input" name="languages" value="${esc((profile.languages || []).join(', '))}" placeholder="English, French"></label>
-          </div>
-          <div class="settings-sub" id="s-skills"><h3>Skills</h3><p>Matched against skills extracted from descriptions (synonyms normalized, e.g. “DCF” → Valuation).</p>
-            <div class="tree">${Object.entries(skillGroups).map(([g, list]) => `<div class="tree-cat"><div style="font-weight:600;margin-bottom:4px">${esc(meta.skill_groups?.[g]?.label || meta.skill_groups?.[g] || prettyKey(g))}</div>${checks('skill', list.map(s => [s.key, s.label]), profile.skills || [])}</div>`).join('')}</div>
-          </div>
-        </section>
+    const month = `<select class="select" name="graduation_month" aria-label="Graduation month">${options(Array.from({length: 12}, (_, i) => ({key: String(i + 1), label: new Date(2000, i, 1).toLocaleDateString(undefined, {month: 'long'})})), String(profile.graduation_month || 5))}</select>`;
+    const year = `<input class="input year" type="number" min="2020" max="2040" name="graduation_year" aria-label="Graduation year" value="${esc(profile.graduation_year ?? '')}">`;
 
-        <section class="panel settings-section" id="s-targets"><h2>What you’re looking for</h2>
-          <div class="settings-sub" id="s-roles"><h3>Roles</h3><p>Check a whole category or specific groups. Role match is worth up to 25 fit points.</p>
-            <div class="tree">${meta.taxonomy.map(c => `<div class="tree-cat"><label class="check"><input type="checkbox" name="role" value="${esc(c.key)}"${roles.includes(c.key) ? ' checked' : ''}> ${esc(c.label)}</label>
-              <div class="tree-subs">${c.subcategories.map(s => `<label class="check"><input type="checkbox" name="role" value="${esc(`${c.key}.${s.key}`)}"${roles.includes(`${c.key}.${s.key}`) ? ' checked' : ''}> ${esc(s.label)}</label>`).join('')}</div></div>`).join('')}</div>
-          </div>
-          <div class="settings-sub" id="s-prefs"><h3>Stages, cycles & locations</h3>
-            <div class="field-row"><div class="field"><span>Stages</span>${checks('stage', STAGES, profile.target_stages || [])}</div>
-              <div class="field"><span>Recruiting cycles</span><input class="input" name="cycles" value="${esc((profile.target_cycles || []).join(', '))}" placeholder="summer_2027, new_grad_2027"><span class="muted" style="font-size:11.5px">Seen in data: ${esc((meta.cycles || []).slice(0, 6).map(c => c.key).join(', ') || '—')}</span>
-                <label class="check" style="margin-top:8px"><input type="checkbox" name="open_to_remote"${profile.open_to_remote ? ' checked' : ''}> Open to remote roles</label></div></div>
-            <div class="field"><span>Target cities</span><div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0 16px">${checks('city', cities.map(c => [c.key, c.label]), profile.target_locations || [])}</div></div>
-            <div class="field"><span>Target countries</span><div class="chips">${checks('country', COUNTRIES, profile.target_countries || [])}</div></div>
-          </div>
-          <div class="settings-sub" id="s-employers"><h3>Employer types</h3><p>Company fit is worth up to 15 points; watchlist companies get a boost too.</p>
-            <div class="tree" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 16px">${checks('ctype', meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t.label]), profile.target_company_types || [])}</div>
-          </div>
-        </section>
+    // Languages: the ones postings are checked against are chips; anything else is typed.
+    const known = meta.languages?.length ? meta.languages : FALLBACK_LANGUAGES;
+    const mine = (profile.languages || []).map(l => l.toLowerCase());
+    const otherLanguages = (profile.languages || []).filter(l => !known.some(k => k.toLowerCase() === l.toLowerCase()));
 
-        <div class="save-bar"><button type="button" class="btn" data-act="reset">Reset to config defaults</button><button type="submit" class="btn primary">Save profile & rescore</button></div>
-      </form>
+    const about = panel('about', 'About you', 'Used to explain matches and check eligibility. Nothing here is required, and it stays on this computer.',
+      group('Basics', '', row('Profile name', 'For your own reference', `<input class="input" name="name" value="${esc(profile.name || '')}">`)
+        + row('Headline', 'Shown on Today under the date', `<input class="input" name="headline" value="${esc(profile.headline || '')}" placeholder="2027 finance recruiting · Toronto">`))
+      + group('Education', 'If you are an undergraduate, postings that require a graduate degree rank lower. GPA only matters when a posting states a minimum.',
+        field('Degree you are studying for', '', choices('radio', 'edu_level', LEVELS, [edu.level || 'undergraduate']))
+        + row('School', '', `<input class="input" name="edu_school" value="${esc(edu.school || '')}" placeholder="University of Toronto">`)
+        + row('Program or major', '', `<input class="input" name="edu_program" value="${esc(edu.program || '')}" placeholder="Commerce, Computer Science">`)
+        + `<div class="set-row">${label('Graduation', 'When you finish this degree')}<span class="set-control pair">${month}${year}</span></div>`
+        + row('GPA', 'Optional', `<span class="input-unit"><input class="input num" name="edu_gpa" inputmode="decimal" value="${esc(edu.gpa ?? '')}" placeholder="3.7"><span>/ 4.0</span></span>`))
+      + group('Work authorization', 'For each country you target. Postings that state they won’t sponsor, or that need citizenship, are checked against this. Choose countries under <a class="link" href="#/settings?tab=places">Locations &amp; timing</a>.',
+        countries.map(([k, name]) => `<label class="set-row" data-auth-country="${esc(k)}">${label(esc(name), k === 'US' ? 'Some U.S. roles require citizenship' : '')}<span class="set-control"><select class="select" name="auth_${esc(k)}">${options(WORK_AUTH.map(([v, text]) => ({key: v, label: text})), auth[k] || 'unknown')}</select></span></label>`).join('')
+        + '<p class="set-empty" data-auth-empty hidden>Choose the countries you are targeting first.</p>')
+      + group('Languages', 'Postings that require a language you don’t list rank lower.',
+        block(picks('language', known.map(l => [l, l]), known.filter(l => mine.includes(l.toLowerCase()))))
+        + row('Other languages', 'Separate with commas', `<input class="input" name="languages_other" value="${esc(otherLanguages.join(', '))}" placeholder="Tagalog, Polish">`)));
 
-      <section class="panel settings-section" id="s-notify"><h2>Notifications</h2>
-        <div class="settings-sub" id="s-discord">${discordHtml()}</div>
-        <div class="settings-sub" id="s-alerts"><h3>Alert thresholds</h3><p>Fit scores that count as urgent, high or digest-worthy, for Discord alerts and the dashboard’s High fit counts.</p>
-          <div class="field-row three">
-            <label class="field"><span>Urgent (instant ping)</span><input class="input" type="number" min="0" max="100" form="profile-form" name="urgent_fit" value="${esc(profile.alerts?.urgent_fit ?? 90)}"></label>
-            <label class="field"><span>High (instant, no ping)</span><input class="input" type="number" min="0" max="100" form="profile-form" name="high_fit" value="${esc(profile.alerts?.high_fit ?? 75)}"></label>
-            <label class="field"><span>Digest</span><input class="input" type="number" min="0" max="100" form="profile-form" name="digest_fit" value="${esc(profile.alerts?.digest_fit ?? 55)}"></label>
-          </div>
-          <div><button type="submit" form="profile-form" class="btn sm">Save thresholds</button></div>
-        </div>
-        <div class="settings-sub" id="s-views"><h3>Saved views</h3>
-          ${searches.length ? `<table class="data"><thead><tr><th>Name</th><th>Filters</th><th class="num">Matches</th><th>Alerts</th><th></th></tr></thead><tbody>${searches.map(s => `<tr data-sid="${s.id}" style="cursor:default"><td><a class="link" href="#/opportunities?${esc(new URLSearchParams({...s.query, saved: s.id}).toString())}">${esc(s.name)}</a></td><td class="muted" style="font-size:12px">${esc(Object.entries(s.query).map(([k, v]) => `${k}=${v}`).join(' · '))}</td><td class="num">${s.total}${s.new_since_visit ? ` <span class="badge new">${s.new_since_visit} new</span>` : ''}</td><td><input type="checkbox" class="switch" data-notify${s.notify ? ' checked' : ''} aria-label="Notify for ${esc(s.name)}"></td><td class="actions"><button type="button" class="btn xs icon danger" data-del-search title="Delete">${icon('trash', 12)}</button></td></tr>`).join('')}</tbody></table>`
-            : '<p class="muted" style="margin:0">None yet — use “Save view” on Opportunities.</p>'}
-        </div>
-      </section>
+    const skills = panel('skills', 'Skills', 'Matched against skills found in job descriptions, and synonyms count, so “DCF” matches Valuation. Pick what you could talk about in an interview.',
+      `<div class="set-toolbar">${filter('skills', 'Filter skills')}${chosen('skill')}</div>`
+      + Object.entries(skillGroups).map(([g, list]) => group(esc(meta.skill_groups?.[g]?.label || meta.skill_groups?.[g] || prettyKey(g)), '',
+        block(picks('skill', list.map(s => [s.key, s.label]), profile.skills || [])), {tools: scopeTools(), scope: true, attrs: ` data-skill-group="${esc(g)}"`})).join('')
+      + '<p class="set-more" data-skill-more hidden><button type="button" class="set-link" data-act="all-skills">Show skill groups for other fields</button></p>'
+      + '<p class="set-empty" data-filter-empty hidden>No skills match that filter.</p>');
 
-      <section class="panel settings-section" id="s-ai">${aiHtml()}</section>
+    // Employer types in four plain-language sections; anything new lands in "Other".
+    const types = new Map(meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t]));
+    const sections = EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => types.has(k))]);
+    const techSections = TECH_EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => types.has(k))]).filter(([, keys]) => keys.length);
+    const placed = new Set([...sections, ...techSections].flatMap(([, keys]) => keys));
+    const rest = [...types.keys()].filter(k => !placed.has(k));
+    if (rest.length) sections.push(['Other', rest]);
+    const employerBlocks = list => list.map(([name, keys]) => `<div class="set-block" data-pick-scope><p class="set-mini" data-scope-label>${esc(name)}</p>${picks('ctype', keys.map(k => [k, types.get(k).label]), profile.target_company_types || [])}</div>`).join('');
+    const fieldChip = (name, key, text, on) => `<label class="pick field-pick"><input type="checkbox" name="${name}" value="${esc(key)}"${on ? ' checked' : ''}>${icon(FIELD_INFO[key]?.icon || 'list', 14)}<span>${esc(text)}</span></label>`;
+    // Finance and families with specialties are fields with options below; any other family is itself a target role.
+    const hasOptions = key => key === 'finance' || specialtyKeys.has(key);
+    const rolesPanel = panel('roles', 'Roles & employers', 'Role match is worth up to 25 fit points and company fit up to 15.',
+      group('Fields', 'Every field you are recruiting in. Each one adds its options below and in the Opportunities filters.',
+        block(`<div class="picks">${fieldList(meta).map(([k, text]) => (hasOptions(k) ? fieldChip('field', k, text, fields.includes(k)) : fieldChip('role', k, text, roles.includes(k)))).join('')}</div>`),
+        {tools: '<span class="set-tools"><button type="button" class="set-link" data-act="setup">Run setup again</button></span>'})
+      + group('Your targets', 'Everything you picked. Lower the priority of roles you would take but rank below your top choices.', '<div data-targets></div>')
+      + `<div class="set-toolbar">${filter('roles and employers', 'Filter roles and employers')}${chosen('role')}</div>`
+      + group('Finance', 'Turn on a whole category, or pick specific groups within it.', meta.taxonomy.map(c => `<div class="set-cat" data-pick-scope>
+          <label class="set-row">${label(`<span data-scope-label>${esc(c.label)}</span>`, 'Every group in this category')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(c.key)}" data-role-all${roles.includes(c.key) ? ' checked' : ''}></span></label>
+          ${block(picks('role', c.subcategories.map(s => [`${c.key}.${s.key}`, s.label]), roles))}</div>`).join(''), {attrs: ' data-field-section="finance"'})
+      + specialtyFamilies(meta).map(f => group(esc(f.label), 'Pick the specialties you want ranked first. Other roles in the field still show, lower down.', `<div class="set-cat" data-pick-scope>
+          <label class="set-row">${label(`<span data-scope-label>All of ${esc(f.label)}</span>`, 'Every specialty, ranked the same')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(f.key)}" data-role-all${roles.includes(f.key) ? ' checked' : ''}></span></label>
+          ${block(picks('role', f.subcategories.map(s => [`${f.key}.${s.key}`, s.label]), roles))}</div>`, {attrs: ` data-field-section="${esc(f.key)}"`})).join('')
+      + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections), {attrs: ' data-field-section="finance"'})
+      + (techSections.length ? group('Tech employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(techSections), {attrs: ' data-field-section="tech"'}) : '')
+      + '<p class="set-empty" data-filter-empty hidden>Nothing matches that filter.</p>');
 
-      <section class="panel settings-section" id="s-app"><h2>App</h2>
-        <div class="settings-sub" id="s-background">${backgroundHtml()}</div>
-        <div class="settings-sub" id="s-updates">${updatesHtml()}</div>
-        <div class="settings-sub" id="s-appearance"><h3>Appearance</h3>
-          <div class="field-row">
-            <label class="field"><span>Theme</span><select class="select" data-pref="theme">${options([{key: '', label: 'Match system'}, {key: 'light', label: 'Light'}, {key: 'dark', label: 'Dark'}], ctx.store.get('jw-theme', ''))}</select></label>
-            <label class="field"><span>Table density</span><select class="select" data-pref="density">${options([{key: 'comfortable', label: 'Comfortable'}, {key: 'compact', label: 'Compact'}], ctx.store.get('jw-density', 'comfortable'))}</select></label>
-          </div>
-        </div>
-        <div class="settings-sub" id="s-privacy"><h3>Privacy</h3>
-          <ul class="reasons">
+    // Cycles: every season for this year and the next three, a dot where postings exist now.
+    const thisYear = new Date().getFullYear();
+    const years = [thisYear, thisYear + 1, thisYear + 2, thisYear + 3];
+    const cycles = profile.target_cycles || [];
+    const live = new Set((meta.cycles || []).map(c => c.key));
+    const grid = new Set(['off_cycle', ...years.flatMap(y => SEASONS.map(([s]) => `${s}_${y}`))]);
+    const extra = cycles.filter(k => !grid.has(k));
+    const cycleRows = years.map(y => `<div class="cycle-row" role="group" aria-label="${y}"><span class="cycle-year">${y}</span>${picks('cycle', SEASONS.map(([s, text]) => [`${s}_${y}`, text]), cycles, live)}</div>`).join('')
+      + `<div class="cycle-row" role="group" aria-label="Other cycles"><span class="cycle-year">Other</span>${picks('cycle', [['off_cycle', 'Off-cycle, any year'], ...extra.map(k => [k, cycleLabel(k)])], cycles, live)}</div>`;
+
+    // Cities by region: Canada, the United States, then everywhere else.
+    const countryName = new Map(countries);
+    const regions = [['CA', countryName.get('CA') || 'Canada'], ['US', countryName.get('US') || 'United States'], ['*', 'Elsewhere']];
+    const cityBlocks = regions.map(([code, name]) => {
+      const list = meta.cities.filter(c => (code === '*' ? !['CA', 'US'].includes(c.country) : c.country === code))
+        .sort((a, b) => Number(b.target) - Number(a.target) || a.label.localeCompare(b.label));
+      if (!list.length) return '';
+      return `<div class="set-block" data-pick-scope><div class="set-mini-head"><p class="set-mini" data-scope-label>${esc(name)}</p>${scopeTools()}</div>
+        ${picks('city', list.map(c => [c.key, c.label, code === '*' ? countryName.get(c.country) || c.country : '']), profile.target_locations || [])}</div>`;
+    }).join('');
+
+    const places = panel('places', 'Locations & timing', 'Which kinds of roles and recruiting cycles you are in, and where you want to work.',
+      group('Stages', 'Pick every stage you would apply to.', block(choices('checkbox', 'stage', STAGES, profile.target_stages || [])))
+      + group('Recruiting cycles', 'Postings in these cycles get the cycle points, worth up to 10. A dot marks cycles with open postings right now.',
+        block(`<div class="cycles">${cycleRows}</div>`))
+      + group('Countries', 'Other cities in these countries still score well. Postings outside them rank lower.', block(picks('country', countries, profile.target_countries || [])))
+      + group('Cities', 'Postings in these cities get the full location score.',
+        block(filter('cities', 'Filter cities')) + cityBlocks + '<p class="set-empty" data-filter-empty hidden>No cities match that filter.</p>', {tools: chosen('city')})
+      + group('Remote', '', row('Open to remote roles', 'Remote postings in your target countries count as a near match', `<input type="checkbox" class="switch" name="open_to_remote"${profile.open_to_remote ? ' checked' : ''}>`)));
+
+    const alerts = panel('alerts', 'Notifications', 'Where alerts go and how good a match must be to send one.',
+      `<div id="s-discord">${discordHtml()}</div>`
+      + group('Alert thresholds', 'Fit scores that count as urgent, high or digest-worthy. They drive Discord alerts and the High fit counts, and are saved with your profile.',
+        row('Urgent', 'Instant, with a ping', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="urgent_fit" value="${esc(profile.alerts?.urgent_fit ?? 90)}">`)
+        + row('High', 'Instant, no ping', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="high_fit" value="${esc(profile.alerts?.high_fit ?? 75)}">`)
+        + row('Digest', 'Collected into the daily summary', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="digest_fit" value="${esc(profile.alerts?.digest_fit ?? 55)}">`)));
+
+    const views = panel('views', 'Saved views', 'Filters you saved on Opportunities. Switch alerts on to hear about new matches on Discord.',
+      searches.length ? `<div class="set-card flush"><div class="table-wrap"><table class="data tidy views-table"><thead><tr><th>Name</th><th>Filters</th><th class="num">Matches</th><th>Alerts</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody>${searches.map(s => `<tr data-sid="${s.id}" class="static"><td class="nowrap"><a class="link" href="#/opportunities?${esc(new URLSearchParams({...s.query, saved: s.id}).toString())}">${esc(s.name)}</a></td><td class="muted c-filters">${esc(Object.entries(s.query).map(([k, v]) => `${k}=${v}`).join(' · '))}</td><td class="num">${s.total}${s.new_since_visit ? ` <span class="badge new">${s.new_since_visit} new</span>` : ''}</td><td><input type="checkbox" class="switch" data-notify${s.notify ? ' checked' : ''} aria-label="Alerts for ${esc(s.name)}"></td><td class="actions row-actions"><button type="button" class="btn ghost xs icon danger" data-del-search title="Delete saved view" aria-label="Delete ${esc(s.name)}">${icon('trash', 13)}</button></td></tr>`).join('')}</tbody></table></div></div>`
+        : '<div class="set-card"><p class="set-empty">None yet. On <a class="link" href="#/opportunities">Opportunities</a>, choose <b>Save this view</b> from the <b>View</b> menu.</p></div>');
+
+    const letters = panel('letters', 'Cover letters', 'Write a cover letter for any posting from its job page, based on your resume and in the style of a past letter. It uses your own Google Gemini API key, which is free (no credit card).',
+      `<div id="s-ai">${aiHtml()}</div>`);
+
+    const appearance = panel('appearance', 'Appearance', 'Saved in this browser and applied right away.',
+      group('', '', `<div class="set-row">${label('Theme', 'Match your system, or keep it light or dark')}<span class="set-control" data-pref-theme></span></div>
+        <div class="set-row">${label('Table density', 'Row height in lists and tables')}<span class="set-control" data-pref-density></span></div>`));
+
+    const system = panel('system', 'System', 'How Foothold runs on this computer.',
+      `<div id="s-background">${backgroundHtml()}</div>${updatesHtml()}`
+      + group('Privacy', '', block(`<ul class="reasons">
             <li>Applications, notes, contacts, events and this profile live only in <code>jobwatch.db</code> on this machine (git-ignored).</li>
-            <li>The dashboard binds to 127.0.0.1 and rejects cross-origin and DNS-rebinding requests. Binding to a public interface prints a warning — there is no login.</li>
+            <li>The dashboard binds to 127.0.0.1 and rejects cross-origin and DNS-rebinding requests. Binding to a public interface prints a warning; there is no login.</li>
             <li>The GitHub Actions <code>state.json</code> contains only seen job IDs, never notes, contacts or profile data.</li>
-            <li>Jobwatch never scrapes LinkedIn profiles; contacts are entered by you.</li>
-          </ul>
+            <li>Foothold never scrapes LinkedIn profiles; contacts are entered by you.</li>
+          </ul>`)));
+
+    root.innerHTML = `
+    <div class="page-head settings-head">
+      <div><h1>Settings</h1><p class="sub">Your profile drives every fit score. It stays in the local database on this computer.</p></div>
+      <div class="page-actions menu-wrap" data-settings-menu>
+        <button type="button" class="btn icon" data-act="settings-menu" aria-haspopup="true" aria-expanded="false" aria-controls="settings-menu" aria-label="More settings actions" title="More">${icon('more', 16)}</button>
+        <div class="menu" id="settings-menu" role="group" aria-label="More settings actions" hidden>
+          <button type="button" class="menu-item" data-act="setup">${icon('spark')} Run setup again…</button>
+          <button type="button" class="menu-item" data-act="reset">${icon('refresh')} Reset profile to config defaults…</button>
         </div>
-      </section></div>
+      </div>
+    </div>
+    <div class="set-layout">
+      <nav class="set-tabs" aria-label="Settings sections">${TABS.map(([name, items]) => `<div class="set-tabs-group" role="group" aria-label="${esc(name)}"><p class="set-tabs-label" aria-hidden="true">${esc(name)}</p>
+        ${items.map(([id, text, glyph]) => `<a class="set-tab" id="tablink-${id}" href="#/settings?tab=${id}" data-tab="${id}" aria-controls="tab-${id}">${icon(glyph, 15)}<span>${esc(text)}</span><i class="set-tab-dot" title="Unsaved changes"><span class="sr-only">, unsaved changes</span></i></a>`).join('')}</div>`).join('')}</nav>
+      <div class="set-main">
+        <section class="set-panel" id="tab-resume" data-panel="resume" aria-labelledby="tablink-resume" hidden><div id="s-resume" data-resume-panel></div></section>
+        <form id="profile-form" data-form novalidate>${about}${skills}${rolesPanel}${places}</form>
+        ${alerts}${views}${letters}${appearance}${system}
+      </div>
+    </div>
+    <div class="savebar" data-savebar role="region" aria-label="Unsaved profile changes">
+      <span class="savebar-text"><i aria-hidden="true"></i><span>Unsaved <span class="wide-only">profile </span>changes</span></span>
+      <button type="button" class="btn ghost sm" data-act="discard">Discard</button>
+      <button type="submit" form="profile-form" class="btn primary sm">Save &amp; rescore</button>
     </div>`;
-    baseline = formValues();
+    syncPrefs();
+    syncFields();
+    renderTargets();
+    syncAuthRows();
+    showTab(tab, {scroll: false});
+    markBaseline();
+    updateCounts();
     mountResume(root.querySelector('[data-resume-panel]'), {meta, canApply: () => formValues() === baseline, onApply(next) {
-      profile = next; ctx.profile = next; draw();
+      profile = next; saved = structuredClone(next); ctx.profile = next; draw();
     }});
   }
+
+  function showTab(id, {scroll = true} = {}) {
+    tab = settingsTab(id);
+    root.querySelectorAll('[data-panel]').forEach(section => { section.hidden = section.dataset.panel !== tab; });
+    root.querySelectorAll('[data-tab]').forEach(link => {
+      if (link.dataset.tab === tab) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+    });
+    // On narrow screens the sections are a sideways strip: keep the current one in view.
+    const strip = root.querySelector('.set-tabs');
+    const current = root.querySelector(`[data-tab="${tab}"]`);
+    if (strip && current && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = current.offsetLeft - 16;
+    // A new section starts at its top, not wherever the last one was scrolled to.
+    const layout = root.querySelector('.set-layout');
+    if (scroll && layout && layout.getBoundingClientRect().top < 0) window.scrollTo({top: 0});
+  }
+
+  // Theme and density are per-browser preferences: they apply at once, no save needed.
+  function syncPrefs() {
+    const theme = root.querySelector('[data-pref-theme]');
+    const density = root.querySelector('[data-pref-density]');
+    if (theme) theme.innerHTML = seg('theme', 'Theme', [['', 'System'], ['light', 'Light'], ['dark', 'Dark']], ctx.store.get('jw-theme', '') || '');
+    if (density) density.innerHTML = seg('density', 'Table density', [['comfortable', 'Comfortable'], ['compact', 'Compact']], ctx.store.get('jw-density', 'comfortable'));
+  }
+
+  function markBaseline() {
+    baseline = formValues();
+    panelBaselines = new Map([...root.querySelectorAll('[data-panel]')].map(section => [section.dataset.panel, panelValues(section)]));
+    updateDirty();
+  }
+
+  function updateDirty() {
+    const bar = root.querySelector('[data-savebar]');
+    if (!bar) return;
+    const dirty = baseline === null || formValues() !== baseline;
+    bar.classList.toggle('show', dirty);
+    bar.inert = !dirty;
+    root.querySelectorAll('[data-panel]').forEach(section => {
+      const changed = baseline === null ? section.querySelector('[name]') !== null : panelValues(section) !== panelBaselines.get(section.dataset.panel);
+      root.querySelector(`[data-tab="${section.dataset.panel}"]`)?.classList.toggle('dirty', changed);
+    });
+  }
+
+  function updateCounts() {
+    root.querySelectorAll('[data-count]').forEach(out => {
+      const n = root.querySelectorAll(`[name="${out.dataset.count}"]:checked`).length;
+      out.textContent = n ? `${n} selected` : 'None selected';
+    });
+    root.querySelectorAll('[data-scope-count]').forEach(out => {
+      const boxes = [...out.closest('[data-pick-scope]').querySelectorAll('.pick input')];
+      out.textContent = `${boxes.filter(box => box.checked).length} of ${boxes.length}`;
+    });
+  }
+
+  const roleLabel = key => {
+    const [cat, sub] = key.split('.');
+    const category = meta.taxonomy.find(c => c.key === cat);
+    if (category) return sub ? [category.subcategories.find(s => s.key === sub)?.label || sub, category.label] : [category.label, 'Whole category'];
+    const family = meta.families?.find(f => f.key === cat);
+    if (sub) return [family?.subcategories?.find(s => s.key === sub)?.label || prettyKey(sub), family?.label || prettyKey(cat)];
+    return [family?.label || prettyKey(key), specialtyKeys.has(key) ? 'Every specialty' : 'Field outside finance'];
+  };
+
+  const financeKeys = () => meta.taxonomy.map(c => c.key);
+  const fieldOf = key => roleField(key, financeKeys());
+  // Fields chosen right now: the field chips (Finance, Software…), plus every other job family picked as a role.
+  const currentFields = () => [...new Set([...[...root.querySelectorAll('[name="field"]:checked')].map(input => input.value),
+    ...[...root.querySelectorAll('[name="role"]:checked')].map(input => fieldOf(input.value)).filter(f => f !== 'finance' && !specialtyKeys.has(f))])];
+  // Roles count only while their field is on, so turning a field off drops what was picked under it.
+  const pickedRoles = (fields = currentFields()) => [...new Set([...root.querySelectorAll('[name="role"]:checked')].map(input => input.value))]
+    .filter(key => fields.includes(fieldOf(key)));
+
+  // Each field's sections follow it (tech employers follow any tech field); skill groups follow every field.
+  function syncFields() {
+    const fields = currentFields();
+    root.querySelectorAll('[data-field-section]').forEach(el => {
+      const section = el.dataset.fieldSection;
+      el.hidden = section === 'tech' ? !wantsTechEmployers(fields) : !fields.includes(section);
+    });
+    const groups = skillGroupsFor(fields);
+    let tucked = 0;
+    root.querySelectorAll('[data-skill-group]').forEach(el => {
+      const off = Boolean(groups) && !groups.has(el.dataset.skillGroup) && !el.querySelector('input:checked');
+      el.classList.toggle('off-field', off && !showAllSkills);
+      if (off) tucked++;
+    });
+    const more = root.querySelector('[data-skill-more]');
+    if (more) {
+      more.hidden = !tucked;
+      more.querySelector('button').textContent = showAllSkills ? 'Show only skills for your fields' : `Show skill groups for other fields (${tucked})`;
+    }
+  }
+
+  // "Your targets": every role picked below, each with a priority (role_weights).
+  function renderTargets() {
+    const box = root.querySelector('[data-targets]');
+    if (!box) return;
+    const picked = pickedRoles();
+    box.innerHTML = picked.length ? picked.map(key => {
+      const [name, where] = roleLabel(key);
+      const value = String(weights[key] ?? 1);
+      const items = PRIORITIES.some(([v]) => v === value) ? PRIORITIES : [...PRIORITIES, [value, `Custom ×${value}`]];
+      return `<label class="set-row">${label(esc(name), esc(where))}<span class="set-control"><select class="select" name="rw:${esc(key)}" data-role-weight="${esc(key)}" aria-label="Priority for ${esc(name)}">${options(items.map(([v, text]) => ({key: v, label: text})), value)}</select></span></label>`;
+    }).join('') : '<p class="set-empty">No target roles yet. Pick categories or fields below.</p>';
+  }
+
+  // Work authorization rows follow the countries chosen under Locations & timing.
+  function syncAuthRows() {
+    const targets = new Set([...root.querySelectorAll('[name="country"]:checked')].map(input => input.value));
+    let shown = 0;
+    root.querySelectorAll('[data-auth-country]').forEach(line => {
+      const show = targets.has(line.dataset.authCountry) || line.querySelector('select').value !== 'unknown';
+      line.hidden = !show;
+      if (show) shown++;
+    });
+    const empty = root.querySelector('[data-auth-empty]');
+    if (empty) empty.hidden = shown > 0;
+  }
+
+  // Filtering hides the chips that don't match, and any group left with none.
+  function filterPicks(input) {
+    const section = input.closest('[data-panel]');
+    const q = input.value.trim().toLowerCase();
+    section.classList.toggle('searching', Boolean(q));      // a search looks through every field's groups
+    let any = false;
+    section.querySelectorAll('[data-pick-scope]').forEach(scope => {
+      // Typing a group's own name (a category, a region) keeps the whole group in view.
+      const named = Boolean(q && scope.querySelector('[data-scope-label]')?.textContent.toLowerCase().includes(q));
+      let shown = 0;
+      scope.querySelectorAll('.pick').forEach(pick => {
+        const hit = !q || named || pick.textContent.toLowerCase().includes(q);
+        pick.hidden = !hit;
+        if (hit) shown++;
+      });
+      scope.hidden = !(shown || named);
+      if (shown || named) any = true;
+    });
+    const empty = section.querySelector('[data-filter-empty]');
+    if (empty) empty.hidden = any;
+  }
+
+  function toggleMenu(force) {
+    const menu = root.querySelector('#settings-menu');
+    if (!menu) return;
+    const show = force ?? menu.hidden;
+    if (show === !menu.hidden) return;
+    menu.hidden = !show;
+    root.querySelector('[data-act=settings-menu]').setAttribute('aria-expanded', String(show));
+    if (show) menu.querySelector('button')?.focus({preventScroll: true});
+  }
+  const onDocClick = e => { if (!e.target.closest('[data-settings-menu]')) toggleMenu(false); };
+  document.addEventListener('click', onDocClick);
 
   function collect(form) {
     const fd = new FormData(form);
     const all = name => fd.getAll(name);
     const list = v => String(v || '').split(',').map(x => x.trim()).filter(Boolean);
     const num = (v, d) => (v === '' || v === null ? d : Number(v));
+    // Turning a field off drops the roles that were picked under it.
+    const fields = currentFields();
+    const roles = pickedRoles(fields);
+    // So do the employer types shown only for it (bank tiers once Finance is off). Types in a
+    // section that was already hidden when the profile was saved stay: nobody turned them off here.
+    const savedFields = profileFields(saved, financeKeys());
+    const wasShown = section => (section === 'tech' ? wantsTechEmployers(savedFields) : savedFields.includes(section));
+    const ctypes = [...root.querySelectorAll('[name="ctype"]:checked')].filter(box => {
+      const section = box.closest('[data-field-section]');
+      return !section?.hidden || !wasShown(section.dataset.fieldSection);
+    }).map(box => box.value);
+    const countries = all('country');
+    // Saved profiles merge work authorization by country, so a cleared country is sent as "unknown".
+    const before = saved.work_authorization || {};
+    const auth = [...root.querySelectorAll('[data-auth-country]')].map(line => line.dataset.authCountry)
+      .map(k => [k, fd.get(`auth_${k}`)]).filter(([k, v]) => v && (v !== 'unknown' || countries.includes(k) || k in before));
+    const languages = [...all('language'), ...list(fd.get('languages_other'))]
+      .filter((lang, i, arr) => arr.findIndex(other => other.toLowerCase() === lang.toLowerCase()) === i);
     return {
       name: fd.get('name'), headline: fd.get('headline'),
       graduation_year: num(fd.get('graduation_year'), null), graduation_month: num(fd.get('graduation_month'), 5),
-      education: {level: fd.get('edu_level'), school: fd.get('edu_school'), program: fd.get('edu_program'), gpa: fd.get('edu_gpa') || null},
-      target_roles: all('role'), target_stages: all('stage'), target_cycles: list(fd.get('cycles')),
-      target_locations: all('city'), target_countries: all('country'), open_to_remote: fd.get('open_to_remote') === 'on',
-      target_company_types: all('ctype'),
-      work_authorization: Object.fromEntries(COUNTRIES.map(([k]) => [k, fd.get(`auth_${k}`)])),
-      languages: list(fd.get('languages')), skills: all('skill'),
+      education: {level: fd.get('edu_level') || 'undergraduate', school: fd.get('edu_school'), program: fd.get('edu_program'), gpa: fd.get('edu_gpa') || null},
+      fields, target_roles: roles, target_stages: all('stage'), target_cycles: all('cycle'),
+      role_weights: Object.fromEntries(roles.map(key => [key, Number(fd.get(`rw:${key}`) ?? 1)]).filter(([, w]) => w !== 1)),
+      target_locations: all('city'), target_countries: countries, open_to_remote: fd.get('open_to_remote') === 'on',
+      target_company_types: [...new Set(ctypes)],      // quant firms and FinTech can be listed twice
+      work_authorization: Object.fromEntries(auth),
+      languages, skills: all('skill'),
       alerts: {urgent_fit: num(fd.get('urgent_fit'), 90), high_fit: num(fd.get('high_fit'), 75), digest_fit: num(fd.get('digest_fit'), 55)},
     };
   }
@@ -226,23 +547,95 @@ export async function render(root, ctx) {
   root.addEventListener('submit', async e => {
     e.preventDefault();
     try {
-      const result = await put('/api/profile', {profile: collect(e.target)});
+      // The saved profile underneath: a key this form doesn't show yet is kept, not reset to its default.
+      const result = await put('/api/profile', {profile: {...saved, ...collect(e.target)}});
       profile = result.profile;
+      saved = structuredClone(result.profile);
       ctx.profile = result.profile;
-      baseline = formValues();
-      toast('Profile saved — fit scores are being recalculated');
+      markBaseline();
+      toast('Profile saved. Fit scores are being recalculated.');
     } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
   });
+  // Checkboxes that move together: turning on Software targets all of it until a
+  // specialty is picked, picking one narrows the field to it, and an employer type
+  // listed under both Finance and Tech stays in step.
+  function linkPicks({name, value, checked}) {
+    const role = key => root.querySelector(`[name="role"][value="${CSS.escape(key)}"]`);
+    if (name === 'field' && checked && specialtyKeys.has(value) && !pickedRoles([value]).length && role(value)) role(value).checked = true;
+    if (name === 'role' && checked && value.includes('.') && specialtyKeys.has(fieldOf(value)) && role(fieldOf(value))) role(fieldOf(value)).checked = false;
+    if (name === 'ctype') root.querySelectorAll(`[name="ctype"][value="${CSS.escape(value)}"]`).forEach(box => { box.checked = checked; });
+  }
+  const trackDirty = e => {
+    if (e.target.form?.id !== 'profile-form') return;
+    if (e.target.matches('[data-role-weight]')) weights[e.target.dataset.roleWeight] = Number(e.target.value);
+    if (e.target.type === 'checkbox') linkPicks(e.target);
+    if (e.target.name === 'role' || e.target.name === 'field') { syncFields(); renderTargets(); }
+    if (e.target.name === 'country') syncAuthRows();
+    updateDirty();
+    if (e.target.type === 'checkbox') updateCounts();
+  };
+  root.addEventListener('input', e => {
+    if (e.target.matches('[data-pick-filter]')) { filterPicks(e.target); return; }
+    trackDirty(e);
+  });
+  root.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !root.querySelector('#settings-menu')?.hidden) {
+      e.stopPropagation();
+      toggleMenu(false);
+      root.querySelector('[data-act=settings-menu]')?.focus();
+      return;
+    }
+    // A filter box sits inside the profile form: Enter must not save the profile.
+    if (e.key === 'Enter' && e.target.matches('[data-pick-filter]')) { e.preventDefault(); return; }
+    // Up and down move between sections in the sidebar, like a settings window.
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && e.target.matches('[data-tab]')) {
+      e.preventDefault();
+      const links = [...root.querySelectorAll('[data-tab]')];
+      links[(links.indexOf(e.target) + (e.key === 'ArrowDown' ? 1 : -1) + links.length) % links.length].focus();
+    }
+  });
   root.addEventListener('click', async e => {
-    const jump = e.target.closest('[data-jump]');
-    if (jump) { e.preventDefault(); root.querySelector(jump.getAttribute('href'))?.scrollIntoView({behavior: 'smooth', block: 'start'}); return; }
+    if (e.target.closest('[data-act=settings-menu]')) { toggleMenu(); return; }
+    if (e.target.closest('[data-act=setup]')) {
+      toggleMenu(false);
+      if (baseline !== null && formValues() !== baseline
+        && !await confirmDialog('You have unsaved changes here. Leave them and run setup?', {confirmLabel: 'Run setup', title: 'Unsaved changes'})) return;
+      ctx.navigate(['welcome']);
+      return;
+    }
+    if (e.target.closest('[data-act=all-skills]')) { showAllSkills = !showAllSkills; syncFields(); return; }
+    const pickSet = e.target.closest('[data-pick-set]');
+    if (pickSet) {
+      const on = pickSet.dataset.pickSet === 'all';
+      pickSet.closest('[data-pick-scope]').querySelectorAll('.pick:not([hidden]) input').forEach(input => { input.checked = on; });
+      if (pickSet.closest('[data-panel="roles"]')) renderTargets();
+      updateDirty();
+      updateCounts();
+      return;
+    }
+    const prefBtn = e.target.closest('[data-pref]');
+    if (prefBtn) {
+      const value = prefBtn.dataset.value;
+      if (prefBtn.dataset.pref === 'theme') { ctx.store.set('jw-theme', value || null); ctx.applyTheme(); }
+      if (prefBtn.dataset.pref === 'density') { ctx.store.set('jw-density', value); document.documentElement.dataset.density = value; }
+      syncPrefs();
+      return;
+    }
+    if (e.target.closest('[data-act=discard]')) {
+      profile = structuredClone(saved);
+      draw();
+      toast('Changes discarded');
+      return;
+    }
     if (e.target.closest('[data-act=reset]')) {
+      toggleMenu(false);
       if (!await confirmDialog('Replace your saved profile with the defaults from config.json?', {confirmLabel: 'Reset', title: 'Reset profile'})) return;
       const {defaults} = await get('/api/profile');
       profile = structuredClone(defaults);
       draw();
       baseline = null;
-      toast('Defaults loaded — press Save to apply');
+      updateDirty();
+      toast('Defaults loaded. Save to apply them.');
       return;
     }
     if (e.target.closest('[data-act=discord-save]')) {
@@ -250,7 +643,7 @@ export async function render(root, ctx) {
       try {
         discord = await put('/api/discord', {webhook: input.value});
         redrawDiscord();
-        toast('Discord connected — check your channel for the test message');
+        toast('Discord connected. Check your channel for the test message.');
       } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
       return;
     }
@@ -258,7 +651,7 @@ export async function render(root, ctx) {
       const btn = e.target.closest('[data-act=discord-test]');
       if (btn.disabled) return;
       btn.disabled = true;      // one test message per click
-      try { await post('/api/discord/test', {}); toast('Test message sent — check your Discord channel'); } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+      try { await post('/api/discord/test', {}); toast('Test message sent. Check your Discord channel.'); } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
       finally { btn.disabled = false; }
       return;
     }
@@ -285,11 +678,11 @@ export async function render(root, ctx) {
       return;
     }
     if (e.target.closest('[data-act=shutdown]')) {
-      if (!await confirmDialog('Stop Jobwatch? It stops checking for jobs and sending alerts until you open it again.', {confirmLabel: 'Stop', title: 'Stop Jobwatch'})) return;
+      if (!await confirmDialog('Stop Foothold? It stops checking for jobs and sending alerts until you open it again.', {confirmLabel: 'Stop', title: 'Stop Foothold'})) return;
       try {
         await post('/api/shutdown', {});
         ctx.stop?.();
-        document.body.innerHTML = `<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Jobwatch stopped</h1><p>It is no longer checking for jobs. Open ${startHint()} to start it again. You can close this tab.</p></main>`;
+        document.body.innerHTML = `<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Foothold stopped</h1><p>It is no longer checking for jobs. Open ${startHint()} to start it again. You can close this tab.</p></main>`;
       } catch (err) { toast(err.message, {error: true}); }
       return;
     }
@@ -310,9 +703,7 @@ export async function render(root, ctx) {
     }
   });
   root.addEventListener('change', async e => {
-    const pref = e.target.dataset.pref;
-    if (pref === 'theme') { ctx.store.set('jw-theme', e.target.value || null); ctx.applyTheme(); }
-    if (pref === 'density') { ctx.store.set('jw-density', e.target.value); document.documentElement.dataset.density = e.target.value; }
+    trackDirty(e);
     if (e.target.matches('[data-discord-mode]')) {
       try { discord = await put('/api/discord/settings', {mode: e.target.value}); toast(discord.mode === 'views_only' ? 'Discord will only send your saved views' : 'Discord will send good matches and your saved views'); }
       catch (err) { toast(err.message, {error: true}); redrawDiscord(); }
@@ -321,7 +712,7 @@ export async function render(root, ctx) {
     if (e.target.matches('[data-autostart]')) {
       try {
         background = await put('/api/background', {autostart: e.target.checked});
-        toast(background.autostart ? 'Jobwatch will start when you sign in to Windows' : 'Jobwatch will no longer start at sign-in');
+        toast(background.autostart ? 'Foothold will start when you sign in to Windows' : 'Foothold will no longer start at sign-in');
       } catch (err) { e.target.checked = !e.target.checked; toast(err.message, {error: true, timeout: 8000}); }
       return;
     }
@@ -337,5 +728,6 @@ export async function render(root, ctx) {
       try { await patch(`/api/saved-searches/${id}`, {notify: e.target.checked}); toast(e.target.checked ? 'Alerts on for this view' : 'Alerts off'); } catch (err) { toast(err.message, {error: true}); }
     }
   });
-  return {update() {}};
+  return {update(params) { if (settingsTab(params.tab) !== tab) showTab(params.tab); }, redraw: syncPrefs,
+    cleanup() { document.removeEventListener('click', onDocClick); }};
 }
