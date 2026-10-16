@@ -80,8 +80,7 @@ class PollProgressTests(ServiceFixture):
         # deferred transaction open: the source scan would then pin a read
         # snapshot, and adding a source row after the background refresh
         # commits fails at once with "database is locked", ignoring busy_timeout.
-        # The name matches Workday Inc., a tech employer this finance profile would skip.
-        self.service.config["boards"]["demo_workday"] = {"ats": "workday", "track": "both"}
+        self.service.config["boards"]["demo_workday"] = {"ats": "workday"}
         self.service.config["description_budget"] = 0
         real_backoff = watcher.failure_backoff
         refreshed = []

@@ -21,9 +21,6 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
         exclusions.append(SPECIALIST[category])
     elif not relevant and cls.get("is_finance"):
         reasons.append("Eligible finance role; your targets and experience affect ranking")
-    elif not relevant and any(t.startswith(f"{category}.") for t in targets):
-        # Frontend work for someone targeting Backend: same field, ranked lower.
-        reasons.append(f"{cls.get('category_label') or category} role outside your specialties; ranked lower")
     elif not relevant and cls.get("family") not in (None, "unknown", "other"):
         exclusions.append("Role is outside finance and your selected career targets")
     elif not relevant:

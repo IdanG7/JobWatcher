@@ -5,7 +5,7 @@ import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
 import {confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
-import {FIELD_INFO, countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, wantsTechEmployers} from '../fields.js';
+import {FIELD_INFO, countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
 
 const STAGES = [
   ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
@@ -31,13 +31,6 @@ const EMPLOYER_SECTIONS = [
   ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
   ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
   ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']],
-];
-// Tech employers, for software, AI & data and the other tech fields. Quant firms
-// and FinTech are in both lists; their two checkboxes stay in step.
-const TECH_EMPLOYER_SECTIONS = [
-  ['Tech companies', ['big_tech', 'established_tech', 'scale_up', 'startup', 'ai_lab']],
-  ['By industry', ['enterprise_software', 'semiconductors', 'defense_aerospace', 'quant_firm', 'fintech']],
-  ['Services & public sector', ['it_services', 'public_sector']],
 ];
 // Servers older than this page don't send these lists with /api/meta.
 const FALLBACK_LANGUAGES = ['Arabic', 'Cantonese', 'English', 'French', 'German', 'Hindi', 'Italian', 'Japanese', 'Korean', 'Mandarin', 'Portuguese', 'Russian', 'Spanish'];
@@ -237,8 +230,7 @@ export async function render(root, ctx) {
     // Employer types in four plain-language sections; anything new lands in "Other".
     const types = new Map(meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t]));
     const sections = EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => types.has(k))]);
-    const techSections = TECH_EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => types.has(k))]).filter(([, keys]) => keys.length);
-    const placed = new Set([...sections, ...techSections].flatMap(([, keys]) => keys));
+    const placed = new Set(sections.flatMap(([, keys]) => keys));
     const rest = [...types.keys()].filter(k => !placed.has(k));
     if (rest.length) sections.push(['Other', rest]);
     const employerBlocks = list => list.map(([name, keys]) => `<div class="set-block" data-pick-scope><p class="set-mini" data-scope-label>${esc(name)}</p>${picks('ctype', keys.map(k => [k, types.get(k).label]), profile.target_company_types || [])}</div>`).join('');
@@ -258,7 +250,6 @@ export async function render(root, ctx) {
           <label class="set-row">${label(`<span data-scope-label>All of ${esc(f.label)}</span>`, 'Every specialty, ranked the same')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(f.key)}" data-role-all${roles.includes(f.key) ? ' checked' : ''}></span></label>
           ${block(picks('role', f.subcategories.map(s => [`${f.key}.${s.key}`, s.label]), roles))}</div>`, {attrs: ` data-field-section="${esc(f.key)}"`})).join('')
       + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections), {attrs: ' data-field-section="finance"'})
-      + (techSections.length ? group('Tech employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(techSections), {attrs: ' data-field-section="tech"'}) : '')
       + '<p class="set-empty" data-filter-empty hidden>Nothing matches that filter.</p>');
 
     // Cycles: every season for this year and the next three, a dot where postings exist now.
@@ -425,12 +416,12 @@ export async function render(root, ctx) {
   const pickedRoles = (fields = currentFields()) => [...new Set([...root.querySelectorAll('[name="role"]:checked')].map(input => input.value))]
     .filter(key => fields.includes(fieldOf(key)));
 
-  // Each field's sections follow it (tech employers follow any tech field); skill groups follow every field.
+  // Each field's sections follow it; skill groups follow every field.
   function syncFields() {
     const fields = currentFields();
     root.querySelectorAll('[data-field-section]').forEach(el => {
       const section = el.dataset.fieldSection;
-      el.hidden = section === 'tech' ? !wantsTechEmployers(fields) : !fields.includes(section);
+      el.hidden = !fields.includes(section);
     });
     const groups = skillGroupsFor(fields);
     let tucked = 0;
@@ -517,7 +508,7 @@ export async function render(root, ctx) {
     // So do the employer types shown only for it (bank tiers once Finance is off). Types in a
     // section that was already hidden when the profile was saved stay: nobody turned them off here.
     const savedFields = profileFields(saved, financeKeys());
-    const wasShown = section => (section === 'tech' ? wantsTechEmployers(savedFields) : savedFields.includes(section));
+    const wasShown = section => savedFields.includes(section);
     const ctypes = [...root.querySelectorAll('[name="ctype"]:checked')].filter(box => {
       const section = box.closest('[data-field-section]');
       return !section?.hidden || !wasShown(section.dataset.fieldSection);
@@ -536,7 +527,7 @@ export async function render(root, ctx) {
       fields, target_roles: roles, target_stages: all('stage'), target_cycles: all('cycle'),
       role_weights: Object.fromEntries(roles.map(key => [key, Number(fd.get(`rw:${key}`) ?? 1)]).filter(([, w]) => w !== 1)),
       target_locations: all('city'), target_countries: countries, open_to_remote: fd.get('open_to_remote') === 'on',
-      target_company_types: [...new Set(ctypes)],      // quant firms and FinTech can be listed twice
+      target_company_types: ctypes,
       work_authorization: Object.fromEntries(auth),
       languages, skills: all('skill'),
       alerts: {urgent_fit: num(fd.get('urgent_fit'), 90), high_fit: num(fd.get('high_fit'), 75), digest_fit: num(fd.get('digest_fit'), 55)},
@@ -556,14 +547,12 @@ export async function render(root, ctx) {
       toast('Profile saved. Fit scores are being recalculated.');
     } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
   });
-  // Checkboxes that move together: turning on Software targets all of it until a
-  // specialty is picked, picking one narrows the field to it, and an employer type
-  // listed under both Finance and Tech stays in step.
+  // Checkboxes that move together: turning on a field with groups targets all of it
+  // until a group is picked, and picking one narrows the field to it.
   function linkPicks({name, value, checked}) {
     const role = key => root.querySelector(`[name="role"][value="${CSS.escape(key)}"]`);
     if (name === 'field' && checked && specialtyKeys.has(value) && !pickedRoles([value]).length && role(value)) role(value).checked = true;
     if (name === 'role' && checked && value.includes('.') && specialtyKeys.has(fieldOf(value)) && role(fieldOf(value))) role(fieldOf(value)).checked = false;
-    if (name === 'ctype') root.querySelectorAll(`[name="ctype"][value="${CSS.escape(value)}"]`).forEach(box => { box.checked = checked; });
   }
   const trackDirty = e => {
     if (e.target.form?.id !== 'profile-form') return;

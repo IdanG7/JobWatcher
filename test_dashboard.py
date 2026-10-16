@@ -215,53 +215,19 @@ class DashboardServiceTests(ServiceFixture):
         self.assertIn("CA", {c["key"] for c in meta["countries"]})
         self.assertIn("English", meta["languages"])
 
-    def test_software_specialties_and_tech_employers_round_trip(self):
-        meta = self.service.meta()
-        families = {f["key"]: f for f in meta["families"]}
-        self.assertIn("backend", {s["key"] for s in families["software"]["subcategories"]})
-        self.assertIn("ml_engineering", {s["key"] for s in families["data_ml"]["subcategories"]})
-        self.assertEqual([], families["sales"]["subcategories"])
-        self.assertTrue({"big_tech", "startup", "ai_lab", "public_sector"} <= {t["key"] for t in meta["company_types"]})
-        self.assertTrue({"web", "cloud", "ml", "cs"} <= set(meta["skill_groups"]))
-        saved = self.service.put_profile({"fields": ["software", "data_ml"],
-                                          "target_roles": ["software.backend", "software.infrastructure", "data_ml"],
-                                          "role_weights": {"software.infrastructure": 0.75},
-                                          "target_company_types": ["big_tech", "quant_firm"],
-                                          "skills": ["python", "typescript", "kubernetes"]})["profile"]
-        self.assertEqual(["software.backend", "software.infrastructure", "data_ml"], saved["target_roles"])
-        self.assertEqual(["big_tech", "quant_firm"], saved["target_company_types"])
-        for bad in ({"target_roles": ["software.astrology"]}, {"fields": ["software.backend"]},
-                    {"target_company_types": ["moonbase"]}):
-            with self.assertRaises(ApiError):
-                self.service.put_profile(bad)
-
-    def test_sources_follow_the_profile_fields(self):
-        before = {s["name"]: s for s in self.service.sources()["sources"]}
-        self.assertEqual(("finance", True), (before["rbc"]["track"], before["rbc"]["polled"]))   # the finance default
-        self.service.put_profile({"fields": ["software"], "target_roles": ["software.backend"]})
-        out = self.service.sources()
-        after = {s["name"]: s for s in out["sources"]}
-        self.assertEqual((["software"], ["tech"]), (out["fields"], out["tracks"]))
-        self.assertFalse(after["rbc"]["polled"])
-        self.assertTrue(after["linkedin_ca"]["polled"])       # a shared source without a track serves both
-        self.assertEqual((1, 0), (after["rbc"]["jobs"], after["rbc"]["field_jobs"]))   # its IB role isn't software
-        self.assertEqual("linkedin_ca", out["sources"][0]["name"])   # polled sources list first
-
-    def test_postings_are_filtered_by_specialty(self):
-        con = watcher.db_open(self.db_path)
-        now = watcher.now()
-        for job_id, title in (("be", "Backend Engineer Intern"), ("fe", "Frontend Engineer Intern")):
-            con.execute("INSERT INTO jobs VALUES (?,?,?,?,?,?,?)",
-                        ("rbc", job_id, title, "Toronto, ON", f"https://example.com/{job_id}", now, now))
-            con.execute("INSERT INTO job_details VALUES (?,?,?,?,?)", ("rbc", job_id, "Shopify", "", time.time()))
-        con.commit()
-        con.close()
-        self.service.refresh_now()
-        backend = self.service.jobs({"category": ["software.backend"]})
-        self.assertEqual(["rbc:be"], [j["key"] for j in backend["jobs"]])
-        job = backend["jobs"][0]
-        self.assertEqual(("Software", "Backend"), (job["category_label"], job["subcategory_label"]))
-        self.assertEqual(2, self.service.jobs({"category": ["software"]})["total"])
+    def test_choices_this_version_dropped_are_pruned_at_start(self):
+        # A profile saved by 0.3.0, which offered tech specialties, employer types and skills.
+        from intel_store import save_profile
+        with self.service.db() as con:
+            save_profile(con, {"fields": ["software"],
+                               "target_roles": ["software.backend", "software.frontend", "investment_banking.ma"],
+                               "role_weights": {"software.backend": 0.75, "investment_banking.ma": 1.0},
+                               "target_company_types": ["big_tech", "bulge_bracket"], "skills": ["kubernetes", "python"]})
+        profile = JobwatchService(self.db_path, self.config_path, self.subscribers_path).get_profile()["profile"]
+        self.assertEqual(["software", "investment_banking.ma"], profile["target_roles"])
+        self.assertEqual({"software": 0.75, "investment_banking.ma": 1.0}, profile["role_weights"])
+        self.assertEqual((["bulge_bracket"], ["python"]), (profile["target_company_types"], profile["skills"]))
+        self.service.put_profile(profile)       # Settings can save it again
 
     def test_analytics_activity_sources(self):
         evidence = {"fetched": 1, "reported_total": 300, "complete": False,

@@ -111,6 +111,33 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
     return problems
 
 
+def prune_profile(profile: dict, kn) -> dict:
+    """The profile without choices the knowledge base no longer offers, so it validates again.
+
+    0.3.0 offered Software and AI & Data specialties ('software.backend'), tech
+    employer types and tech skills; a specialty target falls back to its family.
+    """
+    roles = set(kn.categories) | {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | set(kn.families)
+
+    def role(key):
+        return next((k for k in (key, key.split(".")[0]) if k in roles), None)
+
+    out = dict(profile)
+    if isinstance(profile.get("target_roles"), list):
+        out["target_roles"] = list(dict.fromkeys(r for r in map(role, profile["target_roles"]) if r))
+    if isinstance(profile.get("role_weights"), dict):
+        weights: dict = {}
+        for key, weight in profile["role_weights"].items():
+            if r := role(key):
+                weights[r] = max(weights.get(r, 0), weight)
+        out["role_weights"] = weights
+    if isinstance(profile.get("target_company_types"), list):
+        out["target_company_types"] = [t for t in profile["target_company_types"] if t in kn.company_types]
+    if isinstance(profile.get("skills"), list):
+        out["skills"] = [s for s in profile["skills"] if s in kn.skill_by_key]
+    return out
+
+
 def profile_version(profile: dict, watched: list[str] | tuple[str, ...] = ()) -> str:
     """Stable hash of everything that affects fit scores."""
     payload = json.dumps({"p": profile, "w": sorted(watched)}, sort_keys=True, default=str)

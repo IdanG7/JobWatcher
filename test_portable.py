@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from tools.build_windows import bundle_files, clean_config, stage_app
 from tools.verify_windows_bundle import verify_builder_path
-from portable_start import initialize_data, instance_url
+from portable_start import initialize_data, instance_url, upgrade_sources
 from intel import load_knowledge, merge_profile, validate_profile
 import watcher
 
@@ -65,6 +65,33 @@ class PortableTests(unittest.TestCase):
             initialize_data(app, data)
             self.assertEqual(saved, (data / "config.json").read_bytes())
             self.assertEqual('{"secret":"unchanged"}', (data / "subscribers.json").read_text())
+
+    def test_an_install_from_0_3_0_switches_the_tech_sources_off(self):
+        # 0.3.0 (sources_version 7) polled tech employers and tech LinkedIn searches, and tagged
+        # each board with a track; sources_version 8 is finance again.
+        root = Path(__file__).resolve().parent
+        bundled = clean_config(json.loads((root / "config.json").read_text(encoding="utf-8")))
+        history = json.loads((root / "config" / "source_defaults_history.json").read_text(encoding="utf-8"))
+        added = {name for name, since in history["__since__"].items() if since == 7}
+        self.assertTrue({"okta", "geotab", "micron", "linkedin_us_tech"} <= added)
+        old = {name: {k: v for k, v in board.items() if not (name in added and k == "disabled")}
+               for name, board in bundled["boards"].items()}
+        for name in ("linkedin_us", "linkedin_canada"):
+            old[name] = {**old[name], "track": "finance", "queries": history[name]["queries"][-1]}
+            self.assertNotIn("software engineer intern", old[name]["queries"])
+        with tempfile.TemporaryDirectory() as directory:
+            app, data = Path(directory) / "app", Path(directory) / "data"
+            (app / "config").mkdir(parents=True)
+            data.mkdir()
+            (app / "config.json").write_text(json.dumps(bundled), encoding="utf-8")
+            (app / "config" / "source_defaults_history.json").write_text(json.dumps(history), encoding="utf-8")
+            (data / "config.json").write_text(json.dumps({"sources_version": 7, "boards": old}), encoding="utf-8")
+            upgrade_sources(app, data)
+            boards = json.loads((data / "config.json").read_text(encoding="utf-8"))["boards"]
+        self.assertEqual(8, bundled["sources_version"])
+        self.assertTrue(all(boards[name].get("disabled") for name in added))
+        self.assertFalse([name for name, board in boards.items() if "track" in board])
+        self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], boards["linkedin_us"]["queries"])
 
     def test_distribution_drops_private_config_and_subscribers(self):
         source = {

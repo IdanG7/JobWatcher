@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles, wantsTechEmployers} from '../js/fields.js';
+import {countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
 
 const FINANCE = ['investment_banking', 'private_markets', 'public_markets'];
 
@@ -23,24 +23,20 @@ test('a target role belongs to finance or to its job family, specialties include
 test('each field shows the skill groups that fit it; no field picked shows them all', () => {
   assert.equal(skillGroupsFor([]), null);
   assert.deepEqual([...skillGroupsFor(['finance'])].sort(), ['accounting', 'markets', 'modeling', 'programming', 'quant', 'soft', 'tools']);
-  assert.deepEqual([...skillGroupsFor(['software'])].sort(), ['cloud', 'cs', 'data', 'programming', 'soft', 'web']);
-  assert.ok(skillGroupsFor(['data_ml']).has('ml'));
+  assert.deepEqual([...skillGroupsFor(['software'])].sort(), ['programming', 'soft']);
+  assert.ok(skillGroupsFor(['data_ml']).has('quant'));
   const both = skillGroupsFor(['software', 'finance']);
-  assert.ok(both.has('modeling') && both.has('web'));
+  assert.ok(both.has('modeling') && both.has('programming'));
   assert.deepEqual([...skillGroupsFor(['people_legal', 'unknown'])], ['soft']);
 });
 
-test('only families split into specialties get a card of them; tech fields bring tech employers', () => {
+test('only families split into specialties get a card of them', () => {
   const meta = {families: [{key: 'data_ml', label: 'AI & Data', subcategories: [{key: 'research', label: 'AI Research'}]},
     {key: 'software', label: 'Software', subcategories: [{key: 'backend', label: 'Backend'}]},
     {key: 'sales', label: 'Sales & Growth', subcategories: []}, {key: 'hardware', label: 'Hardware'}]};
   // Shown in field order (Software before AI & Data), not the server's matching order.
   assert.deepEqual(specialtyFamilies(meta).map(f => f.key), ['software', 'data_ml']);
   assert.deepEqual(specialtyFamilies({}), []);
-  assert.equal(wantsTechEmployers(['finance']), false);
-  assert.equal(wantsTechEmployers(['sales', 'people_legal']), false);
-  assert.equal(wantsTechEmployers(['finance', 'data_ml']), true);
-  assert.equal(wantsTechEmployers(['hardware']), true);
 });
 
 test('field list puts finance first and keeps a stable order', () => {

@@ -11,9 +11,6 @@ from .knowledge import Knowledge, normalize_company
 _SECTION_TYPES = (
     ("quant", "quant_firm"),
     ("canadian_bank", "canadian_bank"),
-    ("big_tech", "big_tech"),
-    ("established_tech", "established_tech"),
-    ("startup", "startup"),             # before fintech: '_startups_fintech_consumer'
     ("fintech", "fintech"),
     ("bulge", "bulge_bracket"),
     ("boutique", "elite_boutique"),

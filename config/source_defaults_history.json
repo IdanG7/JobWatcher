@@ -8,8 +8,8 @@
   ]
  },
  "__shipped__": {
-  "hash": "1e0167bb253bf356",
-  "version": 7
+  "hash": "eb0d6588c6c15d56",
+  "version": 8
  },
  "__since__": {
   "1password": 1,
@@ -449,6 +449,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "analogdevices.wd1.myworkdayjobs.com"
   ],
@@ -484,6 +488,10 @@
  "anyscale": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "anyscale"
@@ -524,6 +532,10 @@
  "applied_materials": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "amat.wd1.myworkdayjobs.com"
@@ -696,6 +708,10 @@
  "benevity": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "benevity"
@@ -887,6 +903,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "boxinc"
   ]
@@ -910,6 +930,10 @@
  "broadcom": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "broadcom.wd1.myworkdayjobs.com"
@@ -970,6 +994,10 @@
  "cadence": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "cadence.wd1.myworkdayjobs.com"
@@ -1266,6 +1294,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "ciena.wd5.myworkdayjobs.com"
   ],
@@ -1446,6 +1478,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "coreweave"
   ]
@@ -1453,6 +1489,10 @@
  "coursera": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "coursera"
@@ -1490,6 +1530,10 @@
  "crowdstrike": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "crowdstrike.wd5.myworkdayjobs.com"
@@ -1557,6 +1601,10 @@
  "dataiku": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "dataiku"
@@ -1771,6 +1819,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "epicgames"
   ]
@@ -1940,6 +1992,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "geotab"
   ]
@@ -2011,6 +2067,10 @@
  "grafana_labs": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "grafanalabs"
@@ -2162,6 +2222,10 @@
  "hpe": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "hpe.wd5.myworkdayjobs.com"
@@ -2381,6 +2445,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "koho"
   ]
@@ -2508,6 +2576,10 @@
   "ats": [
    "linkedin"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "location": [
    "Canada"
   ],
@@ -2537,7 +2609,8 @@
    "r7776000"
   ],
   "track": [
-   "tech"
+   "tech",
+   "__missing__"
   ]
  },
  "linkedin_quant": {
@@ -2626,6 +2699,10 @@
   "ats": [
    "linkedin"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "location": [
    "United States"
   ],
@@ -2655,7 +2732,8 @@
    "r7776000"
   ],
   "track": [
-   "tech"
+   "tech",
+   "__missing__"
   ]
  },
  "lithic": {
@@ -2738,6 +2816,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "marvell.wd1.myworkdayjobs.com"
   ],
@@ -2818,6 +2900,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "micron.wd1.myworkdayjobs.com"
   ],
@@ -2859,6 +2945,10 @@
  "miro": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "realtimeboardglobal"
@@ -3020,6 +3110,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "motorolasolutions.wd5.myworkdayjobs.com"
   ],
@@ -3039,6 +3133,10 @@
  "mozilla": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "mozilla"
@@ -3143,6 +3241,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "neofinancial"
   ]
@@ -3173,6 +3275,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "newrelic"
   ]
@@ -3180,6 +3286,10 @@
  "nextdoor": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "nextdoor"
@@ -3277,6 +3387,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "okta"
   ]
@@ -3358,6 +3472,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "pagerduty"
   ]
@@ -3417,6 +3535,10 @@
  "pinecone": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "pinecone"
@@ -3540,6 +3662,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "posthog"
   ]
@@ -3565,6 +3691,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "purestorage"
   ]
@@ -3584,6 +3714,10 @@
  "quora": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "quora"
@@ -3702,6 +3836,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "replit"
   ]
@@ -3721,6 +3859,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "riotgames"
   ]
@@ -3739,6 +3881,10 @@
  "ritual": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "ritual"
@@ -3764,6 +3910,10 @@
   "ats": [
    "greenhouse"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "roku"
   ]
@@ -3771,6 +3921,10 @@
  "rubrik": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "rubrik"
@@ -3898,6 +4052,10 @@
  "sentry": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "sentry"
@@ -4036,6 +4194,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "snowflake"
   ]
@@ -4166,6 +4328,10 @@
  "stackadapt": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "stackadapt"
@@ -4387,6 +4553,10 @@
   "ats": [
    "ashby"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "temporal"
   ]
@@ -4394,6 +4564,10 @@
  "thomson_reuters": {
   "ats": [
    "workday"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "host": [
    "thomsonreuters.wd5.myworkdayjobs.com"
@@ -4414,6 +4588,10 @@
  "toast": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "toast"
@@ -4446,6 +4624,10 @@
  "twitch": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "twitch"
@@ -4626,6 +4808,10 @@
   "ats": [
    "lever"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "token": [
    "wattpad"
   ]
@@ -4753,6 +4939,10 @@
  "zapier": {
   "ats": [
    "ashby"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "zapier"
@@ -4944,6 +5134,10 @@
   "ats": [
    "workday"
   ],
+  "disabled": [
+   "__missing__",
+   true
+  ],
   "host": [
    "zillow.wd5.myworkdayjobs.com"
   ],
@@ -4991,6 +5185,10 @@
  "zscaler": {
   "ats": [
    "greenhouse"
+  ],
+  "disabled": [
+   "__missing__",
+   true
   ],
   "token": [
    "zscaler"

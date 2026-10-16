@@ -201,7 +201,7 @@ class Knowledge:
     # ------------------------------------------------------------ taxonomy
     def _load_taxonomy(self, data: dict) -> None:
         self.weights = {"title": 4, "department": 2, "description": 1,
-                        "description_cap": 4, "min_finance_score": 3, "min_specialty_score": 3,
+                        "description_cap": 4, "min_finance_score": 3,
                         **data.get("weights", {})}
         self.generic_finance_title = re.compile(
             fragment(data.get("generic_finance_title", "analyst|associate")), re.I)
@@ -215,7 +215,15 @@ class Knowledge:
                 compile_fragments(cat.get("title")),
                 compile_fragments(cat.get("department")),
                 compile_fragments(cat.get("description")), meta)
-            self._load_subcategories(key, cat)
+            for sub_key, sub in (cat.get("subcategories") or {}).items():
+                full = f"{key}.{sub_key}"
+                self.subcategories[full] = Node(
+                    sub_key, sub["label"], key,
+                    compile_fragments(sub.get("title")),
+                    compile_fragments(sub.get("department")),
+                    compile_fragments(sub.get("description")),
+                    {k: v for k, v in sub.items()
+                     if k not in ("title", "department", "description")})
         self.company_priors: dict[str, dict[str, float]] = data.get("company_priors", {})
         self.tech_at_trading_firm = data.get("tech_at_trading_firm", {})
         self.families: dict[str, Node] = {}
@@ -225,19 +233,6 @@ class Knowledge:
             self.families[key] = Node(key, fam["label"], None,
                                       compile_fragments(fam.get("title")),
                                       domain=compile_fragments(fam.get("domain_title")))
-            # Specialties (software.frontend) share the subcategory namespace,
-            # so profiles, filters and labels treat them like finance groups.
-            self._load_subcategories(key, fam)
-
-    def _load_subcategories(self, parent: str, node: dict) -> None:
-        for sub_key, sub in (node.get("subcategories") or {}).items():
-            self.subcategories[f"{parent}.{sub_key}"] = Node(
-                sub_key, sub["label"], parent,
-                compile_fragments(sub.get("title")),
-                compile_fragments(sub.get("department")),
-                compile_fragments(sub.get("description")),
-                {k: v for k, v in sub.items()
-                 if k not in ("title", "department", "description")})
 
     def category_label(self, key: str | None) -> str:
         if not key:
@@ -266,11 +261,8 @@ class Knowledge:
         return tree
 
     def family_tree(self) -> list[dict]:
-        """Job families with their specialties (empty for families without any)."""
-        return [{"key": key, "label": node.label,
-                 "subcategories": [{"key": n.key, "label": n.label, "note": n.meta.get("note", "")}
-                                   for n in self.subcategories.values() if n.parent == key]}
-                for key, node in self.families.items()]
+        """Job families outside finance, in the shape of taxonomy_tree (they have no groups)."""
+        return [{"key": key, "label": node.label, "subcategories": []} for key, node in self.families.items()]
 
     # ------------------------------------------------------------ companies
     def _load_companies(self, data: dict) -> None:

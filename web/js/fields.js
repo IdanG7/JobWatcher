@@ -18,19 +18,16 @@ export const FIELD_INFO = {
 // Skill groups worth showing for each field.
 const FIELD_SKILLS = {
   finance: ['modeling', 'accounting', 'tools', 'programming', 'markets', 'quant', 'soft'],
-  software: ['programming', 'web', 'cloud', 'cs', 'data', 'soft'],
-  data_ml: ['programming', 'ml', 'data', 'quant', 'cloud', 'tools', 'soft'],
-  hardware: ['programming', 'cs', 'soft'],
+  software: ['programming', 'soft'],
+  data_ml: ['programming', 'quant', 'tools', 'soft'],
+  hardware: ['programming', 'soft'],
   product: ['tools', 'programming', 'soft'],
-  design: ['web', 'tools', 'soft'],
+  design: ['tools', 'soft'],
   sales: ['tools', 'soft'],
   operations: ['tools', 'soft'],
   people_legal: ['soft'],
   healthcare: ['quant', 'tools', 'soft'],
 };
-
-// Fields that recruit at tech companies: they show the tech employer types.
-export const TECH_FIELDS = ['software', 'data_ml', 'hardware', 'product', 'design'];
 
 /** Every country as [code, name]; servers older than this page only list countries through their cities. */
 export function countryList(meta, profile = {}) {
@@ -68,9 +65,6 @@ export function profileFields(profile = {}, financeKeys = []) {
 export function specialtyFamilies(meta) {
   return (meta.families || []).filter(f => f.subcategories?.length).sort((a, b) => fieldRank(a.key) - fieldRank(b.key));
 }
-
-/** Whether these fields recruit at tech companies (and so show tech employer types). */
-export const wantsTechEmployers = fields => fields.some(field => TECH_FIELDS.includes(field));
 
 /** Skill groups to show for these fields, or null for all of them. */
 export function skillGroupsFor(fields) {
