@@ -34,7 +34,7 @@ export async function api(path, {method = 'GET', body, params, signal, timeout =
     if (timedOut) throw new ApiError('This request is taking too long. Collection continues in the background; retry this tab or open another.', 0);
     if (err.name === 'AbortError') throw err;
     if (err instanceof ApiError) throw err;
-    throw new ApiError('Jobwatch is not reachable. If you stopped it, open Jobwatch again, then retry.', 0);
+    throw new ApiError('Foothold is not reachable. If you stopped it, open it again from the Start menu, then retry.', 0);
   } finally {
     clearTimeout(timer);
     signal?.removeEventListener('abort', cancel);
@@ -55,7 +55,7 @@ export async function download(path, body, fallbackName = 'download.pdf') {
   try {
     res = await fetch(path, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
   } catch {
-    throw new ApiError('Jobwatch is not reachable. If you stopped it, open Jobwatch again, then retry.', 0);
+    throw new ApiError('Foothold is not reachable. If you stopped it, open it again from the Start menu, then retry.', 0);
   }
   if (!res.ok) {
     let message = res.statusText || 'Request failed';

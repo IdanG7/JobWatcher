@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>Jobwatch · Design preview (sample data)</title>
+  <title>Foothold · Design preview (sample data)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <!-- Design preview: answers /api calls with fictional sample data. Not shipped in builds. -->
@@ -15,38 +15,42 @@
 <body>
   <a class="sr-only" href="#main">Skip to content</a>
   <header class="topnav">
-    <a class="brand" href="#/overview" aria-label="Jobwatch overview">
-      <span class="brand-mark" aria-hidden="true">JW</span>
-      <span class="brand-text"><strong>Jobwatch</strong><small>Career command center</small></span>
+    <a class="brand" href="#/overview" aria-label="Foothold, today">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5"/><path transform="matrix(.7778 0 0 .7778 2.15 2.15)" d="M11 4.75A1.75 1.75 0 0 1 12.75 3h6.5A1.75 1.75 0 0 1 21 4.75v14.5A1.75 1.75 0 0 1 19.25 21H4.75A1.75 1.75 0 0 1 3 19.25v-5.5A1.75 1.75 0 0 1 4.75 12h5.5a.75.75 0 0 0 .75-.75z"/></svg>
+      <span class="brand-text"><strong>foothold</strong></span>
     </a>
     <nav class="nav-links" aria-label="Primary">
-      <a href="#/overview" data-nav="overview">Overview</a>
+      <a href="#/overview" data-nav="overview">Today</a>
       <a href="#/opportunities" data-nav="opportunities">Opportunities <span class="count" id="nav-opps"></span></a>
       <a href="#/applications" data-nav="applications">Applications <span class="count" id="nav-apps"></span></a>
       <a href="#/companies" data-nav="companies">Companies</a>
       <a href="#/calendar" data-nav="calendar">Calendar</a>
       <a href="#/analytics" data-nav="analytics">Analytics</a>
-      <a href="#/sources" data-nav="sources">Sources</a>
-      <a href="#/settings" data-nav="settings">Settings</a>
     </nav>
     <div class="nav-actions">
       <button class="cmdk-trigger" id="cmdk-open" type="button" aria-label="Open command palette">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <span class="label-text">Search or jump to…</span>
+        <span class="label-text">Search</span>
         <kbd id="cmdk-kbd">Ctrl K</kbd>
       </button>
-      <button class="nav-icon" id="poll-now" type="button" title="Poll sources now" aria-label="Poll sources now">
-        <span class="live-dot" id="live-dot" aria-hidden="true"></span>
-      </button>
+      <div class="status-menu" id="status-menu">
+        <button class="nav-status" id="status-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="status-card">
+          <span class="live-dot" id="live-dot" aria-hidden="true"></span><span class="live-label" id="live-label">Connecting</span>
+        </button>
+        <div class="status-card" id="status-card" role="group" aria-label="Collection status">
+          <section id="collection-status" class="collection-status" role="status" aria-live="polite" aria-atomic="true">
+            <div class="collection-heading"><strong>Connecting…</strong></div>
+            <p>Collection runs in the background.</p>
+          </section>
+          <div class="status-card-foot"><button class="btn sm" type="button" id="poll-run">Check sources now</button><a class="link" href="#/sources" data-nav="sources">All sources</a></div>
+        </div>
+      </div>
+      <a class="nav-icon" href="#/settings" data-nav="settings" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
       <button class="nav-icon" id="theme-toggle" type="button" title="Toggle theme (light / dark)" aria-label="Toggle theme"></button>
     </div>
   </header>
 
   <main id="main" tabindex="-1">
-    <section id="collection-status" class="collection-status" role="status" aria-live="polite" aria-atomic="true">
-      <div class="collection-heading"><strong>Connecting to Jobwatch…</strong><a class="link" href="#/sources">View sources</a></div>
-      <p>Your dashboard is loading. Source collection runs in the background.</p>
-    </section>
     <div id="view"><div class="panel panel-body">Loading your dashboard…</div></div>
   </main>
 
@@ -55,6 +59,6 @@
   <div id="palette-root"></div>
   <div class="toast-zone" id="toasts" role="status" aria-live="polite"></div>
   <div class="tooltip" id="tooltip" hidden></div>
-  <noscript><p style="padding:24px">Jobwatch needs JavaScript enabled to render the dashboard.</p></noscript>
+  <noscript><p style="padding:24px">Foothold needs JavaScript enabled to show your dashboard.</p></noscript>
 </body>
 </html>

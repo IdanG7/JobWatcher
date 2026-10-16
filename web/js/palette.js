@@ -3,7 +3,7 @@
 import {get} from './api.js';
 import {debounce, esc} from './lib.js';
 import {contactForm, eventForm} from './forms.js';
-import {icon, openModal} from './ui.js';
+import {icon, modKey, openModal} from './ui.js';
 
 let open = false;
 let actions = {};
@@ -11,10 +11,14 @@ export function paletteOpen() { return open; }
 
 export function initPalette(ctx, fns) { actions = fns; }
 
+// What Enter does for the highlighted row, shown in the footer (Raycast's action bar).
+const VERBS = {'Go to': 'Go to page', Views: 'Show view', 'Saved views': 'Open view', Actions: 'Run command',
+  Companies: 'Open company', Postings: 'Open posting'};
+
 function baseCommands(ctx) {
-  const nav = (label, path, params = {}, ic = 'arrowRight', hint = '') => ({group: 'Go to', label, icon: ic, hint, run: () => ctx.navigate(path, params)});
+  const nav = (label, path, params = {}, ic = 'arrowRight', keys = '') => ({group: 'Go to', label, icon: ic, keys, run: () => ctx.navigate(path, params)});
   return [
-    nav('Overview', ['overview'], {}, 'pulse', 'g h'),
+    nav('Today', ['overview'], {}, 'pulse', 'g h'),
     nav('Opportunities', ['opportunities'], {}, 'list', 'g o'),
     nav('Applications', ['applications'], {}, 'kanban', 'g a'),
     nav('Companies', ['companies'], {}, 'building', 'g c'),
@@ -40,7 +44,7 @@ function baseCommands(ctx) {
       delete params.job; delete params.page;
       window.location.href = `/api/export.csv?${new URLSearchParams(params)}`;
     }},
-    {group: 'Actions', label: 'Keyboard shortcuts', icon: 'command', hint: '?', run: () => openHelp()},
+    {group: 'Actions', label: 'Keyboard shortcuts', icon: 'command', keys: '?', run: () => openHelp()},
   ];
 }
 
@@ -55,26 +59,40 @@ function score(label, q) {
   return i === q.length ? 1 : 0;
 }
 
+/** Shortcut notation → keycaps: "g h" is a sequence, "j/k" alternatives, "mod+K" a chord. */
+export function keycaps(spec) {
+  const cap = k => `<kbd>${esc(k === 'mod' ? modKey() : k)}</kbd>`;
+  const parts = (text, sep) => (text.length > 1 ? text.split(sep) : [text]);   // a lone "/" or "+" is the key itself
+  return spec.split(' ').map(step => parts(step, '/').map(alt => parts(alt, '+').map(cap).join('')).join('<span class="kc-or">/</span>'))
+    .join('<span class="kc-then">then</span>');
+}
+
 export function openPalette(ctx) {
   if (open) return;
   open = true;
   const root = document.getElementById('palette-root');
+  // No open/close animation: the palette is summoned many times a day and must feel instant.
   root.innerHTML = `<div class="scrim show"></div><div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
-    <div class="palette-box"><input type="text" placeholder="Search jobs, companies, commands…" aria-label="Search" autocomplete="off" spellcheck="false">
-    <div class="palette-list" role="listbox"></div>
-    <div class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div></div></div>`;
+    <div class="palette-box">
+      <div class="palette-input">${icon('search', 16)}<input type="text" placeholder="Search postings, companies and commands…" aria-label="Search postings, companies and commands" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" autocomplete="off" spellcheck="false"><kbd>esc</kbd></div>
+      <div class="palette-list" id="palette-list" role="listbox" aria-label="Results"></div>
+      <div class="palette-foot"><span class="pf-action" data-pf-action></span><span class="pf-keys"><kbd>↑</kbd><kbd>↓</kbd> move</span></div>
+    </div></div>`;
   const input = root.querySelector('input');
   const list = root.querySelector('.palette-list');
+  const foot = root.querySelector('[data-pf-action]');
   const commands = baseCommands(ctx);
   let saved = [];
   let remote = [];
   let items = [];
   let active = 0;
   let seq = 0;
+  let searching = false;
 
   get('/api/saved-searches').then(d => {
+    if (!open) return;
     saved = d.saved_searches.map(s => ({group: 'Saved views', label: s.name, icon: 'bookmark',
-      hint: s.new_since_visit ? `${s.new_since_visit} new` : `${s.total}`,
+      hint: s.new_since_visit ? `${s.new_since_visit} new` : `${s.total ?? ''}`, hintClass: s.new_since_visit ? 'new' : 'num',
       run: () => ctx.navigate(['opportunities'], {...s.query, saved: s.id})}));
     draw();
   }).catch(() => {});
@@ -85,40 +103,56 @@ export function openPalette(ctx) {
     document.removeEventListener('keydown', onKey, true);
   };
 
+  function setActive(i, scroll = true) {
+    if (!items.length) { foot.innerHTML = ''; input.removeAttribute('aria-activedescendant'); return; }
+    active = Math.max(0, Math.min(items.length - 1, i));
+    list.querySelectorAll('.palette-item').forEach(el => {
+      const on = Number(el.dataset.i) === active;
+      el.classList.toggle('active', on);
+      el.setAttribute('aria-selected', String(on));
+    });
+    input.setAttribute('aria-activedescendant', `pal-${active}`);
+    foot.innerHTML = `${esc(VERBS[items[active].group] || 'Open')}<kbd>↵</kbd>`;
+    if (scroll) list.querySelector('.palette-item.active')?.scrollIntoView({block: 'nearest'});
+  }
+
   function draw() {
     const q = input.value.trim().toLowerCase();
     const local = [...saved, ...commands].map(c => ({...c, s: score(c.label, q)})).filter(c => c.s > 0)
       .sort((a, b) => b.s - a.s).slice(0, q ? 8 : 40);
     items = q ? [...remote, ...local] : local;
-    if (active >= items.length) active = Math.max(0, items.length - 1);
     let lastGroup = '';
-    list.innerHTML = items.length ? items.map((c, i) => {
-      const head = c.group !== lastGroup ? `<div class="palette-group">${esc(c.group)}</div>` : '';
+    const rows = items.map((c, i) => {
+      const head = c.group !== lastGroup ? `<div class="palette-group" role="presentation">${esc(c.group)}</div>` : '';
       lastGroup = c.group;
-      return `${head}<div class="palette-item${i === active ? ' active' : ''}" role="option" data-i="${i}" aria-selected="${i === active}">${c.html || `${icon(c.icon || 'arrowRight')}<span>${esc(c.label)}</span>`}${c.hint ? `<span class="hint">${esc(c.hint)}</span>` : ''}</div>`;
-    }).join('') : '<div class="empty" style="padding:24px"><p>No matches</p></div>';
-    list.querySelector('.palette-item.active')?.scrollIntoView({block: 'nearest'});
+      const right = c.keys ? `<span class="hint keys">${keycaps(c.keys)}</span>` : c.hint ? `<span class="hint ${c.hintClass || ''}">${esc(c.hint)}</span>` : '';
+      return `${head}<div class="palette-item" id="pal-${i}" role="option" data-i="${i}" aria-selected="false">${c.html || `${icon(c.icon || 'arrowRight')}<span class="label">${esc(c.label)}</span>`}${right}</div>`;
+    }).join('');
+    const status = searching && q.length >= 2 ? '<div class="palette-status">Searching postings and companies…</div>' : '';
+    list.innerHTML = rows || status ? rows + status
+      : `<div class="palette-empty"><strong>No results for “${esc(input.value.trim())}”</strong><span>Try a company, a role title or a command.</span></div>`;
+    setActive(active);
   }
 
   const search = debounce(async q => {
     const mine = ++seq;
-    if (q.length < 2) { remote = []; draw(); return; }
-    try {
-      const [jobs, comps] = await Promise.all([
-        get('/api/jobs', {q, per_page: 6, facets: 0}),
-        get('/api/companies', {q, finance: 0}),
-      ]);
-      if (mine !== seq) return;
-      remote = [
-        ...comps.companies.slice(0, 3).map(c => ({group: 'Companies', label: c.name, icon: 'building',
-          hint: `${c.active} open`, run: () => ctx.navigate(['companies', c.company_key])})),
-        ...jobs.jobs.map(j => ({group: 'Jobs', label: `${j.company} ${j.title}`,
-          html: `${icon('list')}<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(j.company || '')}</b> · ${esc(j.title)}</span>`,
-          hint: j.fit !== null ? `Fit ${j.fit}` : '', run: () => ctx.openJob(j.key)})),
-      ];
-      active = 0;
-      draw();
-    } catch { /* offline */ }
+    if (q.length < 2) { remote = []; searching = false; draw(); return; }
+    // Either search may fail (offline, older server); show whatever came back.
+    const [jobs, comps] = await Promise.allSettled([
+      get('/api/jobs', {q, per_page: 6, facets: 0}),
+      get('/api/companies', {q, finance: 0}),
+    ]);
+    if (mine !== seq || !open) return;
+    remote = [
+      ...(comps.value?.companies || []).slice(0, 3).map(c => ({group: 'Companies', label: c.name, icon: 'building',
+        hint: `${c.active} open`, run: () => ctx.navigate(['companies', c.company_key])})),
+      ...(jobs.value?.jobs || []).map(j => ({group: 'Postings', label: `${j.company} ${j.title}`,
+        html: `${icon('list')}<span class="label"><b>${esc(j.company || '')}</b><span class="sep">·</span>${esc(j.title)}</span>`,
+        hint: j.fit !== null && j.fit !== undefined ? `${j.fit}` : '', hintClass: `num fit-hint${j.fit >= 85 ? ' high' : ''}`, run: () => ctx.openJob(j.key)})),
+    ];
+    active = 0;
+    searching = false;
+    draw();
   }, 160);
 
   function run(i) {
@@ -130,31 +164,41 @@ export function openPalette(ctx) {
 
   function onKey(e) {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(items.length - 1, active + 1); draw(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(0, active - 1); draw(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1 >= items.length ? 0 : active + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1 < 0 ? items.length - 1 : active - 1); }
     else if (e.key === 'Enter') { e.preventDefault(); run(active); }
+    else if (e.key === 'Tab') e.preventDefault();   // the input is the only stop inside the palette
   }
 
   document.addEventListener('keydown', onKey, true);
-  input.addEventListener('input', () => { active = 0; draw(); search(input.value.trim()); });
+  input.addEventListener('input', () => {
+    active = 0;
+    searching = input.value.trim().length >= 2;
+    draw();
+    search(input.value.trim());
+  });
   list.addEventListener('mousemove', e => {
     const el = e.target.closest('.palette-item');
-    if (el && Number(el.dataset.i) !== active) { active = Number(el.dataset.i); draw(); }
+    if (el && Number(el.dataset.i) !== active) setActive(Number(el.dataset.i), false);
   });
+  list.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the input
   list.addEventListener('click', e => { const el = e.target.closest('.palette-item'); if (el) run(Number(el.dataset.i)); });
   root.querySelector('.palette').addEventListener('mousedown', e => { if (e.target.classList.contains('palette')) close(); });
   draw();
   input.focus();
 }
 
+const SHORTCUTS = [
+  ['General', [['mod+K', 'Command palette'], ['/', 'Focus search'], ['?', 'Keyboard shortcuts'], ['Esc', 'Close the posting, or leave a field']]],
+  ['Lists', [['j/k', 'Next / previous row'], ['Enter', 'Open the posting'], ['f', 'Toggle filters']]],
+  ['Posting', [['s', 'Save to your tracker'], ['a', 'Mark applied'], ['o', 'Open the original posting']]],
+  ['Calendar', [['t', 'Jump to today'], ['←/→', 'Previous / next'], ['m/w/l', 'Month, week or list']]],
+  ['Go to', [['g h', 'Today'], ['g o', 'Opportunities'], ['g a', 'Applications'], ['g c', 'Companies'], ['g l', 'Calendar'],
+    ['g n', 'Analytics'], ['g s', 'Sources'], ['g ,', 'Settings']]],
+];
+
 export function openHelp() {
-  const rows = [
-    ['Ctrl/⌘ K', 'Command palette'], ['/', 'Focus search'], ['j / k', 'Next / previous row'],
-    ['Enter', 'Open job details'], ['s', 'Save job'], ['a', 'Mark applied'], ['o', 'Open original posting'],
-    ['f', 'Toggle filters'], ['Esc', 'Close drawer / blur input'], ['g o', 'Go to opportunities'],
-    ['g a', 'Go to applications'], ['g h', 'Go to overview'], ['g c', 'Go to companies'], ['g l', 'Go to calendar'],
-    ['g n', 'Go to analytics'], ['g s', 'Go to sources'], ['?', 'This help'],
-  ];
-  openModal({title: 'Keyboard shortcuts', submitLabel: '', cancelLabel: 'Close',
-    body: `<dl class="kv" style="grid-template-columns:120px 1fr">${rows.map(([k, v]) => `<dt>${k.split(' ').map(x => `<kbd>${esc(x)}</kbd>`).join(' ')}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`});
+  openModal({title: 'Keyboard shortcuts', submitLabel: '', cancelLabel: 'Close', wide: true,
+    body: `<div class="shortcuts">${SHORTCUTS.map(([group, rows]) => `<section><h3>${esc(group)}</h3><dl>${rows.map(([keys, label]) =>
+      `<div class="sc-row"><dt>${esc(label)}</dt><dd>${keycaps(keys)}</dd></div>`).join('')}</dl></section>`).join('')}</div>`});
 }

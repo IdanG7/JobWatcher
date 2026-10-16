@@ -1,10 +1,12 @@
-// Job intelligence drawer: fit explanation, extracted facts, eligibility,
-// application tracking, contacts, change history and the full description.
+// Posting detail: a header that holds the decision (save, mark applied, open the posting) with
+// everything else behind one ⋯ menu, then the key facts at a glance, fit, your application,
+// requirements, skills and the description. Preparing (letter, PDF, people) and where the
+// listing came from close the column.
 import {del, enc, get, patch, post, put} from './api.js';
-import {ageLong, esc, fmtDay, safeUrl, toEpochMs} from './lib.js';
+import {ageLong, cleanQuote, esc, fitBand, fmtDay, isoDay, levelText, safeUrl, sourceName, toEpochMs} from './lib.js';
 import {
-  STATUS_LABELS, STATUS_ORDER, badges, confirmDialog, deadlineCell, fitMeter, icon, logo, modalOpen, openModal, options,
-  prettyKey, statusPill, toast, trapFocus,
+  STATUS_LABELS, STATUS_ORDER, badges, bindMenu, confirmDialog, deadlineCell, icon, logo, modalOpen, openModal, options,
+  prettyKey, toast, trapFocus,
 } from './ui.js';
 import {contactForm} from './forms.js';
 import {resumeMatchSection} from './resume.js';
@@ -27,11 +29,13 @@ export function setDrawerDocked(value) {
   if (docked) drawer.removeAttribute('aria-modal'); else drawer.setAttribute('aria-modal', 'true');
 }
 
+const closeButton = () => `<button type="button" class="btn ghost sm icon" data-act="close" aria-label="Close" title="Close (Esc)">${icon('x', 15)}</button>`;
+
 export async function openDrawer(key, ctx) {
   ctxRef = ctx;
   const root = document.getElementById('drawer-root');
   if (!current) {
-    root.innerHTML = `<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Job details" tabindex="-1"></aside>`;
+    root.innerHTML = `<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Posting details" tabindex="-1"></aside>`;
     const scrim = root.querySelector('.scrim');
     scrim.addEventListener('click', () => ctx.closeJob());
     const drawer = root.querySelector('.drawer');
@@ -46,7 +50,10 @@ export async function openDrawer(key, ctx) {
   }
   const el = root.querySelector('.drawer');
   current = {key, job: null, el, opener: current?.opener || null};
-  el.innerHTML = `<div class="drawer-head"><div class="top"><span class="skel" style="width:160px"></span><button class="btn ghost sm icon" data-act="close" aria-label="Close">${icon('x')}</button></div><div class="skel" style="height:20px;width:70%;margin-top:14px"></div></div><div class="skel-rows">${'<div class="skel"></div>'.repeat(8)}</div>`;
+  el.innerHTML = `<header class="drawer-head" aria-busy="true"><div class="dh-bar"><span class="dh-skel-co"><span class="skel" style="width:24px;height:24px;border-radius:5px"></span><span class="skel" style="width:150px"></span></span>${closeButton()}</div>
+    <div class="skel" style="height:22px;width:82%;margin-top:18px"></div><div class="skel" style="height:12px;width:48%;margin-top:12px"></div>
+    <div class="dh-skel-actions"><span class="skel" style="width:92px;height:32px;border-radius:5px"></span><span class="skel" style="width:132px;height:32px;border-radius:5px"></span></div></header>
+    <div class="drawer-body"><div class="dh-skel-body">${'<div class="skel"></div>'.repeat(7)}</div></div>`;
   el.querySelector('[data-act=close]').addEventListener('click', () => ctx.closeJob());
   el.focus({preventScroll: true});
   try {
@@ -56,8 +63,10 @@ export async function openDrawer(key, ctx) {
     render(el, job);
   } catch (err) {
     if (current?.key !== key) return;
-    el.innerHTML = `<div class="drawer-head"><div class="top"><span class="eyebrow">Job</span><button class="btn ghost sm icon" data-act="close" aria-label="Close">${icon('x')}</button></div></div><div class="empty"><strong>Could not load this job</strong><p>${esc(err.message)}</p></div>`;
+    el.innerHTML = `<header class="drawer-head"><div class="dh-bar"><span class="dh-company-type">Posting</span>${closeButton()}</div></header>
+      <div class="drawer-body"><div class="empty error-state" role="alert"><span class="state-icon">${icon('alert', 18)}</span><strong>Couldn’t load this posting</strong><p>${esc(err.message)}</p><button type="button" class="btn sm" data-act="retry">${icon('refresh')}Try again</button></div></div>`;
     el.querySelector('[data-act=close]').addEventListener('click', () => ctx.closeJob());
+    el.querySelector('[data-act=retry]').addEventListener('click', () => openDrawer(key, ctx));
   }
 }
 
@@ -88,136 +97,81 @@ export async function reloadDrawer() {
   const body = el.querySelector('.drawer-body');
   const scroll = body?.scrollTop || 0;
   const focused = document.activeElement && el.contains(document.activeElement) ? document.activeElement : null;
+  // Re-find the focused control in the fresh markup (the watch star, the status select…).
+  const refocus = focused?.id ? `#${CSS.escape(focused.id)}` : focused?.dataset.act ? `[data-act="${focused.dataset.act}"]`
+    : focused?.matches('[data-menu-trigger]') ? '[data-menu-trigger]' : null;
   current.job = job;
   render(el, job, {docs: docs.every(Boolean) ? docs : null});
   el.querySelectorAll('[data-app-form] [name]').forEach(f => { if (f.name in drafts) f.value = drafts[f.name]; });
+  syncAppForm(el);
   const fresh = el.querySelector('.drawer-body');
   if (fresh) fresh.scrollTop = scroll;
-  if (focused?.isConnected) focused.focus({preventScroll: true});
+  const target = focused?.isConnected ? focused : refocus ? el.querySelector(refocus) : null;
+  if (target && !target.closest('[hidden]')) target.focus({preventScroll: true});
   else el.focus({preventScroll: true});
 }
 
-const unknown = '<dd class="unknown">Not specified</dd>';
-const dd = (value, raw = false) => (value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length))
-  ? unknown : `<dd>${raw ? value : esc(value)}</dd>`;
-const quote = text => (text ? `<div class="muted" style="font-size:11.5px;margin-top:2px">“${esc(text)}”</div>` : '');
+/** The sentence a fact was read from, cut at whole words and shown under it as evidence. */
+const quote = text => { const q = cleanQuote(text); return q ? `<q class="evidence">${esc(q)}</q>` : ''; };
+
+const FIT_LABEL = {high: 'Strong fit', good: 'Good fit', mid: 'Partial fit', low: 'Weak fit', none: 'Not scored yet'};
+const DESC_LIMIT = 1600;
+const SOURCE_KIND = {direct: 'Company careers site', aggregator: 'Community job list', linkedin: 'LinkedIn'};
+
+function sectionHead(id, title, aside = '', level = 3) {
+  return `<div class="section-head"><h${level} id="${id}">${title}</h${level}>${aside}</div>`;
+}
 
 function render(el, job, {docs = null} = {}) {
   const f = job.facts || {};
   const cls = f.classification || {};
-  const sen = f.seniority || {};
-  const cyc = f.cycle || {};
   const loc = f.location || {};
-  const comp = f.compensation || {};
-  const elig = f.eligibility || {};
-  const grad = f.graduation || {};
-  const fd = job.fit_detail || {};
   const app = job.application;
-  const profileSkills = new Set(ctxRef.profile?.skills || []);
+  const status = app?.status || null;
   const closed = job.job_status === 'closed';
 
-  const role = cls.is_finance
-    ? `${esc(cls.category_label || '')}${cls.subcategory_label ? ` <span class="muted">›</span> ${esc(cls.subcategory_label)}` : ''}`
-    : esc(cls.category_label || prettyKey(job.family || 'Other'));
+  // Category › specialty, for finance and the other job families alike.
+  const role = `${esc(cls.category_label || prettyKey(job.family || 'other'))}${cls.subcategory_label ? ` <span class="crumb" aria-hidden="true">›</span> ${esc(cls.subcategory_label)}` : ''}`;
+  const guess = typeof cls.confidence === 'number' && cls.confidence < 0.45
+    ? ' <span class="dh-guess" title="Read from a vague title; check the posting">best guess</span>' : '';
+  const where = esc(loc.city_labels?.join(' / ') || job.location || 'Location not specified');
 
   el.innerHTML = `
-  <div class="drawer-head">
-    <div class="top">
-      <a class="eyebrow" href="#/companies/${enc(job.company_key)}" style="display:flex;align-items:center;gap:8px">${logo(job.company)}<span style="text-transform:none;letter-spacing:0;font-size:13px;color:var(--text);font-weight:600">${esc(job.company || 'Unknown company')}</span><span>${esc(job.company_type_label || '')}</span></a>
-      <div style="display:flex;gap:4px">
-        <button class="btn ghost sm icon${job.watched ? ' on' : ''}" data-act="watch" title="${job.watched ? 'Remove from watchlist' : 'Add company to watchlist'}" aria-pressed="${job.watched}">${icon('star')}</button>
-        <button class="btn ghost sm icon" data-act="copy" title="Copy link to this job">${icon('external')}</button>
-        <button class="btn ghost sm icon" data-act="close" aria-label="Close (Esc)">${icon('x')}</button>
+  <header class="drawer-head">
+    <div class="dh-bar">
+      <a class="dh-company" href="#/companies/${enc(job.company_key)}" title="Open company page">${logo(job.company)}<span class="dh-company-name">${esc(job.company || 'Unknown company')}</span>${job.company_type_label ? `<span class="dh-company-type">${esc(job.company_type_label)}</span>` : ''}</a>
+      <div class="dh-tools">
+        <button type="button" class="btn ghost sm icon${job.watched ? ' on' : ''}" data-act="watch" aria-pressed="${!!job.watched}" aria-label="Watch ${esc(job.company || 'company')}" title="${job.watched ? 'Watching this company · click to stop' : 'Watch this company · boosts its fit scores'}">${icon('star', 15)}</button>
+        ${moreMenu(job, status)}
+        ${closeButton()}
       </div>
     </div>
-    <h2>${esc(job.title)}</h2>
-    <div class="sub">${role}<span class="muted">·</span><span>${esc(loc.city_labels?.join(' / ') || job.location || 'Location not specified')}</span>${job.cycle_label ? `<span class="muted">·</span><span>${esc(job.cycle_label)}</span>` : ''}</div>
-    <div class="chips" style="margin-top:8px">${badges(job.badges, 8)}</div>
-  </div>
-  <div class="drawer-actions">
-    ${app ? `<label class="sr-only" for="drawer-status">Application status</label><select class="select" id="drawer-status" style="height:30px">${options(STATUS_ORDER.map(k => ({key: k, label: STATUS_LABELS[k]})), app.status)}</select>`
-      : `<button class="btn primary" data-act="save">${icon('bookmark')} Save <kbd>s</kbd></button>`}
-    ${!app || ['discovered', 'saved', 'preparing'].includes(app.status) ? `<button class="btn" data-act="applied">${icon('check')} Mark applied <kbd>a</kbd></button>` : ''}
-    <a class="btn" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer" data-act="open">${icon('external')} Open posting <kbd>o</kbd></a>
-    <span style="flex:1"></span>
-    <button class="btn ghost sm" data-act="deadline" title="Set or correct the deadline">${icon('calendar')} Deadline</button>
-    <button class="btn ghost sm" data-act="hide" title="${job.override?.hidden ? 'Unhide this job' : 'Hide this job from lists'}">${icon('eyeOff')} ${job.override?.hidden ? 'Unhide' : 'Hide'}</button>
-  </div>
+    <h2 class="dh-title">${esc(job.title)}</h2>
+    <p class="dh-meta"><span>${role}${guess}</span><span class="sep" aria-hidden="true">·</span><span>${where}</span></p>
+    ${job.badges?.length ? `<div class="dh-badges">${badges(job.badges, 8)}</div>` : ''}
+    <div class="dh-actions">
+      ${!status ? `<button type="button" class="btn primary" data-act="save" title="Save to your tracker (s)">${icon('bookmark')}Save</button>`
+        : EARLY_STATUSES.includes(status) ? `<button type="button" class="btn primary" data-act="applied" title="Mark as applied (a)">${icon('check')}Mark applied</button>` : ''}
+      <a class="btn" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer" data-act="open" title="Open the posting (o)">${icon('external')}Open posting</a>
+      ${status ? `<label class="status-control st-${esc(status)}" title="Application status"><i aria-hidden="true"></i><span class="sr-only">Application status</span><select id="drawer-status">${options(STATUS_ORDER.map(k => ({key: k, label: STATUS_LABELS[k]})), status)}</select>${icon('chevronDown', 12)}</label>` : ''}
+    </div>
+  </header>
   <div class="drawer-body">
+    ${closed ? `<div class="callout neg dh-callout">${icon('clock')}<div>Removed from ${esc(sourceName(job.source_label))}${job.closed_at ? ` on ${fmtDay(String(job.closed_at).slice(0, 10))}` : ''}. The role may be filled or closed.</div></div>`
+      : job.job_status === 'possibly_closed' ? `<div class="callout info dh-callout">${icon('clock')}<div>Missing from the latest check of ${esc(sourceName(job.source_label))}. Foothold marks it closed if it stays missing.</div></div>` : ''}
+    ${glance(job, f)}
+    ${fitSection(job, job.fit_detail || {})}
     ${resumeMatchSection(job.resume_match)}
-    ${closed ? `<div class="callout neg" style="margin-top:14px">${icon('clock')}<div>This role was removed from ${esc(job.source_label)}${job.closed_at ? ` on ${fmtDay(String(job.closed_at).slice(0, 10))}` : ''}. It may be filled or closed.</div></div>`
-      : job.job_status === 'possibly_closed' ? `<div class="callout" style="margin-top:14px">${icon('clock')}<div>Missing from the latest poll of ${esc(job.source_label)}. Jobwatch will mark it closed if it stays missing.</div></div>` : ''}
-
-    <section class="section">
-      <h3>Fit score</h3>
-      <div class="score-card">
-        <div class="fit-lg ${job.fit >= 85 ? 'high' : ''}"><b>${job.fit ?? '—'}</b><span>/100</span></div>
-        <div>
-          <ul class="reasons">${(fd.reasons || []).slice(0, 4).map(r => `<li>${esc(r)}</li>`).join('')}${(fd.concerns || []).slice(0, 3).map(c => `<li class="concern">${esc(c)}</li>`).join('')}</ul>
-          <button class="why-btn" data-act="why" aria-expanded="false" style="margin-top:8px">Why ${job.fit ?? '—'}? ${icon('chevronDown', 12)}</button>
-        </div>
-      </div>
-      <div class="breakdown" data-breakdown hidden>
-        ${(fd.subscores || []).map(s => `<div class="brk"><span>${esc(s.label)}</span><span class="bar"><i style="width:${s.max ? (s.points / s.max) * 100 : 0}%"></i></span><span class="pts">${fmtPts(s.points)}/${s.max}</span>${s.detail ? `<span class="why">${esc(s.detail)}</span>` : ''}</div>`).join('')}
-        ${(fd.penalties || []).map(p => `<div class="brk pen"><span>${esc(p.label)}</span><span class="bar"><i style="width:${Math.min(100, Math.abs(p.points) * 2.5)}%"></i></span><span class="pts">${fmtPts(p.points)}</span>${p.detail ? `<span class="why">${esc(p.detail)}</span>` : ''}</div>`).join('')}
-        <div class="total-line"><span>Total${fd.raw_total !== undefined && fd.raw_total !== job.fit ? ` <span class="muted" style="font-weight:400">(raw ${fmtPts(fd.raw_total)}, clamped 0–100)</span>` : ''}</span><span>${job.fit ?? '—'}</span></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h3>Role intelligence</h3>
-      <dl class="kv">
-        <dt>Category</dt><dd>${role} <span class="muted">· ${esc(confidence(cls.confidence))} confidence</span>${[...(cls.secondary_subcategory_labels || []), ...(cls.secondary_labels || [])].length ? `<div class="muted" style="font-size:11.5px">Also: ${esc([...(cls.secondary_subcategory_labels || []), ...(cls.secondary_labels || [])].join(', '))}</div>` : ''}</dd>
-        <dt>Level</dt>${dd(sen.level_label ? `${sen.level_label}${sen.stage ? ` · ${prettyKey(sen.stage)}` : ''}` : '')}
-        ${sen.notes?.length ? `<dt></dt><dd class="muted" style="font-size:11.5px">${esc(sen.notes.join(' · '))}</dd>` : ''}
-        <dt>Recruiting cycle</dt>${dd(cyc.label ? `${cyc.label}${cyc.inferred ? ' (inferred)' : ''}` : '')}
-        <dt>Deadline</dt><dd>${job.deadline ? `${deadlineCell(job.deadline, job.window_status)} <span class="muted">· ${job.override?.deadline ? 'set by you' : f.deadline?.confidence ? `${esc(f.deadline.confidence)} confidence` : ''}</span>${quote(f.deadline?.text)}` : f.rolling ? 'Rolling — apply early' : '<span class="unknown muted"><i>Not specified</i></span>'}</dd>
-        <dt>Location</dt><dd>${esc(job.location || '—')}${loc.remote ? ' <span class="tag">Remote</span>' : ''}${loc.hybrid ? ` <span class="tag">Hybrid${loc.work_model?.office_days ? ` · ${loc.work_model.office_days} days in office` : ''}</span>` : loc.work_model?.model === 'onsite' ? ' <span class="tag">On-site</span>' : ''}${quote(loc.work_model?.text)}</dd>
-        <dt>Compensation</dt>${comp.display ? `<dd>${esc(comp.display)}${comp.annualized_estimate && comp.annual_display ? `<div class="muted" style="font-size:11.5px">≈ ${esc(comp.annual_display)} annualized (estimate)</div>` : ''}${comp.currency_inferred ? '<div class="muted" style="font-size:11.5px">Currency inferred from location</div>' : ''}</dd>` : unknown}
-        <dt>Posted</dt><dd>${job.posted ? esc(ageLong(job.posted)) : '<span class="muted">Not provided by source</span>'} <span class="muted">· first seen ${esc(ageLong(toEpochMs(job.first_seen)))}</span></dd>
-        <dt>Discovered from</dt><dd>${esc((job.discovered_from || []).join(', '))}</dd>
-      </dl>
-    </section>
-
-    <section class="section">
-      <h3>Eligibility <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">extracted from the posting — never assumed</span></h3>
-      <dl class="kv">
-        <dt>Degree</dt>${elig.degree ? `<dd>${esc(elig.degree)}${quote(elig.degree_text)}</dd>` : unknown}
-        <dt>Graduation window</dt>${grad.years?.length ? `<dd>${esc(grad.years.join(' – '))}${quote(grad.text)}</dd>` : unknown}
-        <dt>Minimum GPA</dt>${elig.gpa_min ? `<dd>${esc(elig.gpa_min)}${quote(elig.gpa_text)}</dd>` : unknown}
-        <dt>Work authorization</dt>${elig.work_authorization?.length ? `<dd>${esc(elig.work_authorization.join(', '))}${quote(elig.work_auth_text)}</dd>` : unknown}
-        <dt>Sponsorship</dt>${elig.sponsorship ? `<dd>${elig.sponsorship === 'not_available' ? '<span class="dl-warn">Not available</span>' : 'Available'}${quote(elig.sponsorship_text)}</dd>` : unknown}
-        <dt>Citizenship</dt>${elig.citizenship ? `<dd>${esc(elig.citizenship)}${quote(elig.citizenship_text)}</dd>` : unknown}
-        <dt>Languages</dt>${elig.languages?.length ? `<dd>${esc(elig.languages.join(', '))}${quote(elig.language_text)}</dd>` : unknown}
-        <dt>Enrollment</dt>${elig.enrollment ? `<dd>${esc(elig.enrollment)}${elig.enrollment_text !== elig.degree_text ? quote(elig.enrollment_text) : ''}</dd>` : unknown}
-        <dt>Application materials</dt>${elig.materials?.length ? `<dd>${esc(elig.materials.join(', '))} required${quote(elig.materials_text)}</dd>` : unknown}
-        <dt>Experience</dt>${dd(elig.experience || (sen.years_required ? `${sen.years_required}+ years` : ''))}
-      </dl>
-    </section>
-
-    ${(f.skills || []).length ? `<section class="section"><h3>Skills mentioned <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">${[...(f.skills || [])].filter(s => profileSkills.has(s.key)).length} match your profile</span></h3>
-      <div class="chips">${f.skills.map(s => `<span class="tag${profileSkills.has(s.key) ? ' match' : ''}" title="${esc(prettyKey(s.group))}">${profileSkills.has(s.key) ? '✓ ' : ''}${esc(s.label)}</span>`).join('')}</div></section>` : ''}
-
     ${app ? applicationSection(job, app) : ''}
-
-    ${documentsSections()}
-
-
-    <section class="section">
-      <h3>Contacts at ${esc(job.company || 'this company')} <button class="btn xs" data-act="add-contact">${icon('plus', 12)} Add</button></h3>
-      ${job.contacts.length ? `<ul class="mini-list" style="margin:0 -14px">${job.contacts.map(c => `<li><span class="logo">${esc((c.name || '?').slice(0, 1))}</span><div class="grow"><div class="t">${esc(c.name)} <span class="muted" style="font-weight:400">${esc(c.position || '')}</span></div><div class="s">${esc(prettyKey(c.relationship))}${c.last_contacted ? ` · last contact ${fmtDay(c.last_contacted)}` : ''}${c.next_follow_up ? ` · follow up ${fmtDay(c.next_follow_up)}` : ''}</div></div></li>`).join('')}</ul>`
-        : '<p class="muted" style="margin:0">No contacts yet. Track alumni, recruiters and referrals here — stored only in your local database.</p>'}
+    ${requirementsSection(f)}
+    ${skillsSection(f.skills || [], new Set(ctxRef.profile?.skills || []))}
+    ${descriptionSection(job)}
+    <section class="section prep" aria-labelledby="dr-prep">
+      ${sectionHead('dr-prep', 'Prepare')}
+      ${documentsSections()}
+      ${peopleBlock(job)}
     </section>
-
-    ${job.changes.length ? `<section class="section"><h3>Change history</h3><ul class="changes">${job.changes.map(c => `<li><time>${esc(fmtDay(String(c.ts).slice(0, 10)))}</time><span>${esc(changeText(c))}</span></li>`).join('')}</ul></section>` : ''}
-
-    <section class="section">
-      <h3>Description ${job.description_source ? `<span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">via ${esc(job.description_source)}</span>` : ''}</h3>
-      ${job.description ? `<div class="desc" data-desc>${esc(job.description.slice(0, 1600))}${job.description.length > 1600 ? '…' : ''}</div>${job.description.length > 1600 ? '<button class="why-btn" data-act="more" style="margin-top:8px">Show full description</button>' : ''}`
-        : `<p class="muted" style="margin:0">This source does not include descriptions in its listing feed. Jobwatch fetches details for high-priority roles in the background (<code>--enrich</code>); open the posting for full details.</p>`}
-    </section>
-
-    ${job.sources.length > 1 ? `<section class="section"><h3>Also listed on</h3><ul class="mini-list" style="margin:0 -14px">${job.sources.map(s => `<li><div class="grow"><div class="t">${esc(s.label)} ${s.canonical ? '<span class="badge rolling">Primary</span>' : ''}</div><div class="s">${esc(prettyKey(s.kind))} · first seen ${esc(ageLong(toEpochMs(s.first_seen)))}</div></div><a class="btn xs ext" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener noreferrer">Open</a></li>`).join('')}</ul></section>` : ''}
+    ${listingSection(job, f)}
   </div>`;
 
   bind(el, job);
@@ -229,41 +183,196 @@ function render(el, job, {docs = null} = {}) {
   }
 }
 
+/** Everything that is not the decision at hand: one ⋯ menu instead of a row of buttons. */
+function moreMenu(job, status) {
+  const item = (act, ic, label, {danger = false, key = ''} = {}) =>
+    `<button type="button" class="menu-item${danger ? ' danger' : ''}" role="menuitem" data-act="${act}">${icon(ic)}<span>${label}</span>${key ? `<kbd>${key}</kbd>` : ''}</button>`;
+  return `<div class="menu-wrap" data-drawer-menu>
+      <button type="button" class="btn ghost sm icon" data-menu-trigger aria-haspopup="menu" aria-expanded="false" aria-controls="drawer-menu" aria-label="More actions" title="More actions">${icon('more', 16)}</button>
+      <div class="menu" id="drawer-menu" role="menu" aria-label="Posting actions" hidden>
+        ${!status ? item('applied', 'check', 'Mark as applied', {key: 'a'}) : ''}
+        ${item('deadline', 'calendar', job.override?.deadline ? 'Change your deadline…' : 'Set deadline…')}
+        ${item('copy', 'link', 'Copy link')}
+        <hr class="menu-sep">
+        ${item('hide', 'eyeOff', job.override?.hidden ? 'Show in lists again' : 'Hide from lists')}
+        ${status ? item('untrack', 'trash', 'Remove from tracker', {danger: true}) : ''}
+      </div>
+    </div>`;
+}
+
+/** The facts that decide whether to apply, in one strip. What the posting doesn't say is left out. */
+function glance(job, f) {
+  const sen = f.seniority || {};
+  const cyc = f.cycle || {};
+  const loc = f.location || {};
+  const comp = f.compensation || {};
+  const cells = [];   // [label, value html, small note, tooltip]
+  if (job.deadline) {
+    cells.push(['Deadline', deadlineCell(job.deadline, job.window_status), job.override?.deadline ? 'set by you' : '',
+      f.deadline?.text && !job.override?.deadline ? `From the posting: ${cleanQuote(f.deadline.text)}` : '']);
+  } else if (f.rolling) cells.push(['Deadline', 'Rolling', 'apply early']);
+  if (comp.display) {
+    cells.push(['Pay', `<span class="num">${esc(comp.display)}</span>`, comp.annualized_estimate && comp.annual_display ? `≈ ${esc(comp.annual_display)} a year` : '',
+      comp.currency_inferred ? 'Currency inferred from the location' : '']);
+  }
+  const level = levelText(sen);
+  if (level) cells.push(['Level', esc(level)]);
+  const work = loc.remote ? 'Remote' : loc.hybrid ? 'Hybrid' : loc.work_model?.model === 'onsite' ? 'On-site' : '';
+  if (work) {
+    cells.push(['Work', work, loc.hybrid && loc.work_model?.office_days ? `${esc(loc.work_model.office_days)} days in office` : '',
+      loc.work_model?.text ? cleanQuote(loc.work_model.text) : '']);
+  }
+  if (cyc.label) cells.push(['Cycle', esc(cyc.label), cyc.inferred ? 'inferred' : '']);
+  const seen = ageLong(toEpochMs(job.first_seen));
+  cells.push(job.posted ? ['Posted', esc(ageLong(job.posted)), '', `First seen ${seen}`] : ['Found', esc(seen), '', 'The source doesn’t give a posting date']);
+  return `<dl class="glance">${cells.map(([k, v, small, tip]) => `<div${tip ? ` title="${esc(tip)}"` : ''}><dt>${k}</dt><dd>${v}${small ? `<small>${small}</small>` : ''}</dd></div>`).join('')}</dl>
+    ${sen.notes?.length ? `<p class="glance-note">${icon('info', 13)}<span>${esc(sen.notes.join(' '))}</span></p>` : ''}`;
+}
+
+function fitSection(job, fd) {
+  const band = fitBand(job.fit);
+  const reasons = (fd.reasons || []).slice(0, 4);
+  const concerns = (fd.concerns || []).slice(0, 3);
+  const subs = fd.subscores || [];
+  const pens = fd.penalties || [];
+  const breakdown = subs.length || pens.length;
+  return `<section class="section fit-section" aria-labelledby="dr-fit">
+    ${sectionHead('dr-fit', 'Fit', breakdown ? `<button type="button" class="disclosure" data-act="why" aria-expanded="false" aria-controls="fit-breakdown">How it adds up${icon('chevronDown', 12)}</button>` : '')}
+    <div class="fit-summary band-${band}">
+      <div class="fit-figure"><b>${job.fit ?? '—'}</b><span>/100</span></div>
+      <div class="fit-scale">
+        <div class="fit-label">${FIT_LABEL[band]}</div>
+        <div class="fit-track" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, job.fit || 0))}%"></i></div>
+      </div>
+    </div>
+    ${reasons.length || concerns.length ? `<ul class="fit-reasons">${reasons.map(r => `<li class="pro">${icon('check', 13)}<span>${esc(r)}</span></li>`).join('')}${concerns.map(c => `<li class="con">${icon('alert', 13)}<span>${esc(c)}</span></li>`).join('')}</ul>` : ''}
+    ${breakdown ? `<div class="breakdown" id="fit-breakdown" data-breakdown hidden>
+      ${subs.map(s => `<div class="brk"><span>${esc(s.label)}</span><span class="bar"><i style="width:${s.max ? (s.points / s.max) * 100 : 0}%"></i></span><span class="pts">${fmtPts(s.points)}/${s.max}</span>${s.detail ? `<span class="why">${esc(s.detail)}</span>` : ''}</div>`).join('')}
+      ${pens.map(p => `<div class="brk pen"><span>${esc(p.label)}</span><span class="bar"><i style="width:${Math.min(100, Math.abs(p.points) * 2.5)}%"></i></span><span class="pts">${fmtPts(p.points)}</span>${p.detail ? `<span class="why">${esc(p.detail)}</span>` : ''}</div>`).join('')}
+      <div class="total-line"><span>Total${fd.raw_total !== undefined && fd.raw_total !== job.fit ? ` <span class="kv-note">raw ${fmtPts(fd.raw_total)}, kept within 0–100</span>` : ''}</span><span>${job.fit ?? '—'}</span></div>
+    </div>` : ''}
+  </section>`;
+}
+
+/** What the posting asks of applicants, each with the words it was read from. Only stated rows. */
+function requirementRows(f) {
+  const elig = f.eligibility || {};
+  const grad = f.graduation || {};
+  const sen = f.seniority || {};
+  return [
+    ['Degree', elig.degree && `${esc(elig.degree)}${quote(elig.degree_text)}`],
+    ['Graduation', grad.years?.length && `${esc(grad.years.join(' – '))}${quote(grad.text)}`],
+    ['Minimum GPA', elig.gpa_min && `<span class="num">${esc(elig.gpa_min)}</span>${quote(elig.gpa_text)}`],
+    ['Work authorization', elig.work_authorization?.length && `${esc(elig.work_authorization.join(', '))}${quote(elig.work_auth_text)}`],
+    ['Sponsorship', elig.sponsorship && `${elig.sponsorship === 'not_available' ? '<span class="dl-warn">Not available</span>' : 'Available'}${quote(elig.sponsorship_text)}`],
+    ['Citizenship', elig.citizenship && `${esc(elig.citizenship)}${quote(elig.citizenship_text)}`],
+    ['Languages', elig.languages?.length && `${esc(elig.languages.join(', '))}${quote(elig.language_text)}`],
+    ['Enrollment', elig.enrollment && `${esc(elig.enrollment)}${elig.enrollment_text !== elig.degree_text ? quote(elig.enrollment_text) : ''}`],
+    ['Materials', elig.materials?.length && `${esc(elig.materials.join(', '))} required${quote(elig.materials_text)}`],
+    ['Experience', (elig.experience || sen.years_required) && esc(elig.experience || `${sen.years_required}+ years`)],
+  ].filter(r => r[1]);
+}
+
+function requirementsSection(f) {
+  const rows = requirementRows(f);
+  if (!rows.length) return '';
+  return `<section class="section" aria-labelledby="dr-req">
+    ${sectionHead('dr-req', 'Requirements', '<span class="section-aside">As stated in the posting</span>')}
+    <dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+  </section>`;
+}
+
+function skillsSection(skills, mine) {
+  if (!skills.length) return '';
+  const matched = skills.filter(s => mine.has(s.key)).length;
+  return `<section class="section" aria-labelledby="dr-skills">
+    ${sectionHead('dr-skills', 'Skills mentioned', mine.size ? `<span class="section-aside">${matched} of ${skills.length} in your profile</span>` : '')}
+    <div class="chips">${skills.map(s => `<span class="tag${mine.has(s.key) ? ' match' : ''}" title="${esc(prettyKey(s.group))}${mine.has(s.key) ? ' · in your profile' : ''}">${mine.has(s.key) ? icon('check', 11) : ''}${esc(s.label)}</span>`).join('')}</div>
+  </section>`;
+}
+
+/** Postings arrive with runs of blank lines and trailing spaces; keep paragraphs, drop the rest. */
+const tidyText = text => String(text || '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+
+function descriptionSection(job) {
+  const text = tidyText(job.description);
+  const long = text.length > DESC_LIMIT;
+  return `<section class="section" aria-labelledby="dr-desc">
+    ${sectionHead('dr-desc', 'Description')}
+    ${text ? `<div class="desc${long ? ' clamped' : ''}" data-desc>${esc(long ? `${text.slice(0, DESC_LIMIT)}…` : text)}</div>
+      ${long ? `<button type="button" class="disclosure" data-act="more">Show full description${icon('chevronDown', 12)}</button>` : ''}`
+      : `<p class="section-empty">This listing doesn’t include the description. <a class="link" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Read it on the posting</a>.</p>`}
+  </section>`;
+}
+
 function applicationSection(job, app) {
-  return `<section class="section">
-    <h3>Application <span>${statusPill(app.status)}</span></h3>
-    <form class="field-grid" data-app-form style="display:grid;gap:10px">
+  // Oldest first: Saved → Applied → Interview…
+  const trail = [...(job.application_events || [])].reverse().map(e => `<li${e.note ? ` title="${esc(e.note)}"` : ''}><span>${esc(STATUS_LABELS[e.to_status] || prettyKey(e.to_status))}</span><time datetime="${esc(e.ts)}">${esc(fmtDay(String(e.ts).slice(0, 10)))}</time></li>`).join('');
+  const extra = app.resume_version || app.referral;
+  return `<section class="section" aria-labelledby="dr-app">
+    ${sectionHead('dr-app', 'Your application', '<span class="section-aside">Only on this computer</span>')}
+    ${trail ? `<ol class="app-trail" aria-label="Status history">${trail}</ol>` : ''}
+    <form class="app-form" data-app-form>
       <div class="field-row three">
-        <label class="field"><span>Deadline</span><input class="input" type="date" name="deadline" value="${esc(app.deadline || '')}"></label>
         <label class="field"><span>Applied</span><input class="input" type="date" name="applied_date" value="${esc(app.applied_date || '')}"></label>
         <label class="field"><span>Interview</span><input class="input" type="date" name="interview_date" value="${esc((app.interview_date || '').slice(0, 10))}"></label>
+        <label class="field"><span>Your deadline</span><input class="input" type="date" name="deadline" value="${esc(app.deadline || '')}"></label>
       </div>
-      <div class="field-row">
+      <div class="field-row wide-left">
         <label class="field"><span>Next step</span><input class="input" name="next_step" value="${esc(app.next_step || '')}" placeholder="e.g. Email Sarah for a referral"></label>
-        <label class="field"><span>Next action date</span><input class="input" type="date" name="next_action_date" value="${esc(app.next_action_date || '')}"></label>
+        <label class="field"><span>By</span><input class="input" type="date" name="next_action_date" value="${esc(app.next_action_date || '')}"></label>
       </div>
-      <div class="field-row three">
-        <label class="field"><span>Resume version</span><input class="input" name="resume_version" value="${esc(app.resume_version || '')}" placeholder="IB v3"></label>
-        <label class="field"><span>Referral</span><input class="input" name="referral" value="${esc(app.referral || '')}" placeholder="Name or none"></label>
-      </div>
-      <label class="field"><span>Notes <span class="muted">(private, local only)</span></span><textarea class="input" name="notes" rows="3">${esc(app.notes || '')}</textarea></label>
-      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-        <button type="button" class="btn ghost sm danger" data-act="untrack">${icon('trash')} Remove from tracker</button>
-        <button type="submit" class="btn primary sm">Save changes</button>
-      </div>
+      <label class="field"><span>Notes</span><textarea class="input" name="notes" rows="2" placeholder="Anything worth remembering about this application">${esc(app.notes || '')}</textarea></label>
+      <details class="app-more"${extra ? ' open' : ''}><summary>${icon('chevronDown', 12)}Resume version and referral</summary>
+        <div class="field-row">
+          <label class="field"><span>Resume version</span><input class="input" name="resume_version" value="${esc(app.resume_version || '')}" placeholder="IB v3"></label>
+          <label class="field"><span>Referral</span><input class="input" name="referral" value="${esc(app.referral || '')}" placeholder="Name, or none"></label>
+        </div>
+      </details>
+      <div class="form-foot"><span class="form-state" data-form-state aria-live="polite"></span><button type="submit" class="btn sm" data-app-save disabled>Save changes</button></div>
     </form>
-    ${job.application_events.length ? `<ul class="changes" style="margin-top:12px">${job.application_events.map(e => `<li><time>${esc(fmtDay(String(e.ts).slice(0, 10)))}</time><span>${e.from_status ? `${esc(STATUS_LABELS[e.from_status] || e.from_status)} → ` : ''}${esc(STATUS_LABELS[e.to_status] || e.to_status)}${e.note ? ` · ${esc(e.note)}` : ''}</span></li>`).join('')}</ul>` : ''}
   </section>`;
+}
+
+function peopleBlock(job) {
+  return `<section class="section" aria-labelledby="dr-people">
+    ${sectionHead('dr-people', `People at ${esc(job.company || 'this company')}`, `<button type="button" class="btn ghost xs" data-act="add-contact">${icon('plus', 12)}Add</button>`, 4)}
+    ${job.contacts.length ? `<ul class="people">${job.contacts.map(c => `<li><span class="avatar" aria-hidden="true">${esc((c.name || '?').slice(0, 1).toUpperCase())}</span><div class="grow"><div class="t">${esc(c.name)}${c.position ? ` <span class="pos">${esc(c.position)}</span>` : ''}</div><div class="s">${esc(prettyKey(c.relationship))}${c.last_contacted ? ` · last contact ${fmtDay(c.last_contacted)}` : ''}${c.next_follow_up ? ` · follow up ${fmtDay(c.next_follow_up)}` : ''}</div></div></li>`).join('')}</ul>`
+      : '<p class="section-empty">No one yet. Alumni, recruiters and referrals you add stay on this computer.</p>'}
+  </section>`;
+}
+
+/** Where the listing came from and what changed since: small print at the end. */
+function listingSection(job, f) {
+  const sources = job.sources?.length ? job.sources : [{label: job.source_label, url: job.url, kind: ''}];
+  const day = value => fmtDay(isoDay(new Date(toEpochMs(value))), true);
+  const rows = [
+    [sources.length > 1 ? 'Listed on' : 'Source', sources.map(s => `<div class="src"><a class="link" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener noreferrer">${esc(sourceName(s.label))}</a>${SOURCE_KIND[s.kind] ? `<span class="kv-note">${SOURCE_KIND[s.kind]}</span>` : ''}</div>`).join('')],
+    ['First seen', `${esc(day(job.first_seen))}<span class="kv-note">${esc(ageLong(toEpochMs(job.first_seen)))}</span>`],
+    job.posted && ['Posted', esc(day(job.posted))],
+    !requirementRows(f).length && ['Requirements', '<span class="unknown">None stated in the posting</span>'],
+    job.changes.length && ['Changes', `<ul class="changes">${job.changes.map(c => `<li><time>${esc(fmtDay(String(c.ts).slice(0, 10)))}</time><span>${esc(changeText(c))}</span></li>`).join('')}</ul>`],
+  ].filter(Boolean);
+  return `<section class="section listing" aria-labelledby="dr-listing">
+    ${sectionHead('dr-listing', 'About this listing')}
+    <dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+  </section>`;
+}
+
+/** The application form's save button wakes up only once something changed. */
+function syncAppForm(el) {
+  const form = el.querySelector('[data-app-form]');
+  if (!form) return;
+  const dirty = [...form.querySelectorAll('[name]')].some(f => f.value !== f.defaultValue);
+  const btn = form.querySelector('[data-app-save]');
+  btn.disabled = !dirty;
+  btn.classList.toggle('primary', dirty);
+  form.querySelector('[data-form-state]').textContent = dirty ? 'Unsaved changes' : '';
 }
 
 function fmtPts(n) {
   if (n === null || n === undefined) return '—';
   return String(Math.round(n * 10) / 10);
-}
-
-function confidence(c) {
-  if (c === null || c === undefined) return 'unknown';
-  return c >= 0.75 ? 'high' : c >= 0.45 ? 'medium' : 'low';
 }
 
 function changeText(c) {
@@ -307,27 +416,35 @@ export async function quickAction(action, job, ctx) {
   }
 }
 
+function overrideBody(job, patchValues) {
+  return {deadline: job.override?.deadline || '', deadline_note: job.override?.deadline_note || '', hidden: !!job.override?.hidden, ...patchValues};
+}
+
 function bind(el, job) {
   const ctx = ctxRef;
-  el.querySelectorAll('[data-act=close]').forEach(b => b.addEventListener('click', () => ctx.closeJob()));
-  el.querySelector('[data-act=why]')?.addEventListener('click', e => {
+  const on = (act, fn) => el.querySelectorAll(`[data-act=${act}]`).forEach(b => b.addEventListener('click', fn));
+  bindMenu(el.querySelector('[data-drawer-menu]'));
+  on('close', () => ctx.closeJob());
+  on('why', e => {
     const box = el.querySelector('[data-breakdown]');
     box.hidden = !box.hidden;
     e.currentTarget.setAttribute('aria-expanded', String(!box.hidden));
   });
-  el.querySelector('[data-act=more]')?.addEventListener('click', e => {
-    el.querySelector('[data-desc]').textContent = job.description;
+  on('more', e => {
+    const desc = el.querySelector('[data-desc]');
+    desc.textContent = job.description;
+    desc.classList.remove('clamped');
     e.currentTarget.remove();
   });
-  el.querySelector('[data-act=save]')?.addEventListener('click', () => quickAction('save', job, ctx));
-  el.querySelector('[data-act=applied]')?.addEventListener('click', () => quickAction('applied', job, ctx));
-  el.querySelector('[data-act=copy]')?.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(location.href); toast('Link copied'); } catch { toast('Copy failed', {error: true}); }
+  on('save', () => quickAction('save', job, ctx));
+  on('applied', () => quickAction('applied', job, ctx));
+  on('copy', async () => {
+    try { await navigator.clipboard.writeText(location.href); toast('Link copied'); } catch { toast('Couldn’t copy the link', {error: true}); }
   });
-  el.querySelector('[data-act=watch]')?.addEventListener('click', async () => {
+  on('watch', async () => {
     try {
       await put(`/api/companies/${enc(job.company_key)}/watch`, {watched: !job.watched, name: job.company});
-      toast(job.watched ? `Removed ${job.company} from watchlist` : `Watching ${job.company} — fit scores get a watchlist boost`);
+      toast(job.watched ? `Stopped watching ${job.company}` : `Watching ${job.company} · its roles get a fit boost`);
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });
@@ -338,41 +455,48 @@ function bind(el, job) {
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });
-  el.querySelector('[data-app-form]')?.addEventListener('submit', async e => {
+  const form = el.querySelector('[data-app-form]');
+  form?.addEventListener('input', () => syncAppForm(el));
+  form?.addEventListener('submit', async e => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target).entries());
     try {
       await patch(`/api/applications/${enc(job.key)}`, data);
+      // Saved values become the new baseline, so the button settles even before the reload lands.
+      e.target.querySelectorAll('[name]').forEach(f => { f.defaultValue = f.value; });
+      syncAppForm(el);
       toast('Application updated');
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });
-  el.querySelector('[data-act=untrack]')?.addEventListener('click', async () => {
-    if (!await confirmDialog('Remove this role from your application tracker? Notes and history for it will be deleted.', {confirmLabel: 'Remove'})) return;
+  on('untrack', async () => {
+    if (!await confirmDialog('Remove this role from your application tracker? Notes and history for it will be deleted.', {title: 'Remove from tracker?', confirmLabel: 'Remove'})) return;
     try {
       await del(`/api/applications/${enc(job.key)}`);
       toast('Removed from tracker');
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });
-  el.querySelector('[data-act=deadline]')?.addEventListener('click', async () => {
+  on('deadline', async () => {
     const result = await openModal({
-      title: 'Set deadline',
-      body: `<p class="muted" style="margin:0">Overrides the deadline Jobwatch extracted${job.facts?.deadline?.date ? ` (${fmtDay(job.facts.deadline.date, true)})` : ''}. Leave empty to clear your override.</p>
+      title: job.override?.deadline ? 'Change your deadline' : 'Set deadline',
+      body: `<p class="modal-text muted">Overrides the deadline Foothold read from the posting${job.facts?.deadline?.date ? ` (${fmtDay(job.facts.deadline.date, true)})` : ''}. Clear the date to remove your override.</p>
         <label class="field"><span>Deadline</span><input class="input" type="date" name="deadline" value="${esc(job.override?.deadline || job.deadline || '')}" autofocus></label>
-        <label class="field"><span>Note</span><input class="input" name="deadline_note" value="${esc(job.override?.deadline_note || '')}" placeholder="e.g. Confirmed by recruiter"></label>`,
-      onSubmit: (form, data) => put(`/api/jobs/${enc(job.key)}/override`, {...data, hidden: !!job.override?.hidden}),
+        <label class="field"><span>Note <span class="muted">(optional)</span></span><input class="input" name="deadline_note" value="${esc(job.override?.deadline_note || '')}" placeholder="e.g. Confirmed by recruiter"></label>`,
+      submitLabel: 'Save deadline',
+      onSubmit: (form, data) => put(`/api/jobs/${enc(job.key)}/override`, overrideBody(job, data)),
     });
     if (result) { toast('Deadline saved'); ctx.changed(); }
   });
-  el.querySelector('[data-act=hide]')?.addEventListener('click', async () => {
+  on('hide', async () => {
+    const hiding = !job.override?.hidden;
     try {
-      await put(`/api/jobs/${enc(job.key)}/override`, {deadline: job.override?.deadline || '', deadline_note: job.override?.deadline_note || '', hidden: !job.override?.hidden});
-      toast(job.override?.hidden ? 'Job visible again' : 'Hidden from lists', job.override?.hidden ? {} : {action: {label: 'Undo', fn: async () => { await put(`/api/jobs/${enc(job.key)}/override`, {deadline: job.override?.deadline || '', deadline_note: job.override?.deadline_note || '', hidden: false}); ctx.changed(); }}});
+      await put(`/api/jobs/${enc(job.key)}/override`, overrideBody(job, {hidden: hiding}));
+      toast(hiding ? 'Hidden from lists' : 'Back in your lists', hiding ? {action: {label: 'Undo', fn: async () => { await put(`/api/jobs/${enc(job.key)}/override`, overrideBody(job, {hidden: false})); ctx.changed(); }}} : {});
       ctx.changed();
     } catch (err) { toast(err.message, {error: true}); }
   });
-  el.querySelector('[data-act=add-contact]')?.addEventListener('click', async () => {
+  on('add-contact', async () => {
     const saved = await contactForm({company: job.company, company_key: job.company_key, job_key: job.key}, ctx);
     if (saved) ctx.changed();
   });

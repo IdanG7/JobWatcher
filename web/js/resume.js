@@ -41,20 +41,21 @@ export function resumeMatchSection(match) {
 export async function mountResume(root, {meta, onApply, canApply = () => true}, deps = {}) {
   const request = {...{get, post, patch, del, confirm: confirmDialog, toast}, ...deps};
   let saved, preview = null, payload = null, busy = false;
-  root.innerHTML = '<h2>Resume & automatic matching</h2><p>Loading resume settings…</p>';
+  const head = intro => `<header class="set-head"><h2>Resume &amp; automatic matching</h2>${intro}</header>`;
+  root.innerHTML = `${head('<p>Loading resume settings…</p>')}`;
   try { saved = await request.get('/api/resume'); }
-  catch (err) { root.innerHTML = `<h2>Resume & automatic matching</h2><p role="alert">${esc(err.message)} Reload Settings to retry.</p>`; return; }
+  catch (err) { root.innerHTML = `${head(`<p role="alert">${esc(err.message)} Reload Settings to retry.</p>`)}`; return; }
   if (!root.isConnected) return;
-  root.innerHTML = `<h2>Resume & automatic matching</h2>
-    <p>Keep your saved career targets and add experience from your resume. Review extracted facts before applying them.</p>
+  root.innerHTML = `${head('<p>Keep your saved career targets and add experience from your resume. Review extracted facts before applying them.</p>')}
     <div data-resume-saved></div>
     <fieldset class="resume-inputs" data-resume-inputs>
-      <label class="field"><span>Upload resume · PDF, DOCX or TXT, up to 5 MB</span><input class="input" type="file" accept=".pdf,.docx,.txt,.md" data-resume-file></label>
-      <details><summary>Or paste resume text</summary><label class="field"><span class="sr-only">Resume text</span><textarea class="textarea" rows="6" maxlength="60000" data-resume-text placeholder="Paste your resume here"></textarea></label></details>
-      <div class="chips"><button type="button" class="btn" data-resume-preview>Preview extracted facts</button><span class="muted">Parsed on this machine. No AI service or resume optimization.</span></div>
+      <legend class="sr-only">Add a resume</legend>
+      <label class="field"><span>Upload resume <small>PDF, DOCX or TXT, up to 5 MB</small></span><input class="input" type="file" accept=".pdf,.docx,.txt,.md" data-resume-file></label>
+      <details class="disclose"><summary>Or paste resume text</summary><label class="field"><span class="sr-only">Resume text</span><textarea class="input" rows="6" maxlength="60000" data-resume-text placeholder="Paste your resume here"></textarea></label></details>
+      <div class="form-actions"><button type="button" class="btn" data-resume-preview>Preview extracted facts</button><span class="fine">Parsed on this machine. No AI service or resume optimization.</span></div>
     </fieldset>
-    <div role="status" aria-live="polite" data-resume-status></div>
-    <div data-resume-result hidden></div>`;
+    <div class="resume-status" role="status" aria-live="polite" data-resume-status></div>
+    <div class="resume-review" data-resume-result hidden></div>`;
   const $ = s => root.querySelector(s);
   const file = $('[data-resume-file]'), text = $('[data-resume-text]');
   function message(value, error = false) {
@@ -67,11 +68,12 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
     root.querySelectorAll('button, input, textarea').forEach(el => {el.disabled = value;});
   }
   function drawSaved() {
-    $('[data-resume-saved]').innerHTML = saved.available ? `<div class="resume-saved"><div><strong>${esc(saved.filename)}</strong>
-      <p>${saved.enabled ? 'Automatic matching enabled' : 'Automatic matching paused'}${saved.pending ? ` · ${saved.pending.toLocaleString()} postings being checked` : ''}</p>
-      ${saved.outdated ? '<p class="dl-warn">This resume was read by an older version of Jobwatch. Upload it again below and apply it so targets and fit scores come from your actual experience.</p>' : ''}</div>
-      <div class="chips"><button type="button" class="btn sm" data-resume-toggle>${saved.enabled ? 'Pause matching' : 'Enable matching'}</button>
-      <button type="button" class="btn sm danger" data-resume-remove>Remove resume</button></div></div><details><summary>Saved matching facts</summary>${resumeFacts(saved.parsed)}</details>` : '<p class="muted">Upload a resume to enable automatic matching on Opportunities.</p>';
+    $('[data-resume-saved]').innerHTML = saved.available ? `<div class="resume-saved"><div class="resume-file"><span class="file-icon" aria-hidden="true">${esc(String(saved.filename || '').split('.').pop().slice(0, 4).toUpperCase() || 'CV')}</span><div><strong>${esc(saved.filename)}</strong>
+      <p><span class="conn${saved.enabled ? ' on' : ''}"><i aria-hidden="true"></i>${saved.enabled ? 'Automatic matching on' : 'Automatic matching paused'}</span>${saved.pending ? ` · ${saved.pending.toLocaleString()} postings being checked` : ''}</p></div></div>
+      <div class="form-actions"><button type="button" class="btn sm" data-resume-toggle>${saved.enabled ? 'Pause matching' : 'Enable matching'}</button>
+      <button type="button" class="btn sm ghost danger" data-resume-remove>Remove</button></div></div>
+      ${saved.outdated ? '<p class="notice warn">This resume was read by an older version of Foothold. Upload it again below and apply it so targets and fit scores come from your actual experience.</p>' : ''}
+      <details class="disclose"><summary>Saved matching facts</summary>${resumeFacts(saved.parsed)}</details>` : '<p class="fine">Upload a resume to enable automatic matching on Opportunities.</p>';
   }
   function discard() {
     preview = payload = null;
@@ -102,8 +104,8 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
         if (!root.isConnected) return;
         $('[data-resume-result]').innerHTML = `<h3>Review extracted facts</h3>${resumeFacts(preview.parsed)}
           <h3>Proposed profile changes</h3>${resumeChanges(preview.changes, meta)}
-          <p class="muted">Applying replaces your skill list with the skills found here, updates education and recruiting cycles, and adds resume roles to your saved targets. Eligible finance roles stay visible; targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
-          <div class="chips"><button type="button" class="btn primary" data-resume-apply>Apply & enable matching</button><button type="button" class="btn" data-resume-cancel>Cancel</button></div>`;
+          <p class="fine">Applying replaces your skill list with the skills found here, updates education and recruiting cycles, and adds resume roles to your saved targets. Eligible finance roles stay visible; targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
+          <div class="form-actions"><button type="button" class="btn primary" data-resume-apply>Apply &amp; enable matching</button><button type="button" class="btn ghost" data-resume-cancel>Cancel</button></div>`;
         $('[data-resume-result]').hidden = false;
         message('Preview ready. Check these facts before applying.');
       } else if (button.matches('[data-resume-apply]') && preview && payload) {
