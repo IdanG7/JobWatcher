@@ -144,6 +144,25 @@ def record_changes(con: sqlite3.Connection, board: str, jobs: list[dict], ts: st
     return changes
 
 
+def forget_boards(con: sqlite3.Connection, boards: list[str]) -> int:
+    """Delete the postings of sources that were removed, except ones with an application."""
+    tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type IN ('table','view')")}
+    if not boards or "jobs" not in tables:
+        return 0
+    marks = ",".join("?" * len(boards))
+    keep = " AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)" if "applications" in tables else ""
+    deleted = con.execute(f"DELETE FROM jobs WHERE board IN ({marks}){keep}", boards).rowcount
+    gone = lambda t: f"{t}.board IN ({marks}) AND NOT EXISTS (SELECT 1 FROM jobs WHERE jobs.board={t}.board AND jobs.job_id={t}.job_id)"
+    if {"job_fts", "job_intel"} <= tables:
+        con.execute(f"DELETE FROM job_fts WHERE rowid IN (SELECT rowid FROM job_intel WHERE {gone('job_intel')})", boards)
+    for table in ("job_details", "job_text", "job_intel", "job_state", "job_changes", "resume_matches"):
+        if table in tables:
+            con.execute(f"DELETE FROM {table} WHERE {gone(table)}", boards)
+    if "boards" in tables:      # a source added again later is seeded afresh, not flooded with alerts
+        con.execute(f"DELETE FROM boards WHERE board IN ({marks})", boards)
+    return deleted
+
+
 def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], complete: bool,
                      ts: str, fresh_ids: set[str] = frozenset(), discovered: bool = False) -> dict:
     """Mark discovery, reopenings and (for complete listings) closures."""
@@ -243,7 +262,7 @@ class IntelStore:
 
     # ---- facts
     def facts_pass(self, limit: int | None = None, keys: list[tuple[str, str]] | None = None,
-                   incremental_score: bool = False) -> int:
+                   incremental_score: bool = False, on_progress=None) -> int:
         """Compute facts for jobs lacking current ones; ``keys`` restricts to specific jobs."""
         if keys is not None:
             done = 0
@@ -264,6 +283,8 @@ class IntelStore:
                 self._batch_scored += self.score_pass(commit_batches=True)
             self.con.commit()
             done += n
+            if on_progress:
+                on_progress(done)
             if n < step:
                 break
         return done
@@ -525,13 +546,14 @@ class IntelStore:
                 self.con.commit()
         return applied
 
-    def refresh(self, max_facts: int | None = None, force_score: bool = False) -> dict:
+    def refresh(self, max_facts: int | None = None, force_score: bool = False, on_progress=None) -> dict:
+        """``on_progress(n)`` hears how many postings have new facts so far."""
         t0 = time.time()
         self._batch_scored = 0
         resume = bool(self.con.execute("SELECT 1 FROM candidate_resume WHERE id=1").fetchone())
         self.recluster_if_ranks_changed()
         self.con.commit()  # release upgrade writes before building facts for the backlog
-        facts = self.facts_pass(max_facts, incremental_score=resume)
+        facts = self.facts_pass(max_facts, incremental_score=resume, on_progress=on_progress)
         scored = self.score_pass(force_score, commit_batches=True) + self._batch_scored
         self.con.commit()
         return {"facts": facts, "scored": scored, "seconds": round(time.time() - t0, 2)}

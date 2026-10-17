@@ -177,6 +177,12 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(1, n)
         self.assertEqual(1, self.con.execute("SELECT COUNT(*) FROM job_intel").fetchone()[0])
 
+    def test_a_refresh_reports_how_many_postings_it_has_done(self):
+        seen = []
+        done = self.store.refresh(on_progress=seen.append)["facts"]
+        self.assertGreater(done, 0)
+        self.assertEqual([done], seen)      # one call per committed batch of 500
+
     def test_search_index(self):
         self.store.refresh()
         if not self.store.fts:

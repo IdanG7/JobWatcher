@@ -70,10 +70,36 @@ def upgrade_sources(app: Path, data: Path) -> None:
                     current[key] = new[key]
                 else:
                     current.pop(key, None)
+    # A source the bundle stopped shipping goes, with its postings, unless the recipient
+    # pointed it elsewhere (0.3.2 drops the tech employers 0.3.0 added).
+    retired = [name for name, current in boards.items()
+               if name in since and name not in bundled.get("boards", {}) and isinstance(current, dict)
+               and all(shipped(history.get(name, {}), k, current) for k in identity)]
+    for name in retired:
+        del boards[name]
     existing["sources_version"] = version
     temporary = destination.with_suffix(".upgrade.tmp")
     temporary.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
     temporary.replace(destination)
+    if retired:
+        forget_postings(data / "jobwatch.db", retired)
+
+
+def forget_postings(db: Path, boards: list[str]) -> None:
+    if not db.exists():
+        return
+    import sqlite3
+    from intel_store import forget_boards
+    try:
+        con = sqlite3.connect(db, timeout=30)
+        try:
+            removed = forget_boards(con, boards)
+            con.commit()
+        finally:
+            con.close()
+        print(f"Removed {len(boards)} retired sources and {removed} of their postings.", flush=True)
+    except sqlite3.Error as exc:      # they age out instead; never block startup
+        print(f"Could not remove postings from retired sources: {exc}", flush=True)
 
 
 def initialize_data(app: Path, data: Path) -> None:

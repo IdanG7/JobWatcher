@@ -45,7 +45,9 @@ test('fetch progress shows real counts, active sources, failures, and escaped la
 });
 
 test('completion, indexing, zero sources and server errors have useful states', () => {
-  assert.match(collectionMarkup({indexing: true}), /Ranking new jobs/);
+  assert.match(collectionMarkup({indexing: true}), /Ranking jobs/);
+  assert.doesNotMatch(collectionMarkup({indexing: true, pending: 0}), /left/);
+  assert.match(collectionMarkup({indexing: true, pending: 20818}), /<span class="collection-count">20,818 left<\/span>/);
   assert.match(collectionMarkup({progress: {phase: 'complete', completed: 0, jobs: 0, failed: 0}}), /Up to date/);
   assert.match(collectionMarkup({error: '<offline>'}), /&lt;offline&gt;/);
   assert.match(collectionMarkup({progress: {phase: 'failed', error: 'Poll timed out'}}), /Poll timed out/);

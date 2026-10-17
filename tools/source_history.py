@@ -7,6 +7,7 @@ MISSING marks a release where the key was absent. Two bookkeeping entries:
     "__since__":   board -> the sources_version that first shipped it, so a
                    board newer than a recipient's config is added on upgrade
                    (an older one missing from it was deleted by them)
+                   and one the bundle stops shipping is removed
     "__shipped__": the sources_version and a hash of the boards last built, so
                    a build fails when defaults change without a version bump
 

@@ -295,9 +295,11 @@ class JobwatchService:
                 con.execute("PRAGMA busy_timeout=15000")
                 con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
                 try:
-                    self.pending_facts(con)
+                    backlog = self.pending_facts(con)
                     store = IntelStore(con, self.config)
-                    stats = store.refresh(force_score=force_score)
+                    # Count down as batches land, so a long re-rank after an update shows what's left.
+                    stats = store.refresh(force_score=force_score, on_progress=lambda done: setattr(
+                        self, "_pending_cache", (time.time(), max(0, backlog - done))))
                 finally:
                     con.close()
                 self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)

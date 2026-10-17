@@ -57,8 +57,9 @@ export function collectionStatus(s) {
     }
     return model;
   }
-  if (s.indexing || s.pending > 0) return {title: 'Ranking new jobs',
-    detail: 'Scoring new postings against your profile. Every tab stays usable.', progress: true, value: null, max: 1};
+  // After an update every saved posting is re-ranked; the count shows it is getting somewhere.
+  if (s.indexing || s.pending > 0) return {title: 'Ranking jobs', count: s.pending > 0 ? `${s.pending.toLocaleString('en-US')} left` : '',
+    detail: 'Scoring postings against your profile. Every tab stays usable.', progress: true, value: null, max: 1};
   if (p?.phase === 'complete') return {title: 'Up to date', stats: counts(p, {sources: true}), progress: false,
     detail: s.last_poll ? `Last checked ${ageLong(s.last_poll)}.` : ''};
   return null;
