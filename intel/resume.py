@@ -107,7 +107,7 @@ def _pdf_text(data: bytes) -> str:
                 raise ResumeError("resume PDFs must contain at most 10 pages")
             parts, chars = [], 0
             for page in reader.pages:
-                part = page.extract_text() or ""
+                part = _page_text(page)
                 chars += len(part)
                 if chars > MAX_CHARS:
                     raise ResumeError("resume PDF contains too much text; upload a shorter resume")
@@ -120,6 +120,38 @@ def _pdf_text(data: bytes) -> str:
     if len(text.strip()) < 40:
         raise ResumeError("this PDF has no extractable text (it may be a scanned image) — paste the text instead")
     return text
+
+
+def _single_words(text: str) -> bool:
+    lines = [line for line in text.splitlines() if line.strip()]
+    return len(lines) >= 40 and sum(len(line.split()) == 1 for line in lines) >= 0.6 * len(lines)
+
+
+def rejoin_runs(text: str) -> str:
+    """Text an earlier version read one word per line (see _page_text), as running text.
+
+    Each word and each space was its own run, so joining the runs restores the
+    words; a doubled space marks a line break. Paragraph breaks were not kept.
+    """
+    if not _single_words(text):
+        return text
+    return re.sub(r" {2,}", "\n", "".join(text.split("\n"))).strip()
+
+
+def _page_text(page) -> str:
+    """A page's text in reading order.
+
+    Some exporters (Google Docs among them) write every word as its own run,
+    which plain extraction returns one word per line. Layout extraction keeps
+    those pages' lines and paragraph breaks; other pages keep plain reading
+    order, which handles two-column resumes better.
+    """
+    text = page.extract_text() or ""
+    if not _single_words(text):
+        return text
+    layout = page.extract_text(extraction_mode="layout") or ""
+    text = "\n".join(re.sub(r"\s{2,}", " ", line).strip() for line in layout.splitlines())
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
 def _pdf_limits(pypdf):

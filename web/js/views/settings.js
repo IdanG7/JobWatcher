@@ -3,7 +3,7 @@
 // sidebar of sections, one section on screen at a time (#/settings?tab=…).
 import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
-import {confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
+import {bindMenu, confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
 import {FIELD_INFO, countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
 
@@ -83,12 +83,13 @@ export async function render(root, ctx) {
   let saved;
   let searches = [];
   let discord = {configured: false, webhook_hint: ''};
-  let ai = {configured: false, key_hint: '', model: '', reference: null};
+  let writer = {ollama: {running: false, version: '', models: []}, model: '', computer: {gpus: [], ram: 0, unified: false}, suggestions: [], download: null,
+    references: [], max_letters: 10};
   let background = {can_stop: false, autostart_supported: false, autostart: false, log: ''};
   try {
-    const [p, s, d, a, b] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/ai'), get('/api/background'), ctx.loadMeta()]);
+    const [p, s, d, a, b] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/letters'), get('/api/background'), ctx.loadMeta()]);
     discord = d;
-    ai = a;
+    writer = a;
     background = b;
     profile = structuredClone(p.profile);
     saved = structuredClone(p.profile);
@@ -124,19 +125,103 @@ export async function render(root, ctx) {
     + (discord.configured ? '<p class="fine set-after">To alert on your own filters: on <a class="link" href="#/opportunities">Opportunities</a>, pick <b>Save this view</b> from the <b>View</b> menu, then switch its alerts on under <a class="link" href="#/settings?tab=views">Saved views</a>.</p>' : '');
   const redrawDiscord = () => { root.querySelector('#s-discord').innerHTML = discordHtml(); };
 
-  const keyField = () => `<div class="inline-field"><label class="field"><span>${ai.configured ? 'New API key' : 'Gemini API key'}</span><input class="input" type="password" autocomplete="off" spellcheck="false" data-ai-key placeholder="AIza…"></label><button type="button" class="btn" data-act="ai-save">Connect</button></div>`;
-  const aiHtml = () => group('Google Gemini', '', ai.configured
-    ? `<div class="set-row">${label('Connection', conn(true, `Connected · key ${esc(ai.key_hint)}${ai.model ? ` · ${esc(ai.model)}` : ''}`))}<span class="set-control"><button type="button" class="btn sm ghost danger" data-act="ai-remove">Disconnect</button></span></div>
-      ${block(`<details class="disclose"><summary>Replace API key</summary>${keyField()}</details>`)}`
-    : `<div class="set-row">${label('Connection', conn(false, 'Not connected'))}</div>
-      ${block(`<ol class="steps"><li>Open <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a> and sign in with your Google account.</li><li>Click <b>Create API key</b> and copy it.</li><li>Paste it below and press <b>Connect</b>.</li></ol>${keyField()}`)}`)
-    + group('Past cover letter', 'Optional. Used for tone and structure.',
-      `<div class="set-row">${ai.reference
-        ? label(esc(ai.reference.filename), `Added ${esc(String(ai.reference.updated_at).slice(0, 10))}`)
-        : label('No letter yet', 'PDF, DOCX, TXT or Markdown')}
-        <span class="set-control"><label class="btn sm">${icon(ai.reference ? 'refresh' : 'upload', 13)} ${ai.reference ? 'Replace' : 'Upload letter'}<input type="file" accept=".pdf,.docx,.txt,.md" hidden data-ai-reference></label>${ai.reference ? '<button type="button" class="btn sm ghost danger" data-act="ai-ref-remove">Remove</button>' : ''}</span></div>`)
-    + '<p class="fine set-after">To write each letter, the posting, your resume and your past letter are sent to Google. On the free tier Google may use them to improve its products. The key is stored only on this computer.</p>';
-  const redrawAi = () => { root.querySelector('#s-ai').innerHTML = aiHtml(); };
+  // Cover letters are written by a model Ollama runs on this computer.
+  const gb = bytes => `${(bytes / 1e9).toFixed(1)} GB`;
+  const gib = bytes => `${Math.round(bytes / 2 ** 30)} GB`;     // how cards and memory are sold
+  // What Foothold read about this computer's graphics card and memory, to suggest models that fit.
+  const computerText = () => {
+    const {gpus, ram, unified} = writer.computer;
+    const card = gpus.find(g => g.usable);
+    return [unified ? '' : card ? `${esc(card.name.replace(/^NVIDIA /, ''))} (${gib(card.vram)})` : 'no graphics card Ollama can use',
+      ram ? `${gib(ram)} memory` : ''].filter(Boolean).join(' and ');
+  };
+  const fitText = fit => (fit === 'gpu' ? (writer.computer.unified ? 'Quick on this computer' : 'Fits on your graphics card: quick')
+    : fit === 'partial' ? 'Partly on your graphics card: slower'
+    : fit === 'cpu' ? 'Runs on the processor: slow, a few minutes a letter'
+    : fit === 'unknown' ? 'Runs well with 16 GB of memory or a graphics card' : '');
+  // A model picked from the menu that still has to be downloaded.
+  let pickedModel = null;
+  const RUNS = {gpu: ['On your graphics card', 'Quick', 3], partial: ['Partly on your graphics card', 'Slower', 2],
+    cpu: ['On the processor', 'Slow', 1]};
+  const speedMeter = fit => (RUNS[fit] ? `<span class="speed s${RUNS[fit][2]}" title="${RUNS[fit][1]}"><i></i><i></i><i></i><span class="sr-only">${RUNS[fit][1]}</span></span>` : '');
+  const bestBadge = s => (s?.best ? '<span class="badge best">Best fit</span>' : '');
+  // One picker: downloaded models, then models worth downloading (the best fit and bigger, slower ones),
+  // each with its size, where it runs and how quick it is.
+  const modelRow = () => {
+    const info = m => writer.suggestions.find(s => s.model === m.replace(/:latest$/, ''));
+    const best = writer.suggestions.findIndex(s => s.best);
+    const downloads = writer.suggestions.filter((s, i) => !s.installed && i <= best);
+    const installed = writer.ollama.models;
+    if (!installed.length && !downloads.length) return `<div class="set-row">${label('No model fits this computer', 'Cover letters need a graphics card with 4 GB or more, or 8 GB of memory.')}</div>`;
+    const chosen = pickedModel || writer.model || writer.suggestions[best]?.model;
+    const item = (model, s, downloaded) => `<button type="button" class="menu-item model-item" role="menuitemradio" aria-checked="${model === chosen}" data-pick-model="${esc(model)}">
+        <span class="model-tick">${model === chosen ? icon('check', 13) : ''}</span>
+        <span class="model-text"><b>${esc(model)}${bestBadge(s)}</b><small>${[downloaded ? 'Downloaded' : `${gb(s.size)} download`, RUNS[s?.fit]?.[0]].filter(Boolean).join(' · ')}</small></span>
+        ${speedMeter(s?.fit)}</button>`;
+    const menu = (installed.length ? `<p class="menu-label">Downloaded</p>${installed.map(m => item(m, info(m), true)).join('')}` : '')
+      + (installed.length && downloads.length ? '<hr class="menu-sep">' : '')
+      + (downloads.length ? `<p class="menu-label">Download</p>${downloads.map(s => item(s.model, s, false)).join('')}` : '');
+    const needsDownload = !installed.includes(chosen);
+    const busy = writer.download?.state === 'running';
+    const about = [fitText(info(chosen)?.fit), writer.suggestions.length && computerText() ? `This computer: ${computerText()}` : ''].filter(Boolean).join('. ');
+    return `<div class="set-row">${label('Model', about || 'Writes every letter')}<span class="set-control">
+      <div class="menu-wrap model-pick" data-model-pick>
+        <button type="button" class="select model-trigger" data-menu-trigger aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Writing model: ${esc(chosen)}">
+          <span class="model-name">${esc(chosen)}</span>${bestBadge(info(chosen))}</button>
+        <div class="menu model-menu" id="model-menu" role="menu" aria-label="Writing model" hidden>${menu}</div>
+      </div>
+      ${needsDownload ? `<button type="button" class="btn sm primary" data-act="letters-download" data-model="${esc(chosen)}"${busy ? ' disabled' : ''}>${icon('download', 13)} Download</button>` : ''}</span></div>`;
+  };
+  const writerHtml = () => {
+    const {ollama, download} = writer;
+    const check = '<button type="button" class="btn sm" data-act="letters-check">Check again</button>';
+    const model = !ollama.running
+      ? `<div class="set-row">${label('Ollama', conn(false, 'Not found on this computer'))}<span class="set-control">${check}</span></div>
+        ${block(`<ol class="steps"><li>Download Ollama from <a class="link" href="https://ollama.com/download" target="_blank" rel="noopener noreferrer">ollama.com/download</a> and install it. It is free and runs in the background.</li><li>Press <b>Check again</b>.</li><li>Pick a model here and download it (a few GB, once). Foothold suggests the one that fits this computer.</li></ol>`)}`
+      : `<div class="set-row">${label('Ollama', conn(true, `Running${ollama.version ? ` · version ${esc(ollama.version)}` : ''}`))}<span class="set-control">${check}</span></div>`
+        + modelRow()
+        + (download?.state === 'running'
+          ? block(`<p class="set-mini">Downloading ${esc(download.model)}${download.total ? ` · ${gb(download.completed)} of ${gb(download.total)}` : '…'}</p>
+            <progress class="set-progress" aria-label="Model download" max="${download.total || 1}"${download.total ? ` value="${download.completed}"` : ''}></progress>
+            <p class="fine">You can leave this page; the download carries on.</p>`) : '')
+        + (download?.state === 'failed' ? block(`<p class="source-error">${esc(download.error)}</p>`) : '');
+    const refs = writer.references;
+    const library = (refs.length
+      ? refs.map(r => `<div class="set-row" data-letter-id="${esc(r.id)}">${label(esc(r.filename), `Added ${esc(String(r.added_at).slice(0, 10))}${r.signature ? ' · Its signature goes on PDFs adapted from it' : ''}`)}<span class="set-control"><button type="button" class="btn sm ghost danger" data-act="letters-remove">Remove</button></span></div>`).join('')
+      : `<div class="set-row">${label('No letters yet', 'PDF, DOCX, TXT or Markdown')}</div>`)
+      + (refs.length < writer.max_letters
+        ? `<div class="set-row">${label('Add letters', 'Choose one or several files')}<span class="set-control"><label class="btn sm">${icon('upload', 13)} Add letters<input type="file" accept=".pdf,.docx,.txt,.md" multiple hidden data-letters-add></label></span></div>` : '');
+    return group('Writing model', '', model)
+      + group('Past cover letters', 'For each posting, the closest one is adapted: your wording stays, and only what belongs to the old posting changes (the company, role, team, recipient and why that firm).', library)
+      + '<p class="fine set-after">Letters are written on this computer. The posting, your resume and your past letters are never sent anywhere.</p>';
+  };
+  const redrawWriter = () => {
+    const el = root.querySelector('#s-letters');
+    if (!el) return;
+    el.innerHTML = writerHtml();
+    bindMenu(el.querySelector('[data-model-pick]'));
+  };
+  // A model download runs in Foothold itself; follow it while this page is open.
+  let downloadTimer = null;
+  const followDownload = () => {
+    if (downloadTimer || writer.download?.state !== 'running') return;
+    downloadTimer = setInterval(async () => {
+      try { writer = await get('/api/letters'); } catch { return; }
+      if (writer.download?.state === 'running') {
+        if (root.querySelector('#model-menu')?.hidden !== false) redrawWriter();     // not while the menu is open
+        return;
+      }
+      clearInterval(downloadTimer);
+      downloadTimer = null;
+      if (writer.download?.state === 'done') {
+        // The model was picked to be used: switch to it now that it's here.
+        try { writer = await put('/api/letters/model', {model: writer.download.model}); } catch { /* stays on the current model */ }
+        pickedModel = null;
+        toast(`${writer.download.model} is ready and writes your letters now.`);
+      } else toast(writer.download?.error || 'The download stopped', {error: true, timeout: 9000});
+      redrawWriter();
+    }, 1500);
+  };
 
   // The installed app is opened from the Start menu; a ZIP copy from its batch file.
   const startHint = () => (background.installed ? '<b>Foothold</b> from the Start menu' : '<b>Start Foothold.bat</b>');
@@ -293,8 +378,8 @@ export async function render(root, ctx) {
       searches.length ? `<div class="set-card flush"><div class="table-wrap"><table class="data tidy views-table"><thead><tr><th>Name</th><th>Filters</th><th class="num">Matches</th><th>Alerts</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody>${searches.map(s => `<tr data-sid="${s.id}" class="static"><td class="nowrap"><a class="link" href="#/opportunities?${esc(new URLSearchParams({...s.query, saved: s.id}).toString())}">${esc(s.name)}</a></td><td class="muted c-filters">${esc(Object.entries(s.query).map(([k, v]) => `${k}=${v}`).join(' · '))}</td><td class="num">${s.total}${s.new_since_visit ? ` <span class="badge new">${s.new_since_visit} new</span>` : ''}</td><td><input type="checkbox" class="switch" data-notify${s.notify ? ' checked' : ''} aria-label="Alerts for ${esc(s.name)}"></td><td class="actions row-actions"><button type="button" class="btn ghost xs icon danger" data-del-search title="Delete saved view" aria-label="Delete ${esc(s.name)}">${icon('trash', 13)}</button></td></tr>`).join('')}</tbody></table></div></div>`
         : '<div class="set-card"><p class="set-empty">None yet. On <a class="link" href="#/opportunities">Opportunities</a>, choose <b>Save this view</b> from the <b>View</b> menu.</p></div>');
 
-    const letters = panel('letters', 'Cover letters', 'Write a cover letter for any posting from its job page, based on your resume and in the style of a past letter. It uses your own Google Gemini API key, which is free (no credit card).',
-      `<div id="s-ai">${aiHtml()}</div>`);
+    const letters = panel('letters', 'Cover letters', 'Write a cover letter for any posting from its job page, based on your resume and your past letters. A free model runs on this computer: no account, no API key, and nothing is sent anywhere.',
+      `<div id="s-letters">${writerHtml()}</div>`);
 
     const appearance = panel('appearance', 'Appearance', 'Saved in this browser and applied right away.',
       group('', '', `<div class="set-row">${label('Theme', 'Match your system, or keep it light or dark')}<span class="set-control" data-pref-theme></span></div>
@@ -339,6 +424,7 @@ export async function render(root, ctx) {
     renderTargets();
     syncAuthRows();
     showTab(tab, {scroll: false});
+    bindMenu(root.querySelector('[data-model-pick]'));
     markBaseline();
     updateCounts();
     mountResume(root.querySelector('[data-resume-panel]'), {meta, canApply: () => formValues() === baseline, onApply(next) {
@@ -649,16 +735,39 @@ export async function render(root, ctx) {
       try { discord = await del('/api/discord'); redrawDiscord(); toast('Discord disconnected'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
-    if (e.target.closest('[data-act=ai-save]')) {
-      const btn = e.target.closest('[data-act=ai-save]');
-      btn.disabled = true;
-      try { ai = await put('/api/ai', {api_key: root.querySelector('[data-ai-key]').value}); redrawAi(); toast('Gemini connected. Open any job to write a cover letter.'); }
-      catch (err) { btn.disabled = false; toast(err.message, {error: true, timeout: 8000}); }
+    if (e.target.closest('[data-act=letters-check]')) {
+      try {
+        writer = await get('/api/letters');
+        redrawWriter();
+        toast(writer.ollama.running ? 'Ollama is running' : "Ollama isn't answering yet. Is it installed and open?", writer.ollama.running ? {} : {error: true});
+      } catch (err) { toast(err.message, {error: true}); }
       return;
     }
-    if (e.target.closest('[data-act=ai-remove]')) {
-      if (!await confirmDialog('Remove the Gemini API key from this computer?', {confirmLabel: 'Disconnect', title: 'Disconnect Gemini'})) return;
-      try { ai = await del('/api/ai'); redrawAi(); toast('Gemini disconnected'); } catch (err) { toast(err.message, {error: true}); }
+    const pick = e.target.closest('[data-pick-model]');
+    if (pick) {
+      const model = pick.dataset.pickModel;
+      // A model still to download waits for its Download button; a downloaded one is used right away.
+      pickedModel = writer.ollama.models.includes(model) ? null : model;
+      if (!pickedModel && model !== writer.model) {
+        try { writer = await put('/api/letters/model', {model}); toast(`Letters will be written by ${writer.model}`); }
+        catch (err) { toast(err.message, {error: true}); }
+      }
+      redrawWriter();
+      root.querySelector('[data-model-pick] [data-menu-trigger]')?.focus({preventScroll: true});
+      return;
+    }
+    const downloadBtn = e.target.closest('[data-act=letters-download]');
+    if (downloadBtn) {
+      downloadBtn.disabled = true;
+      try { writer = await post('/api/letters/model/download', {model: downloadBtn.dataset.model}); redrawWriter(); followDownload(); }
+      catch (err) { downloadBtn.disabled = false; toast(err.message, {error: true, timeout: 8000}); }
+      return;
+    }
+    const removeLetter = e.target.closest('[data-act=letters-remove]');
+    if (removeLetter) {
+      const id = removeLetter.closest('[data-letter-id]').dataset.letterId;
+      try { writer = await del(`/api/letters/references/${id}`); redrawWriter(); toast('Past cover letter removed'); }
+      catch (err) { toast(err.message, {error: true}); }
       return;
     }
     const updateBtn = e.target.closest('[data-act=update-check]');
@@ -673,10 +782,6 @@ export async function render(root, ctx) {
         ctx.stop?.();
         document.body.innerHTML = `<main style="max-width:520px;margin:15vh auto;padding:0 16px;font-family:system-ui,sans-serif;line-height:1.5"><h1 style="font-size:20px">Foothold stopped</h1><p>It is no longer checking for jobs. Open ${startHint()} to start it again. You can close this tab.</p></main>`;
       } catch (err) { toast(err.message, {error: true}); }
-      return;
-    }
-    if (e.target.closest('[data-act=ai-ref-remove]')) {
-      try { ai = await del('/api/ai/reference'); redrawAi(); toast('Past cover letter removed'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
     const delBtn = e.target.closest('[data-del-search]');
@@ -705,11 +810,14 @@ export async function render(root, ctx) {
       } catch (err) { e.target.checked = !e.target.checked; toast(err.message, {error: true, timeout: 8000}); }
       return;
     }
-    if (e.target.matches('[data-ai-reference]')) {
-      const file = e.target.files[0];
-      if (!file) return;
-      try { ai = await put('/api/ai/reference', {filename: file.name, data: await fileToBase64(file)}); redrawAi(); toast('Past cover letter saved'); }
-      catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+    if (e.target.matches('[data-letters-add]')) {
+      let added = 0;
+      for (const file of [...e.target.files]) {
+        try { writer = await post('/api/letters/references', {filename: file.name, data: await fileToBase64(file)}); added += 1; }
+        catch (err) { toast(`${file.name}: ${err.message}`, {error: true, timeout: 8000}); }
+      }
+      redrawWriter();
+      if (added) toast(added > 1 ? `${added} past letters saved` : 'Past cover letter saved');
       return;
     }
     if (e.target.matches('[data-notify]')) {
@@ -717,6 +825,7 @@ export async function render(root, ctx) {
       try { await patch(`/api/saved-searches/${id}`, {notify: e.target.checked}); toast(e.target.checked ? 'Alerts on for this view' : 'Alerts off'); } catch (err) { toast(err.message, {error: true}); }
     }
   });
+  followDownload();      // a download started earlier is still running
   return {update(params) { if (settingsTab(params.tab) !== tab) showTab(params.tab); }, redraw: syncPrefs,
-    cleanup() { document.removeEventListener('click', onDocClick); }};
+    cleanup() { document.removeEventListener('click', onDocClick); clearInterval(downloadTimer); }};
 }

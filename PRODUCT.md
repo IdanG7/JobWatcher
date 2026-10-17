@@ -21,6 +21,7 @@ A local Python service runs in the background on Windows and serves a browser in
 ## Capabilities and Constraints
 
 - Resume extraction and deterministic parsing run locally.
+- Cover letters are written on this computer by a model that Ollama serves on localhost (Foothold reads the graphics card and memory, suggests the best model that fits, and can download it). No API key, and the posting, resume and past letters never leave the machine. The user keeps up to 10 past letters; for each posting the closest one, by role type and wording, is adapted with as few changes as it takes (company, role, team, recipient, date, the why-this-firm sentences), and a change box under the letter applies one requested edit at a time. Without past letters, a letter is written from the resume.
 - The current taxonomy, defaults, and many screen queries favor finance. The user has confirmed that the product should adapt to the uploaded resume, including software roles.
 - Keep applications, resume data, explicit geography and authorization preferences, source settings, and update behavior intact.
 - Retain the existing Python and browser JavaScript stack.

@@ -381,7 +381,7 @@ select option:disabled { color: var(--text-3); }
   display: inline-flex; align-items: center; height: 19px; padding: 0 6px; border-radius: 3px; font-size: 11.5px;
   font-weight: 550; white-space: nowrap; background: transparent; color: var(--text-2); border: 1px solid var(--border);
 }
-.badge.new, .badge.today { background: var(--pos-soft); border-color: transparent; color: var(--pos); }
+.badge.new, .badge.today, .badge.best { background: var(--pos-soft); border-color: transparent; color: var(--pos); }
 .badge.h48 { color: var(--text-2); }
 .badge.deadline { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
 .badge.rolling { border-style: dashed; color: var(--text-2); }
@@ -1308,8 +1308,8 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 .set-head h2 { margin: 0; font-size: 22px; font-weight: 600; font-stretch: 85%; letter-spacing: -.015em; line-height: 1.15; }
 .set-head p { margin: 0; max-width: 64ch; color: var(--text-2); font-size: 13.5px; line-height: 1.5; }
 #s-resume { display: grid; gap: 20px; }
-/* Redrawable wrappers (Discord, Gemini, background) lay their groups out as if they weren't there. */
-#s-discord, #s-ai, #s-background { display: contents; }
+/* Redrawable wrappers (Discord, cover letters, background) lay their groups out as if they weren't there. */
+#s-discord, #s-letters, #s-background { display: contents; }
 .set-group { display: grid; gap: 8px; }
 .set-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 2px; }
 .set-group-head h3 { margin: 0; font-size: 13px; font-weight: 600; }
@@ -1369,6 +1369,28 @@ label.set-row { cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .set-link:hover { color: var(--text); text-decoration-color: currentColor; } }
 .set-mini-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .set-mini { margin: 0; font: 500 11.5px/1.4 var(--mono); color: var(--text-3); letter-spacing: .02em; }
+/* Settings › Cover letters: the model picker, a select-looking button with a menu of two-line rows. */
+.model-pick { flex: 1; min-width: 0; }
+.model-trigger { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; cursor: pointer; }
+.model-trigger .model-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-pick .menu { left: auto; right: 0; width: max(100%, 360px); max-width: calc(100vw - 32px); }
+.model-item { height: auto; min-height: 46px; padding: 7px 10px; }
+.model-item .model-tick { display: inline-grid; place-items: center; width: 14px; flex: none; }
+.menu-item.model-item .model-tick svg { width: 13px; height: 13px; color: var(--text); }
+.model-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.model-text b { display: flex; align-items: center; gap: 7px; font-weight: 550; }
+.model-text small { color: var(--text-3); font-size: 12px; }
+.model-item[aria-checked="true"] { background: var(--hover); }
+.speed { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; flex: none; }
+.speed i { width: 3px; height: 5px; border-radius: 1px; background: var(--border-strong); }
+.speed i:nth-child(2) { height: 8px; }
+.speed i:nth-child(3) { height: 12px; }
+.speed.s3 i { background: var(--pos); }
+.speed.s2 i:nth-child(-n+2) { background: var(--warn); }
+.speed.s1 i:nth-child(1) { background: var(--neg); }
+.set-progress { display: block; width: 100%; height: 4px; margin: 8px 0 6px; border: 0; border-radius: 2px; overflow: hidden; accent-color: var(--accent); background: var(--surface-3); }
+.set-progress::-webkit-progress-bar { background: var(--surface-3); border-radius: 2px; }
+.set-progress::-webkit-progress-value { background: var(--accent); border-radius: 2px; }
 .set-block > .set-label { margin-bottom: 2px; }
 .pick small { color: var(--text-3); font-size: 11.5px; font-weight: 400; }
 .pick:has(input:checked) small { color: var(--text-2); }
@@ -1802,8 +1824,37 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .doc-letter { margin-top: 12px; }
 .doc-letter textarea { min-height: 280px; padding: 12px 14px; font-size: 13.5px; line-height: 1.65; }
 .doc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.doc-ask { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.doc-ask .grow { flex: 1; min-width: 0; }
+.doc-ask .input { width: 100%; }
 .doc-gap { flex: 1; }
 .doc-note { margin: 10px 0 0; color: var(--text-3); font-size: 12px; line-height: 1.5; }
+/* Who the letter is addressed to: one line, opened to edit or look the address up. */
+.doc-to { margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2); }
+.doc-to > summary {
+  display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; list-style: none;
+  border-radius: inherit; font-size: 13px;
+}
+.doc-to > summary::-webkit-details-marker { display: none; }
+.doc-to > summary::after {
+  content: ""; flex: none; width: 6px; height: 6px; margin: 0 2px 3px 4px; border-right: 1.5px solid var(--text-3);
+  border-bottom: 1.5px solid var(--text-3); transform: rotate(45deg); transition: transform 160ms var(--ease-out);
+}
+.doc-to[open] > summary::after { margin-bottom: -3px; transform: rotate(-135deg); }
+.doc-to-label { flex: none; color: var(--text-3); font-size: 12px; font-weight: 600; }
+.doc-to-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.doc-to-body { padding: 2px 12px 12px; }
+.doc-to-body textarea { font-size: 13px; line-height: 1.5; }
+.doc-to-body .doc-actions { margin-top: 8px; }
+.doc-found { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.doc-found li {
+  display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 6px 4px 10px;
+  border: 1px solid var(--border); border-radius: 5px; background: var(--surface);
+}
+.doc-found li > svg { flex: none; color: var(--text-3); }
+.doc-found .grow { flex: 1; min-width: 0; }
+.doc-found .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 550; }
+.doc-found .s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); font-size: 12px; }
 .merge-list {
   list-style: none; margin: 14px 0 0; padding: 4px; display: grid; gap: 2px;
   border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2);

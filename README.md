@@ -182,6 +182,37 @@ Incomplete/unreadable replacements preserve the saved resume. PDF extraction is
 limited to 10 pages and 60,000 characters, with a 2 MB limit per decoded stream;
 scanned PDFs need pasted text. DOCX XML is bounded before decompression.
 
+
+## Cover letters
+
+Letters are written on your computer by a free local model, with no account or
+API key. Install [Ollama](https://ollama.com/download), then open
+**Settings → Cover letters**. Foothold reads your graphics card and memory (on the
+computer; nothing is sent) and suggests the best model that fits, a 2–17 GB
+download, once. Any other model Ollama has can be picked there instead.
+
+Add your past cover letters (PDF, DOCX, TXT or Markdown, up to 10). Open a job and
+choose **Write letter**: Foothold takes the past letter closest to the posting, by
+role type and wording, and adapts it. Your wording stays; the date, recipient,
+company, role and team change, along with the few sentences about why that firm or
+that kind of role. Without past letters, a letter is written from your resume. A
+letter takes 20–60 seconds with a graphics card.
+
+Foothold sets the top of every letter itself: your name and contact lines (from
+your past letter, else your resume) and the date on the right, the recipient on the
+left. The **To** line above the letter shows who it's addressed to: an address you
+saved for that company and city, else the posting's street address, else just the
+company and city. **Find address** looks the company up on OpenStreetMap and lists
+the street addresses it has; pick one, check it, and **Save address**. It's then used
+for every letter to that company in that city.
+
+To adjust a letter, type what you want in **Ask for a change** under it ("shorten
+the second paragraph", "mention Bloomberg") and only that changes. Read each letter
+before sending: small models still slip now and then. Letters can be edited by hand,
+and download as a one-page Times New Roman PDF or join the merged application PDF.
+The posting, your resume and your letters never leave the computer; Find address
+sends only the company's name and city to OpenStreetMap.
+
 ## How ranking works
 
 Collection and ranking are intentionally separate:

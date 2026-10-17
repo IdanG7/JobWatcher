@@ -14,6 +14,7 @@ import base64
 import binascii
 import csv
 import copy
+import hashlib
 import io
 import json
 import os
@@ -35,8 +36,8 @@ import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
-from intel import cover_letter, pdf_tools
-from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume
+from intel import cover_letter, hardware, letterhead, pdf_tools
+from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
@@ -65,6 +66,12 @@ DISCORD_WEBHOOK = re.compile(r"^https://(?:canary\.|ptb\.)?discord(?:app)?\.com/
 DISCORD_SUBSCRIBER = "desktop"
 RELEASES_API = "https://api.github.com/repos/IdanG7/JobWatcher/releases/latest"
 RELEASES_PAGE = "https://github.com/IdanG7/JobWatcher/releases/"
+COVER_LIBRARY = 10     # past cover letters kept to adapt from
+LETTER_LIMIT = f"the letter must be text up to {cover_letter.MAX_LETTER:,} characters"
+
+
+def _letter_text(body) -> bool:
+    return isinstance(body, str) and bool(body.strip()) and len(body) <= cover_letter.MAX_LETTER
 
 
 def _version_key(version: str) -> tuple[int, ...]:
@@ -178,9 +185,11 @@ class JobwatchService:
         self.db_path = Path(db_path) if str(db_path) != ":memory:" else db_path
         self.config_path = Path(config_path)
         self.subscribers_path = Path(subscribers_path)
-        # The Gemini key sits beside the database (git-ignored, never in the DB or config).
-        self.ai_path = (Path(db_path).parent if isinstance(self.db_path, Path) else self.subscribers_path.parent) / "ai.local.json"
-        self._ai_lock = threading.Lock()
+        # Cover letters: a model download in progress, and Ollama's status for a few seconds.
+        self._letters_lock = threading.Lock()
+        self._model_download: dict | None = None
+        self._ollama_cache: tuple[float, dict] | None = None
+        self._computer: dict | None = None        # graphics cards and memory; scanned once
         # Set by the portable launcher, which owns the server and the Windows paths.
         self.on_shutdown = None
         self.autostart_command: str | None = None
@@ -210,6 +219,7 @@ class JobwatchService:
         con = watcher.db_open(self.db_path)
         self._import_legacy_watchlist(con)
         self._prune_profile(con)
+        self._move_cover_reference(con)
         con.commit()
         con.close()
 
@@ -1572,95 +1582,215 @@ class JobwatchService:
         threading.Timer(0.3, self.on_shutdown).start()      # let this response reach the browser first
         return {"ok": True}
 
-    # ------------------------------------------------------------ Gemini cover letters
-    def _read_ai(self) -> dict:
-        try:
-            raw = json.loads(self.ai_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return {}
-        return raw if isinstance(raw, dict) else {}
+    # ------------------------------------------------------------ cover letters (local model)
+    def _move_cover_reference(self, con) -> None:
+        """0.3.2 and earlier kept a single past letter; it becomes the first one in the list."""
+        row = con.execute("SELECT v FROM kv WHERE k='cover_reference'").fetchone()
+        if not row:
+            return
+        old = json.loads(row[0])
+        text = rejoin_runs(old["text"])     # Google Docs PDFs used to come out one word per line
+        letters = self._cover_references(con)
+        letter_id = hashlib.sha1(text.encode()).hexdigest()[:12]
+        if not any(letter["id"] == letter_id for letter in letters):
+            letters.insert(0, {"id": letter_id, "filename": old["filename"], "text": text,
+                               "added_at": old.get("updated_at") or utcnow()})
+            self._save_cover_references(con, letters)
+        con.execute("DELETE FROM kv WHERE k='cover_reference'")
 
-    def get_ai(self) -> dict:
-        with self._ai_lock:
-            ai = self._read_ai()
-        key = str(ai.get("api_key") or "")
+    @staticmethod
+    def _cover_references(con) -> list[dict]:
+        row = con.execute("SELECT v FROM kv WHERE k='cover_references'").fetchone()
+        return json.loads(row[0]) if row else []
+
+    @staticmethod
+    def _save_cover_references(con, letters: list[dict]) -> None:
+        con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('cover_references', ?)", (json.dumps(letters),))
+
+    @staticmethod
+    def _recipients(con) -> dict:
+        """Addresses the user confirmed, by company and city: {place_key: {"lines", "saved_at"}}."""
+        row = con.execute("SELECT v FROM kv WHERE k='cover_recipients'").fetchone()
+        return json.loads(row[0]) if row else {}
+
+    def _ollama(self, fresh: bool = False) -> dict:
+        cached = self._ollama_cache
+        if fresh or not cached or time.time() - cached[0] > 10:
+            cached = (time.time(), cover_letter.status())
+            self._ollama_cache = cached
+        return cached[1]
+
+    @staticmethod
+    def _cover_model(con, installed: list[str]) -> str:
+        row = con.execute("SELECT v FROM kv WHERE k='cover_model'").fetchone()
+        return cover_letter.choose_model(row[0] if row else "", installed)
+
+    def letters_info(self, fresh: bool = True) -> dict:
+        ollama = self._ollama(fresh)
         with self.db() as con:
-            row = con.execute("SELECT v FROM kv WHERE k='cover_reference'").fetchone()
-        reference = json.loads(row[0]) if row else None
-        return {"configured": bool(key), "key_hint": f"…{key[-4:]}" if key else "",
-                "model": (ai.get("models") or [""])[0],
-                "reference": {"filename": reference["filename"], "chars": len(reference["text"]),
-                              "updated_at": reference["updated_at"]} if reference else None}
+            model = self._cover_model(con, ollama["models"])
+            letters = self._cover_references(con)
+        with self._letters_lock:
+            download = dict(self._model_download) if self._model_download else None
+        if self._computer is None:
+            self._computer = hardware.scan()
+        return {"ollama": ollama, "model": model, "computer": self._computer,
+                "suggestions": cover_letter.suggest_models(self._computer, ollama["models"]),
+                "download": download, "max_letters": COVER_LIBRARY,
+                "references": [{"id": letter["id"], "filename": letter["filename"], "chars": len(letter["text"]),
+                                "added_at": letter["added_at"], "signature": bool(letter.get("signature"))}
+                               for letter in letters]}
 
-    def put_ai(self, payload: dict) -> dict:
-        key = str(payload.get("api_key") or "").strip()
-        if not re.fullmatch(r"[\w-]{20,200}", key):
-            raise ApiError("Paste the API key from aistudio.google.com/apikey (it usually starts with AIza).")
-        try:
-            models = cover_letter.pick_models(cover_letter.list_models(key))
-        except cover_letter.CoverLetterError as exc:
-            raise ApiError(str(exc)) from exc
-        with self._ai_lock:
-            temporary = self.ai_path.with_suffix(".tmp")
-            temporary.write_text(json.dumps({"api_key": key, "models": models}), encoding="utf-8")
-            temporary.replace(self.ai_path)
-        return self.get_ai()
+    def put_letters_model(self, payload: dict) -> dict:
+        model = payload.get("model")
+        if model not in self._ollama(fresh=True)["models"]:
+            raise ApiError("Choose a model Ollama has downloaded.")
+        with self.db() as con:
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('cover_model', ?)", (model,))
+        return self.letters_info(fresh=False)
 
-    def delete_ai(self) -> dict:
-        with self._ai_lock:
-            self.ai_path.unlink(missing_ok=True)
-        return self.get_ai()
+    def download_model(self, payload: dict) -> dict:
+        model = payload.get("model") or cover_letter.DEFAULT_MODEL
+        if not isinstance(model, str) or not cover_letter.MODEL_NAME.fullmatch(model):
+            raise ApiError("model must be an Ollama model name such as qwen3:8b")
+        if not self._ollama(fresh=True)["running"]:
+            raise ApiError(cover_letter.NOT_RUNNING)
+        with self._letters_lock:
+            if self._model_download and self._model_download["state"] == "running":
+                raise ApiError(f"{self._model_download['model']} is already downloading.")
+            self._model_download = {"model": model, "state": "running", "completed": 0, "total": 0, "error": ""}
 
-    def put_cover_reference(self, payload: dict) -> dict:
+        def run():
+            def progress(completed, total):
+                with self._letters_lock:
+                    self._model_download.update(completed=completed, total=total)
+            try:
+                cover_letter.pull(model, progress)
+                outcome = {"state": "done"}
+            except cover_letter.CoverLetterError as exc:
+                outcome = {"state": "failed", "error": str(exc)}
+            except Exception as exc:      # a background thread must still report how it ended
+                outcome = {"state": "failed", "error": f"{type(exc).__name__}: {exc}"}
+            with self._letters_lock:
+                self._model_download.update(outcome)
+            self._ollama_cache = None     # list the new model
+        threading.Thread(target=run, name="foothold-model-download", daemon=True).start()
+        return self.letters_info(fresh=False)
+
+    def add_cover_reference(self, payload: dict) -> dict:
         filename, text = self._document_text(payload, "cover letter")
         if len(text.strip()) < 200:
             raise ApiError("That letter is too short to learn from; upload a complete past cover letter.")
+        # A signature drawn as an image isn't in the text; it is kept to sign the letters adapted from this one.
+        signature = (pdf_tools.letter_signature(base64.b64decode(payload["data"]))
+                     if "text" not in payload and filename.lower().endswith(".pdf") else None)
+        letter_id = hashlib.sha1(text.encode()).hexdigest()[:12]
         with self.db() as con:
-            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('cover_reference', ?)",
-                        (json.dumps({"filename": filename, "text": text, "updated_at": utcnow()}),))
-        return self.get_ai()
+            letters = self._cover_references(con)
+            saved = next((letter for letter in letters if letter["id"] == letter_id), None)
+            if saved and (saved.get("signature") or not signature):
+                raise ApiError(f"{filename} is already saved.")
+            if saved:
+                saved["signature"] = signature      # saved before Foothold kept signatures
+            elif len(letters) >= COVER_LIBRARY:
+                raise ApiError(f"Keep up to {COVER_LIBRARY} past letters; remove one first.")
+            else:
+                letters.append({"id": letter_id, "filename": filename, "text": text, "added_at": utcnow(),
+                                **({"signature": signature} if signature else {})})
+            self._save_cover_references(con, letters)
+        return self.letters_info(fresh=False)
 
-    def delete_cover_reference(self) -> dict:
+    def delete_cover_reference(self, letter_id: str) -> dict:
         with self.db() as con:
-            con.execute("DELETE FROM kv WHERE k='cover_reference'")
-        return self.get_ai()
+            letters = self._cover_references(con)
+            kept = [letter for letter in letters if letter["id"] != letter_id]
+            if len(kept) == len(letters):
+                raise ApiError("past letter not found", HTTPStatus.NOT_FOUND)
+            self._save_cover_references(con, kept)
+        return self.letters_info(fresh=False)
 
-    def get_cover_letter(self, key: str) -> dict:
+    def get_cover_letter(self, key: str, job: dict | None = None) -> dict:
+        ollama = self._ollama()
+        job = job or self.job_detail(key)
         with self.db() as con:
             row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
             has_resume = bool(con.execute("SELECT 1 FROM kv WHERE k='resume_text'").fetchone())
-        ai = self.get_ai()
-        return {"letter": json.loads(row[0]) if row else None, "ai": ai["configured"],
-                "resume": has_resume, "reference": ai["reference"]}
+            model = self._cover_model(con, ollama["models"])
+            references = len(self._cover_references(con))
+            recipient = letterhead.recipient(job, self._recipients(con))
+        return {"letter": json.loads(row[0]) if row else None, "running": ollama["running"], "model": model,
+                "resume": has_resume, "references": references, "recipient": recipient}
 
     def generate_cover_letter(self, key: str, payload: dict) -> dict:
         notes = payload.get("notes") or ""
         if not isinstance(notes, str) or len(notes) > cover_letter.MAX_NOTES:
             raise ApiError(f"notes must be text up to {cover_letter.MAX_NOTES} characters")
-        with self._ai_lock:
-            ai = self._read_ai()
-        if not ai.get("api_key"):
-            raise ApiError("Connect Gemini in Settings first.")
+        ollama = self._ollama(fresh=True)
+        if not ollama["running"]:
+            raise ApiError(cover_letter.NOT_RUNNING)
         job = self.job_detail(key)
         with self.db() as con:
             resume = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
-            reference = con.execute("SELECT v FROM kv WHERE k='cover_reference'").fetchone()
+            model = self._cover_model(con, ollama["models"])
+            letters = self._cover_references(con)
+            recipient = letterhead.recipient(job, self._recipients(con))["lines"]
+        if not model:
+            raise ApiError("Download a writing model in Settings › Cover letters first.")
         if not resume:
             raise ApiError("Upload your resume in Settings first; the letter is written from it.")
-        prompt = cover_letter.build_prompt(job, resume[0], json.loads(reference[0])["text"] if reference else "", notes)
+        base = cover_letter.pick_reference(job, letters, self.kn)
+        base_text = base["text"] if base else ""
+        messages = cover_letter.build_prompt(job, resume[0], base_text, notes, recipient=recipient)
         try:
-            text, model = cover_letter.generate(ai["api_key"], prompt, ai.get("models") or cover_letter.MODELS)
+            text = cover_letter.sign_as(cover_letter.generate(model, messages), resume[0])
         except cover_letter.CoverLetterError as exc:
             raise ApiError(str(exc)) from exc
-        letter = {"body": text, "model": model, "notes": notes, "created_at": utcnow(), "edited": False}
+        # The top of the letter is set here, not left to the model, which drops or garbles these lines.
+        sender = letterhead.sender([base_text] + [letter["text"] for letter in letters], resume[0])
+        text = letterhead.set_header(text, sender, letterhead.date_line(date.today(), base_text), recipient)
+        text = letterhead.sign_off(text, letterhead.candidate_name(resume[0]))
+        letter = {"body": text, "model": model, "references": [base["filename"]] if base else [],
+                  "notes": notes, "created_at": utcnow(), "edited": False}
         with self.db() as con:
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
-        return {**self.get_cover_letter(key), "letter": letter}
+        return {**self.get_cover_letter(key, job), "letter": letter}
+
+    def revise_cover_letter(self, key: str, payload: dict) -> dict:
+        """Make the one change the user asked for, in the letter as they see it (unsaved edits included)."""
+        change, body = payload.get("request"), payload.get("body")
+        if not isinstance(change, str) or not change.strip() or len(change) > cover_letter.MAX_NOTES:
+            raise ApiError(f"describe the change in up to {cover_letter.MAX_NOTES} characters")
+        if body is not None and not _letter_text(body):
+            raise ApiError(LETTER_LIMIT)
+        ollama = self._ollama(fresh=True)
+        if not ollama["running"]:
+            raise ApiError(cover_letter.NOT_RUNNING)
+        job = self.job_detail(key)
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
+            resume = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
+            model = self._cover_model(con, ollama["models"])
+        if not row:
+            raise ApiError("Write a letter first, then ask for changes.")
+        if not model:
+            raise ApiError("Download a writing model in Settings › Cover letters first.")
+        letter = json.loads(row[0])
+        current = body or letter["body"]
+        resume_text = resume[0] if resume else ""
+        try:
+            text = cover_letter.generate(model, cover_letter.revise_prompt(job, resume_text, current, change))
+        except cover_letter.CoverLetterError as exc:
+            raise ApiError(str(exc)) from exc
+        letter.update(body=cover_letter.sign_as(text, resume_text), model=model,
+                      edited=bool(letter.get("edited")) or current != letter["body"])
+        with self.db() as con:
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
+        return {**self.get_cover_letter(key, job), "letter": letter}
 
     def put_cover_letter(self, key: str, payload: dict) -> dict:
         body = payload.get("body")
-        if not isinstance(body, str) or not body.strip() or len(body) > 20_000:
-            raise ApiError("the letter must be text up to 20,000 characters")
+        if not _letter_text(body):
+            raise ApiError(LETTER_LIMIT)
         board, _, job_id = key.partition(":")
         with self.db() as con:
             if not con.execute("SELECT 1 FROM jobs WHERE board=? AND job_id=?", (board, job_id)).fetchone():
@@ -1670,6 +1800,55 @@ class JobwatchService:
                       "body": body, "edited": True}
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
         return self.get_cover_letter(key)
+
+    def put_recipient(self, key: str, payload: dict) -> dict:
+        """Save who letters for this company and city are addressed to, and readdress this job's letter (the
+        text the user sees, unsaved edits included)."""
+        try:
+            lines = letterhead.clean_lines(payload.get("lines"))
+        except ValueError as exc:
+            raise ApiError(str(exc)) from exc
+        body = payload.get("body")
+        if body is not None and not _letter_text(body):
+            raise ApiError(LETTER_LIMIT)
+        job = self.job_detail(key)
+        with self.db() as con:
+            saved = self._recipients(con)
+            saved[letterhead.place_key(job)] = {"lines": lines, "saved_at": utcnow()}
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('cover_recipients', ?)", (json.dumps(saved),))
+            row = con.execute("SELECT v FROM kv WHERE k=?", ("cover_letter:" + key,)).fetchone()
+            if row:
+                letter = json.loads(row[0])
+                current = body or letter["body"]
+                own, dated = letterhead.header(current)
+                if not own:
+                    resume = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
+                    own = letterhead.sender([item["text"] for item in self._cover_references(con)],
+                                            resume[0] if resume else "")
+                text = letterhead.set_header(current, own, dated or letterhead.date_line(date.today()), lines)
+                letter.update(body=text, edited=bool(letter.get("edited")) or current != letter["body"])
+                con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
+        return self.get_cover_letter(key, job)
+
+    def find_recipient(self, key: str) -> dict:
+        """Street addresses OpenStreetMap has for the posting's company and city, for the user to pick from."""
+        from version import APP_VERSION
+        job = self.job_detail(key)
+        place = job.get("city_label") or job.get("location") or ""
+        try:
+            found = letterhead.find_address(job.get("company") or "", place,
+                                            f"Foothold/{APP_VERSION} (+https://github.com/IdanG7/JobWatcher)")
+        except LookupError as exc:
+            raise ApiError(str(exc), HTTPStatus.BAD_GATEWAY) from exc
+        return {"query": ", ".join(filter(None, [job.get("company"), place])), "results": found}
+
+    def _letter_signature(self, letter: dict) -> dict | None:
+        """The signature image of the past letter this one was adapted from, when that letter signs with one."""
+        if not letter.get("references"):
+            return None
+        with self.db() as con:
+            return next((past["signature"] for past in self._cover_references(con)
+                         if past["filename"] in letter["references"] and past.get("signature")), None)
 
     def merge_documents(self, payload: dict) -> FileResult:
         """One PDF from uploaded PDFs and, optionally, this job's cover letter.
@@ -1696,7 +1875,8 @@ class JobwatchService:
                 letter = self.get_cover_letter(key)["letter"]
                 if not letter:
                     raise ApiError("this job has no cover letter yet")
-                files.append(("Cover letter", pdf_tools.text_pdf(letter["body"], "Cover letter")))
+                files.append(("Cover letter", pdf_tools.letter_pdf(letter["body"], "Cover letter",
+                                                                   self._letter_signature(letter))))
                 continue
             name = str(item.get("filename") or "document.pdf")[:200]
             try:
@@ -2006,14 +2186,17 @@ ROUTES = [
     ("GET", r"/api/background", lambda s, m, q, b: s.background_info()),
     ("PUT", r"/api/background", lambda s, m, q, b: s.put_background(b)),
     ("POST", r"/api/shutdown", lambda s, m, q, b: s.shutdown()),
-    ("GET", r"/api/ai", lambda s, m, q, b: s.get_ai()),
-    ("PUT", r"/api/ai", lambda s, m, q, b: s.put_ai(b)),
-    ("DELETE", r"/api/ai", lambda s, m, q, b: s.delete_ai()),
-    ("PUT", r"/api/ai/reference", lambda s, m, q, b: s.put_cover_reference(b)),
-    ("DELETE", r"/api/ai/reference", lambda s, m, q, b: s.delete_cover_reference()),
+    ("GET", r"/api/letters", lambda s, m, q, b: s.letters_info()),
+    ("PUT", r"/api/letters/model", lambda s, m, q, b: s.put_letters_model(b)),
+    ("POST", r"/api/letters/model/download", lambda s, m, q, b: s.download_model(b)),
+    ("POST", r"/api/letters/references", lambda s, m, q, b: s.add_cover_reference(b)),
+    ("DELETE", r"/api/letters/references/(?P<id>[0-9a-f]{12})", lambda s, m, q, b: s.delete_cover_reference(m["id"])),
     ("GET", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.get_cover_letter(unquote(m["key"]))),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.generate_cover_letter(unquote(m["key"]), b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.put_cover_letter(unquote(m["key"]), b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter/revise", lambda s, m, q, b: s.revise_cover_letter(unquote(m["key"]), b)),
+    ("PUT", r"/api/jobs/(?P<key>[^/]+)/recipient", lambda s, m, q, b: s.put_recipient(unquote(m["key"]), b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/recipient/lookup", lambda s, m, q, b: s.find_recipient(unquote(m["key"]))),
     ("POST", r"/api/documents/merge", lambda s, m, q, b: s.merge_documents(b)),
     ("GET", r"/api/meta", lambda s, m, q, b: s.meta()),
     ("GET", r"/api/status", lambda s, m, q, b: s.status_info()),
@@ -2126,7 +2309,7 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                     return self._reject_unread_body("Content-Type must be application/json",
                                                     HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
                 limit = (34_000_000 if parsed.path == "/api/documents/merge"
-                         else 6_700_000 if parsed.path in ("/api/resume", "/api/resume/parse", "/api/ai/reference")
+                         else 6_700_000 if parsed.path in ("/api/resume", "/api/resume/parse", "/api/letters/references")
                          else 200_000)
                 if length > limit:
                     return self._reject_unread_body("request too large", HTTPStatus.REQUEST_ENTITY_TOO_LARGE)

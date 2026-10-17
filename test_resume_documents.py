@@ -4,7 +4,7 @@ import io
 import unittest
 import zipfile
 
-from intel.resume import ResumeError, extract_text
+from intel.resume import ResumeError, _page_text, extract_text, rejoin_runs
 
 
 class DocxResumeTests(unittest.TestCase):
@@ -54,6 +54,39 @@ class PdfResumeTests(unittest.TestCase):
         for data in (self.pdf(pages=11), self.pdf()):
             with self.assertRaises(ResumeError):
                 extract_text('resume.pdf', data)
+
+
+class PageTextTests(unittest.TestCase):
+    """Google Docs PDFs write each word as its own run; plain extraction gives one word per line."""
+
+    class Page:
+        def __init__(self, plain, layout):
+            self.plain, self.layout = plain, layout
+
+        def extract_text(self, extraction_mode='plain'):
+            return self.layout if extraction_mode == 'layout' else self.plain
+
+    def test_a_page_of_single_words_is_read_by_layout(self):
+        words = ('Dear Hiring Manager, I am writing to apply for the analyst role at your firm because '
+                 'the work suits me well and I want to learn. Thank you for your time and consideration.').split()
+        layout = ('                                    Jordan Lee\n\nDear Hiring Manager,\n\n'
+                  'I am writing to apply for the analyst role.\n\n\n\nThank you.     ')
+        page = self.Page('\n \n'.join(words * 2), layout)
+        self.assertEqual('Jordan Lee\n\nDear Hiring Manager,\n\nI am writing to apply for the analyst role.\n\nThank you.',
+                         _page_text(page))
+
+    def test_text_saved_one_word_per_line_is_rejoined(self):
+        # Every word and every space was its own run; 'th' and ',' sat right against '11'.
+        runs = ['May', ' ', '11', 'th', ',', ' ', '2026', ' ', ' ', 'Dear', ' ', 'Hiring', ' ', 'Manager,'] + [' ', 'word'] * 40
+        self.assertEqual('May 11th, 2026\nDear Hiring Manager,' + ' word' * 40, rejoin_runs('\n'.join(runs)))
+        letter = 'Dear Hiring Manager,\n\nI am applying for the analyst role.\n\nSincerely,\nJordan'
+        self.assertEqual(letter, rejoin_runs(letter))
+
+    def test_ordinary_pages_keep_plain_reading_order(self):
+        plain = '\n'.join(f'Analyst at Bank {n} | Toronto, ON' for n in range(50))
+        self.assertEqual(plain, _page_text(self.Page(plain, 'layout text')))
+        short = 'Jordan\nLee\nResume'
+        self.assertEqual(short, _page_text(self.Page(short, 'layout text')))
 
 
 if __name__ == '__main__':
