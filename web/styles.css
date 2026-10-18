@@ -796,7 +796,7 @@ body.review-docked .drawer.show { opacity: 1; transform: none; }
 .brk.pen .bar i { background: var(--neg); }
 .total-line { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; font-weight: 650; font-size: 13px; }
 .why-btn { border: 0; background: none; padding: 0; color: var(--text); font-weight: 600; font-size: 12.5px; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
-.desc { white-space: pre-wrap; font-size: 13.5px; line-height: 1.65; color: var(--text); max-width: 72ch; }
+.desc { font-size: 13.5px; line-height: 1.6; color: var(--text); max-width: 72ch; }
 .changes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
 .changes li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; }
 .changes time { color: var(--text-3); font: 500 11px/1.8 var(--mono); }
@@ -1763,10 +1763,21 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 }
 .drawer-body .tag svg { margin: 0 4px 0 -1px; flex: none; }
 
-/* Description: a comfortable measure, paragraph breaks kept, the long tail faded. */
+/* Description: a comfortable measure, paragraphs a short step apart, lists tight, subheadings small; the long
+   tail faded. */
 .drawer-body .desc {
-  max-width: 68ch; font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-line; overflow-wrap: anywhere; text-wrap: pretty;
+  max-width: 68ch; font-size: 14px; line-height: 1.6; color: var(--text); overflow-wrap: anywhere; text-wrap: pretty;
 }
+.drawer-body .desc > * { margin: 0; }
+.drawer-body .desc > * + * { margin-top: .75em; }
+.drawer-body .desc ul, .drawer-body .desc ol { padding-left: 1.25em; }
+.drawer-body .desc li + li { margin-top: .3em; }
+.drawer-body .desc li::marker { color: var(--text-3); }
+.drawer-body .desc .desc-head { font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text); }
+.drawer-body .desc > * + .desc-head { margin-top: 1.4em; }
+.drawer-body .desc > .desc-head + * { margin-top: .4em; }
+.drawer-body .desc .desc-label { font-weight: 600; }
+.drawer-body .desc .desc-label::after { content: ":"; }
 .drawer-body .desc.clamped {
   max-height: 27em; overflow: hidden;
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent);
@@ -1829,6 +1840,13 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .doc-ask .input { width: 100%; }
 .doc-gap { flex: 1; }
 .doc-note { margin: 10px 0 0; color: var(--text-3); font-size: 12px; line-height: 1.5; }
+/* What the posting asks for: in the letter (checked), or a click from a change request. */
+.doc-needs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.doc-needs .badge { height: auto; min-height: 22px; gap: 4px; padding: 2px 7px; white-space: normal; text-align: left; }
+.doc-needs .badge svg { flex: none; }
+.doc-need { font-family: inherit; border-style: dashed; cursor: pointer; transition: color 140ms ease, border-color 140ms ease; }
+.doc-need:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .doc-need:hover { border-style: solid; color: var(--text); } }
 /* Who the letter is addressed to: one line, opened to edit or look the address up. */
 .doc-to { margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2); }
 .doc-to > summary {

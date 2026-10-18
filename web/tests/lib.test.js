@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
 import {
-  age, buildHash, cleanParams, cleanQuote, cycleLabel, daysUntil, deadlineText, esc, fitBand, followTop, levelText, niceMax,
+  age, buildHash, cleanParams, cleanQuote, cycleLabel, daysUntil, deadlineText, descriptionHtml, esc, fitBand, followTop,
+  levelText, niceMax,
   parseHash, safeUrl, sourceName, toggleListParam,
 } from '../js/lib.js';
 
@@ -72,4 +73,26 @@ test('posting text reads cleanly: levels said once, quotes cut at whole words, r
   assert.equal(sourceName('GitHub · Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships'), 'GitHub · Summer 2027 and Fall 2026 Tech Internships');
   assert.equal(sourceName('Wells Fargo Careers'), 'Wells Fargo Careers');
   assert.equal(sourceName('LinkedIn · Toronto · Finance'), 'LinkedIn · Toronto · Finance');
+});
+
+test('descriptions read as paragraphs, tight lists and small headings, not a column of spaced-out lines', () => {
+  // a career site's list: every bullet set apart by a blank line, one wrapped mid-sentence
+  assert.equal(descriptionHtml('Responsibilities\n\n• Build models\n\n• Write reports on\nquarterly results\n\n• Present findings'),
+    '<h4 class="desc-head">Responsibilities</h4><ul><li>Build models</li><li>Write reports on quarterly results</li><li>Present findings</li></ul>');
+  assert.equal(descriptionHtml('3. Third\n4) Fourth'), '<ol start="3"><li>Third</li><li>Fourth</li></ol>');
+  // blank lines padded with spaces, nbsp and zero-width characters still end a paragraph; runs of spaces close up
+  assert.equal(descriptionHtml('First   line.\n   ​\n\n\nSecond line.'), '<p>First line.</p><p>Second line.</p>');
+  // "Label: value" lines are text, not headings
+  assert.equal(descriptionHtml('Location: Toronto\nType: Full-time'), '<p>Location: Toronto<br>Type: Full-time</p>');
+  // a form's labels over their values read as one line each, grouped; a code is a value, never a heading
+  assert.equal(descriptionHtml('Job ID\n\n26WD101684\n\nWork Location\n\nToronto, Ontario'),
+    '<p class="desc-facts"><span class="desc-label">Job ID</span> 26WD101684<br><span class="desc-label">Work Location</span> Toronto, Ontario</p>');
+  const long = 'You will support the desk with research, models and client materials every day.';
+  assert.equal(descriptionHtml(`What you'll do:\n${long}`), `<h4 class="desc-head">What you&#39;ll do</h4><p>${long}</p>`);
+  // a short last line is not a heading over nothing
+  assert.equal(descriptionHtml('We are hiring.\n\nApply now'), '<p>We are hiring.</p><p>Apply now</p>');
+  // the posting's text is escaped, never markup
+  assert.equal(descriptionHtml('<script>alert(1)</script>\r\n- <b>bold</b>'), '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p><ul><li>&lt;b&gt;bold&lt;/b&gt;</li></ul>');
+  assert.equal(descriptionHtml(''), '');
+  assert.equal(descriptionHtml(null), '');
 });

@@ -4,6 +4,75 @@ export function esc(value = '') {
   return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[ch]));
 }
 
+/* A posting's description, as plain text, laid out to read: paragraphs, lists and subheadings. Career sites
+   set every bullet apart with a blank line and pad lines with stray spaces, so shown as written a list is a
+   column of lines with a gap after each. The text is escaped; nothing in it becomes markup. */
+const BULLET = /^(?:[•●▪◦‣∙·*–—-]|(\d{1,2})[.)])\s+(\S.*)$/;
+const SENTENCE_END = /[.!?;,]["'”’)]?$/;
+
+/** A short title on its own line: "Responsibilities", "What you'll do:"; not "Location: Toronto", a sentence or a
+    code like "26WD101684". */
+function isHeading(line, before, after) {
+  if (!after || line.length > 70 || line.split(' ').length > 10 || /https?:|@/.test(line) || !/[A-Za-z]{3}/.test(line)) {
+    return false;
+  }
+  if (!/^[A-Z0-9"“(]/.test(line) || SENTENCE_END.test(line) || /:\s*\S/.test(line)) return false;
+  return line.endsWith(':') || ((!before) && (!after.text || BULLET.test(after.text)));
+}
+
+export function descriptionHtml(text) {
+  const lines = String(text || '').replace(/\r\n?/g, '\n').replace(/[   \t]/g, ' ')
+    .replace(/[​-‍﻿]/g, '').split('\n').map(line => line.replace(/ {2,}/g, ' ').trim());
+  const blocks = [];
+  let open = null;                          // the paragraph or list the next line may go on with
+  const next = i => {                       // the next line with text, and whether a blank line comes first
+    for (let j = i + 1; j < lines.length; j++) if (lines[j]) return {text: lines[j], gap: j > i + 1};
+    return null;
+  };
+  lines.forEach((line, i) => {
+    if (!line) { if (open?.kind === 'p') open = null; return; }   // a blank line ends a paragraph, not a list
+    const bullet = line.match(BULLET);
+    const prev = lines[i - 1] || '';
+    if (bullet) {
+      const kind = bullet[1] ? 'ol' : 'ul';
+      if (open?.kind !== kind) blocks.push(open = {kind, items: [], start: Number(bullet[1] || 1)});
+      open.items.push(bullet[2]);
+      return;
+    }
+    // a line wrapped mid-sentence goes on with the one before it
+    if (open && prev && /^[a-z(]/.test(line) && !SENTENCE_END.test(prev)) {
+      if (open.kind === 'p') open.lines[open.lines.length - 1] += ` ${line}`;
+      else open.items[open.items.length - 1] += ` ${line}`;
+      return;
+    }
+    const after = next(i);
+    if (isHeading(line, prev, after && {text: after.gap ? '' : after.text})) {
+      blocks.push({kind: 'h', text: line.replace(/:$/, '')});
+      open = null;
+      return;
+    }
+    if (open?.kind !== 'p') blocks.push(open = {kind: 'p', lines: []});
+    open.lines.push(line);
+  });
+  // A form's label over its value ("Work Location" over "Toronto, Ontario") reads as one line, the labels together
+  const merged = [];
+  blocks.forEach((b, i) => {
+    const head = blocks[i - 1];
+    if (head?.kind === 'h' && b.kind === 'p' && b.lines.length === 1 && b.lines[0].length <= 60) {
+      merged.pop();
+      const pair = {label: head.text, value: b.lines[0]};
+      const last = merged.at(-1);
+      if (last?.kind === 'facts') last.pairs.push(pair);
+      else merged.push({kind: 'facts', pairs: [pair]});
+    } else merged.push(b);
+  });
+  return merged.map(b => b.kind === 'h' ? `<h4 class="desc-head">${esc(b.text)}</h4>`
+    : b.kind === 'p' ? `<p>${b.lines.map(esc).join('<br>')}</p>`
+      : b.kind === 'facts' ? `<p class="desc-facts">${b.pairs.map(f => `<span class="desc-label">${esc(f.label)}</span> ${esc(f.value)}`).join('<br>')}</p>`
+        : `<${b.kind}${b.kind === 'ol' && b.start !== 1 ? ` start="${b.start}"` : ''}>${b.items.map(item => `<li>${esc(item)}</li>`).join('')}</${b.kind}>`)
+    .join('');
+}
+
 export function safeUrl(value = '') {
   try {
     const url = new URL(value);

@@ -93,11 +93,31 @@ test('a change request goes with the letter as shown', async () => {
   assert.match(f.toasts.at(-1)[0], /Change made/);
 });
 
+test('a requirement the letter misses becomes a change request in one click', async () => {
+  const needs = [{phrase: 'cash flow forecasting', evidence: 'Oxford Properties Group, Student Treasury Analyst', covered: true},
+    {phrase: 'liquidity management', evidence: 'McAsphalt Industries, Finance Intern', covered: false},
+    {phrase: 'client service', evidence: '', covered: false}];
+  const f = await fixture({letter: {body: 'Old body', model: 'm', needs}, running: true, model: 'm', resume: true, references: 1});
+  assert.match(f.cover.innerHTML, /The posting asks for/);
+  assert.match(f.cover.innerHTML, /class="badge best"[^>]*>.*cash flow forecasting/);
+  assert.match(f.cover.innerHTML, /data-cover-act="need" data-need="1"[^>]*>.*liquidity management/);
+  let focused = false;
+  f.cover.fields['[data-cover-ask]'] = {value: '', focus: () => { focused = true; }};
+  await f.click(f.cover, {'[data-cover-act]': {dataset: {coverAct: 'need'}}, '[data-need]': {dataset: {need: '1'}}});
+  assert.ok(focused);
+  assert.match(f.cover.innerHTML, /value="Work &quot;liquidity management&quot; into the paragraph about McAsphalt Industries, Finance Intern"/);
+  assert.equal(f.calls.filter(c => c[0] === 'api').length, 0);      // nothing is sent until the user asks
+  assert.match(f.cover.innerHTML, /data-need="2" title="Not in the letter yet. Your resume doesn’t show this/);
+  await f.click(f.cover, {'[data-cover-act]': {dataset: {coverAct: 'need'}}, '[data-need]': {dataset: {need: '2'}}});
+  assert.match(f.cover.innerHTML, /value="Say that I look forward to &quot;client service&quot; in this role/);
+});
+
 test('a found street address replaces the old one under the company', () => {
   const street = ['200 Bay Street', 'Toronto, ON M5J 2J5'];
   assert.deepEqual(useAddress(['Hiring Manager', 'RBC', 'Toronto, ON'], 'RBC', street), ['Hiring Manager', 'RBC', ...street]);
   assert.deepEqual(useAddress(['Ms. Chen', 'Treasury', 'rbc'], 'RBC', street), ['Ms. Chen', 'Treasury', 'rbc', ...street]);
   assert.deepEqual(useAddress(['Somewhere'], 'RBC', street), ['Hiring Manager', 'RBC', ...street]);
+  assert.deepEqual(useAddress(['Hiring Manager', 'RBC', 'Toronto, ON'], 'RBC', street, 'Jane Smith'), ['Jane Smith', 'RBC', ...street]);
 });
 
 test('the letter is addressed from the To line: find, use, then save', async () => {

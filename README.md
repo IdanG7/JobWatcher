@@ -193,25 +193,57 @@ download, once. Any other model Ollama has can be picked there instead.
 
 Add your past cover letters (PDF, DOCX, TXT or Markdown, up to 10). Open a job and
 choose **Write letter**: Foothold takes the past letter closest to the posting, by
-role type and wording, and adapts it. Your wording stays; the date, recipient,
-company, role and team change, along with the few sentences about why that firm or
-that kind of role. Without past letters, a letter is written from your resume. A
-letter takes 20–60 seconds with a graphics card.
+role type and wording, and adapts it. The past letter is your story: what you say
+about yourself and your work at each company, in your words and layout, stays. Your
+resume says what is true today, and the posting decides what changes: the date,
+recipient, company, role and team, and the few sentences about why that firm or that
+kind of role. Without past letters, a letter is written from your resume. A letter
+takes 20–60 seconds with a graphics card.
+
+The letter leans toward the posting. Before writing, the model picks the three
+things the posting stresses most, in the posting's words, and the experience on
+your resume that shows each. A requirement your resume doesn't show is left out.
+The why-this-role sentences are written around those requirements. The paragraph
+about the matching experience gets one added sentence that names the requirement,
+and the rest of that paragraph stays as it was. Under the letter, **The posting asks
+for** lists them, checked when the letter mentions them; click one that isn't to
+turn it into a change request.
+
+A past letter can be months old. Once per resume, the model reads it for your roles
+with their dates and your exams with where each stands (passed, in progress or
+planned), and Foothold keeps only what the resume says in those words. Dates are read
+in any common format ("May 2025 – Aug 2025", "05/2024 – 08/2024", "Summer 2025",
+"2023 – 2025"). A role that has ended since is written in the past tense, a current
+one in the present, a passed exam is called passed rather than a candidacy, and one
+that is planned or in progress is never called passed. The model checks each
+sentence that mentions one and rewrites only the status, keeping what the sentence
+says about the work: first in your past letter, before adapting it, so no sentence
+of your story is dropped for being out of date, then in the new letter. A company
+your past letter talks about stays in the letter: where the model leaves it out (to
+talk about a newer role instead, or by shortening the sentence), Foothold puts your
+sentence about it back.
 
 Foothold sets the top of every letter itself: your name and contact lines (from
 your past letter, else your resume) and the date on the right, the recipient on the
 left. The **To** line above the letter shows who it's addressed to: an address you
-saved for that company and city, else the posting's street address, else just the
-company and city. **Find address** looks the company up on OpenStreetMap and lists
-the street addresses it has; pick one, check it, and **Save address**. It's then used
-for every letter to that company in that city.
+saved for that company and city, else the office the posting names, else just the
+company and city. The local model reads the posting for the office's street, floor
+and city, and for a named contact to write to. Foothold keeps only what the posting
+actually says, and OpenStreetMap adds the postal code. **Find address** shows that
+office first, then the street addresses OpenStreetMap has for the company; pick one,
+check it, and **Save address**. It's then used for every letter to that company in
+that city. A LinkedIn copy of a job has no posting text of its own, so Foothold uses
+the text from the company's own copy of the same job when it has one.
 
 To adjust a letter, type what you want in **Ask for a change** under it ("shorten
-the second paragraph", "mention Bloomberg") and only that changes. Read each letter
+the second paragraph", "mention Bloomberg") and only that changes. The more exactly
+you name the paragraph or sentence, the more reliably the model makes the change. If
+the model leaves the letter as it was, Foothold asks once more, more firmly. A word
+count for the whole letter ("keep it under 300 words") is met paragraph by paragraph. Read each letter
 before sending: small models still slip now and then. Letters can be edited by hand,
 and download as a one-page Times New Roman PDF or join the merged application PDF.
-The posting, your resume and your letters never leave the computer; Find address
-sends only the company's name and city to OpenStreetMap.
+The posting, your resume and your letters never leave the computer; OpenStreetMap
+gets only the company's name, the office street and the city.
 
 ## How ranking works
 
@@ -296,7 +328,8 @@ python watcher.py --check                 # validate configuration and regexes
 python watcher.py --verify                # test every enabled source
 python watcher.py --list stripe           # inspect one source
 python watcher.py --test shaun             # send notification examples
-python -m unittest -v                     # run the full test suite
+python -m unittest -v                     # run the full test suite (tests/, by area)
+python -m unittest discover -s tests/letters -t .   # one area: app, letters, resume, matching, sources, store, install
 ```
 
 ## Add coverage

@@ -89,12 +89,16 @@ FITS = ((12, 72), (11.5, 72), (11, 72), (11, 54))
 LEADING = 1.15                                  # single line spacing for Times New Roman
 SUPERSCRIPT = 0.65                              # the 'th' in 'May 11th, 2026'
 
-GREETING = re.compile(r"^\s*(?:dear|to whom|hello)\b", re.I)
+# "Dear …", or a short line on its own: "Hi there," "To the Hiring Committee," (not "to the team." wrapped in a PDF).
+GREETING = re.compile(r"^\s*(?:(?:dear|to whom|hello)\b|(?:to the|hi|hey|greetings|good (?:morning|afternoon|day|evening)|"
+                      r"attention|attn)\b[^.!?\n]{0,60}[,:!]?\s*$)", re.I)
 CLOSING = re.compile(r"[a-z][a-z ]{1,28},", re.I)                  # 'Best Regards,', 'Sincerely,'
 _NAME = re.compile(r"[^\W\d_]+(?:[ .'-]+[^\W\d_]+){0,4}\.?")       # 'Idan Reitman', not an email or a phone
 _SIGNATURE, _INKED = "signature", "inked"       # rows: the signature image starts on one and covers the next few
 _MONTH = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?"
-DATE_LINE = re.compile(rf"^\s*(?:{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?,?|\d{{1,2}}(?:st|nd|rd|th)?\s+{_MONTH},?)\s+\d{{4}}\s*$", re.I)
+_WEEKDAY = r"(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+"
+DATE_LINE = re.compile(rf"^\s*(?:{_WEEKDAY})?(?:{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?,?|\d{{1,2}}(?:st|nd|rd|th)?\s+(?:of\s+)?"
+                       rf"{_MONTH},?)\s+\d{{4}}\s*$|^\s*(?:\d{{4}}-\d{{2}}-\d{{2}}|\d{{1,2}}/\d{{1,2}}/\d{{4}})\s*$", re.I)
 _ORDINAL = re.compile(rb"(?<=\d)(st|nd|rd|th)\b")
 
 

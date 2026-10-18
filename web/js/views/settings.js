@@ -187,7 +187,7 @@ export async function render(root, ctx) {
         + (download?.state === 'failed' ? block(`<p class="source-error">${esc(download.error)}</p>`) : '');
     const refs = writer.references;
     const library = (refs.length
-      ? refs.map(r => `<div class="set-row" data-letter-id="${esc(r.id)}">${label(esc(r.filename), `Added ${esc(String(r.added_at).slice(0, 10))}${r.signature ? ' · Its signature goes on PDFs adapted from it' : ''}`)}<span class="set-control"><button type="button" class="btn sm ghost danger" data-act="letters-remove">Remove</button></span></div>`).join('')
+      ? refs.map(r => `<div class="set-row" data-letter-id="${esc(r.id)}">${label(esc(r.filename), `Added ${esc(String(r.added_at).slice(0, 10))}${r.signature ? ' · Its signature goes on PDFs adapted from it' : r.add_again ? ' · Saved before Foothold kept signatures: add this PDF again to sign your letters with it' : ''}`)}<span class="set-control"><button type="button" class="btn sm ghost danger" data-act="letters-remove">Remove</button></span></div>`).join('')
       : `<div class="set-row">${label('No letters yet', 'PDF, DOCX, TXT or Markdown')}</div>`)
       + (refs.length < writer.max_letters
         ? `<div class="set-row">${label('Add letters', 'Choose one or several files')}<span class="set-control"><label class="btn sm">${icon('upload', 13)} Add letters<input type="file" accept=".pdf,.docx,.txt,.md" multiple hidden data-letters-add></label></span></div>` : '');

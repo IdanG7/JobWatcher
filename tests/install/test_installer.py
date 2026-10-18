@@ -18,7 +18,7 @@ from portable_start import acquire_lock, bind_server, preferred_port, stop_and_w
 from dashboard import JobwatchHTTPServer
 import updater
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 class Quiet(BaseHTTPRequestHandler):
     def log_message(self, *args):

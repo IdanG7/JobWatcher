@@ -6,7 +6,7 @@ import socket
 import threading
 
 from dashboard import ApiError, JobwatchHandler
-import test_dashboard as fixtures
+from tests.app import test_dashboard as fixtures
 
 
 class HttpHardeningTests(fixtures.ServiceFixture):

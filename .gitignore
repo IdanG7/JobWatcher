@@ -22,3 +22,10 @@ node_modules/
 dist/
 .test-tmp/
 .venv/
+
+# Local tooling, never committed: the account service's local settings, the dev preview's launch
+# config, and the design tool's mocks and answers.
+account-service.json
+.claude/launch.json
+.impeccable/mocks/
+.impeccable/questions/

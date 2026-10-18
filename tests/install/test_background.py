@@ -59,7 +59,7 @@ class BackgroundTests(unittest.TestCase):
 
 class OutdatedResumeTests(BackgroundTests):
     def test_resume_from_older_parser_is_flagged(self):
-        from test_cover_letters import RESUME
+        from tests.letters.test_cover_letters import RESUME
         self.service.apply_resume({"text": RESUME})
         self.assertFalse(self.service.get_resume()["outdated"])
         with self.service.db() as con:

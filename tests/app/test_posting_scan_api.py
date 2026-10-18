@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from dashboard import ApiError
-from test_dashboard import ServiceFixture
+from tests.app.test_dashboard import ServiceFixture
 
 
 class PostingScanTests(ServiceFixture):

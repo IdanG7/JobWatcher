@@ -5,7 +5,7 @@ import time
 from unittest.mock import patch
 
 import watcher
-from test_dashboard import ServiceFixture
+from tests.app.test_dashboard import ServiceFixture
 
 
 class CycleTests(ServiceFixture):

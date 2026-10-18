@@ -13,7 +13,7 @@ from unittest.mock import patch
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 import updater
 from updater import MANIFEST, RELEASES_API, SIGNATURE, UpdateError, Updater, verify_manifest
 from sign_release import sign
@@ -251,7 +251,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
-from test_dashboard import ServiceFixture   # noqa: E402
+from tests.app.test_dashboard import ServiceFixture   # noqa: E402
 from dashboard import ApiError               # noqa: E402
 
 

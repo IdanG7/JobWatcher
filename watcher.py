@@ -700,6 +700,8 @@ def fetch_github_md(cfg):
 LINKEDIN_SPACING = 1.5             # seconds between requests (plus up to 1s jitter)
 LINKEDIN_BACKOFF = (8, 20, 45)     # waits after successive 429s on one request
 LINKEDIN_BLOCK_PAUSE = 300         # skip LinkedIn this long once retries are exhausted
+LINKEDIN_SEARCH = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+LINKEDIN_POSTING = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{id}"
 _linkedin_lock = threading.Lock()
 _linkedin_next = 0.0
 _linkedin_blocked_until = 0.0
@@ -709,7 +711,8 @@ class LinkedInRateLimited(requests.HTTPError):
     pass
 
 
-def _linkedin_get(params):
+def _linkedin_get(url, params=None):
+    """Every LinkedIn request (searches and opened postings) takes its turn here."""
     global _linkedin_next, _linkedin_blocked_until
     with _linkedin_lock:
         for attempt in range(len(LINKEDIN_BACKOFF) + 1):
@@ -718,10 +721,8 @@ def _linkedin_get(params):
                 raise LinkedInRateLimited("LinkedIn is rate limiting; paused for a few minutes")
             if now < _linkedin_next:
                 time.sleep(_linkedin_next - now)
-            r = requests.get(
-                "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search",
-                params=params, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
-                timeout=TIMEOUT)
+            r = requests.get(url, params=params,
+                             headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}, timeout=TIMEOUT)
             _linkedin_next = time.monotonic() + LINKEDIN_SPACING + random.uniform(0, 1)
             if r.status_code != 429:
                 return r
@@ -767,8 +768,8 @@ def _linkedin_query(cfg, q, location, out, seen):
         raise ValueError("LinkedIn pages must be an integer from 1 to 40")
     previous_pages = set()
     for _ in range(pages):
-        r = _linkedin_get({"keywords": q, "location": location,
-                           "f_TPR": cfg.get("recency", "r86400"), "start": start})
+        r = _linkedin_get(LINKEDIN_SEARCH, {"keywords": q, "location": location,
+                                            "f_TPR": cfg.get("recency", "r86400"), "start": start})
         if r.status_code in (400, 404):         # past the end of results
             break
         r.raise_for_status()
@@ -1353,8 +1354,39 @@ def detail_oracle_hcm(cfg, job_id):
     r.raise_for_status()
     item = (r.json().get("items") or [{}])[0]
     text = "\n\n".join(html_to_text(item.get(k) or "") for k in (
-        "ExternalDescriptionStr", "ExternalResponsibilitiesStr", "ExternalQualificationsStr"))
-    return text.strip(), item.get("Category") or item.get("Organization") or ""
+        "ExternalDescriptionStr", "ExternalResponsibilitiesStr", "ExternalQualificationsStr")).strip()
+    if not text:
+        # Goldman Sachs' campus postings leave those empty and describe the program and division instead.
+        text = "\n\n".join(html_to_text(item.get(k) or "") for k in (
+            "CorporateDescriptionStr", "OrganizationDescriptionStr")).strip()
+    return text, item.get("Category") or item.get("Organization") or ""
+
+
+def detail_lever(cfg, job_id):
+    host = "api.eu.lever.co" if cfg.get("region") == "eu" else "api.lever.co"
+    r = requests.get(f"https://{host}/v0/postings/{cfg['token']}/{job_id}",
+                     headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    cats = data.get("categories") or {}
+    return _lever_text(data), " / ".join(filter(None, [cats.get("department"), cats.get("team")]))
+
+
+def detail_linkedin(cfg, job_id):
+    """A LinkedIn posting from the guest posting page, through the search's spaced,
+    rate-limited client; while LinkedIn is paused this fails at once."""
+    from intel.page_text import element_text
+    if not str(job_id).isdigit():
+        raise ValueError("not a LinkedIn job id")
+    r = _linkedin_get(LINKEDIN_POSTING.format(id=job_id))
+    r.raise_for_status()
+    text = element_text(r.text, "show-more-less-html__markup")
+    if not text:
+        raise ValueError("the LinkedIn posting has no description")
+    criteria = {html.unescape(k): html.unescape(v) for k, v in re.findall(
+        r'description__job-criteria-subheader[^>]*>\s*([^<]+?)\s*<.*?description__job-criteria-text[^>]*>\s*([^<]+?)\s*<',
+        r.text, re.S)}
+    return text, criteria.get("Job function", "")
 
 
 DETAIL_FETCHERS = {
@@ -1364,6 +1396,157 @@ DETAIL_FETCHERS = {
     "smartrecruiters": detail_smartrecruiters,
     "eightfold": detail_eightfold,
 }
+# Fetched only when the user opens a posting, never in the poll's batches.
+OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
+# Sources whose listings carry no description: each posting's own link is read
+# instead (community lists link to employers' ATS pages, often via a redirect).
+PAGE_DETAIL_ATS = {"bofa", "github_md", "avature", "radancy", "icims", "successfactors", "marqeta"}
+# Links that only redirect to the posting; the page they land on otherwise is a job board.
+REDIRECT_HOSTS = ("zapply.jobs",)
+PAGE_MAX_BYTES = 5_000_000
+_CHARSET = re.compile(rb"""charset=["']?([\w.:-]+)""", re.I)
+_SOFT_404 = re.compile(r"/(?:errors?/)?404\b|/not-?found\b", re.I)     # a closed posting redirected to an error page
+
+
+def _posting_api(url):
+    """(fetcher, cfg, job_id) for a posting link on an ATS whose API serves one
+    posting, else None. Covers the ATSs community lists link to most."""
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    path = [p for p in parts.path.split("/") if p]
+    if host.endswith((".myworkdayjobs.com", ".myworkdaysite.com")) and "job" in path[1:]:
+        i = path.index("job", 1)
+        # tenant.wd1.myworkdayjobs.com/[en-US/]<site>/job/...;
+        # wd3.myworkdaysite.com/[en-US/]recruiting/<tenant>/<site>/job/...
+        tenant = host.split(".")[0] if host.endswith(".myworkdayjobs.com") else path[i - 2] if i >= 2 else ""
+        tail = path[i:-1] if path[-1] == "apply" else path[i:]
+        if tenant and len(tail) > 1:
+            return detail_workday, {"host": host, "tenant": tenant, "site": path[i - 1]}, "/" + "/".join(tail)
+    if host.endswith("greenhouse.io"):
+        query = parse_qs(parts.query)
+        if len(path) >= 3 and path[1] == "jobs" and path[2].isdigit():
+            return detail_greenhouse, {"token": path[0]}, path[2]
+        if query.get("for") and query.get("token", [""])[0].isdigit():      # boards.greenhouse.io/embed/job_app
+            return detail_greenhouse, {"token": query["for"][0]}, query["token"][0]
+    if host in ("jobs.lever.co", "jobs.eu.lever.co") and len(path) >= 2:
+        return detail_lever, {"token": path[0], "region": "eu" if ".eu." in host else ""}, path[1]
+    if host in ("jobs.smartrecruiters.com", "careers.smartrecruiters.com") and len(path) >= 2:
+        posting = re.match(r"\d+", path[1])
+        if posting:
+            return detail_smartrecruiters, {"token": path[0]}, posting.group(0)
+    if host.endswith(".oraclecloud.com") and "sites" in path and "job" in path:
+        site, job = path.index("sites") + 1, path.index("job") + 1
+        if site < len(path) and job < len(path):
+            return detail_oracle_hcm, {"host": host, "site": path[site]}, path[job]
+    return None
+
+
+def _page_url(url):
+    """The address of a posting's readable page (iCIMS serves it inside an iframe)."""
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    icims = re.match(r"/jobs/(\d+)", parts.path)
+    if host.endswith(".icims.com") and icims:
+        return f"https://{host}/jobs/{icims.group(1)}/job?in_iframe=1"
+    if host == "jobs.ashbyhq.com" and parts.path.rstrip("/").endswith("/application"):
+        return url.split("?", 1)[0].rstrip("/").removesuffix("/application")
+    return url
+
+
+def _not_linkedin(url):
+    """Page links are read by the poll, which leaves LinkedIn alone; LinkedIn's own
+    listings are fetched when opened (detail_linkedin)."""
+    host = (urlsplit(url).hostname or "").lower()
+    if host == "linkedin.com" or host.endswith(".linkedin.com"):
+        raise ValueError("LinkedIn pages are fetched only for LinkedIn listings, when opened")
+
+
+def _page_html(r):
+    raw = r.content
+    if len(raw) > PAGE_MAX_BYTES:
+        raise ValueError("the posting page is too large to read")
+    found = _CHARSET.search(r.headers.get("content-type", "").encode("latin-1", "ignore")) or _CHARSET.search(raw[:4096])
+    try:
+        return raw.decode(found.group(1).decode("ascii") if found else "utf-8", "replace")
+    except LookupError:
+        return raw.decode("utf-8", "replace")
+
+
+def detail_page(url):
+    """A posting's description from its link: through its ATS's API when the link
+    (after redirects) is one, else the page's JobPosting data or main text."""
+    from intel.page_text import posting_description
+    api = _posting_api(url)
+    if not api:
+        _not_linkedin(url)
+        with requests.get(_page_url(url), headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
+                          timeout=TIMEOUT, stream=True) as r:
+            r.raise_for_status()
+            api = _posting_api(r.url)
+            if not api:
+                _not_linkedin(r.url)
+                if (urlsplit(r.url).hostname or "").lower().endswith(REDIRECT_HOSTS):
+                    raise ValueError("the listing's link no longer leads to the posting")
+                if _SOFT_404.search(urlsplit(r.url).path):
+                    raise ValueError("the posting page is gone")
+                text = posting_description(_page_html(r))
+                if not text:
+                    raise ValueError("the posting page has no readable description")
+                return text, ""
+    fetcher, cfg, job_id = api
+    return fetcher(cfg, job_id)
+
+
+def describable(cfg, on_open=False):
+    """Whether this source's postings can have their descriptions fetched one by one;
+    LinkedIn's only when a posting is opened (on_open)."""
+    ats = cfg.get("ats")
+    return ats in DETAIL_FETCHERS or ats in PAGE_DETAIL_ATS or (on_open and ats in OPEN_DETAIL_FETCHERS)
+
+
+def fetch_description(cfg, job_id, url=""):
+    """(description, department[, meta]) for one posting; raises when it can't be read."""
+    ats = cfg.get("ats")
+    if ats in DETAIL_FETCHERS:
+        return DETAIL_FETCHERS[ats](cfg, job_id)
+    if ats in OPEN_DETAIL_FETCHERS:
+        return OPEN_DETAIL_FETCHERS[ats](cfg, job_id)
+    if ats in PAGE_DETAIL_ATS and url:
+        return detail_page(url)
+    raise ValueError(f"descriptions can't be fetched from {ats or 'this source'}")
+
+
+DESCRIPTION_RETRY_HOURS = 6     # after a failed or empty fetch
+DESCRIPTION_ATTEMPTS = 3        # then give up on that posting
+
+
+def description_retry_before():
+    """Fetches recorded before this time (ISO, UTC) may be retried."""
+    return datetime.fromtimestamp(time.time() - DESCRIPTION_RETRY_HOURS * 3600,
+                                  timezone.utc).isoformat(timespec="seconds")
+
+
+def save_description(con, board, job_id, result):
+    """Store a fetch_description result (the caller commits)."""
+    text, dept = result[0], result[1]
+    meta = result[2] if len(result) > 2 else {}
+    store_description(con, board, job_id, text, dept, source="detail")
+    # an unchanged description is not rewritten; still record the visit
+    con.execute("UPDATE job_text SET fetched_at=? WHERE board=? AND job_id=?", (now(), board, job_id))
+    if meta.get("posted"):
+        # an exact posting date from the detail record beats a listing estimate
+        con.execute("UPDATE job_details SET posted=? WHERE board=? AND job_id=?", (meta["posted"], board, job_id))
+        con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+
+
+def record_description_error(con, board, job_id, error):
+    """Count a failed fetch so it backs off (the caller commits)."""
+    con.execute(
+        """INSERT INTO job_text(board, job_id, fetched_at, attempts, last_error)
+           VALUES (?,?,?,1,?) ON CONFLICT(board, job_id) DO UPDATE SET
+           attempts=job_text.attempts+1, fetched_at=excluded.fetched_at,
+           last_error=excluded.last_error""",
+        (board, job_id, now(), f"{type(error).__name__}: {str(error)[:200]}"))
 FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank",
                          "canadian_bank", "commercial_bank", "private_equity", "venture_capital",
                          "hedge_fund", "quant_firm", "asset_manager", "pension_fund", "insurance")
@@ -1377,16 +1560,15 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
     off for six hours and give up after three attempts.  ``fetched`` (a list)
     collects the (board, job_id) keys that received a description.
     """
-    from intel_store import store_description, utcnow
     budget = config.get("description_budget", 60) if budget is None else budget
     if budget <= 0:
         return 0
     boards = {k: v for k, v in config["boards"].items()
-              if not k.startswith("_") and not v.get("disabled") and v.get("ats") in DETAIL_FETCHERS}
+              if not k.startswith("_") and not v.get("disabled") and describable(v)}
     if not boards:
         return 0
     per_board = config.get("description_per_board", 12)
-    retry_before = datetime.fromtimestamp(time.time() - 6 * 3600, timezone.utc).isoformat(timespec="seconds")
+    retry_before = description_retry_before()
     # Workday listings say only "Posted 30+ Days Ago"; the detail record has the
     # exact date, so undated Workday rows are revisited (at most weekly).
     date_before = datetime.fromtimestamp(time.time() - 7 * 86400, timezone.utc).isoformat(timespec="seconds")
@@ -1395,34 +1577,34 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
     dmarks = ",".join("?" * len(dated))
     types = ",".join("?" * len(FINANCE_COMPANY_TYPES))
     rows = con.execute(f"""
-        SELECT j.board, j.job_id FROM jobs j
+        SELECT j.board, j.job_id, j.url FROM jobs j
         JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
         LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
         LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
         LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
         LEFT JOIN applications a ON a.job_key=(j.board||':'||j.job_id)
         WHERE j.board IN ({marks}) AND j.title != '' AND COALESCE(s.status,'active') != 'closed'
-          AND (t.board IS NULL OR (COALESCE(t.description,'')='' AND t.attempts < 3
+          AND (t.board IS NULL OR (COALESCE(t.description,'')='' AND t.attempts < ?
                                    AND COALESCE(t.fetched_at,'') < ?)
                OR (d.posted IS NULL AND j.board IN ({dmarks}) AND COALESCE(t.fetched_at,'') < ?))
         ORDER BY a.job_key IS NOT NULL DESC, i.is_finance DESC,
                  i.company_type IN ({types}) DESC, COALESCE(d.posted, 0) DESC
-        LIMIT ?""", [*boards, retry_before, *dated, date_before, *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
+        LIMIT ?""", [*boards, DESCRIPTION_ATTEMPTS, retry_before, *dated, date_before,
+                     *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
     picked, per = [], {}
-    for board, job_id in rows:
+    for board, job_id, url in rows:
         if per.get(board, 0) >= per_board:
             continue
         per[board] = per.get(board, 0) + 1
-        picked.append((board, job_id))
+        picked.append((board, job_id, url))
         if len(picked) >= budget:
             break
     if not picked:
         return 0
 
     def fetch(item):
-        board, job_id = item
-        cfg = boards[board]
-        return item, DETAIL_FETCHERS[cfg["ats"]](cfg, job_id)
+        board, job_id, url = item
+        return item, fetch_description(boards[board], job_id, url)
 
     done = 0
     completed = 0
@@ -1434,28 +1616,14 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
         for fut in as_completed(futures):
             completed += 1
             try:
-                (board, job_id), result = fut.result()
-                text, dept = result[0], result[1]
-                meta = result[2] if len(result) > 2 else {}
+                (board, job_id, _), result = fut.result()
             except Exception as e:  # recorded, retried later with back-off
                 item = picked[futures.index(fut)]
-                con.execute(
-                    """INSERT INTO job_text(board, job_id, fetched_at, attempts, last_error)
-                       VALUES (?,?,?,1,?) ON CONFLICT(board, job_id) DO UPDATE SET
-                       attempts=job_text.attempts+1, fetched_at=excluded.fetched_at,
-                       last_error=excluded.last_error""",
-                    (item[0], item[1], utcnow(), f"{type(e).__name__}: {str(e)[:200]}"))
+                record_description_error(con, item[0], item[1], e)
                 con.commit()
                 report_progress(progress, "descriptions", completed=completed, total=len(picked))
                 continue
-            store_description(con, board, job_id, text, dept, source="detail")
-            # an unchanged description is not rewritten; still record the visit
-            con.execute("UPDATE job_text SET fetched_at=? WHERE board=? AND job_id=?", (utcnow(), board, job_id))
-            if meta.get("posted"):
-                # an exact posting date from the detail record beats a listing estimate
-                con.execute("UPDATE job_details SET posted=? WHERE board=? AND job_id=?",
-                            (meta["posted"], board, job_id))
-                con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+            save_description(con, board, job_id, result)
             if fetched is not None:
                 fetched.append((board, job_id))
             done += 1

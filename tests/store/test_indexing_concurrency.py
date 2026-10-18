@@ -4,9 +4,9 @@ import sqlite3
 from unittest.mock import patch
 
 import intel_store
-from test_dashboard import ServiceFixture
-from test_resume_matching import RESUME
-from test_store import add_job
+from tests.app.test_dashboard import ServiceFixture
+from tests.resume.test_resume_matching import RESUME
+from tests.store.test_store import add_job
 
 
 class IndexingConcurrencyTests(ServiceFixture):

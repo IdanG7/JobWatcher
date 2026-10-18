@@ -11,8 +11,8 @@ from unittest.mock import patch
 import portable_start
 from intel_store import COMPLETE_LISTING_ATS, IntelStore
 from portable_start import RotatingLog, initialize_data, should_repoint_autostart
-import test_dashboard as fixtures
-from test_resume_matching import RESUME
+from tests.app import test_dashboard as fixtures
+from tests.resume.test_resume_matching import RESUME
 from tools.source_history import record_release
 import watcher
 

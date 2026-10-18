@@ -8,9 +8,9 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 from unittest.mock import patch
 
-import test_dashboard as fixtures
+from tests.app import test_dashboard as fixtures
 from dashboard import ApiError, JobwatchService, JobwatchHandler
-from test_resume_matching import RESUME
+from tests.resume.test_resume_matching import RESUME
 
 
 class ResumeServiceTests(fixtures.ServiceFixture):

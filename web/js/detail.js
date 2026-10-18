@@ -3,7 +3,9 @@
 // requirements, skills and the description. Preparing (letter, PDF, people) and where the
 // listing came from close the column.
 import {del, enc, get, patch, post, put} from './api.js';
-import {ageLong, cleanQuote, esc, fitBand, fmtDay, isoDay, levelText, safeUrl, sourceName, toEpochMs} from './lib.js';
+import {
+  ageLong, cleanQuote, descriptionHtml, esc, fitBand, fmtDay, isoDay, levelText, safeUrl, sourceName, toEpochMs,
+} from './lib.js';
 import {
   STATUS_LABELS, STATUS_ORDER, badges, bindMenu, confirmDialog, deadlineCell, icon, logo, modalOpen, openModal, options,
   prettyKey, toast, trapFocus,
@@ -61,6 +63,7 @@ export async function openDrawer(key, ctx) {
     if (current?.key !== key) return;
     current.job = job;
     render(el, job);
+    followDescription(job);
   } catch (err) {
     if (current?.key !== key) return;
     el.innerHTML = `<header class="drawer-head"><div class="dh-bar"><span class="dh-company-type">Posting</span>${closeButton()}</div></header>
@@ -109,6 +112,21 @@ export async function reloadDrawer() {
   const target = focused?.isConnected ? focused : refocus ? el.querySelector(refocus) : null;
   if (target && !target.closest('[hidden]')) target.focus({preventScroll: true});
   else el.focus({preventScroll: true});
+  followDescription(job);
+}
+
+// A posting opened without its description has it fetched in the background
+// (description_pending): check back, a little less often each time, and show it once it
+// lands. About 45 s in all, since a LinkedIn fetch waits its turn behind the search.
+const DESC_POLLS = 8;
+let descPoll = null;   // {key, polls, timer}
+function followDescription(job) {
+  if (descPoll?.key !== job.key) { clearTimeout(descPoll?.timer); descPoll = {key: job.key, polls: 0}; }
+  clearTimeout(descPoll.timer);
+  if (!job.description_pending || descPoll.polls >= DESC_POLLS) return;
+  const wait = 2000 + 1000 * descPoll.polls;   // 2 s, 3 s, … 9 s
+  descPoll.polls += 1;
+  descPoll.timer = setTimeout(() => { if (current?.key === job.key) reloadDrawer(); }, wait);
 }
 
 /** The sentence a fact was read from, cut at whole words and shown under it as evidence. */
@@ -291,16 +309,14 @@ function skillsSection(skills, mine) {
   </section>`;
 }
 
-/** Postings arrive with runs of blank lines and trailing spaces; keep paragraphs, drop the rest. */
-const tidyText = text => String(text || '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-
 function descriptionSection(job) {
-  const text = tidyText(job.description);
+  const text = String(job.description || '').trim();
   const long = text.length > DESC_LIMIT;
   return `<section class="section" aria-labelledby="dr-desc">
-    ${sectionHead('dr-desc', 'Description')}
-    ${text ? `<div class="desc${long ? ' clamped' : ''}" data-desc>${esc(long ? `${text.slice(0, DESC_LIMIT)}…` : text)}</div>
+    ${sectionHead('dr-desc', 'Description', job.description_from ? `<span class="section-aside">From ${esc(job.description_from)}</span>` : '')}
+    ${text ? `<div class="desc${long ? ' clamped' : ''}" data-desc>${descriptionHtml(text)}</div>
       ${long ? `<button type="button" class="disclosure" data-act="more">Show full description${icon('chevronDown', 12)}</button>` : ''}`
+      : job.description_pending ? '<p class="section-empty" role="status">Getting the description from the posting…</p>'
       : `<p class="section-empty">This listing doesn’t include the description. <a class="link" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Read it on the posting</a>.</p>`}
   </section>`;
 }
@@ -431,9 +447,7 @@ function bind(el, job) {
     e.currentTarget.setAttribute('aria-expanded', String(!box.hidden));
   });
   on('more', e => {
-    const desc = el.querySelector('[data-desc]');
-    desc.textContent = job.description;
-    desc.classList.remove('clamped');
+    el.querySelector('[data-desc]').classList.remove('clamped');
     e.currentTarget.remove();
   });
   on('save', () => quickAction('save', job, ctx));

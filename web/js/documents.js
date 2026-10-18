@@ -12,10 +12,11 @@ const head = (title, aside = '') => `<div class="section-head"><h4>${title}</h4>
 const SOURCES = {saved: ['badge', 'Saved'], posting: ['badge', 'From the posting'], city: ['badge deadline', 'No street address']};
 
 // The recipient lines with a found street address in place of the old one: the lines up to the
-// company's name stay ('Hiring Manager', 'Barclays').
-export function useAddress(lines, company, address) {
+// company's name stay ('Hiring Manager', 'Barclays'), unless the posting names the person to write to.
+export function useAddress(lines, company, address, contact = '') {
   const at = lines.findIndex(line => line.trim().toLowerCase() === (company || '').trim().toLowerCase());
-  return [...(at >= 0 ? lines.slice(0, at + 1) : ['Hiring Manager', company].filter(Boolean)), ...address];
+  const to = contact ? [contact, company] : at >= 0 ? lines.slice(0, at + 1) : ['Hiring Manager', company];
+  return [...to.filter(Boolean), ...address];
 }
 
 export function documentsSections() {
@@ -63,18 +64,27 @@ export async function mountDocuments(el, job, deps = {}) {
       <div class="doc-to-body">
         <label class="field"><span class="sr-only">Recipient lines</span>
           <textarea class="input" data-cover-recipient rows="4" maxlength="800">${esc(to)}</textarea></label>
-        ${found ? (found.results.length ? `<ul class="doc-found">${found.results.map((f, i) => `<li>${icon('pin', 14)}<div class="grow"><div class="t">${esc(f.name)}</div><div class="s">${esc(f.lines.join(', '))}</div></div>
+        ${found ? (found.results.length ? `<ul class="doc-found">${found.results.map((f, i) => `<li>${icon('pin', 14)}<div class="grow"><div class="t">${esc(f.name)}</div><div class="s">${esc([f.contact, ...f.lines].filter(Boolean).join(', '))}</div></div>
             <button type="button" class="btn ghost xs" data-cover-act="use" data-found="${i}">Use</button></li>`).join('')}</ul>`
           : `<p class="doc-note">OpenStreetMap has no street address for ${esc(found.query)}. Type it in from the company’s website.</p>`) : ''}
         <div class="doc-actions">
-          <button type="button" class="btn sm" data-cover-act="find"${busy ? ' disabled' : ''}${busy === 'find' ? ' aria-busy="true"' : ''}>${icon('search')}${busy === 'find' ? 'Finding…' : 'Find address'}</button>
+          <button type="button" class="btn sm" data-cover-act="find"${busy ? ' disabled' : ''}${busy === 'find' ? ' aria-busy="true"' : ''}>${icon('search')}${busy === 'find' ? 'Reading the posting…' : 'Find address'}</button>
           <span class="doc-gap"></span>
           <button type="button" class="btn sm${dirty ? ' primary' : ''}" data-cover-act="address"${dirty && !busy ? '' : ' disabled'}>${busy === 'address' ? 'Saving…' : 'Save address'}</button>
         </div>
-        <p class="doc-note">Find address sends only the company and city to OpenStreetMap. Check what it finds: it can be a branch rather than the office you’re applying to. A saved address is used for every letter to this company in this city.</p>
+        <p class="doc-note">Find address reads the posting with the model on this computer, then asks OpenStreetMap for the postal code and the company’s other addresses, sending only the company, street and city. Check what it finds: it can be a branch rather than the office you’re applying to. A saved address is used for every letter to this company in this city.</p>
       </div>
     </details>`;
   };
+
+  // What the posting stresses most and whether the letter says it in the posting's words; one it
+  // doesn't is a click away from a change request. One the resume doesn't show (no evidence) is
+  // only ever work the candidate looks forward to.
+  const needTitle = n => n.evidence ? `Your resume shows it at ${n.evidence}` : 'Your resume doesn’t show this, so the letter mentions it only as work you’d do in this job';
+  const drawNeeds = needs => needs?.length ? `<div class="doc-needs"><span class="doc-to-label">The posting asks for</span>
+    ${needs.map((n, i) => n.covered
+      ? `<span class="badge best" title="${esc(`In the letter. ${needTitle(n)}`)}">${icon('check', 12)}${esc(n.phrase)}</span>`
+      : `<button type="button" class="badge doc-need" data-cover-act="need" data-need="${i}" title="${esc(`Not in the letter yet. ${needTitle(n)}`)}">${icon('plus', 12)}${esc(n.phrase)}</button>`).join('')}</div>` : '';
 
   const drawCover = (draft = {}) => {
     const l = state.letter;
@@ -97,13 +107,14 @@ export async function mountDocuments(el, job, deps = {}) {
       ${drawTo(draft)}
       ${l ? `<label class="field doc-letter"><span class="sr-only">Letter</span>
         <textarea class="input" data-cover-body rows="14">${esc(body)}</textarea></label>
+        ${drawNeeds(l.needs)}
         <div class="doc-ask"><label class="grow"><span class="sr-only">Ask for a change</span>
           <input class="input" data-cover-ask maxlength="1000" value="${esc(draft.ask ?? '')}" placeholder="Ask for a change, e.g. shorten the second paragraph"></label>
           <button type="button" class="btn sm" data-cover-act="revise"${busy ? ' disabled' : ''}${busy === 'revise' ? ' aria-busy="true"' : ''}>${busy === 'revise' ? 'Changing…' : 'Change'}</button></div>`
         : `<label class="field"><span>Anything to emphasize? <span class="muted">(optional)</span></span>
         <input class="input" data-cover-notes maxlength="1000" value="${esc(draft.notes ?? '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>`}
       <div class="doc-actions">
-        <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy ? ' disabled' : ''}${busy === 'generate' ? ' aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${busy === 'generate' ? 'Writing… (up to a minute)' : l ? 'Rewrite' : 'Write letter'}</button>
+        <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy ? ' disabled' : ''}${busy === 'generate' ? ' aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${busy === 'generate' ? 'Writing… (about a minute)' : l ? 'Rewrite' : 'Write letter'}</button>
         ${l ? `<span class="doc-gap"></span>
           <button type="button" class="btn ghost sm icon" data-cover-act="copy" aria-label="Copy letter" title="Copy letter">${icon('copy')}</button>
           <button type="button" class="btn ghost sm icon" data-cover-act="pdf" aria-label="Download as PDF" title="Download as PDF">${icon('download')}</button>
@@ -158,6 +169,14 @@ export async function mountDocuments(el, job, deps = {}) {
     if (!act || busy) return;
     const body = cover.querySelector('[data-cover-body]')?.value;
     let draft = typed();
+    if (act === 'need') {
+      const need = state.letter?.needs?.[Number(e.target.closest('[data-need]')?.dataset.need)];
+      if (need) draft.ask = need.evidence ? `Work "${need.phrase}" into the paragraph about ${need.evidence}`
+        : `Say that I look forward to "${need.phrase}" in this role, in the sentences about why I want it`;
+      drawCover(draft);
+      cover.querySelector('[data-cover-ask]')?.focus();
+      return;
+    }
     if (act === 'reload') {
       await load();
       if (state.letter && !items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
@@ -167,10 +186,15 @@ export async function mountDocuments(el, job, deps = {}) {
     try {
       if (act === 'use') {
         const pick = found?.results[Number(e.target.closest('[data-found]').dataset.found)];
-        if (pick) draft.to = useAddress(recipientLines(draft.to ?? savedTo()), job.company, pick.lines).join('\n');
+        if (pick) draft.to = useAddress(recipientLines(draft.to ?? savedTo()), job.company, pick.lines, pick.contact).join('\n');
       } else if (act === 'find') {
         busy = 'find'; drawCover(draft);
-        found = await request.api(`/api/jobs/${enc(job.key)}/recipient/lookup`, {method: 'POST', body: {}, timeout: 20000});
+        found = await request.api(`/api/jobs/${enc(job.key)}/recipient/lookup`, {method: 'POST', body: {}, timeout: 120000});
+        // The posting's own address now heads the To line, unless the user has typed one of their own.
+        if (found.recipient) {
+          if ((draft.to ?? savedTo()).trim() === savedTo()) delete draft.to;
+          state = {...state, recipient: found.recipient};
+        }
       } else if (act === 'address') {
         busy = 'address'; drawCover(draft);
         state = await request.put(`/api/jobs/${enc(job.key)}/recipient`, {lines: recipientLines(draft.to ?? ''), ...(state.letter ? {body} : {})});

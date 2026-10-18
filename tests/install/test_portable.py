@@ -70,7 +70,7 @@ class PortableTests(unittest.TestCase):
     def test_an_upgrade_removes_the_tech_sources_0_3_0_added_and_their_postings(self):
         # 0.3.0 (sources_version 7) added tech employers and tagged boards with a track, 0.3.1 (8)
         # switched them off, and 9 ships the 0.2.5 sources again: they go, with their postings.
-        root = Path(__file__).resolve().parent
+        root = Path(__file__).resolve().parents[2]
         bundled = clean_config(json.loads((root / "config.json").read_text(encoding="utf-8")))
         history = json.loads((root / "config" / "source_defaults_history.json").read_text(encoding="utf-8"))
         added = {name for name, since in history["__since__"].items() if since == 7}
@@ -134,7 +134,7 @@ class PortableTests(unittest.TestCase):
         self.assertEqual([], validate_profile(merge_profile(result["profile"]), load_knowledge()))
 
     def test_packaged_sources_keep_every_field_their_adapters_use(self):
-        source = json.loads((Path(__file__).parent / "config.json").read_text(encoding="utf-8"))
+        source = json.loads((Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf-8"))
         cleaned = clean_config(source)["boards"]
         for name, board in source["boards"].items():
             if name.startswith("_") or not isinstance(board, dict):
@@ -146,7 +146,7 @@ class PortableTests(unittest.TestCase):
     def test_stage_uses_allowlist_without_database_or_personal_files(self):
         with tempfile.TemporaryDirectory() as directory:
             stage = Path(directory) / "Foothold"
-            stage_app(Path(__file__).parent, stage)
+            stage_app(Path(__file__).resolve().parents[2], stage)
             self.assertTrue((stage / "Start Foothold.bat").is_file())
             self.assertTrue((stage / "app/web/js/views/settings.js").is_file())
             self.assertTrue((stage / "app/intel/resume.py").is_file())
