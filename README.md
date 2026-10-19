@@ -28,9 +28,10 @@ and run it. It installs for the current user only (no administrator rights) into
 `%LOCALAPPDATA%\Programs\Jobwatch` and adds Foothold to the Start menu. The installer
 is not code-signed yet, so Windows may show **Windows protected your PC**: choose
 **More info**, then **Run anyway**. Python and the dependencies are included; no API
-key or account is required. The app opens in the browser and fetches jobs
-automatically in the background, without a window (Settings > Background can start
-it at sign-in or stop it). Open it again any time from the Start menu.
+key or account is required. Foothold opens in a window of its own (Microsoft Edge's app
+mode, which Windows includes; links to postings open in your usual browser) and fetches
+jobs automatically in the background, even with the window closed (Settings > Background
+can start it at sign-in or stop it). Open it again any time from the Start menu.
 
 **Updates download automatically.** Foothold checks for a new release every six hours
 and downloads it in the background. When it is ready, a banner offers **Restart to
@@ -66,7 +67,11 @@ configurable safety limit; partial reads never close missing postings. Official
 student feeds cover RBC, TD, BMO, CIBC and Scotiabank, plus National Bank's public
 Avature board. LinkedIn guest search supplements these feeds with finance queries
 and a 30-day rolling / 90-day initial lookback; its page limits and rate limits
-mean it cannot guarantee every LinkedIn posting.
+mean it cannot guarantee every LinkedIn posting. LinkedIn lists postings without
+their text, so Foothold fetches a description when you open the posting, and in the
+background for the best-fitting ones, six every ten minutes, so their fit and pay
+are read from the full text (`linkedin_description_budget` and
+`linkedin_description_minutes` in config.json).
 
 The bundle starts with a clean profile and no notification accounts. It excludes
 the sender's database, resume, subscriber configuration, letters and portable state.
@@ -201,7 +206,10 @@ about yourself and your work at each company, in your words and layout, stays. Y
 resume says what is true today, and the posting decides what changes: the date,
 recipient, company, role and team, and the few sentences about why that firm or that
 kind of role. Without past letters, a letter is written from your resume. A letter
-takes 20–60 seconds with a graphics card.
+takes 20–60 seconds with a graphics card. It's written in the background: the panel
+shows each step, you can open other jobs meanwhile, and Foothold tells you when it's
+ready. Opening the job again shows the letter in progress rather than starting a
+second one.
 
 The letter leans toward the posting. Before writing, the model picks the three
 things the posting stresses most, in the posting's words, and the experience on
@@ -221,7 +229,9 @@ one in the present, a passed exam is called passed rather than a candidacy, and 
 that is planned or in progress is never called passed. The model checks each
 sentence that mentions one and rewrites only the status, keeping what the sentence
 says about the work: first in your past letter, before adapting it, so no sentence
-of your story is dropped for being out of date, then in the new letter. A company
+of your story is dropped for being out of date, then in the new letter. The corrected
+past letter is kept (until your resume, the model or the month changes), so only the
+first letter waits for it. A company
 your past letter talks about stays in the letter: where the model leaves it out (to
 talk about a newer role instead, or by shortening the sentence), Foothold puts your
 sentence about it back.

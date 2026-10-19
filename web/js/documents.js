@@ -2,7 +2,7 @@
 // written by a model on this computer, and one merged PDF (resume, letter,
 // transcript…) to upload.
 import {api, download, enc, fileToBase64, get, put} from './api.js';
-import {esc, fmtDay} from './lib.js';
+import {buildHash, esc, fmtDay, parseHash} from './lib.js';
 import {confirmDialog, icon, toast} from './ui.js';
 
 // Sub-headings: the drawer groups these under its "Prepare" section.
@@ -18,6 +18,57 @@ export function useAddress(lines, company, address, contact = '') {
   const to = contact ? [contact, company] : at >= 0 ? lines.slice(0, at + 1) : ['Hiring Manager', company];
   return [...to.filter(Boolean), ...address];
 }
+
+// A letter is written on the server, which knows the step it is on, and every panel showing the
+// posting follows it: reopening the listing shows the letter coming, and a second click can't start
+// another. One request at a time per posting however many panels; a letter that lands while no panel
+// shows it is announced, with a way back to it.
+const FOLLOW_MS = 1500;
+const following = new Map();     // posting key -> the panels following it ({live(), update(state)})
+const underWay = state => (state?.writing && !state.writing.error ? state.writing : null);
+
+function follow(job, panel, request) {
+  if (following.has(job.key)) { following.get(job.key).add(panel); return; }
+  const panels = new Set([panel]);
+  following.set(job.key, panels);
+  let misses = 0;
+  const tick = async () => {
+    let state = null;
+    try { state = await request.get(`/api/jobs/${enc(job.key)}/cover-letter`); } catch { misses += 1; }
+    panels.forEach(p => { if (!p.live()) panels.delete(p); });
+    if (state) panels.forEach(p => p.update(state));
+    if (state ? underWay(state) : misses < 20) { setTimeout(tick, FOLLOW_MS); return; }
+    following.delete(job.key);
+    if (panels.size || !state) return;
+    const open = {label: 'Open', fn: () => {
+      const {path, params} = parseHash(location.hash);
+      location.hash = buildHash(path, {...params, job: job.key});
+    }};
+    const where = job.company || 'this posting';
+    if (state.writing?.error) request.toast(`The letter for ${where} couldn’t be written: ${state.writing.error}`, {error: true, timeout: 9000, action: open});
+    else request.toast(`Your letter for ${where} is ready.`, {timeout: 9000, action: open});
+  };
+  setTimeout(tick, FOLLOW_MS);
+}
+
+// Where a letter is: a segment per step (done, under way), the step's name and the time so far.
+const stepName = w => (w.step < 0 ? 'Waiting for another posting’s letter to finish…' : `${w.steps[w.step]}…`);
+function stepCount(w) {
+  const secs = Math.max(0, Math.round((Date.now() - Date.parse(w.started_at)) / 1000));
+  return `${w.step < 0 ? '' : `Step ${w.step + 1} of ${w.steps.length} · `}${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+}
+/** Each segment's class, and how long it waits to fill (ms): steps that finished between two looks fill one after
+    another, then the step under way starts. `before` is the classes shown now. */
+export function stepFill(w, before = []) {
+  let fills = 0;
+  return w.steps.map((_, i) => {
+    const cls = i < w.step ? 'done' : i === w.step ? 'now' : '';
+    const delay = cls === before[i] ? 0 : fills * 140;
+    if (cls === 'done' && before[i] !== 'done') fills += 1;
+    return {cls, delay};
+  });
+}
+const stepSegments = w => stepFill(w).map(({cls}) => `<li class="${cls}"></li>`).join('');
 
 export function documentsSections() {
   return `<section class="section" data-cover-root>${head('Cover letter')}<p class="section-empty">Loading…</p></section>
@@ -88,6 +139,7 @@ export async function mountDocuments(el, job, deps = {}) {
 
   const drawCover = (draft = {}) => {
     const l = state.letter;
+    const w = underWay(state);
     if (loadError) {
       cover.innerHTML = `${head('Cover letter')}<p class="section-empty">Couldn’t load the cover letter: ${esc(loadError.message)}</p>
         <div class="doc-actions"><button type="button" class="btn sm" data-cover-act="reload">${icon('refresh')}Try again</button></div>`;
@@ -106,20 +158,23 @@ export async function mountDocuments(el, job, deps = {}) {
     cover.innerHTML = `${head('Cover letter', l ? `<span class="section-aside">${l.model ? `Written by ${esc(l.model)}` : 'Written by you'}${l.created_at ? ` · ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span>` : '')}
       ${drawTo(draft)}
       ${l ? `<label class="field doc-letter"><span class="sr-only">Letter</span>
-        <textarea class="input" data-cover-body rows="14">${esc(body)}</textarea></label>
+        <textarea class="input" data-cover-body rows="14"${w ? ' readonly' : ''}>${esc(body)}</textarea></label>
         ${drawNeeds(l.needs)}
         <div class="doc-ask"><label class="grow"><span class="sr-only">Ask for a change</span>
           <input class="input" data-cover-ask maxlength="1000" value="${esc(draft.ask ?? '')}" placeholder="Ask for a change, e.g. shorten the second paragraph"></label>
-          <button type="button" class="btn sm" data-cover-act="revise"${busy ? ' disabled' : ''}${busy === 'revise' ? ' aria-busy="true"' : ''}>${busy === 'revise' ? 'Changing…' : 'Change'}</button></div>`
+          <button type="button" class="btn sm" data-cover-act="revise"${busy || w ? ' disabled' : ''}${w?.kind === 'revise' ? ' aria-busy="true"' : ''}>${w?.kind === 'revise' ? 'Changing…' : 'Change'}</button></div>`
         : `<label class="field"><span>Anything to emphasize? <span class="muted">(optional)</span></span>
         <input class="input" data-cover-notes maxlength="1000" value="${esc(draft.notes ?? '')}" placeholder="e.g. mention my Excel modelling course; keep it short"></label>`}
       <div class="doc-actions">
-        <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy ? ' disabled' : ''}${busy === 'generate' ? ' aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${busy === 'generate' ? 'Writing… (about a minute)' : l ? 'Rewrite' : 'Write letter'}</button>
+        <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy || w ? ' disabled' : ''}${w?.kind === 'write' ? ' aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${w?.kind === 'write' ? 'Writing…' : l ? 'Rewrite' : 'Write letter'}</button>
         ${l ? `<span class="doc-gap"></span>
           <button type="button" class="btn ghost sm icon" data-cover-act="copy" aria-label="Copy letter" title="Copy letter">${icon('copy')}</button>
           <button type="button" class="btn ghost sm icon" data-cover-act="pdf" aria-label="Download as PDF" title="Download as PDF">${icon('download')}</button>
-          <button type="button" class="btn sm${dirty ? ' primary' : ''}" data-cover-act="save"${dirty ? '' : ' disabled'}>Save edits</button>` : ''}
+          <button type="button" class="btn sm${dirty ? ' primary' : ''}" data-cover-act="save"${dirty && !w ? '' : ' disabled'}>Save edits</button>` : ''}
       </div>
+      ${w ? `<div class="doc-progress" data-cover-progress><ol class="doc-steps" aria-hidden="true">${stepSegments(w)}</ol>
+        <p class="doc-step"><span role="status" data-step-name>${esc(stepName(w))}</span><span class="doc-step-count" aria-hidden="true" data-step-count>${esc(stepCount(w))}</span></p></div>`
+        : state.writing?.error ? `<p class="doc-failed" role="alert">${icon('alert', 14)}<span>${esc(state.writing.error)}</span></p>` : ''}
       <p class="doc-note">${l?.references?.length
         ? `Adapted from your past letter ${l.references.map(esc).join(' and ')}.`
         : state.references
@@ -145,6 +200,52 @@ export async function mountDocuments(el, job, deps = {}) {
   const redraw = () => { drawCover(); drawMerge(); };
   redraw();
 
+  // While the letter is written only its progress changes, in place: what the user is typing stays put, and a
+  // segment keeps filling where it is rather than start again.
+  const segmentsShown = () => [...(cover.querySelector('[data-cover-progress]')?.querySelectorAll('.doc-steps li') || [])];
+  const fillSegments = (segments, w) => {         // when the last fill ends, in ms
+    let end = 0;
+    stepFill(w, segments.map(li => li.className)).forEach(({cls, delay}, i) => {
+      if (segments[i].className === cls) return;
+      segments[i].style.setProperty('--fill-delay', `${delay}ms`);
+      segments[i].className = cls;
+      end = Math.max(end, delay + 480);
+    });
+    return end;
+  };
+  const drawProgress = () => {
+    const w = underWay(state);
+    const box = cover.querySelector('[data-cover-progress]');
+    const segments = segmentsShown();
+    if (!w || segments.length !== w.steps.length) { drawCover(typed()); return; }
+    fillSegments(segments, w);
+    const name = box.querySelector('[data-step-name]');
+    if (name.textContent !== stepName(w)) name.textContent = stepName(w);
+    box.querySelector('[data-step-count]').textContent = stepCount(w);
+  };
+  const panel = {
+    live: () => cover.isConnected,
+    update(next) {
+      const was = underWay(state);
+      state = next;
+      if (underWay(state)) { drawProgress(); return; }
+      if (state.letter && !items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
+      const show = () => {
+        drawCover(state.writing?.error ? typed() : {toOpen: typed().toOpen});
+        drawMerge();
+        if (!was) return;
+        if (state.writing?.error) request.toast(state.writing.error, {error: true, timeout: 9000});
+        else request.toast(was.kind === 'revise' ? 'Change made. Read it over before sending.' : 'Cover letter written. Read it over before sending.');
+      };
+      // A letter that's ready finishes its bar first, then takes its place.
+      const segments = segmentsShown();
+      if (was && !state.writing?.error && segments.length === was.steps.length) {
+        setTimeout(show, fillSegments(segments, {...was, step: was.steps.length}) + 120);
+      } else show();
+    },
+  };
+  if (underWay(state)) follow(job, panel, request);
+
   cover.addEventListener('input', e => {
     if (e.target.matches?.('[data-cover-recipient]')) {
       const btn = cover.querySelector('[data-cover-act=address]');
@@ -166,7 +267,7 @@ export async function mountDocuments(el, job, deps = {}) {
 
   cover.addEventListener('click', async e => {
     const act = e.target.closest('[data-cover-act]')?.dataset.coverAct;
-    if (!act || busy) return;
+    if (!act || busy || (underWay(state) && ['generate', 'revise', 'save', 'address'].includes(act))) return;
     const body = cover.querySelector('[data-cover-body]')?.value;
     let draft = typed();
     if (act === 'need') {
@@ -181,6 +282,7 @@ export async function mountDocuments(el, job, deps = {}) {
       await load();
       if (state.letter && !items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
       redraw();
+      if (underWay(state)) follow(job, panel, request);
       return;
     }
     try {
@@ -209,17 +311,27 @@ export async function mountDocuments(el, job, deps = {}) {
         if (draft.to != null && draft.to.trim() !== savedTo()) {
           state = await request.put(`/api/jobs/${enc(job.key)}/recipient`, {lines: recipientLines(draft.to)});
         }
-        state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter`, {method: 'POST', body: {notes}, timeout: 330000});
-        draft = {toOpen: draft.toOpen};
-        if (!items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
-        request.toast('Cover letter written. Read it over before sending.');
+        state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter`, {method: 'POST', body: {notes}});
+        if (underWay(state)) {
+          draft = {toOpen: draft.toOpen, notes: draft.notes};
+          follow(job, panel, request);
+        } else {
+          draft = {toOpen: draft.toOpen};
+          if (!items.some(it => it.kind === 'letter')) items.push({kind: 'letter'});
+          request.toast('Cover letter written. Read it over before sending.');
+        }
       } else if (act === 'revise') {
         const change = (draft.ask || '').trim();
         if (!change) { cover.querySelector('[data-cover-ask]')?.focus(); return; }
         busy = 'revise'; drawCover(draft);
-        state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter/revise`, {method: 'POST', body: {request: change, body}, timeout: 330000});
-        draft = {toOpen: draft.toOpen};
-        request.toast('Change made. Read it over before sending.');
+        state = await request.api(`/api/jobs/${enc(job.key)}/cover-letter/revise`, {method: 'POST', body: {request: change, body}});
+        if (underWay(state)) {
+          draft = {toOpen: draft.toOpen, ask: draft.ask, body};
+          follow(job, panel, request);
+        } else {
+          draft = {toOpen: draft.toOpen};
+          request.toast('Change made. Read it over before sending.');
+        }
       } else if (act === 'save') {
         state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
         draft = {toOpen: draft.toOpen};

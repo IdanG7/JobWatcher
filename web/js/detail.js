@@ -2,7 +2,7 @@
 // everything else behind one ⋯ menu, then the key facts at a glance, fit, your application,
 // requirements, skills and the description. Preparing (letter, PDF, people) and where the
 // listing came from close the column.
-import {del, enc, get, patch, post, put} from './api.js';
+import {del, enc, get, openExternal, patch, post, put} from './api.js';
 import {
   ageLong, cleanQuote, descriptionHtml, esc, fitBand, fmtDay, isoDay, levelText, safeUrl, sourceName, toEpochMs,
 } from './lib.js';
@@ -62,6 +62,8 @@ export async function openDrawer(key, ctx) {
     const job = await get(`/api/jobs/${enc(key)}`);
     if (current?.key !== key) return;
     current.job = job;
+    clearTimeout(descPoll?.timer);
+    descPoll = null;
     render(el, job);
     followDescription(job);
   } catch (err) {
@@ -117,9 +119,11 @@ export async function reloadDrawer() {
 
 // A posting opened without its description has it fetched in the background
 // (description_pending): check back, a little less often each time, and show it once it
-// lands. About 45 s in all, since a LinkedIn fetch waits its turn behind the search.
+// lands. About 45 s in all, since a LinkedIn fetch waits its turn behind the search; then
+// the drawer says it is still waiting and offers to check again.
 const DESC_POLLS = 8;
 let descPoll = null;   // {key, polls, timer}
+const descWaitOver = job => descPoll?.key === job.key && descPoll.polls >= DESC_POLLS;
 function followDescription(job) {
   if (descPoll?.key !== job.key) { clearTimeout(descPoll?.timer); descPoll = {key: job.key, polls: 0}; }
   clearTimeout(descPoll.timer);
@@ -316,7 +320,11 @@ function descriptionSection(job) {
     ${sectionHead('dr-desc', 'Description', job.description_from ? `<span class="section-aside">From ${esc(job.description_from)}</span>` : '')}
     ${text ? `<div class="desc${long ? ' clamped' : ''}" data-desc>${descriptionHtml(text)}</div>
       ${long ? `<button type="button" class="disclosure" data-act="more">Show full description${icon('chevronDown', 12)}</button>` : ''}`
+      : job.description_pending && descWaitOver(job) ? `<div class="desc-wait" role="status"><p class="section-empty">Still waiting for the description; the site is slow to answer.</p>
+        <button type="button" class="btn ghost sm" data-act="desc-check">${icon('refresh')}Check again</button></div>`
       : job.description_pending ? '<p class="section-empty" role="status">Getting the description from the posting…</p>'
+      : job.description_failed ? `<div class="desc-wait"><p class="section-empty">Couldn’t get the description: ${esc(job.description_failed)}. <a class="link" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Read it on the posting</a>.</p>
+        <button type="button" class="btn ghost sm" data-act="desc-retry">${icon('refresh')}Try again</button></div>`
       : `<p class="section-empty">This listing doesn’t include the description. <a class="link" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Read it on the posting</a>.</p>`}
   </section>`;
 }
@@ -423,7 +431,7 @@ export async function quickAction(action, job, ctx) {
       else await saveJob(job, 'applied');
       toast(`Marked applied · ${job.company}`);
     } else if (action === 'open') {
-      window.open(safeUrl(job.url), '_blank', 'noopener,noreferrer');
+      openExternal(safeUrl(job.url));
       return;
     }
     ctx.changed();
@@ -450,6 +458,21 @@ function bind(el, job) {
     el.querySelector('[data-desc]').classList.remove('clamped');
     e.currentTarget.remove();
   });
+  // Waiting on a slow site, or after a failed fetch: look again, or fetch again past the back-off.
+  const describeAgain = async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      if (btn.dataset.act === 'desc-retry') await post(`/api/jobs/${enc(job.key)}/description`, {});
+      descPoll = null;
+      await reloadDrawer();
+    } catch (err) {
+      toast(err.message, {error: true});
+      btn.disabled = false;
+    }
+  };
+  on('desc-check', describeAgain);
+  on('desc-retry', describeAgain);
   on('save', () => quickAction('save', job, ctx));
   on('applied', () => quickAction('applied', job, ctx));
   on('copy', async () => {

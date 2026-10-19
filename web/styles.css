@@ -1912,6 +1912,30 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .doc-ask .input { width: 100%; }
 .doc-gap { flex: 1; }
 .doc-note { margin: 10px 0 0; color: var(--text-3); font-size: 12px; line-height: 1.5; }
+.desc-wait { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.desc-wait .section-empty { flex: 1 1 260px; margin: 0; }
+/* A letter being written: a segment per step, its name and the time so far. The step under way fills steadily,
+   slower as it goes, so it never looks done before it is; a finished one fills to the end, from wherever it had
+   reached. Steps finished between two looks fill one after another (--fill-delay, set by the panel). */
+.doc-progress { margin-top: 12px; }
+.doc-steps { display: flex; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.doc-steps li { position: relative; flex: 1; height: 3px; overflow: hidden; border-radius: 2px; background: var(--surface-3); }
+.doc-steps li::after {
+  content: ''; position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform 480ms cubic-bezier(.23, 1, .32, 1) var(--fill-delay, 0ms);
+}
+.doc-steps li.done::after { transform: scaleX(1); }
+/* Transitions, not an animation: one cut short goes on from where it had reached, so the finishing fill is smooth. */
+.doc-steps li.now::after { transform: scaleX(.92); transition-duration: 40s; transition-timing-function: cubic-bezier(.2, .65, .3, 1); }
+@starting-style { .doc-steps li.now::after { transform: scaleX(.03); } }
+.doc-step { display: flex; justify-content: space-between; gap: 12px; margin: 7px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-2); }
+.doc-step-count { flex: none; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.doc-failed { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--neg); }
+.doc-failed svg { flex: none; margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .doc-steps li::after { transition: none; }
+  .doc-steps li.now::after { transform: scaleX(.5); }
+}
 /* What the posting asks for: in the letter (checked), or a click from a change request. */
 .doc-needs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .doc-needs .badge { height: auto; min-height: 22px; gap: 4px; padding: 2px 7px; white-space: normal; text-align: left; }

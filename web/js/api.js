@@ -49,6 +49,14 @@ export const del = (path) => api(path, {method: 'DELETE'});
 
 export const enc = encodeURIComponent;
 
+// In Foothold's own window (Edge's app mode, opened with ?app) another site's page opens in the
+// user's browser, where their sign-ins are, not in a bare window of the app's profile.
+export const appWindow = new URLSearchParams(globalThis.location?.search || '').has('app');
+export function openExternal(url) {
+  const tab = () => window.open(url, '_blank', 'noopener,noreferrer');
+  if (appWindow) post('/api/open', {url}).catch(tab); else tab();
+}
+
 // POST JSON and save the file the server sends back (e.g. a merged PDF).
 export async function download(path, body, fallbackName = 'download.pdf') {
   let res;

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import {test} from 'node:test';
-import {documentsSections, mountDocuments, useAddress} from '../js/documents.js';
+import {mock, test} from 'node:test';
+import {documentsSections, mountDocuments, stepFill, useAddress} from '../js/documents.js';
 
 function section(fields = {}) {
-  return {innerHTML: '', handlers: {}, fields,
+  return {innerHTML: '', handlers: {}, fields, isConnected: true,
     addEventListener(type, fn) { this.handlers[type] = fn; },
     querySelector(sel) { return this.fields[sel] ?? null; }};
 }
@@ -164,4 +164,81 @@ test('an address typed but not saved goes into the next letter', async () => {
   await f.click(f.cover, {'[data-cover-act]': {dataset: {coverAct: 'generate'}}});
   assert.deepEqual(sent.map(c => c.slice(0, 2)), [['put', '/api/jobs/rbc%3A1/recipient'], ['api', '/api/jobs/rbc%3A1/cover-letter']]);
   assert.deepEqual(sent[0][2], {lines: ['Hiring Manager', 'RBC', '200 Bay Street']});
+});
+
+// The letter is written on the server; the panel follows it a beat at a time.
+const READY = {letter: null, running: true, model: 'qwen3:8b', resume: true, references: 0};
+const WRITING = {kind: 'write', steps: ['Reading the posting', 'Reading your resume', 'Writing the letter'], step: 0,
+  started_at: new Date().toISOString()};
+const beat = async () => {
+  mock.timers.tick(1500);
+  for (let i = 0; i < 3; i++) await new Promise(r => setImmediate(r));
+};
+
+test('a letter written in the background shows its steps, then the letter', async () => {
+  mock.timers.enable({apis: ['setTimeout']});
+  try {
+    let served = READY;
+    const f = await fixture(READY, {get: async () => served, api: async () => ({...READY, writing: {...WRITING}})});
+    await f.click(f.cover, {'[data-cover-act]': {dataset: {coverAct: 'generate'}}});
+    assert.match(f.cover.innerHTML, /aria-busy="true">.*Writing…<\/button>/s);
+    assert.match(f.cover.innerHTML, /data-cover-act="generate" disabled/);
+    assert.match(f.cover.innerHTML, /Reading the posting…/);
+    assert.match(f.cover.innerHTML, /Step 1 of 3 · 0:0\d/);
+    assert.match(f.cover.innerHTML, /value="mention Excel"/);       // the notes stay while it writes
+    served = {...READY, writing: {...WRITING, step: 2}};
+    await beat();
+    assert.match(f.cover.innerHTML, /<li class="done"><\/li><li class="done"><\/li><li class="now"><\/li>/);
+    assert.match(f.cover.innerHTML, /Writing the letter…/);
+    assert.deepEqual(f.toasts, []);
+    served = {...READY, letter: {body: 'New letter', model: 'qwen3:8b', references: []}, writing: null};
+    await beat();
+    assert.match(f.cover.innerHTML, /New letter/);
+    assert.doesNotMatch(f.cover.innerHTML, /data-cover-progress/);
+    assert.match(f.merge.innerHTML, /Cover letter \(from above\)/);
+    assert.deepEqual(f.toasts.map(t => t[0]), ['Cover letter written. Read it over before sending.']);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('reopening the posting shows the letter under way, and a failure says why', async () => {
+  mock.timers.enable({apis: ['setTimeout']});
+  try {
+    let served = {...READY, writing: {...WRITING, step: 1}};
+    const f = await fixture(served, {get: async () => served});
+    assert.match(f.cover.innerHTML, /Reading your resume…/);
+    assert.match(f.cover.innerHTML, /data-cover-act="generate" disabled/);
+    served = {...READY, writing: {...WRITING, step: 1, error: 'The model stopped answering.'}};
+    await beat();
+    assert.match(f.cover.innerHTML, /role="alert">.*The model stopped answering\./s);
+    assert.match(f.cover.innerHTML, /data-cover-act="generate">.*Write letter/s);      // free to try again
+    assert.deepEqual(f.toasts.map(t => [t[0], t[1].error]), [['The model stopped answering.', true]]);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('a letter that lands after the user moved on is announced, with a way back', async () => {
+  mock.timers.enable({apis: ['setTimeout']});
+  try {
+    let served = {...READY, writing: {...WRITING}};
+    const f = await fixture(served, {get: async () => served});
+    f.cover.isConnected = false;                                     // another posting is open now
+    served = {...READY, letter: {body: 'New letter', model: 'qwen3:8b'}, writing: null};
+    await beat();
+    assert.deepEqual(f.toasts.map(t => [t[0], t[1].action.label]), [['Your letter for RBC is ready.', 'Open']]);
+    await beat();
+    assert.equal(f.toasts.length, 1);                                // and the following stops
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('steps finished between two looks fill one after another, then the step under way starts', () => {
+  const w = {steps: ['Reading the posting', 'Reading your resume', 'Updating your past letter', 'Writing the letter', 'Checking'], step: 3};
+  assert.deepEqual(stepFill(w, ['now', '', '', '', '']),
+    [{cls: 'done', delay: 0}, {cls: 'done', delay: 140}, {cls: 'done', delay: 280}, {cls: 'now', delay: 420}, {cls: '', delay: 0}]);
+  assert.deepEqual(stepFill({...w, step: 4}, ['done', 'done', 'done', 'now', '']).map(s => s.delay), [0, 0, 0, 0, 140]);
+  assert.deepEqual(stepFill(w).map(s => s.cls), ['done', 'done', 'done', 'now', '']);         // first drawn
 });

@@ -1,6 +1,6 @@
 // Router, global state, theme, live status. Every view module exports
 // render(root, ctx) -> optional {update(params), onKey(e), cleanup()}.
-import {get, post} from './api.js';
+import {appWindow, get, openExternal, post} from './api.js';
 import {ageLong, buildHash, compact, esc, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
@@ -393,6 +393,19 @@ async function boot() {
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { applyTheme(); current.view?.redraw?.(); });
   window.addEventListener('hashchange', route);
   document.addEventListener('keydown', onKey);
+  if (appWindow) {
+    // Links to other sites (postings, company pages) leave Foothold's window for the browser.
+    const leave = e => {
+      const link = e.target.closest?.('a[href]');
+      if (!link || e.defaultPrevented || (e.type === 'auxclick' && e.button !== 1)) return;
+      const url = new URL(link.href, location.href);
+      if (url.origin === location.origin || !['http:', 'https:'].includes(url.protocol)) return;
+      e.preventDefault();
+      openExternal(url.href);
+    };
+    document.addEventListener('click', leave);
+    document.addEventListener('auxclick', leave);
+  }
   ctx.applyTheme = () => { applyTheme(); current.view?.redraw?.(); };
   // Settings › System and the palette reopen the release notes.
   ctx.whatsNew = async () => { if (await openWhatsNew() === false) toast('This version has no release notes'); };

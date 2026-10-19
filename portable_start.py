@@ -2,8 +2,8 @@
 
 The Start menu shortcut (pythonw.exe, no window) or Start Foothold.bat runs
 this as a short-lived launcher: it starts the server as a windowless
-pythonw.exe process (or finds the one already running), opens the browser and
-exits. ``--console`` keeps the old run-in-this-window behaviour for
+pythonw.exe process (or finds the one already running), opens Foothold's window
+(open_app) and exits. ``--console`` keeps the old run-in-this-window behaviour for
 troubleshooting; ``--stop`` stops a running copy (the installer uses it).
 """
 from __future__ import annotations
@@ -24,6 +24,7 @@ import webbrowser
 from version import APP_VERSION
 
 LOG_LIMIT = 5_000_000
+APP_TITLE = "Foothold"      # the page's title ends with it: "Opportunities · Foothold"
 MISSING = "__missing__"     # tools/source_history.py: a key a release did not ship
 
 
@@ -323,6 +324,68 @@ def responds(url: str, wait: float = 0.0) -> bool:
         time.sleep(0.3)
 
 
+def edge_path() -> str | None:
+    """msedge.exe, which Windows 10 and 11 install for every user."""
+    for root in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA"):
+        base = os.environ.get(root)
+        if not base:
+            continue
+        path = Path(base) / "Microsoft" / "Edge" / "Application" / "msedge.exe"
+        if path.is_file():
+            return str(path)
+    return None
+
+
+def raise_window() -> bool:
+    """Bring an open Foothold window to the front. Its title is the page's ("Opportunities ·
+    Foothold"); a browser tab's has the browser's name after it, so only the app window matches."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.windll.user32
+    found = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def visit(hwnd, _):
+        length = user32.GetWindowTextLengthW(hwnd)
+        if length and user32.IsWindowVisible(hwnd):
+            title = ctypes.create_unicode_buffer(length + 1)
+            user32.GetWindowTextW(hwnd, title, length + 1)
+            if title.value == APP_TITLE or title.value.endswith(f" · {APP_TITLE}"):
+                found.append(hwnd)
+                return False
+        return True
+
+    user32.EnumWindows(visit, 0)
+    if not found:
+        return False
+    if user32.IsIconic(found[0]):
+        user32.ShowWindow(found[0], 9)      # SW_RESTORE
+    user32.SetForegroundWindow(found[0])
+    return True
+
+
+def open_app(url: str, data: Path) -> None:
+    """Foothold in a window of its own rather than a browser tab: Edge's app mode (no address bar
+    or tabs), with a profile in the data folder that keeps the window's size and place apart from
+    the user's browsing and extensions. An open window comes to the front instead of a second one
+    opening. ?app tells the page to send links to other sites to the user's browser. Without Edge,
+    the default browser."""
+    if raise_window():
+        return
+    edge = edge_path()
+    if not edge:
+        webbrowser.open(url)
+        return
+    profile = data / "window"
+    command = [edge, f"--app={url}/?app=1", f"--user-data-dir={profile}", "--no-first-run",
+               "--no-default-browser-check"]
+    if not profile.exists():
+        command.append("--window-size=1360,900")        # the first time; Edge remembers it after
+    subprocess.Popen(command, cwd=str(data), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, close_fds=True,
+                     creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
+
+
 def wait_for_running(args, data: Path, seconds: float = 90) -> int:
     """Another start is under way: wait for its server instead of racing it."""
     state = data / "instance.json"
@@ -332,7 +395,7 @@ def wait_for_running(args, data: Path, seconds: float = 90) -> int:
         if url and responds(url):
             print(f"Foothold is running: {url}", flush=True)
             if not args.no_browser:
-                webbrowser.open(url)
+                open_app(url, data)
             return 0
         time.sleep(0.2)
     print(f"Foothold is taking long to start; see {data / 'jobwatch.log'}", flush=True)
@@ -372,7 +435,7 @@ def _launch(args, data: Path) -> int:
                 return 1
             print(f"Foothold is already running: {url}", flush=True)
             if not args.no_browser:
-                webbrowser.open(url)
+                open_app(url, data)
             return 0
         print(f"Replacing the older Foothold {running} that is running...", flush=True)
         if stop_running(url):
@@ -420,7 +483,7 @@ def _launch(args, data: Path) -> int:
     print("Open Foothold again any time to reopen the dashboard.", flush=True)
     print("To stop it, or to start it when you sign in to Windows: Settings > Background.\n", flush=True)
     if not args.no_browser:
-        webbrowser.open(url)
+        open_app(url, data)
     return 0
 
 
@@ -474,7 +537,7 @@ def main(argv=None) -> int:
                     return 1
                 print(f"Foothold is already running: {url}", flush=True)
                 if not args.no_browser:
-                    webbrowser.open(url)
+                    open_app(url, data)
                 return 0
             time.sleep(0.1)
         print("Foothold is starting in another window. Please wait a moment.")
@@ -500,6 +563,7 @@ def main(argv=None) -> int:
         service.autostart_command = subprocess.list2cmdline(server_command(data))
         service.log_path = data / "jobwatch.log" if args.serve else None
         service.app_root = app.parent
+        service.desktop = True          # the page's links to other sites open in the user's browser
         if not os.environ.get("JOBWATCH_NO_UPDATES"):
             from updater import Updater
             service.updater = Updater(data)
@@ -530,7 +594,7 @@ def main(argv=None) -> int:
             threading.Thread(target=poll, name="jobwatch-auto-poll", daemon=True).start()
             print("Fetching jobs in the background; the first fetch can take several minutes.", flush=True)
         if args.console and not args.no_browser:
-            webbrowser.open(url)
+            open_app(url, data)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

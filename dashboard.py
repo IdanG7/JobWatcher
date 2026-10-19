@@ -68,10 +68,37 @@ RELEASES_API = "https://api.github.com/repos/IdanG7/JobWatcher/releases/latest"
 RELEASES_PAGE = "https://github.com/IdanG7/JobWatcher/releases/"
 COVER_LIBRARY = 10     # past cover letters kept to adapt from
 LETTER_LIMIT = f"the letter must be text up to {cover_letter.MAX_LETTER:,} characters"
+# What a letter goes through, in order, as its panel shows while it is written; the past letter is put
+# right only when there is one.
+LETTER_STEPS = ("Reading the posting", "Reading your resume", "Updating your past letter", "Writing the letter",
+                "Checking roles and dates", "Using the posting's words")
+STORY_STEP = LETTER_STEPS[2]
 
 
 def _digest(text: str) -> str:
     return hashlib.sha1(text.encode("utf-8", "replace")).hexdigest()[:16]
+
+
+def _needs_digest(job: dict, resume_text: str) -> str:
+    """posting_needs is read again when the posting's text or the resume changes."""
+    return _digest((job.get("description") or "") + "\n" + resume_text)
+
+
+def _story_key(model: str, resume_text: str, base_text: str, facts: dict) -> str:
+    """Where _story keeps a corrected past letter: per letter, resume, model and its reading, and month."""
+    return "letter_story:" + _digest("\n".join((base_text, resume_text, model, json.dumps(facts, sort_keys=True),
+                                                date.today().isoformat()[:7])))
+
+
+def _description_failure(error: str) -> str:
+    """Why a description fetch failed, said for the drawer (job_text.last_error is 'Type: message')."""
+    if "RateLimited" in error or "429" in error:
+        return "the site is limiting requests right now"
+    if "404" in error or "410" in error:
+        return "the posting may have been taken down"
+    if "Timeout" in error or "Connection" in error or re.search(r"\b5\d\d\b", error):
+        return "the site didn't answer"
+    return "the site sent nothing Foothold could read"
 
 
 def _letter_text(body) -> bool:
@@ -216,9 +243,15 @@ class JobwatchService:
         self._scan_lock = threading.Lock()
         self._scanning = set()
         self._describing = set()         # postings whose description is being fetched
+        self._letters = {}               # a letter being written or changed in the background, by posting
+        self._letter_lock = threading.Lock()
+        self._letter_turn = threading.Lock()     # the model writes one letter at a time
         # Opening a posting without a description fetches it; turned on with the background
         # work, so tests and tools that build the service never reach the network.
         self.fetch_on_open = False
+        # The desktop app (portable_start) runs on the user's own computer, in a window of its own:
+        # open_link sends the page's links to other sites to their browser.
+        self.desktop = False
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._pending_cache: tuple[float, int] | None = None
@@ -501,12 +534,15 @@ class JobwatchService:
                 WHERE rm.board=? AND rm.job_id=? AND i.facts_version=?""", (board, job_id, FACTS_VERSION)).fetchone()
             job["resume_match"] = json.loads(match[0]) if match else None
             text = con.execute("SELECT CAST(description AS BLOB) AS description, department, source, fetched_at, "
-                               "attempts FROM job_text WHERE board=? AND job_id=?", (board, job_id)).fetchone()
+                               "attempts, last_error FROM job_text WHERE board=? AND job_id=?", (board, job_id)).fetchone()
             job["description"] = bytes(text["description"] or b"").decode("utf-8", "replace") if text else ""
             job["department"] = text["department"] if text else ""
             job["description_source"] = text["source"] if text else ""
             # True while this posting's missing description is fetched and scored, so the drawer checks back.
             job["description_pending"] = self._describe_later(job, text)
+            # Why the last fetch failed, while there is still no description: the drawer offers to try again.
+            job["description_failed"] = (_description_failure(text["last_error"]) if text and text["last_error"]
+                                         and not job["description"].strip() and not job["description_pending"] else "")
             scan = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
             scan = json.loads(scan[0]) if scan else {}
             job["posting_scan"] = {"checked_at": scan.get("checked_at"), "error": scan.get("error", ""),
@@ -565,10 +601,10 @@ class JobwatchService:
                                    if company else None)
         return job
 
-    def _describe_later(self, job: dict, text) -> bool:
+    def _describe_later(self, job: dict, text, force: bool = False) -> bool:
         """Start fetching a posting's missing description in the background, with the poll's
-        back-off (retried after 6 hours, 3 attempts at most). True until that fetch and the
-        re-scoring after it finish."""
+        back-off (retried after 6 hours, 3 attempts at most) unless forced (the drawer's Try again).
+        True until that fetch and the re-scoring after it finish."""
         key, cfg = job["key"], self.boards.get(job["board"])
         with self._scan_lock:
             if key in self._describing:
@@ -576,8 +612,8 @@ class JobwatchService:
             if (job["description"].strip() or not self.fetch_on_open or not cfg or cfg.get("disabled")
                     or not watcher.describable(cfg, on_open=True) or len(self._describing) >= 4):
                 return False
-            if text and (text["attempts"] >= watcher.DESCRIPTION_ATTEMPTS
-                         or (text["fetched_at"] or "") >= watcher.description_retry_before()):
+            if not force and text and (text["attempts"] >= watcher.DESCRIPTION_ATTEMPTS
+                                       or (text["fetched_at"] or "") >= watcher.description_retry_before()):
                 return False
             self._describing.add(key)
         threading.Thread(target=self._describe, args=(cfg, job["board"], job["job_id"], job["url"]),
@@ -606,6 +642,31 @@ class JobwatchService:
         finally:
             with self._scan_lock:
                 self._describing.discard(f"{board}:{job_id}")
+
+    def open_link(self, payload: dict) -> dict:
+        """Open another site's page in the user's browser, where their sign-ins are, rather than in
+        Foothold's window. Only http(s), and only in the desktop app."""
+        url = payload.get("url")
+        parts = urlparse(url) if isinstance(url, str) and len(url) <= 4000 else None
+        if not parts or parts.scheme not in ("http", "https") or not parts.netloc:
+            raise ApiError("only http and https links open")
+        if not self.desktop:
+            raise ApiError("links open in your browser only in the desktop app", HTTPStatus.CONFLICT)
+        webbrowser.open(url)
+        return {"opened": True}
+
+    def retry_description(self, key: str) -> dict:
+        """Fetch a missing description now, past the back-off: the drawer's Try again."""
+        job = self.job_detail(key)
+        if job["description_pending"] or job["description"].strip():
+            return {"pending": job["description_pending"]}
+        board, _, job_id = key.partition(":")
+        with self.db() as con:
+            text = con.execute("SELECT fetched_at, attempts FROM job_text WHERE board=? AND job_id=?",
+                               (board, job_id)).fetchone()
+        if not self._describe_later(job, text, force=True):
+            raise ApiError("This posting's description can't be fetched from here; read it on the posting.")
+        return {"pending": True}
 
     def scan_job(self, key: str, payload: dict) -> dict:
         """Fetch only this stored posting; network work never holds a DB lock."""
@@ -1798,7 +1859,65 @@ class JobwatchService:
             references = len(self._cover_references(con))
             recipient = letterhead.recipient(job, self._recipients(con), self._details(con, key, job))
         return {"letter": json.loads(row[0]) if row else None, "running": ollama["running"], "model": model,
-                "resume": has_resume, "references": references, "recipient": recipient}
+                "resume": has_resume, "references": references, "recipient": recipient,
+                "writing": self._writing(key)}
+
+    def _writing(self, key: str) -> dict | None:
+        """The letter being written or changed for this posting (the step it is on; -1 while another posting's
+        letter goes first), or why the last try failed, for ten minutes."""
+        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat(timespec="seconds")
+        with self._letter_lock:
+            entry = self._letters.get(key)
+            if entry and entry.get("finished_at") and entry["finished_at"] < cutoff:
+                del self._letters[key]
+                entry = None
+            return dict(entry) if entry else None
+
+    def start_cover_letter(self, key: str, payload: dict) -> dict:
+        """Write the letter in the background and answer at once. The panel follows it through get_cover_letter,
+        so reopening the posting shows it under way, and a second click starts nothing."""
+        setup = self._letter_setup(key, payload)
+        steps = self._letter_steps(key, setup)
+        self._in_background(key, "write", steps, lambda progress: self.generate_cover_letter(key, payload, progress, setup))
+        return self.get_cover_letter(key, setup["job"])
+
+    def start_revision(self, key: str, payload: dict) -> dict:
+        """revise_cover_letter in the background, followed like a new letter."""
+        setup = self._revision_setup(key, payload)
+        self._in_background(key, "revise", ["Making the change"],
+                            lambda progress: self.revise_cover_letter(key, payload, progress, setup))
+        return self.get_cover_letter(key, setup["job"])
+
+    def _in_background(self, key: str, kind: str, steps: list, work) -> None:
+        with self._letter_lock:
+            if key in self._letters and "error" not in self._letters[key]:
+                return                      # under way already
+            entry = {"kind": kind, "steps": steps, "step": -1, "started_at": utcnow()}
+            self._letters[key] = entry
+
+        def progress(step: str) -> None:       # a step left out of steps takes no time: the bar stays put
+            if step in steps:
+                with self._letter_lock:
+                    entry["step"] = max(entry["step"], steps.index(step))
+
+        def run() -> None:
+            error = None
+            try:
+                with self._letter_turn:
+                    progress(steps[0])          # its turn: no longer waiting for another posting's letter
+                    work(progress)
+            except ApiError as exc:
+                error = str(exc)
+            except Exception as exc:        # a model or database failure: said in the panel, logged here
+                watcher.log(f"! cover letter for {key} failed: {type(exc).__name__}: {exc}")
+                error = "The letter couldn't be written. Try again."
+            with self._letter_lock:
+                if error:
+                    entry.update(error=error, finished_at=utcnow())
+                elif self._letters.get(key) is entry:
+                    del self._letters[key]
+
+        threading.Thread(target=run, name="foothold-letter", daemon=True).start()
 
     @staticmethod
     def _details(con, key: str, job: dict) -> dict:
@@ -1813,10 +1932,8 @@ class JobwatchService:
         if not resume_text.strip():
             return {}
         digest = _digest(resume_text)
-        with self.db() as con:
-            row = con.execute("SELECT v FROM kv WHERE k='resume_facts'").fetchone()
-        saved = json.loads(row[0]) if row else {}
-        if saved.get("text") == digest and saved.get("model") == model:
+        saved = self._reading("resume_facts", digest, model)
+        if saved:
             return saved["facts"]
         try:
             facts = cover_letter.read_facts(model, resume_text)
@@ -1830,11 +1947,9 @@ class JobwatchService:
     def posting_needs(self, key: str, job: dict, resume_text: str, model: str) -> list[dict]:
         """What the posting stresses most and the resume experience that shows each (cover_letter.key_requirements),
         read once per posting text and resume. [] when the model can't say."""
-        digest = _digest((job.get("description") or "") + "\n" + resume_text)
-        with self.db() as con:
-            row = con.execute("SELECT v FROM kv WHERE k=?", ("posting_needs:" + key,)).fetchone()
-        saved = json.loads(row[0]) if row else {}
-        if saved.get("text") == digest and saved.get("model") == model:
+        digest = _needs_digest(job, resume_text)
+        saved = self._reading("posting_needs:" + key, digest, model)
+        if saved:
             return saved["needs"]
         try:
             needs = cover_letter.key_requirements(model, job, resume_text)
@@ -1872,7 +1987,9 @@ class JobwatchService:
         from version import APP_VERSION
         return f"Foothold/{APP_VERSION} (+https://github.com/IdanG7/JobWatcher)"
 
-    def generate_cover_letter(self, key: str, payload: dict) -> dict:
+    def _letter_setup(self, key: str, payload: dict) -> dict:
+        """What a letter for this posting is written from, checked before any model work so a missing piece
+        is said at once."""
         notes = payload.get("notes") or ""
         if not isinstance(notes, str) or len(notes) > cover_letter.MAX_NOTES:
             raise ApiError(f"notes must be text up to {cover_letter.MAX_NOTES} characters")
@@ -1889,40 +2006,94 @@ class JobwatchService:
             raise ApiError("Download a writing model in Settings › Cover letters first.")
         if not resume:
             raise ApiError("Upload your resume in Settings first; the letter is written from it.")
-        details = {}
-        if letterhead.recipient(job, saved)["source"] == "city":     # no address yet: the posting may say it
-            details = self.read_posting_details(key, job, model)
-        recipient = letterhead.recipient(job, saved, details)["lines"]
-        needs = self.posting_needs(key, job, resume[0], model)
-        facts = self.resume_facts(resume[0], model)
-        base = cover_letter.pick_reference(job, letters, self.kn)
+        return {"notes": notes, "job": job, "resume": resume[0], "model": model, "letters": letters, "saved": saved,
+                "base": cover_letter.pick_reference(job, letters, self.kn)}
+
+    def generate_cover_letter(self, key: str, payload: dict, progress=None, setup: dict | None = None) -> dict:
+        """Write and save the letter; progress(step) hears each of LETTER_STEPS as it starts."""
+        setup = setup or self._letter_setup(key, payload)
+        step = progress or (lambda name: None)
+        job, model, resume, base = setup["job"], setup["model"], setup["resume"], setup["base"]
         base_text = base["text"] if base else ""
+        step("Reading the posting")
+        details = {}
+        if letterhead.recipient(job, setup["saved"])["source"] == "city":     # no address yet: the posting may say it
+            details = self.read_posting_details(key, job, model)
+        recipient = letterhead.recipient(job, setup["saved"], details)["lines"]
+        needs = self.posting_needs(key, job, resume, model)
+        step("Reading your resume")
+        facts = self.resume_facts(resume, model)
         try:
-            # The past letter's statuses put right first, in its words: asked to change them while it adapts the
-            # letter, the model drops or swaps the sentences instead (the candidate's story with them).
-            story = cover_letter.check_status(model, {}, resume[0], base_text, facts) if base_text else ""
-            messages = cover_letter.build_prompt(job, resume[0], story, notes, recipient=recipient, needs=needs,
+            story = ""
+            if base_text:
+                step(STORY_STEP)
+                story = self._story(model, resume, base_text, facts)
+            messages = cover_letter.build_prompt(job, resume, story, setup["notes"], recipient=recipient, needs=needs,
                                                  facts=facts)
-            text = cover_letter.sign_as(cover_letter.generate(model, messages), resume[0])
+            step("Writing the letter")
+            text = cover_letter.sign_as(cover_letter.generate(model, messages), resume)
         except cover_letter.CoverLetterError as exc:
             raise ApiError(str(exc)) from exc
+        step("Checking roles and dates")
         text = cover_letter.keep_experiences(story, text, facts)
-        text = cover_letter.check_status(model, job, resume[0], text, facts)
-        text = cover_letter.tailor(model, job, resume[0], text, needs)
+        text = cover_letter.check_status(model, job, resume, text, facts)
+        step("Using the posting's words")
+        text = cover_letter.tailor(model, job, resume, text, needs)
         # The top of the letter is set here, not left to the model, which drops or garbles these lines.
-        sender = letterhead.sender([base_text] + [letter["text"] for letter in letters], resume[0])
+        sender = letterhead.sender([base_text] + [letter["text"] for letter in setup["letters"]], resume)
         text = letterhead.set_header(text, sender, letterhead.date_line(date.today(), base_text), recipient)
         if details.get("contact") and recipient[0] == details["contact"]:
             text = letterhead.greet(text, details["contact"])
-        text = letterhead.sign_off(text, letterhead.candidate_name(resume[0]))
+        text = letterhead.sign_off(text, letterhead.candidate_name(resume))
         letter = {"body": text, "model": model, "references": [base["filename"]] if base else [],
-                  "notes": notes, "created_at": utcnow(), "edited": False, "needs": cover_letter.coverage(text, needs)}
+                  "notes": setup["notes"], "created_at": utcnow(), "edited": False,
+                  "needs": cover_letter.coverage(text, needs)}
         with self.db() as con:
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("cover_letter:" + key, json.dumps(letter)))
         return {**self.get_cover_letter(key, job), "letter": letter}
 
-    def revise_cover_letter(self, key: str, payload: dict) -> dict:
-        """Make the one change the user asked for, in the letter as they see it (unsaved edits included)."""
+    def _story(self, model: str, resume_text: str, base_text: str, facts: dict) -> str:
+        """The past letter with its statuses put right first, in its words (cover_letter.check_status): asked to
+        change them while it adapts the letter, the model drops or swaps the sentences instead (the candidate's
+        story with them). It doesn't depend on the posting, so it is kept per letter, resume and model, and done
+        again each month as roles end."""
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k=?", (_story_key(model, resume_text, base_text, facts),)).fetchone()
+        if row:
+            return json.loads(row[0])["story"]
+        story = cover_letter.check_status(model, {}, resume_text, base_text, facts)
+        stale = (datetime.now(timezone.utc) - timedelta(days=62)).isoformat(timespec="seconds")
+        with self.db() as con:
+            con.execute("DELETE FROM kv WHERE k LIKE 'letter_story:%' AND json_extract(v, '$.at') < ?", (stale,))
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", (_story_key(model, resume_text, base_text, facts),
+                                                                          json.dumps({"story": story, "at": utcnow()})))
+        return story
+
+    def _reading(self, k: str, digest: str, model: str) -> dict | None:
+        """A model's reading kept in kv under k, while what it read (digest) and the model are the same."""
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k=?", (k,)).fetchone()
+        saved = json.loads(row[0]) if row else {}
+        return saved if saved.get("text") == digest and saved.get("model") == model else None
+
+    def _letter_steps(self, key: str, setup: dict) -> list[str]:
+        """The LETTER_STEPS this letter goes through. A reading kept from an earlier letter takes no time, so the
+        panel leaves it out rather than show a step that flashes by."""
+        job, resume, model, base = setup["job"], setup["resume"], setup["model"], setup["base"]
+        with self.db() as con:
+            details = self._details(con, key, job)
+        address = (letterhead.recipient(job, setup["saved"])["source"] == "city" and not details
+                   and (job.get("description") or "").strip())
+        posting = address or not self._reading("posting_needs:" + key, _needs_digest(job, resume), model)
+        facts = self._reading("resume_facts", _digest(resume), model)
+        story = False
+        if base and base["text"]:
+            with self.db() as con:
+                story = not (facts and con.execute("SELECT 1 FROM kv WHERE k=?", (
+                    _story_key(model, resume, base["text"], facts["facts"]),)).fetchone())
+        return [step for step, needed in zip(LETTER_STEPS, (posting, not facts, story, True, True, True)) if needed]
+
+    def _revision_setup(self, key: str, payload: dict) -> dict:
         change, body = payload.get("request"), payload.get("body")
         if not isinstance(change, str) or not change.strip() or len(change) > cover_letter.MAX_NOTES:
             raise ApiError(f"describe the change in up to {cover_letter.MAX_NOTES} characters")
@@ -1941,10 +2112,17 @@ class JobwatchService:
         if not model:
             raise ApiError("Download a writing model in Settings › Cover letters first.")
         letter = json.loads(row[0])
-        current = body or letter["body"]
-        resume_text = resume[0] if resume else ""
+        return {"job": job, "letter": letter, "current": body or letter["body"], "change": change,
+                "resume": resume[0] if resume else "", "model": model}
+
+    def revise_cover_letter(self, key: str, payload: dict, progress=None, setup: dict | None = None) -> dict:
+        """Make the one change the user asked for, in the letter as they see it (unsaved edits included)."""
+        setup = setup or self._revision_setup(key, payload)
+        job, letter, current, model, resume_text = setup["job"], setup["letter"], setup["current"], setup["model"], setup["resume"]
+        if progress:
+            progress("Making the change")
         try:
-            text = cover_letter.revise(model, job, resume_text, current, change,
+            text = cover_letter.revise(model, job, resume_text, current, setup["change"],
                                        facts=self.resume_facts(resume_text, model))
         except cover_letter.CoverLetterError as exc:
             raise ApiError(str(exc)) from exc
@@ -2352,6 +2530,8 @@ ROUTES = [
     ("GET", r"/api/jobs", lambda s, m, q, b: s.jobs(q)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)", lambda s, m, q, b: s.job_detail(unquote(m["key"]))),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/scan", lambda s, m, q, b: s.scan_job(unquote(m["key"]), b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/description", lambda s, m, q, b: s.retry_description(unquote(m["key"]))),
+    ("POST", r"/api/open", lambda s, m, q, b: s.open_link(b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/override", lambda s, m, q, b: s.set_override(unquote(m["key"]), b)),
     ("GET", r"/api/companies", lambda s, m, q, b: s.companies(q)),
     ("GET", r"/api/companies/(?P<key>[^/]+)", lambda s, m, q, b: s.company_detail(unquote(m["key"]))),
@@ -2389,9 +2569,9 @@ ROUTES = [
     ("POST", r"/api/letters/references", lambda s, m, q, b: s.add_cover_reference(b)),
     ("DELETE", r"/api/letters/references/(?P<id>[0-9a-f]{12})", lambda s, m, q, b: s.delete_cover_reference(m["id"])),
     ("GET", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.get_cover_letter(unquote(m["key"]))),
-    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.generate_cover_letter(unquote(m["key"]), b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.start_cover_letter(unquote(m["key"]), b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/cover-letter", lambda s, m, q, b: s.put_cover_letter(unquote(m["key"]), b)),
-    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter/revise", lambda s, m, q, b: s.revise_cover_letter(unquote(m["key"]), b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/cover-letter/revise", lambda s, m, q, b: s.start_revision(unquote(m["key"]), b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/recipient", lambda s, m, q, b: s.put_recipient(unquote(m["key"]), b)),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/recipient/lookup", lambda s, m, q, b: s.find_recipient(unquote(m["key"]))),
     ("POST", r"/api/documents/merge", lambda s, m, q, b: s.merge_documents(b)),

@@ -9,6 +9,8 @@
   "dashboard_url": "http://127.0.0.1:8787",
   "description_budget": 60,
   "description_per_board": 12,
+  "linkedin_description_budget": 6,
+  "linkedin_description_minutes": 10,
   "facts_per_cycle": 5000,
 
   "profile": {

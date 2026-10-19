@@ -972,17 +972,89 @@ class CoverLetterServiceTests(unittest.TestCase):
                 adapted.append(prompt)
                 return chat(f"Dear Hiring Manager,\n\n{fixed}\n\nBest Regards,\nJordan Lee")
             return chat("{}")                                   # the posting's details and key requirements
+        steps = lambda: self.service._letter_steps("rbc:1", self.service._letter_setup("rbc:1", {}))
         with self.ollama("qwen3:8b"):
             self.service.apply_resume({"text": RESUME})
             self.service.add_cover_reference({"filename": "past.txt", "text": past})
+            self.assertEqual(list(dashboard.LETTER_STEPS), steps())
             with mock.patch("requests.post", side_effect=reply):
                 letter = self.service.generate_cover_letter("rbc:1", {})["letter"]
+            # what the model read is kept, so the next letter's progress shows only the steps that take time
+            self.assertEqual(["Writing the letter", "Checking roles and dates", "Using the posting's words"], steps())
         # the model adapts the letter as the candidate would write it today, so it has no status to change
         self.assertEqual(1, len(adapted))
         self.assertIn(f"<base_letter>\nOctober 1, 2025\n\nDear Hiring Manager,\n\n{fixed}", adapted[0])
         self.assertNotIn("I am currently", adapted[0])
         self.assertIn(fixed, letter["body"])
         self.assertEqual(["past.txt"], letter["references"])
+        # it doesn't depend on the posting, so the next letter starts from the corrected one straight away
+        with self.ollama("qwen3:8b"), mock.patch("requests.post", side_effect=reply), \
+                mock.patch.object(cover_letter, "check_status", wraps=cover_letter.check_status) as check:
+            self.service.generate_cover_letter("rbc:1", {})
+        self.assertEqual([], [call for call in check.call_args_list if call.args[1] == {}])
+        self.assertIn(f"<base_letter>\nOctober 1, 2025\n\nDear Hiring Manager,\n\n{fixed}", adapted[1])
+
+    def wait_for_letter(self, key="rbc:1"):
+        for _ in range(500):
+            writing = self.service.get_cover_letter(key)["writing"]
+            if not writing or writing.get("error"):
+                return writing
+            time.sleep(0.01)
+        self.fail("the letter is still being written")
+
+    def test_a_letter_is_written_in_the_background_and_reopening_the_posting_follows_it(self):
+        release = threading.Event()
+
+        def generate(model, messages):
+            release.wait(5)
+            return "Dear Hiring Manager,\n\nLetter body.\n\nJordan Lee"
+        with self.ollama("llama3.1:8b"):
+            self.service.apply_resume({"text": RESUME})
+            with mock.patch("requests.post", return_value=chat()), \
+                    mock.patch.object(cover_letter, "generate", side_effect=generate) as written:
+                started = self.service.start_cover_letter("rbc:1", {"notes": "mention Excel"})
+                self.assertIsNone(started["letter"])
+                self.assertEqual(("write", ["Reading the posting", "Reading your resume", "Writing the letter",
+                                            "Checking roles and dates", "Using the posting's words"]),
+                                 (started["writing"]["kind"], started["writing"]["steps"]))   # no past letter to fix
+                for _ in range(500):
+                    if self.service.get_cover_letter("rbc:1")["writing"]["step"] == 2:
+                        break
+                    time.sleep(0.01)
+                shown = self.service.get_cover_letter("rbc:1")["writing"]        # the posting opened again
+                self.assertEqual("Writing the letter", shown["steps"][shown["step"]])
+                again = self.service.start_cover_letter("rbc:1", {})            # a second click starts nothing
+                self.assertEqual(started["writing"]["started_at"], again["writing"]["started_at"])
+                release.set()
+                self.assertIsNone(self.wait_for_letter())
+            self.assertEqual(1, written.call_count)
+            letter = self.service.get_cover_letter("rbc:1")["letter"]
+            self.assertEqual("mention Excel", letter["notes"])
+            self.assertIn("Letter body.", letter["body"])
+            shown = "October 11, 2026\n\nDear Hiring Manager,\n\nMy unsaved words.\n\nSincerely,\nJordan Lee"
+            answer = json.dumps({"changes": [{"part": "1", "text": "Shorter."}]})
+            with mock.patch("requests.post", return_value=chat(answer)):
+                changing = self.service.start_revision("rbc:1", {"request": "shorten it", "body": shown})
+                self.assertEqual(("revise", ["Making the change"]), (changing["writing"]["kind"], changing["writing"]["steps"]))
+                self.assertIsNone(self.wait_for_letter())
+            self.assertIn("Shorter.", self.service.get_cover_letter("rbc:1")["letter"]["body"])
+
+    def test_a_letter_that_fails_says_why_and_can_be_tried_again(self):
+        with self.ollama(running=False), self.assertRaisesRegex(ApiError, "isn't running"):
+            self.service.start_cover_letter("rbc:1", {})            # a missing piece is said at once
+        with self.ollama("llama3.1:8b"):
+            self.service.apply_resume({"text": RESUME})
+            with self.assertRaisesRegex(ApiError, "Write a letter first"):
+                self.service.start_revision("rbc:1", {"request": "shorten it"})
+            with mock.patch("requests.post", return_value=chat()), mock.patch.object(
+                    cover_letter, "generate", side_effect=cover_letter.CoverLetterError("The model stopped answering.")):
+                self.service.start_cover_letter("rbc:1", {})
+                self.assertEqual("The model stopped answering.", self.wait_for_letter()["error"])
+            self.assertIsNone(self.service.get_cover_letter("rbc:1")["letter"])
+            with mock.patch("requests.post", return_value=chat()):
+                self.service.start_cover_letter("rbc:1", {})
+                self.assertIsNone(self.wait_for_letter())
+            self.assertIn("Letter body.", self.service.get_cover_letter("rbc:1")["letter"]["body"])
 
     def test_find_address_searches_the_company_in_the_postings_city(self):
         found = [{"name": "RBC", "lines": ["200 Bay Street", "Toronto, ON M5J 2J5"]}]

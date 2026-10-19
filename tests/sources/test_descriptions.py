@@ -243,6 +243,32 @@ class LinkedInPostingTests(unittest.TestCase):
             self.assertEqual(0, watcher.enrich_descriptions(config, con, budget=5))
         get.assert_not_called()
 
+    def test_best_fitting_linkedin_listings_get_their_description_a_few_at_a_time(self):
+        con = watcher.db_open(":memory:")
+        now = watcher.now()
+        for job_id in ("1", "2", "3"):
+            con.execute("INSERT INTO jobs VALUES ('li',?,'Intern - Treasury Analyst','Toronto, ON',?,?,?)",
+                        (job_id, f"https://www.linkedin.com/jobs/view/{job_id}", now, now))
+            con.execute("INSERT INTO job_details VALUES ('li',?,'EQ Bank','',NULL)", (job_id,))
+        config = {"boards": {"li": {"ats": "linkedin"}}, "profile": {}}
+        IntelStore(con, config).refresh()
+        con.execute("UPDATE job_intel SET fit=CAST(job_id AS INTEGER) * 10, is_canonical=1")
+        fetched = []
+        with patch.object(watcher, "_linkedin_enriched_at", float("-inf")), \
+                patch.object(watcher, "fetch_description",
+                             side_effect=[(DUTIES, ""), watcher.LinkedInRateLimited("429")]) as fetch:
+            self.assertEqual(1, watcher.enrich_linkedin(config, con, budget=3, fetched=fetched))
+            self.assertEqual([("li", "3")], fetched)                          # the best fit first
+            self.assertEqual(["3", "2"], [call.args[1] for call in fetch.call_args_list])   # until LinkedIn says wait
+            self.assertIsNone(con.execute("SELECT 1 FROM job_text WHERE job_id='2'").fetchone())   # not held against it
+            fetch.reset_mock()
+            self.assertEqual(0, watcher.enrich_linkedin(config, con, budget=3))
+            fetch.assert_not_called()                                         # ten minutes between batches
+        with patch.object(watcher, "_linkedin_enriched_at", float("-inf")), \
+                patch.object(watcher, "fetch_description", return_value=(DUTIES, "")) as fetch:
+            self.assertEqual(2, watcher.enrich_linkedin(config, con, budget=3))
+        self.assertEqual(["2", "1"], [call.args[1] for call in fetch.call_args_list])
+
 
 class OpenDrawerFetchTests(ServiceFixture):
     def wait(self):
@@ -310,6 +336,21 @@ class OpenDrawerFetchTests(ServiceFixture):
             self.assertEqual(2, fetcher.call_count)
         with self.service.db() as con:
             self.assertIn("503", con.execute("SELECT last_error FROM job_text WHERE job_id='two'").fetchone()[0])
+
+    def test_a_failed_fetch_says_why_and_try_again_skips_the_back_off(self):
+        self.service.fetch_on_open = True
+        with patch.object(watcher, "fetch_description", side_effect=watcher.requests.HTTPError("503 Server Error")):
+            self.service.job_detail("demo_quant:two")
+            self.wait()
+            job = self.service.job_detail("demo_quant:two")
+        self.assertEqual((False, "the site didn't answer"), (job["description_pending"], job["description_failed"]))
+        with patch.object(watcher, "fetch_description", return_value=(DUTIES * 2, "")) as fetcher:
+            self.assertEqual({"pending": True}, self.service.retry_description("demo_quant:two"))
+            self.wait()
+        job = self.service.job_detail("demo_quant:two")
+        self.assertEqual((1, ""), (fetcher.call_count, job["description_failed"]))
+        self.assertTrue(job["description"].startswith("Build three-statement"))
+        self.assertEqual({"pending": False}, self.service.retry_description("demo_quant:two"))   # nothing to fetch
 
     def test_linkedin_listing_is_fetched_when_opened(self):
         self.service.fetch_on_open = True

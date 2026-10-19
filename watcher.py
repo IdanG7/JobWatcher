@@ -1633,6 +1633,55 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
     return done
 
 
+_linkedin_enriched_at = float("-inf")    # monotonic time of the last enrich_linkedin batch
+
+
+def enrich_linkedin(config, con, budget=None, fetched=None):
+    """LinkedIn descriptions for the best-fitting listings that have none, a few at a time.
+
+    LinkedIn lists postings without their text, so until a posting is opened its fit, pay
+    and season come from the title alone. A small batch every ten minutes or so, through
+    the same slowed-down client as the search and the drawer; a rate limit ends the batch
+    without counting against the postings. Same back-off as enrich_descriptions.
+    """
+    global _linkedin_enriched_at
+    budget = config.get("linkedin_description_budget", 6) if budget is None else budget
+    boards = {k: v for k, v in config["boards"].items()
+              if not k.startswith("_") and not v.get("disabled") and v.get("ats") in OPEN_DETAIL_FETCHERS}
+    spacing = config.get("linkedin_description_minutes", 10) * 60
+    # a description_budget of 0 turns the poll's description fetching off, LinkedIn's with it
+    if (budget <= 0 or config.get("description_budget", 60) <= 0 or not boards
+            or time.monotonic() - _linkedin_enriched_at < spacing):
+        return 0
+    _linkedin_enriched_at = time.monotonic()
+    marks = ",".join("?" * len(boards))
+    rows = con.execute(f"""
+        SELECT j.board, j.job_id, j.url FROM jobs j
+        JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
+        LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
+        LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+        WHERE j.board IN ({marks}) AND i.is_canonical=1 AND COALESCE(s.status,'active') != 'closed'
+          AND COALESCE(t.description,'')='' AND COALESCE(t.attempts,0) < ? AND COALESCE(t.fetched_at,'') < ?
+        ORDER BY i.fit DESC LIMIT ?""", [*boards, DESCRIPTION_ATTEMPTS, description_retry_before(), budget]).fetchall()
+    con.commit()        # finish any caller writes before waiting on LinkedIn
+    done = 0
+    for board, job_id, url in rows:
+        try:
+            result = fetch_description(boards[board], job_id, url)
+        except LinkedInRateLimited:
+            break                       # LinkedIn wants a pause: the rest wait for a later batch
+        except Exception as e:          # recorded, retried later with back-off
+            record_description_error(con, board, job_id, e)
+            con.commit()
+            continue
+        save_description(con, board, job_id, result)
+        con.commit()
+        if fetched is not None:
+            fetched.append((board, job_id))
+        done += 1
+    return done
+
+
 # ================================================================ storage
 def db_open(path=None):
     """Open (and migrate) the database.  Schema lives in db_migrations.py."""
@@ -2954,6 +3003,7 @@ def cycle(config, con, progress=None):
         try:
             fetched = []
             enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress)
+            enriched += enrich_linkedin(config, con, fetched=fetched)
             if enriched:
                 report_progress(progress, "phase", phase="indexing")
                 # only the enriched rows: an unbounded pass would chew through

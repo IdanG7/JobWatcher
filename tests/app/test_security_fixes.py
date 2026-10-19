@@ -4,6 +4,7 @@ import json
 from http.server import ThreadingHTTPServer
 import socket
 import threading
+from unittest.mock import patch
 
 from dashboard import ApiError, JobwatchHandler
 from tests.app import test_dashboard as fixtures
@@ -39,6 +40,17 @@ class HttpHardeningTests(fixtures.ServiceFixture):
         status, _ = self.call("POST", "/api/applications", {"key": "rbc:one", "status": "saved"},
                               {"Sec-Fetch-Site": "same-site"})
         self.assertEqual(403, status)
+
+    def test_links_open_in_the_browser_only_from_the_desktop_app_and_only_web_pages(self):
+        with patch("webbrowser.open") as browser:
+            self.assertEqual(409, self.call("POST", "/api/open", {"url": "https://jobs.rbc.com/1"})[0])
+            self.service.desktop = True
+            for bad in ("file:///C:/Windows/System32/calc.exe", "javascript:alert(1)", "https://", 7):
+                self.assertEqual(400, self.call("POST", "/api/open", {"url": bad})[0])
+            self.assertEqual(403, self.call("POST", "/api/open", {"url": "https://jobs.rbc.com/1"},
+                                            {"Origin": "https://evil.example"})[0])
+            self.assertEqual((200, {"opened": True}), self.call("POST", "/api/open", {"url": "https://jobs.rbc.com/1"}))
+        browser.assert_called_once_with("https://jobs.rbc.com/1")
 
     def test_content_type_must_be_json_itself(self):
         status, _ = self.raw("POST", "/api/applications", b'{"key":"rbc:one"}',

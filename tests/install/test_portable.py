@@ -7,14 +7,46 @@ import sqlite3
 import threading
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from tools.build_windows import bundle_files, clean_config, stage_app
 from tools.verify_windows_bundle import verify_builder_path
+import portable_start
 from portable_start import initialize_data, instance_url, upgrade_sources
 from intel import load_knowledge, merge_profile, validate_profile
 from intel_store import IntelStore
 import watcher
+
+
+class AppWindowTests(unittest.TestCase):
+    URL = "http://127.0.0.1:5550"
+
+    def test_foothold_opens_in_an_edge_window_of_its_own(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(portable_start, "raise_window", return_value=False), \
+                patch.object(portable_start, "edge_path", return_value="C:/Edge/msedge.exe"), \
+                patch.object(portable_start, "subprocess", MagicMock()) as subprocess, \
+                patch.object(portable_start.webbrowser, "open") as browser:
+            data = Path(tmp)
+            portable_start.open_app(self.URL, data)
+            command = subprocess.Popen.call_args.args[0]
+            self.assertEqual(["C:/Edge/msedge.exe", f"--app={self.URL}/?app=1", f"--user-data-dir={data / 'window'}"],
+                             command[:3])
+            self.assertIn("--window-size=1360,900", command)         # the first time; Edge remembers it after
+            (data / "window").mkdir()
+            portable_start.open_app(self.URL, data)
+            self.assertNotIn("--window-size=1360,900", subprocess.Popen.call_args.args[0])
+        browser.assert_not_called()
+
+    def test_an_open_window_comes_forward_and_without_edge_the_browser_opens(self):
+        with patch.object(portable_start, "raise_window", return_value=True), \
+                patch.object(portable_start, "subprocess", MagicMock()) as subprocess:
+            portable_start.open_app(self.URL, Path("."))
+        subprocess.Popen.assert_not_called()
+        with patch.object(portable_start, "raise_window", return_value=False), \
+                patch.object(portable_start, "edge_path", return_value=None), \
+                patch.object(portable_start.webbrowser, "open") as browser:
+            portable_start.open_app(self.URL, Path("."))
+        browser.assert_called_once_with(self.URL)
 
 
 class PortableTests(unittest.TestCase):
