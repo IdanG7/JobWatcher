@@ -10,7 +10,16 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
-  // ---- 0.3.5: write this entry when 0.3.5 is released, in the same shape as 0.3.4 below.
+  {version: '0.3.5', date: '2026-10-19', items: [
+    {icon: 'monitor', title: 'Foothold in its own window',
+      text: 'No browser tab or address bar; links to postings still open in your usual browser.'},
+    {icon: 'edit', title: 'Letters write in the background',
+      text: 'A bar shows each step; keep browsing and Foothold tells you when it’s ready.'},
+    {icon: 'clock', title: 'Faster letters after the first', link: '#/settings?tab=letters',
+      text: 'Your corrected past letter is kept, so later letters start writing straight away.'},
+    {icon: 'file', title: 'More full LinkedIn descriptions', link: '#/opportunities',
+      text: 'Top LinkedIn matches get their full text in the background, for truer fit and pay.'},
+  ]},
 
   {version: '0.3.4', date: '2026-10-18', items: [
     {icon: 'mail', title: 'Cover letters from your resume', link: '#/settings?tab=letters',
