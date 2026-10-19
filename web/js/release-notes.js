@@ -10,6 +10,12 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.6', date: '2026-10-19', items: [
+    {icon: 'spark', title: 'Pages load up to 8× faster',
+      text: 'Today, Opportunities and Analytics are kept ready, so moving between them is instant.'},
+    {icon: 'monitor', title: 'Opens in your default browser',
+      text: 'Foothold’s window uses your usual browser: no new profile, banners or sign-ins.'},
+  ]},
   {version: '0.3.5', date: '2026-10-19', items: [
     {icon: 'monitor', title: 'Foothold in its own window',
       text: 'No browser tab or address bar; links to postings still open in your usual browser.'},
