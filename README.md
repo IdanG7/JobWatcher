@@ -28,8 +28,9 @@ and run it. It installs for the current user only (no administrator rights) into
 `%LOCALAPPDATA%\Programs\Jobwatch` and adds Foothold to the Start menu. The installer
 is not code-signed yet, so Windows may show **Windows protected your PC**: choose
 **More info**, then **Run anyway**. Python and the dependencies are included; no API
-key or account is required. Foothold opens in a window of its own (Microsoft Edge's app
-mode, which Windows includes; links to postings open in your usual browser) and fetches
+key or account is required. Foothold opens in a window of its own (your default browser's
+app mode, in Chrome, Brave, Edge or Vivaldi; other browsers open it in a tab; links to
+postings open in your usual browser) and fetches
 jobs automatically in the background, even with the window closed (Settings > Background
 can start it at sign-in or stop it). Open it again any time from the Start menu.
 

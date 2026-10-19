@@ -21,31 +21,42 @@ import watcher
 class AppWindowTests(unittest.TestCase):
     URL = "http://127.0.0.1:5550"
 
-    def test_foothold_opens_in_an_edge_window_of_its_own(self):
+    BRAVE = "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
+
+    def test_foothold_opens_in_a_window_of_the_default_browser(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(portable_start, "raise_window", return_value=False), \
-                patch.object(portable_start, "edge_path", return_value="C:/Edge/msedge.exe"), \
+                patch.object(portable_start, "default_browser", return_value=self.BRAVE), \
                 patch.object(portable_start, "subprocess", MagicMock()) as subprocess, \
                 patch.object(portable_start.webbrowser, "open") as browser:
-            data = Path(tmp)
-            portable_start.open_app(self.URL, data)
-            command = subprocess.Popen.call_args.args[0]
-            self.assertEqual(["C:/Edge/msedge.exe", f"--app={self.URL}/?app=1", f"--user-data-dir={data / 'window'}"],
-                             command[:3])
-            self.assertIn("--window-size=1360,900", command)         # the first time; Edge remembers it after
-            (data / "window").mkdir()
-            portable_start.open_app(self.URL, data)
-            self.assertNotIn("--window-size=1360,900", subprocess.Popen.call_args.args[0])
+            portable_start.open_app(self.URL, Path(tmp))
+        # The user's own profile: no second one to sign in to or show first-run banners.
+        self.assertEqual([self.BRAVE, f"--app={self.URL}/?app=1"], subprocess.Popen.call_args.args[0])
         browser.assert_not_called()
 
-    def test_an_open_window_comes_forward_and_without_edge_the_browser_opens(self):
+    def test_an_open_window_comes_forward(self):
         with patch.object(portable_start, "raise_window", return_value=True), \
+                patch.object(portable_start, "default_browser") as default, \
                 patch.object(portable_start, "subprocess", MagicMock()) as subprocess:
             portable_start.open_app(self.URL, Path("."))
+        default.assert_not_called()
         subprocess.Popen.assert_not_called()
-        with patch.object(portable_start, "raise_window", return_value=False), \
-                patch.object(portable_start, "edge_path", return_value=None), \
+
+    def test_a_browser_without_an_app_mode_opens_a_tab(self):
+        for default in (None, "C:/Program Files/Mozilla Firefox/firefox.exe"):
+            with self.subTest(default=default), patch.object(portable_start, "raise_window", return_value=False), \
+                    patch.object(portable_start, "default_browser", return_value=default), \
+                    patch.object(portable_start, "subprocess", MagicMock()) as subprocess, \
+                    patch.object(portable_start.webbrowser, "open") as browser:
+                portable_start.open_app(self.URL, Path("."))
+            subprocess.Popen.assert_not_called()
+            browser.assert_called_once_with(self.URL)
+
+    def test_a_default_browser_that_is_gone_opens_a_tab(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(portable_start, "raise_window", return_value=False), \
+                patch.object(portable_start, "default_browser", return_value=self.BRAVE), \
+                patch.object(portable_start.subprocess, "Popen", side_effect=FileNotFoundError), \
                 patch.object(portable_start.webbrowser, "open") as browser:
-            portable_start.open_app(self.URL, Path("."))
+            portable_start.open_app(self.URL, Path(tmp))
         browser.assert_called_once_with(self.URL)
 
 

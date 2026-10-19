@@ -25,6 +25,7 @@ from version import APP_VERSION
 
 LOG_LIMIT = 5_000_000
 APP_TITLE = "Foothold"      # the page's title ends with it: "Opportunities · Foothold"
+APP_BROWSERS = {"brave", "chrome", "chromium", "msedge", "vivaldi"}     # Chromium, with an app mode (--app)
 MISSING = "__missing__"     # tools/source_history.py: a key a release did not ship
 
 
@@ -324,16 +325,17 @@ def responds(url: str, wait: float = 0.0) -> bool:
         time.sleep(0.3)
 
 
-def edge_path() -> str | None:
-    """msedge.exe, which Windows 10 and 11 install for every user."""
-    for root in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA"):
-        base = os.environ.get(root)
-        if not base:
-            continue
-        path = Path(base) / "Microsoft" / "Edge" / "Application" / "msedge.exe"
-        if path.is_file():
-            return str(path)
-    return None
+def default_browser() -> str | None:
+    """The program Windows opens https links with: the user's default browser."""
+    import ctypes
+    from ctypes import wintypes
+    path = ctypes.create_unicode_buffer(1024)
+    size = wintypes.DWORD(len(path))
+    ASSOCF_IS_PROTOCOL, ASSOCSTR_EXECUTABLE = 0x1000, 2
+    if ctypes.windll.shlwapi.AssocQueryStringW(ASSOCF_IS_PROTOCOL, ASSOCSTR_EXECUTABLE, "https", None,
+                                               path, ctypes.byref(size)):
+        return None
+    return path.value or None
 
 
 def raise_window() -> bool:
@@ -365,25 +367,24 @@ def raise_window() -> bool:
 
 
 def open_app(url: str, data: Path) -> None:
-    """Foothold in a window of its own rather than a browser tab: Edge's app mode (no address bar
-    or tabs), with a profile in the data folder that keeps the window's size and place apart from
-    the user's browsing and extensions. An open window comes to the front instead of a second one
-    opening. ?app tells the page to send links to other sites to the user's browser. Without Edge,
-    the default browser."""
+    """Foothold in a window of its own rather than a browser tab: the default browser's app mode (no
+    address bar or tabs) when it has one, as Chrome, Brave, Edge and Vivaldi do. It opens in the user's
+    own browser profile, so nothing new is set up: no second profile to sign in to, sync extensions
+    into or show first-run banners. The browser remembers the window's size and place. An open window
+    comes to the front instead of a second one opening. ?app tells the page to send links to other
+    sites to the user's browser. Any other browser opens Foothold in a tab."""
     if raise_window():
         return
-    edge = edge_path()
-    if not edge:
+    browser = default_browser()
+    if not browser or Path(browser).stem.lower() not in APP_BROWSERS:
         webbrowser.open(url)
         return
-    profile = data / "window"
-    command = [edge, f"--app={url}/?app=1", f"--user-data-dir={profile}", "--no-first-run",
-               "--no-default-browser-check"]
-    if not profile.exists():
-        command.append("--window-size=1360,900")        # the first time; Edge remembers it after
-    subprocess.Popen(command, cwd=str(data), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL, close_fds=True,
-                     creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
+    try:
+        subprocess.Popen([browser, f"--app={url}/?app=1"], cwd=str(data), stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True,
+                         creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
+    except OSError:                                     # the browser was removed but is still the default
+        webbrowser.open(url)
 
 
 def wait_for_running(args, data: Path, seconds: float = 90) -> int:

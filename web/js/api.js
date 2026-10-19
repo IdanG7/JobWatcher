@@ -49,7 +49,7 @@ export const del = (path) => api(path, {method: 'DELETE'});
 
 export const enc = encodeURIComponent;
 
-// In Foothold's own window (Edge's app mode, opened with ?app) another site's page opens in the
+// In Foothold's own window (the browser's app mode, opened with ?app) another site's page opens in the
 // user's browser, where their sign-ins are, not in a bare window of the app's profile.
 export const appWindow = new URLSearchParams(globalThis.location?.search || '').has('app');
 export function openExternal(url) {
