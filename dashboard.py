@@ -173,7 +173,15 @@ class JobwatchHTTPServer(ThreadingHTTPServer):
 CLIENT_GONE = (ConnectionAbortedError, ConnectionResetError, BrokenPipeError)
 # Read-heavy GET endpoints whose responses are reused until data changes.
 CACHED_PATHS = {"/api/jobs", "/api/overview", "/api/analytics", "/api/companies", "/api/meta"}
-CACHE_SECONDS = 20     # also bounds staleness while a poll is adding postings
+CACHE_REFRESH_SECONDS = 30   # how stale a page may be while postings arrive; it is refreshed in the background
+CACHE_HOT_SECONDS = 600      # the pages asked for in the last ten minutes are kept ready
+
+
+class _Computation:
+    """A response being computed, which other requests for it wait for rather than compute it again."""
+
+    def __init__(self, gen: int):
+        self.gen, self.done, self.value, self.error = gen, threading.Event(), None, None
 
 
 def _today() -> date:
@@ -234,9 +242,14 @@ class JobwatchService:
         self._poll_lock = threading.Lock()
         self._discord_lock = threading.Lock()
         self._update_cache: tuple[float, dict] | None = None
-        self._cache: dict = {}
-        self._cache_gen = 0
+        self._cache: dict = {}           # key -> (gen, data version, computed at, response)
+        self._cache_gen = 0              # invalidate() bumps it: nothing from before is served again
         self._cache_lock = threading.Lock()
+        self._computing: dict = {}       # key -> _Computation under way
+        self._asked: dict = {}           # key -> (last asked at, compute): the pages keep_ready refreshes
+        self._ready = threading.Event()  # wakes keep_ready
+        self._version_con = None
+        self._version_lock = threading.Lock()
         self._status_lock = threading.Lock()
         self._scan_slots = threading.BoundedSemaphore(4)
         self._merge_slots = threading.BoundedSemaphore(2)   # each merge can hold ~100 MB of PDFs
@@ -270,6 +283,7 @@ class JobwatchService:
         con = sqlite3.connect(self.db_path, timeout=10)
         con.execute("PRAGMA busy_timeout=8000")
         con.execute("PRAGMA synchronous=NORMAL")
+        con.execute(f"PRAGMA mmap_size={watcher.MMAP_SIZE}")
         con.row_factory = sqlite3.Row
         return con
 
@@ -326,25 +340,98 @@ class JobwatchService:
                         "VALUES (?,?,1,?,?)", rows)
 
     # ------------------------------------------------------------ response cache
+    def data_version(self):
+        """A number that changes whenever any connection commits to the database (a poll, scoring, the
+        user), read on a connection of its own that never writes. None if it can't be read."""
+        with self._version_lock:
+            if self._stop.is_set():         # closed (or stopping): don't open the file again
+                return None
+            try:
+                if self._version_con is None:
+                    self._version_con = sqlite3.connect(self.db_path, check_same_thread=False)
+                return self._version_con.execute("PRAGMA data_version").fetchone()[0]
+            except sqlite3.Error:
+                return None
+
+    def close(self) -> None:
+        """Let go of the database file (Windows can't delete or move a file that is open)."""
+        self._stop.set()
+        self._ready.set()
+        with self._version_lock:
+            if self._version_con is not None:
+                self._version_con.close()
+                self._version_con = None
+
     def cached(self, key, compute):
-        """Reuse a GET response until data changes (or CACHE_SECONDS pass)."""
-        now = time.monotonic()
+        """A GET response, kept until the data changes, so moving between pages costs nothing. While
+        postings arrive in the background a page is served as it was for up to CACHE_REFRESH_SECONDS, and
+        keep_ready recomputes it meanwhile. After invalidate() (a change the user made, a poll or scoring
+        finishing) it is computed afresh, once however many requests ask for it."""
+        now, version = time.monotonic(), self.data_version()
         with self._cache_lock:
-            gen, hit = self._cache_gen, self._cache.get(key)
-        if hit and hit[0] == gen and now - hit[1] < CACHE_SECONDS:
-            return hit[2]
-        value = compute()
+            if len(self._asked) > 64:
+                self._asked.clear()
+            self._asked[key] = (now, compute)
+            hit = self._cache.get(key)
+            if hit and hit[0] == self._cache_gen and (
+                    (version is not None and hit[1] == version) or now - hit[2] < CACHE_REFRESH_SECONDS):
+                return hit[3]
+        return self._compute(key, compute)
+
+    def _compute(self, key, compute):
         with self._cache_lock:
-            if gen == self._cache_gen:          # never store a result computed before a change
-                if len(self._cache) > 64:
-                    self._cache.clear()
-                self._cache[key] = (gen, now, value)
-        return value
+            gen = self._cache_gen
+            computation = self._computing.get(key)
+            mine = computation is None or computation.gen != gen     # one begun before a change won't do
+            if mine:
+                computation = self._computing[key] = _Computation(gen)
+        if not mine:
+            computation.done.wait()
+            if computation.error is not None:
+                raise computation.error
+            return computation.value
+        try:
+            version, started = self.data_version(), time.monotonic()
+            computation.value = compute()
+            with self._cache_lock:
+                if gen == self._cache_gen:          # never keep a result computed before a change
+                    if len(self._cache) > 64:
+                        self._cache.clear()
+                    self._cache[key] = (gen, version, started, computation.value)
+            return computation.value
+        except BaseException as exc:
+            computation.error = exc
+            raise
+        finally:
+            with self._cache_lock:
+                if self._computing.get(key) is computation:
+                    del self._computing[key]
+            computation.done.set()
 
     def invalidate(self) -> None:
         with self._cache_lock:
             self._cache_gen += 1
             self._cache.clear()
+        self._ready.set()           # recompute the pages in use now, before they are asked for again
+
+    def keep_ready(self) -> None:
+        """Recompute in the background the pages asked for lately whose data changed, so moving to one is
+        instant: right after invalidate(), and every CACHE_REFRESH_SECONDS / 2 while postings arrive."""
+        while not self._stop.is_set():
+            self._ready.wait(5)
+            self._ready.clear()
+            now, version = time.monotonic(), self.data_version()
+            with self._cache_lock:
+                self._asked = {k: v for k, v in self._asked.items() if now - v[0] < CACHE_HOT_SECONDS}
+                due = [(key, compute) for key, (_, compute) in self._asked.items()
+                       if not (hit := self._cache.get(key)) or hit[0] != self._cache_gen
+                       or (hit[1] != version and now - hit[2] >= CACHE_REFRESH_SECONDS / 2)]
+            for key, compute in due:
+                try:
+                    self._compute(key, compute)
+                except Exception:           # a request that can't be answered: its own asker hears why
+                    with self._cache_lock:
+                        self._asked.pop(key, None)
 
     # ------------------------------------------------------------ intelligence refresh
     def refresh_now(self, force_score: bool = False) -> dict:
@@ -354,6 +441,7 @@ class JobwatchService:
                 con = sqlite3.connect(self.db_path, timeout=30)
                 con.execute("PRAGMA busy_timeout=15000")
                 con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
+                con.execute(f"PRAGMA mmap_size={watcher.MMAP_SIZE}")
                 try:
                     backlog = self.pending_facts(con)
                     store = IntelStore(con, self.config)
@@ -385,6 +473,7 @@ class JobwatchService:
                 self._wake.wait(interval)
                 self._wake.clear()
         threading.Thread(target=loop, name="jobwatch-intel", daemon=True).start()
+        threading.Thread(target=self.keep_ready, name="jobwatch-pages", daemon=True).start()
 
     def kick(self) -> None:
         self._wake.set()
@@ -472,31 +561,29 @@ class JobwatchService:
             where, args = build_where(params, store_fts, self.watched(con))
             clause = " AND ".join(where)
             want_facets = params.get("facets", "1") != "0"
-            if want_facets:
-                # Evaluate the (multi-join) filter once; the count and every
-                # facet then group over the matched rowids only.
-                con.execute("CREATE TEMP TABLE IF NOT EXISTS _match(rid INTEGER PRIMARY KEY)")
-                con.execute("DELETE FROM _match")
-                con.execute(f"INSERT INTO _match SELECT i.rowid {FROM_CLAUSE} WHERE {clause}", args)
-                total = con.execute("SELECT COUNT(*) FROM _match").fetchone()[0]
+            # Evaluate the (multi-join) filter once. With resume matching on, the pass leaves the resume
+            # out and notes each row's verdict instead: matched (1), ruled out (0) or not yet read (NULL).
+            # The list's count, the resume totals and every facet then come from those rows.
+            if resume["active"]:
+                scan_where, scan_args = build_where({**params, "resume_match": "0"}, store_fts, self.watched(con))
+                verdict = """CASE WHEN i.facts_version=? THEN (SELECT rm.matched FROM resume_matches rm
+                    JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
+                    AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version) END"""
+                scan_args = [FACTS_VERSION, *scan_args]
             else:
-                total = con.execute(f"SELECT COUNT(*) {FROM_CLAUSE} WHERE {clause}", args).fetchone()[0]
+                scan_where, verdict, scan_args = where, "1", args
+            con.execute("CREATE TEMP TABLE IF NOT EXISTS _match(rid INTEGER PRIMARY KEY, matched INTEGER)")
+            con.execute("DELETE FROM _match")
+            con.execute(f"INSERT INTO _match SELECT i.rowid, {verdict} {FROM_CLAUSE} WHERE {' AND '.join(scan_where)}",
+                        scan_args)
+            verdicts = dict(con.execute("SELECT matched, COUNT(*) FROM _match GROUP BY matched").fetchall())
+            total = verdicts.get(1, 0)
             rows = con.execute(
                 f"SELECT {SELECT_COLUMNS} {FROM_CLAUSE} WHERE {clause} ORDER BY {build_order(params)} "
                 f"LIMIT ? OFFSET ?", [*args, per_page, (page - 1) * per_page]).fetchall()
             jobs = [self._row(r) for r in rows]
-            resume["unfiltered_total"] = total
-            resume["excluded_total"] = 0
-            if resume["active"]:
-                all_where, all_args = build_where({**params, "resume_match": "0"}, store_fts, self.watched(con))
-                resume["unfiltered_total"] = con.execute(
-                    f"SELECT COUNT(*) {FROM_CLAUSE} WHERE {' AND '.join(all_where)}", all_args).fetchone()[0]
-                exclusion = """i.facts_version=? AND EXISTS (SELECT 1 FROM resume_matches rm
-                    JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
-                    AND rm.matched=0 AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version)"""
-                resume["excluded_total"] = con.execute(
-                    f"SELECT COUNT(*) {FROM_CLAUSE} WHERE {' AND '.join(all_where)} AND {exclusion}",
-                    [*all_args, FACTS_VERSION]).fetchone()[0]
+            resume["unfiltered_total"] = sum(verdicts.values())
+            resume["excluded_total"] = verdicts.get(0, 0)
             resume["pending_filtered"] = max(0, resume["unfiltered_total"] - total - resume["excluded_total"])
             self._attach_sources(con, jobs)
             facets = {}
@@ -512,7 +599,8 @@ class JobwatchService:
                                    else r[0])}
                         for r in con.execute(
                             f"""SELECT i.{column}, COUNT(*) FROM _match m JOIN job_intel i ON i.rowid=m.rid
-                                WHERE i.{column} IS NOT NULL GROUP BY i.{column} ORDER BY COUNT(*) DESC LIMIT 25""")]
+                                WHERE m.matched=1 AND i.{column} IS NOT NULL
+                                GROUP BY i.{column} ORDER BY COUNT(*) DESC LIMIT 25""")]
         return {"jobs": jobs, "total": total, "page": page, "per_page": per_page,
                 "pages": max(1, (total + per_page - 1) // per_page), "facets": facets,
                 "resume_matching": resume}
@@ -1485,10 +1573,11 @@ class JobwatchService:
         row = con.execute("SELECT * FROM candidate_resume WHERE id=1").fetchone()
         if not row:
             return {"available": False, "enabled": False, "pending": 0}
+        # facts_version is written with facts, so this never reads the facts themselves (a third of the table).
         pending = con.execute("""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i
             ON i.board=j.board AND i.job_id=j.job_id LEFT JOIN resume_matches rm
             ON rm.board=j.board AND rm.job_id=j.job_id WHERE j.title!='' AND
-            (i.facts IS NULL OR i.facts_version!=? OR rm.profile_version IS NULL OR rm.profile_version!=?
+            (i.facts_version IS NOT ? OR rm.profile_version IS NULL OR rm.profile_version!=?
              OR i.profile_version IS NULL OR i.profile_version!=?)""",
             (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
         result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending,
@@ -2267,7 +2356,7 @@ class JobwatchService:
     # ------------------------------------------------------------ saved searches
     def _saved_searches(self, con, with_counts: bool = False) -> list[dict]:
         rows = [dict(r) for r in con.execute("SELECT * FROM saved_searches ORDER BY name")]
-        if with_counts:
+        if with_counts and rows:
             fts = bool(con.execute("SELECT 1 FROM sqlite_master WHERE name='job_fts'").fetchone())
             watched = self.watched(con)
             resume = self._resume_status(con)
@@ -2722,8 +2811,10 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                     continue
                 try:
                     if method == "GET" and parsed.path in CACHED_PATHS:
-                        result = self.service.cached((parsed.path, parsed.query), lambda: handler(
-                            self.service, match, parse_qs(parsed.query), body))
+                        # Kept with the response and called again in the background: it holds no request.
+                        service, query = self.service, parsed.query
+                        result = service.cached((parsed.path, query), lambda handler=handler, match=match: handler(
+                            service, match, parse_qs(query), body))
                     else:
                         result = handler(self.service, match, parse_qs(parsed.query), body)
                         if method != "GET":

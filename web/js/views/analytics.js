@@ -6,8 +6,10 @@ import {bindTooltips, emptyState, errorState, prettyKey, skeletonRows} from '../
 
 const key = (cls, label) => `<span><i class="${cls}"></i>${label}</span>`;
 
+export const DEFAULT_WINDOW = 30;
+
 export async function render(root, ctx) {
-  const state = {window: Number(ctx.route.params.window) || 30, data: null};
+  const state = {window: Number(ctx.route.params.window) || DEFAULT_WINDOW, data: null};
   root.innerHTML = `<div class="page-head"><div><h1>Analytics</h1><p class="sub">Market flow, coverage and your recruiting funnel.</p></div>
     <div class="page-actions"><div class="segmented" role="group" aria-label="Time window">${[7, 30, 90].map(w => `<button type="button" data-window="${w}">${w} days</button>`).join('')}</div></div></div>
     <div data-body>${skeletonRows(10)}</div>`;
@@ -74,7 +76,7 @@ export async function render(root, ctx) {
 
   root.addEventListener('click', e => {
     const w = e.target.closest('[data-window]');
-    if (w) { state.window = Number(w.dataset.window); ctx.setParams({window: state.window === 30 ? null : state.window}, {replace: true}); load(); }
+    if (w) { state.window = Number(w.dataset.window); ctx.setParams({window: state.window === DEFAULT_WINDOW ? null : state.window}, {replace: true}); load(); }
   });
   bindTooltips(root);
   const onResize = debounce(drawDaily, 150);

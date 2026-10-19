@@ -1683,6 +1683,11 @@ def enrich_linkedin(config, con, budget=None, fetched=None):
 
 
 # ================================================================ storage
+# Read the database through a memory map. Otherwise every 4 KB page read is a system call on Windows, and a
+# page of the app reads hundreds of thousands of them: measured 4-7x faster. SQLite caps the map at 2 GB.
+MMAP_SIZE = 0x7fff0000
+
+
 def db_open(path=None):
     """Open (and migrate) the database.  Schema lives in db_migrations.py."""
     from db_migrations import migrate
@@ -1697,6 +1702,7 @@ def db_open(path=None):
         # Recommended with WAL: commits stay atomic but skip a disk flush each;
         # a power cut can lose only the last few commits, never corrupt the file.
         con.execute("PRAGMA synchronous=NORMAL")
+        con.execute(f"PRAGMA mmap_size={MMAP_SIZE}")
     migrate(con)
     return con
 

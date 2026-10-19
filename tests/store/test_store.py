@@ -209,6 +209,23 @@ class StoreTests(unittest.TestCase):
         hits = self.con.execute("SELECT rowid FROM job_fts WHERE job_fts MATCH ?", ('"summer"*',)).fetchall()
         self.assertEqual(2, len(hits))
 
+    def test_the_search_index_keeps_no_copy_of_the_text(self):
+        self.store.refresh()
+        if not self.store.fts:
+            self.skipTest("SQLite built without FTS5")
+        self.con.execute("DROP TABLE job_fts")      # the 0.3.5 layout, which stored the text again
+        self.con.execute("CREATE VIRTUAL TABLE job_fts USING fts5(body, tokenize='unicode61 remove_diacritics 2')")
+        self.con.execute("INSERT INTO job_fts(rowid, body) SELECT rowid, search_text FROM job_intel")
+        self.assertTrue(ensure_fts(self.con))
+        self.assertIn("content=''", self.con.execute("SELECT sql FROM sqlite_master WHERE name='job_fts'").fetchone()[0])
+        self.assertEqual([None], [r[0] for r in self.con.execute("SELECT body FROM job_fts LIMIT 1")])
+        search = "SELECT rowid FROM job_fts WHERE job_fts MATCH ?"
+        self.assertEqual(2, len(self.con.execute(search, ('"summer"*',)).fetchall()))
+        # Re-classifying still replaces a row by rowid, which a contentless index allows only with contentless_delete.
+        self.con.execute("UPDATE job_intel SET input_hash=NULL WHERE job_id='1'")
+        self.store.facts_pass()
+        self.assertEqual(2, len(self.con.execute(search, ('"summer"*',)).fetchall()))
+
 
 if __name__ == "__main__":
     unittest.main()

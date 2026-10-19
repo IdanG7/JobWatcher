@@ -107,6 +107,7 @@ class ServiceFixture(unittest.TestCase):
         self.service.refresh_now()
 
     def tearDown(self):
+        self.service.close()
         self.tmp.cleanup()
 
 

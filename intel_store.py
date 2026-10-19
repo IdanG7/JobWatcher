@@ -73,14 +73,18 @@ def ensure_fts(con: sqlite3.Connection) -> bool:
     and joins stay O(log n).  (An earlier layout filtered on UNINDEXED
     board/job_id columns, which made every update a full scan; it is rebuilt.)
     job_intel is only ever upserted, so its rowids are stable.
+
+    Contentless: a search only needs the matching rowids, so the index keeps no copy of the text (that copy
+    was a sixth of the database, and rebuilding also compacts the index to a third). An older layout is
+    rebuilt; contentless_delete (SQLite 3.43) lets a row be replaced or pruned by rowid.
     """
     try:
         row = con.execute("SELECT sql FROM sqlite_master WHERE name='job_fts'").fetchone()
-        if row and "job_id" in (row[0] or ""):
+        if row and ("job_id" in (row[0] or "") or "content=''" not in (row[0] or "")):
             con.execute("DROP TABLE job_fts")
             row = None
         con.execute("""CREATE VIRTUAL TABLE IF NOT EXISTS job_fts USING fts5(
-            body, tokenize='unicode61 remove_diacritics 2')""")
+            body, content='', contentless_delete=1, tokenize='unicode61 remove_diacritics 2')""")
         if row is None:
             con.execute("""INSERT INTO job_fts(rowid, body)
                            SELECT i.rowid, COALESCE(i.search_text,'') || ' ' || LOWER(SUBSTR(COALESCE(t.description,''),1,6000))

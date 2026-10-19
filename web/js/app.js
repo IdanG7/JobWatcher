@@ -143,6 +143,16 @@ export function setDensity(value) {
 }
 
 // ---------------------------------------------------------------- status & nav counts
+// Ask once, soon after opening, for the main pages as they first appear. The server keeps what it was
+// asked for ready while the app is in use, so the first visit to each is as quick as the rest.
+let pagesWarmed = false;
+function warmPages(families) {
+  const interests = families.length ? {family: families.join(',')} : {};
+  const pages = [['/api/overview'], ['/api/jobs', {...interests, per_page: opportunities.PER_PAGE}],
+    ['/api/analytics', {window: analytics.DEFAULT_WINDOW}]];
+  for (const [path, params] of pages) get(path, params).catch(() => {});
+}
+
 async function refreshNav() {
   try {
     // Count what Opportunities shows by default: the profile's interests.
@@ -153,6 +163,7 @@ async function refreshNav() {
       get('/api/applications'),
     ]);
     document.getElementById('nav-opps').textContent = compact(jobs.total);
+    if (!pagesWarmed) { pagesWarmed = true; setTimeout(() => warmPages(families), 1500); }
     const active = apps.applications.filter(a => !['rejected', 'withdrawn', 'archived'].includes(a.status)).length;
     document.getElementById('nav-apps').textContent = active ? String(active) : '';
   } catch { /* server offline — status dot shows it */ }

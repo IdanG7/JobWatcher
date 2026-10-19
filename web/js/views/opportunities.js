@@ -10,7 +10,7 @@ import {
 import {markVisited, saveSearchForm} from '../forms.js';
 import {setDrawerDocked} from '../detail.js';
 
-const PER_PAGE = 50;
+export const PER_PAGE = 50;
 const LIST_KEYS = new Set(['category', 'location', 'cycle', 'stage', 'company_type']);
 // Whole-country location filters (job_query.py matches 'canada', 'us' and two-letter codes).
 export const COUNTRY_FILTERS = [{key: 'canada', label: 'Canada'}, {key: 'us', label: 'United States'}, {key: 'UK', label: 'United Kingdom'}];
