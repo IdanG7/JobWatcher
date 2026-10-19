@@ -234,9 +234,10 @@ export async function render(root, ctx) {
       ${background.log ? `<p class="fine set-after">Log file: <code>${esc(background.log)}</code></p>` : ''}`;
   };
 
-  const updatesHtml = () => group('Updates', '', `<div class="set-row">${label(`Foothold ${esc(background.version || '')}`, background.updates
+  const updatesHtml = () => group('Updates', '', `<div class="set-row">${label(`Foothold ${esc(background.version || '')}`, (background.updates
     ? 'Looks for a new version every 6 hours and downloads it in the background, then a banner at the top offers to restart.'
-    : 'This copy runs from source: a banner links to new releases instead of installing them.')}<span class="set-control"><button type="button" class="btn sm" data-act="update-check">Check for updates</button></span></div>`)
+    : 'This copy runs from source: a banner links to new releases instead of installing them.')
+    + ' <button type="button" class="link-btn" data-act="whats-new">What’s new in this version</button>')}<span class="set-control"><button type="button" class="btn sm" data-act="update-check">Check for updates</button></span></div>`)
     + '<p class="fine set-after" data-update-msg role="status" aria-live="polite"></p>';
 
   // Checks now, follows the download, then leaves "Restart to update" to the banner.
@@ -770,6 +771,7 @@ export async function render(root, ctx) {
       catch (err) { toast(err.message, {error: true}); }
       return;
     }
+    if (e.target.closest('[data-act=whats-new]')) { ctx.whatsNew?.(); return; }
     const updateBtn = e.target.closest('[data-act=update-check]');
     if (updateBtn) {
       if (!updateBtn.disabled) await checkUpdates(updateBtn);

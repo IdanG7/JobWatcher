@@ -7,6 +7,7 @@ import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
 import {mountView} from './view-loader.js';
 import {collectionMarkup} from './collection-status.js';
+import {checkWhatsNew, closeWhatsNew, openWhatsNew, whatsNewOpen} from './whats-new.js';
 import * as overview from './views/overview.js';
 import * as opportunities from './views/opportunities.js';
 import * as applications from './views/applications.js';
@@ -344,6 +345,7 @@ function onKey(e) {
   if (e.key === 'Escape') {
     if (isTyping(e)) { e.target.blur(); return; }
     if (drawerOpen()) { ctx.closeJob(); return; }
+    if (whatsNewOpen()) { closeWhatsNew(); return; }
   }
   if (isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
 
@@ -392,7 +394,9 @@ async function boot() {
   window.addEventListener('hashchange', route);
   document.addEventListener('keydown', onKey);
   ctx.applyTheme = () => { applyTheme(); current.view?.redraw?.(); };
-  initPalette(ctx, {toggleTheme, pollNow, setDensity});
+  // Settings › System and the palette reopen the release notes.
+  ctx.whatsNew = async () => { if (await openWhatsNew() === false) toast('This version has no release notes'); };
+  initPalette(ctx, {toggleTheme, pollNow, setDensity, whatsNew: ctx.whatsNew});
 
   // Each tab paints its loading/empty state immediately. Metadata and profile
   // requests must not gate the entire application shell.
@@ -407,6 +411,7 @@ async function boot() {
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];
   ctx.checkForUpdate = checkForUpdate;      // Settings → Check for updates
   checkForUpdate();
+  checkWhatsNew({route: () => ctx.route.path[0]});      // once per installed or updated version
   timers.push(setInterval(checkForUpdate, 10 * 60 * 1000));      // cheap: the server checks GitHub itself
   // The server was stopped from Settings: nothing may poll a page that no longer exists.
   ctx.stop = () => {

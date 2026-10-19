@@ -45,11 +45,14 @@ function baseCommands(ctx) {
       window.location.href = `/api/export.csv?${new URLSearchParams(params)}`;
     }},
     {group: 'Actions', label: 'Keyboard shortcuts', icon: 'command', keys: '?', run: () => openHelp()},
+    {group: 'Actions', label: 'What’s new in Foothold', icon: 'spark', run: () => actions.whatsNew?.()},
   ];
 }
 
-function score(label, q) {
-  const l = label.toLowerCase();
+function score(label, query) {
+  // A typed straight apostrophe finds labels set with a curly one ("what's" → "What’s new").
+  const l = label.toLowerCase().replace(/[‘’]/g, "'");
+  const q = query.replace(/[‘’]/g, "'");
   if (!q) return 1;
   if (l.startsWith(q)) return 3;
   if (l.includes(q)) return 2;

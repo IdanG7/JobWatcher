@@ -94,6 +94,9 @@ The installer and update verifiers use a temporary installation and temporary
 temporary app and data folders, so a copy you already run is not touched. The
 installer verifier does use this account's real Start menu: it replaces a **Jobwatch**
 or **Foothold** entry there and removes it on uninstall.
+Each release adds its entry to `web/js/release-notes.js`: two to four one-line changes
+that the app shows once, in a What's new card, after the install or update. The
+JavaScript tests fail until the version in `version.py` has an entry.
 Releases are built by CI from a `v<version>` tag matching `version.py`. CI signs
 the update manifest with the `JOBWATCH_UPDATE_KEY` secret (an ed25519 key whose
 public half is in `update_key.py`) and refuses to publish without it.

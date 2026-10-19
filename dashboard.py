@@ -225,6 +225,7 @@ class JobwatchService:
         self.status = {"indexing": False, "last_refresh": None, "last_stats": None,
                        "poll_running": False, "last_poll": None, "error": None, "progress": None}
         con = watcher.db_open(self.db_path)
+        self._seed_whats_new(con)        # before the watchlist seed marks the database as opened
         self._import_legacy_watchlist(con)
         self._prune_profile(con)
         self._move_cover_reference(con)
@@ -258,6 +259,14 @@ class JobwatchService:
         stored = json.loads(row[0]) if row and row[0] else None
         if stored and (pruned := prune_profile(stored, self.kn)) != stored:
             save_profile(con, pruned)
+
+    def _seed_whats_new(self, con) -> None:
+        """A new install has no release to catch up on, so its version's notes count as read.
+        A database a dashboard opened before (the watchlist seed is set on the first start) gets
+        no mark, so its first version with release notes shows them."""
+        from version import APP_VERSION
+        if not con.execute("SELECT 1 FROM kv WHERE k IN ('watchlist_seeded', 'whats_new_seen')").fetchone():
+            con.execute("INSERT INTO kv(k, v) VALUES ('whats_new_seen', ?)", (APP_VERSION,))
 
     def _import_legacy_watchlist(self, con) -> None:
         """Seed the company watchlist once from the subscriber watchlist regex."""
@@ -2260,6 +2269,27 @@ class JobwatchService:
             note.unlink(missing_ok=True)
         return {"ok": True}
 
+    def whats_new(self) -> dict:
+        """The running version and the last one whose release notes the user closed. Kept here,
+        not in the browser, so the app window and any browser tab show the notes once in all."""
+        from version import APP_VERSION
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k='whats_new_seen'").fetchone()
+        return {"version": APP_VERSION, "seen": row[0] if row else None}
+
+    def close_whats_new(self, payload: dict) -> dict:
+        """The notes up to `version` were read. A tab left open from before an update sends its own
+        older version, so the newer notes still show; the mark never moves back."""
+        from version import APP_VERSION
+        version = str(payload.get("version") or "")
+        if not re.fullmatch(r"\d+(?:\.\d+){0,2}", version) or _version_key(version) > _version_key(APP_VERSION):
+            raise ApiError("version must be this version or an earlier one")
+        with self.db() as con:
+            row = con.execute("SELECT v FROM kv WHERE k='whats_new_seen'").fetchone()
+            if not row or _version_key(version) > _version_key(row[0] or ""):
+                con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('whats_new_seen', ?)", (version,))
+        return self.whats_new()
+
     def apply_update(self) -> dict:
         """Run the downloaded, verified installer and stop so it can replace this copy."""
         from updater import UpdateError
@@ -2371,6 +2401,8 @@ ROUTES = [
     ("POST", r"/api/update/check", lambda s, m, q, b: s.check_update()),
     ("POST", r"/api/update/apply", lambda s, m, q, b: s.apply_update()),
     ("POST", r"/api/update/old-copy/dismiss", lambda s, m, q, b: s.dismiss_old_copy()),
+    ("GET", r"/api/whats-new", lambda s, m, q, b: s.whats_new()),
+    ("POST", r"/api/whats-new/seen", lambda s, m, q, b: s.close_whats_new(b)),
     ("POST", r"/api/refresh", lambda s, m, q, b: s.trigger_poll() if b.get("poll") else (
         s.kick() or {"ok": True, "started": True})),
     ("GET", r"/api/saved-searches", lambda s, m, q, b: s.saved_searches()),
