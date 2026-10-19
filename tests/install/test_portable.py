@@ -54,7 +54,7 @@ class AppWindowTests(unittest.TestCase):
     def test_a_default_browser_that_is_gone_opens_a_tab(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(portable_start, "raise_window", return_value=False), \
                 patch.object(portable_start, "default_browser", return_value=self.BRAVE), \
-                patch.object(portable_start.subprocess, "Popen", side_effect=FileNotFoundError), \
+                patch.object(portable_start, "subprocess", MagicMock(**{"Popen.side_effect": FileNotFoundError})), \
                 patch.object(portable_start.webbrowser, "open") as browser:
             portable_start.open_app(self.URL, Path(tmp))
         browser.assert_called_once_with(self.URL)
