@@ -10,7 +10,7 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
-  {version: '0.3.6', date: '2026-10-19', items: [
+  {version: '0.3.7', date: '2026-10-19', items: [
     {icon: 'spark', title: 'Pages load up to 8× faster',
       text: 'Today, Opportunities and Analytics are kept ready, so moving between them is instant.'},
     {icon: 'monitor', title: 'Opens in your default browser',
