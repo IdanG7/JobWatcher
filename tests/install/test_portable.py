@@ -9,11 +9,12 @@ import time
 import unittest
 from unittest.mock import MagicMock, patch
 
-from tools.build_windows import bundle_files, clean_config, stage_app
+from tools.build_windows import bundle_files, clean_config, stage_app, stage_sources
 from tools.verify_windows_bundle import verify_builder_path
 import portable_start
 from portable_start import initialize_data, instance_url, upgrade_sources
 from intel import load_knowledge, merge_profile, validate_profile
+from intel.sources import enabled_sources, load_config, load_packs, polled_sources
 from intel_store import IntelStore
 import watcher
 
@@ -114,7 +115,7 @@ class PortableTests(unittest.TestCase):
         # 0.3.0 (sources_version 7) added tech employers and tagged boards with a track, 0.3.1 (8)
         # switched them off, and 9 ships the 0.2.5 sources again: they go, with their postings.
         root = Path(__file__).resolve().parents[2]
-        bundled = clean_config(json.loads((root / "config.json").read_text(encoding="utf-8")))
+        bundled = clean_config(load_config(root / "config.json"))
         history = json.loads((root / "config" / "source_defaults_history.json").read_text(encoding="utf-8"))
         added = {name for name, since in history["__since__"].items() if since == 7}
         self.assertTrue({"okta", "geotab", "micron", "linkedin_us_tech"} <= added)
@@ -158,6 +159,45 @@ class PortableTests(unittest.TestCase):
                 self.assertFalse([name for name, board in config["boards"].items() if "track" in board])
                 self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], config["boards"]["linkedin_us"]["queries"])
 
+    def test_upgrading_a_0_3_7_install_to_source_packs_removes_no_source_or_posting(self):
+        # The sources moved from config.json into config/sources packs; the next release
+        # (sources_version 10) must leave a 0.3.7 install's sources and postings alone.
+        root = Path(__file__).resolve().parents[2]
+        bundled = {**clean_config(load_config(root / "config.json")), "sources_version": 10}
+        history = (root / "config" / "source_defaults_history.json").read_text(encoding="utf-8")
+        old = clean_config({"boards": json.loads((root / "tests/sources/v0_3_7_sources.json").read_text(encoding="utf-8"))})["boards"]
+        self.assertEqual(old, bundled["boards"])
+        mine = {**old, "rbc": {**old["rbc"], "disabled": True}, "mine": {"ats": "greenhouse", "token": "mine"}}
+        with tempfile.TemporaryDirectory() as directory:
+            app, data = Path(directory) / "app", Path(directory) / "data"
+            (app / "config").mkdir(parents=True)
+            data.mkdir()
+            (app / "config.json").write_text(json.dumps(bundled), encoding="utf-8")
+            (app / "config" / "source_defaults_history.json").write_text(history, encoding="utf-8")
+            stage_sources(root, app)
+            profile = {"name": "PRIVATE", "fields": ["finance"], "target_roles": ["investment_banking"]}
+            (data / "config.json").write_text(json.dumps({"sources_version": 9, "profile": profile, "boards": mine}),
+                                              encoding="utf-8")
+            with closing(watcher.db_open(data / "jobwatch.db")) as con:
+                con.executemany("INSERT INTO jobs(board,job_id,title,location,url,first_seen,last_seen) "
+                                "VALUES (?,'1','Analyst','Toronto, ON','https://example.com','t','t')", [(b,) for b in mine])
+                con.execute("INSERT INTO applications(job_key, board, job_id) VALUES ('rbc:1', 'rbc', '1')")
+                IntelStore(con, {"boards": mine}).refresh(force_score=True)
+                con.commit()
+            upgrade_sources(app, data)
+            config = json.loads((data / "config.json").read_text(encoding="utf-8"))
+            with closing(sqlite3.connect(data / "jobwatch.db")) as con:
+                count = lambda table: con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                postings = {table: count(table) for table in ("jobs", "job_intel", "job_fts", "applications")}
+            packs = load_packs(app / "config" / "sources")
+        self.assertEqual(10, config["sources_version"])
+        self.assertEqual(mine, config["boards"])                  # 0 removed, 0 added, every setting kept
+        self.assertEqual(profile, config["profile"])
+        self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
+        self.assertEqual(set(bundled["boards"]), set(packs.source_pack))     # every shipped source is in a pack
+        finance = polled_sources(config, profile, load_knowledge(), packs)
+        self.assertEqual(set(enabled_sources(config)), set(finance))    # the Finance board polls what it did
+
     def test_distribution_drops_private_config_and_subscribers(self):
         source = {
             "profile": {"name": "PRIVATE NAME", "skills": ["python"]},
@@ -177,7 +217,7 @@ class PortableTests(unittest.TestCase):
         self.assertEqual([], validate_profile(merge_profile(result["profile"]), load_knowledge()))
 
     def test_packaged_sources_keep_every_field_their_adapters_use(self):
-        source = json.loads((Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf-8"))
+        source = load_config(Path(__file__).resolve().parents[2] / "config.json")
         cleaned = clean_config(source)["boards"]
         for name, board in source["boards"].items():
             if name.startswith("_") or not isinstance(board, dict):

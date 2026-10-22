@@ -1,0 +1,11 @@
+{
+  "title": "Devices and IoT",
+  "verified": null,
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "sections": {"startups_fintech_consumer": ["samsara"]},
+  "boards": {
+    "verkada": {"ats": "greenhouse", "token": "verkada"},
+    "neuralink": {"ats": "greenhouse", "token": "neuralink"},
+    "samsara": {"ats": "greenhouse", "token": "samsara"}
+  }
+}

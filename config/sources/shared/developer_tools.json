@@ -1,0 +1,17 @@
+{
+  "title": "Developer tools",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "vercel": {"ats": "greenhouse", "token": "vercel"},
+    "linear": {"ats": "ashby", "token": "linear"},
+    "supabase": {"ats": "ashby", "token": "supabase"},
+    "retool": {"ats": "ashby", "token": "retool", "disabled": true, "_note": "retool.com/careers apply links now point at Gem (jobs.gem.com/retool); no greenhouse/ashby/lever board exists — watcher has no Gem adapter, so aggregator repos below cover it"},
+    "datadog": {"ats": "greenhouse", "token": "datadog"},
+    "gitlab": {"ats": "greenhouse", "token": "gitlab"},
+    "launchdarkly": {"ats": "greenhouse", "token": "launchdarkly"},
+    "postman": {"ats": "workday", "host": "postman.wd108.myworkdayjobs.com", "tenant": "postman", "site": "careers", "min_interval": 900},
+    "warp": {"ats": "ashby", "token": "warp"},
+    "browserbase": {"ats": "ashby", "token": "browserbase"}
+  }
+}

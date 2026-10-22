@@ -1,0 +1,12 @@
+{
+  "title": "Robotics and autonomy",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "waymo": {"ats": "greenhouse", "token": "waymo"},
+    "nuro": {"ats": "greenhouse", "token": "nuro"},
+    "aurora": {"ats": "ashby", "token": "aurora-operations-inc"},
+    "zoox": {"ats": "lever", "token": "zoox"},
+    "waabi": {"ats": "lever", "token": "waabi"}
+  }
+}

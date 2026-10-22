@@ -1,0 +1,11 @@
+{
+  "title": "Asset managers and hedge funds",
+  "verified": "2026-10-10",
+  "note": "asset managers, hedge funds and private-markets firms. Verified 2026-10-10.",
+  "boards": {
+    "blackrock": {"ats": "workday", "host": "blackrock.wd1.myworkdayjobs.com", "tenant": "blackrock", "site": "BlackRock_Professional", "search": "", "min_interval": 1800, "company_key": "blackrock", "group": "Asset Managers", "priority": 1, "geography": "global"},
+    "man_group": {"ats": "greenhouse", "token": "mangroup", "company_key": "man_group", "group": "Hedge Funds", "priority": 2, "geography": "global"},
+    "fidelity": {"ats": "workday", "host": "fmr.wd1.myworkdayjobs.com", "tenant": "fmr", "site": "FidelityCareers", "search": "", "max": 5000, "min_interval": 3600, "company_key": "fidelity", "group": "Asset Managers", "priority": 2, "geography": "global"},
+    "vanguard": {"ats": "workday", "host": "vanguard.wd5.myworkdayjobs.com", "tenant": "vanguard", "site": "vanguard_external", "search": "", "max": 5000, "min_interval": 3600, "company_key": "vanguard", "group": "Asset Managers", "priority": 2, "geography": "global"}
+  }
+}

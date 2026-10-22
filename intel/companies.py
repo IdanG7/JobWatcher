@@ -6,8 +6,9 @@ import re
 
 from .knowledge import Knowledge, normalize_company
 
-# Section headers in config.json imply a company type for boards whose
-# employer is not (yet) in companies.json.
+# Section headers among the sources ('_' keys: config/sources packs and their
+# old headings, or an older config.json's) imply a company type for boards
+# whose employer is not (yet) in companies.json.
 _SECTION_TYPES = (
     ("quant", "quant_firm"),
     ("canadian_bank", "canadian_bank"),

@@ -1,0 +1,17 @@
+{
+  "title": "Databases and data platforms",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "mongodb": {"ats": "greenhouse", "token": "mongodb"},
+    "elastic": {"ats": "greenhouse", "token": "elastic"},
+    "clickhouse": {"ats": "ashby", "token": "clickhouse"},
+    "cockroach_labs": {"ats": "greenhouse", "token": "cockroachlabs"},
+    "fivetran": {"ats": "greenhouse", "token": "fivetran"},
+    "hightouch": {"ats": "ashby", "token": "hightouch-inc", "_note": "Verified 2026-10-10: official hightouch.com/careers job metadata applies through jobs.ashbyhq.com/hightouch-inc; lowercase hightouch is a different one-role board."},
+    "planetscale": {"ats": "greenhouse", "token": "planetscale"},
+    "starburst": {"ats": "greenhouse", "token": "starburst"},
+    "amplitude": {"ats": "ashby", "token": "amplitude"},
+    "mixpanel": {"ats": "greenhouse", "token": "mixpanel"}
+  }
+}

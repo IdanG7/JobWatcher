@@ -1,0 +1,22 @@
+{
+  "title": "Enterprise software",
+  "verified": null,
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming dev tools, data & infra (fits distributed-systems background)",
+  "sections": {"startups_fintech_consumer": ["flexport", "gusto", "checkr"]},
+  "boards": {
+    "figma": {"ats": "greenhouse", "token": "figma"},
+    "notion": {"ats": "ashby", "token": "notion"},
+    "rippling": {"ats": "greenhouse", "token": "rippling", "disabled": true, "_note": "in-house ATS (ats.rippling.com — they sell their own recruiting product), no public API — aggregator repos below cover it"},
+    "dropbox": {"ats": "greenhouse", "token": "dropbox"},
+    "asana": {"ats": "greenhouse", "token": "asana"},
+    "airtable": {"ats": "greenhouse", "token": "airtable"},
+    "servicenow": {"ats": "smartrecruiters", "token": "ServiceNow"},
+    "flexport": {"ats": "greenhouse", "token": "flexport"},
+    "gusto": {"ats": "greenhouse", "token": "gusto"},
+    "checkr": {"ats": "greenhouse", "token": "checkr"},
+    "webflow": {"ats": "greenhouse", "token": "webflow"},
+    "smartsheet": {"ats": "greenhouse", "token": "smartsheet"},
+    "calendly": {"ats": "greenhouse", "token": "calendly"},
+    "attio": {"ats": "ashby", "token": "attio"}
+  }
+}

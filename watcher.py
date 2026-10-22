@@ -41,7 +41,9 @@ from urllib.parse import parse_qs, urljoin, urlsplit
 
 import requests
 
-from intel_store import (COMPLETE_LISTING_ATS, IntelStore, record_changes, store_description,
+from intel import load_knowledge
+from intel.sources import enabled_sources, load_config, load_packs, polled_sources
+from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_description,
                          update_lifecycle)
 
 HERE = Path(__file__).parent
@@ -1552,19 +1554,19 @@ FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank"
                          "hedge_fund", "quant_firm", "asset_manager", "pension_fund", "insurance")
 
 
-def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
+def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, sources=None):
     """Fetch descriptions for the postings that benefit most, politely.
 
     Priority: tracked applications, then finance roles, then finance
     employers, newest first.  A per-board cap spreads load; failures back
     off for six hours and give up after three attempts.  ``fetched`` (a list)
     collects the (board, job_id) keys that received a description.
+    ``sources`` limits it to a poll's sources (default: every enabled one).
     """
     budget = config.get("description_budget", 60) if budget is None else budget
     if budget <= 0:
         return 0
-    boards = {k: v for k, v in config["boards"].items()
-              if not k.startswith("_") and not v.get("disabled") and describable(v)}
+    boards = {k: v for k, v in (enabled_sources(config) if sources is None else sources).items() if describable(v)}
     if not boards:
         return 0
     per_board = config.get("description_per_board", 12)
@@ -1636,18 +1638,18 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None):
 _linkedin_enriched_at = float("-inf")    # monotonic time of the last enrich_linkedin batch
 
 
-def enrich_linkedin(config, con, budget=None, fetched=None):
+def enrich_linkedin(config, con, budget=None, fetched=None, sources=None):
     """LinkedIn descriptions for the best-fitting listings that have none, a few at a time.
 
     LinkedIn lists postings without their text, so until a posting is opened its fit, pay
     and season come from the title alone. A small batch every ten minutes or so, through
     the same slowed-down client as the search and the drawer; a rate limit ends the batch
-    without counting against the postings. Same back-off as enrich_descriptions.
+    without counting against the postings. Same back-off and ``sources`` as enrich_descriptions.
     """
     global _linkedin_enriched_at
     budget = config.get("linkedin_description_budget", 6) if budget is None else budget
-    boards = {k: v for k, v in config["boards"].items()
-              if not k.startswith("_") and not v.get("disabled") and v.get("ats") in OPEN_DETAIL_FETCHERS}
+    boards = {k: v for k, v in (enabled_sources(config) if sources is None else sources).items()
+              if v.get("ats") in OPEN_DETAIL_FETCHERS}
     spacing = config.get("linkedin_description_minutes", 10) * 60
     # a description_budget of 0 turns the poll's description fetching off, LinkedIn's with it
     if (budget <= 0 or config.get("description_budget", 60) <= 0 or not boards
@@ -2761,11 +2763,13 @@ def repair_workday_posted(con, config):
     return cleared
 
 
-def cycle(config, con, progress=None):
+def cycle(config, con, progress=None, sources=None):
+    """One poll.  ``sources`` defaults to those the saved profile's boards poll
+    (intel/sources.py), read afresh each time so a Settings change applies next poll."""
     t0 = time.time()
     started_at = now()
-    all_boards = {k: v for k, v in config["boards"].items()
-                  if not k.startswith("_") and not v.get("disabled")}
+    all_boards = (polled_sources(config, load_profile(con, config), load_knowledge())
+                  if sources is None else sources)
     subs = load_subscribers(config.get("filters", {}))
     repair_workday_posted(con, config)
     new_by_board = {}
@@ -3008,8 +3012,8 @@ def cycle(config, con, progress=None):
     if store and not EPHEMERAL:
         try:
             fetched = []
-            enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress)
-            enriched += enrich_linkedin(config, con, fetched=fetched)
+            enriched = enrich_descriptions(config, con, fetched=fetched, progress=progress, sources=all_boards)
+            enriched += enrich_linkedin(config, con, fetched=fetched, sources=all_boards)
             if enriched:
                 report_progress(progress, "phase", phase="indexing")
                 # only the enriched rows: an unbounded pass would chew through
@@ -3112,6 +3116,16 @@ def cmd_check(config):
         print(f"✗ intelligence config: {type(e).__name__}: {e}")
         errs += 1
         kn = None
+    # sources: config/sources packs must be well formed and name real boards
+    try:
+        for field in load_packs().fields:
+            if kn and field != "finance" and field not in kn.families:
+                print(f"✗ sources manifest: unknown board {field}")
+                errs += 1
+    except ValueError as e:
+        for problem in str(e).split("; "):
+            print(f"✗ sources: {problem}")
+            errs += 1
     for name, b in config["boards"].items():
         if name.startswith("_"):
             continue
@@ -3267,7 +3281,7 @@ def main():
                     help="recompute finance intelligence and fit scores for every job")
     args = ap.parse_args()
 
-    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    config = load_config(args.config)
 
     if args.check:
         cmd_check(config)
@@ -3316,9 +3330,12 @@ def main():
         import_state(con)
 
     interval = config.get("interval_seconds", 45)
+    # The alert runner (GitHub Actions) has no profile: subscribers' filters decide
+    # its alerts, so it polls every enabled source rather than one board's.
+    sources = enabled_sources(config)
 
     if args.once:
-        cycle(config, con)
+        cycle(config, con, sources=sources)
         export_state(con)      # portable state for Actions runners
         return
 
@@ -3326,7 +3343,7 @@ def main():
         f"boards every ~{interval}s")
     while True:
         try:
-            cycle(config, con)
+            cycle(config, con, sources=sources)
         except KeyboardInterrupt:
             break
         except Exception as e:

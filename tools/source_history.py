@@ -72,6 +72,23 @@ def save_history(history: dict, path: Path = HISTORY) -> None:
     path.write_text(json.dumps(history, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _tag_config(tag: str) -> dict:
+    """config.json at a tag, with its sources assembled from config/sources when it lists none."""
+    from intel.sources import Packs
+
+    def show(path: str) -> str:
+        return subprocess.check_output(["git", "show", f"{tag}:{path}"], cwd=ROOT, text=True, encoding="utf-8")
+
+    config = json.loads(show("config.json"))
+    if "boards" not in config:
+        files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", tag, "config/sources"], cwd=ROOT,
+                                        text=True, encoding="utf-8").split()
+        packs = {path[len("config/sources/"):-len(".json")]: json.loads(show(path))
+                 for path in files if path.count("/") == 3 and path.endswith(".json")}
+        config["boards"] = Packs(json.loads(show("config/sources/manifest.json")), packs).flat()
+    return config
+
+
 def _tag_version(tag: str) -> int:
     """sources_version a release shipped; releases before it existed count as 1."""
     text = subprocess.check_output(["git", "show", f"{tag}:tools/build_windows.py"], cwd=ROOT,
@@ -86,8 +103,7 @@ if __name__ == "__main__":
 
     history = merge_history({}, json.loads((ROOT / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"], 1)
     for tag in sys.argv[1:]:
-        text = subprocess.check_output(["git", "show", f"{tag}:config.json"], cwd=ROOT, text=True, encoding="utf-8")
-        boards = clean_config(json.loads(text))["boards"]
+        boards = clean_config(_tag_config(tag))["boards"]
         version = _tag_version(tag)
         merge_history(history, boards, version)
         history["__shipped__"] = {"version": version, "hash": boards_hash(boards)}

@@ -1,0 +1,10 @@
+{
+  "title": "Cloud and networking",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "cloudflare": {"ats": "greenhouse", "token": "cloudflare"},
+    "twilio": {"ats": "greenhouse", "token": "twilio"},
+    "fastly": {"ats": "greenhouse", "token": "fastly"}
+  }
+}

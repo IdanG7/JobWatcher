@@ -1,0 +1,72 @@
+{
+  "_readme": "Which boards (the fields picked in onboarding) poll which sources. A source's folder decides the boards allowed to poll it: finance/ only Finance, tech/ only the tech boards, shared/ both. The Finance board polls every finance/ and shared/ pack: exactly the sources it polled in 0.3.7, so new tech sources go in tech/. Every other board names the pack groups (file names) it polls: core always, plus the groups of the filters picked (Software, Backend), or of every filter when none is picked. 'everything' polls every pack. A source in no pack (one the user added) is always polled.",
+  "version": 1,
+  "folders": {
+    "finance": {
+      "fields": ["finance"]
+    },
+    "shared": {
+      "fields": ["finance", "software", "data_ml", "hardware", "product", "design"]
+    },
+    "tech": {
+      "fields": ["software", "data_ml", "hardware", "product", "design"]
+    }
+  },
+  "fields": {
+    "finance": {
+      "groups": "*"
+    },
+    "software": {
+      "core": ["big_tech", "lists", "swe_lists"],
+      "filters": {
+        "backend": ["ai_labs", "ai_infrastructure", "ai_apps", "developer_tools", "data_infrastructure", "cloud_infrastructure", "enterprise_saas", "consumer_tech", "health_tech", "fintech", "financial_services_tech"],
+        "frontend": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "fintech"],
+        "full_stack": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "health_tech", "fintech"],
+        "mobile": ["consumer_tech", "health_tech", "devices_iot", "fintech"],
+        "infrastructure": ["ai_infrastructure", "cloud_infrastructure", "developer_tools", "data_infrastructure", "enterprise_saas", "financial_services_tech"],
+        "systems": ["data_infrastructure", "cloud_infrastructure", "ai_infrastructure", "semiconductors", "quant_trading"],
+        "security": ["security", "cloud_infrastructure", "defense_aerospace", "fintech"],
+        "game_dev": ["gaming"],
+        "quant_dev": ["quant_trading", "fintech"],
+        "qa_test": ["enterprise_saas", "consumer_tech"]
+      }
+    },
+    "data_ml": {
+      "core": ["big_tech", "lists", "ai_lists"],
+      "filters": {
+        "ml_engineering": ["ai_labs", "ai_infrastructure", "ai_apps", "robotics_autonomy", "consumer_tech", "enterprise_saas"],
+        "ai_research": ["ai_labs", "ai_infrastructure", "robotics_autonomy", "quant_trading"],
+        "data_science": ["consumer_tech", "enterprise_saas", "health_tech", "fintech", "financial_services_tech"],
+        "data_engineering": ["data_infrastructure", "consumer_tech", "enterprise_saas", "fintech", "financial_services_tech"],
+        "analytics": ["consumer_tech", "enterprise_saas", "fintech", "financial_services_tech"]
+      }
+    },
+    "hardware": {
+      "core": ["big_tech", "lists"],
+      "filters": {
+        "embedded_firmware": ["devices_iot", "robotics_autonomy", "defense_aerospace", "semiconductors"],
+        "chip_design": ["semiconductors"],
+        "electrical": ["semiconductors", "devices_iot", "defense_aerospace", "robotics_autonomy"],
+        "robotics_autonomy": ["robotics_autonomy", "defense_aerospace"]
+      }
+    },
+    "product": {
+      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "fintech"]
+    },
+    "design": {
+      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "fintech"]
+    },
+    "sales": {
+      "everything": true
+    },
+    "operations": {
+      "everything": true
+    },
+    "people_legal": {
+      "everything": true
+    },
+    "healthcare": {
+      "everything": true
+    }
+  }
+}

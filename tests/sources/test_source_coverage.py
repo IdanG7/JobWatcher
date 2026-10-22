@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from intel.sources import load_config
 import watcher
 
 
@@ -199,7 +200,7 @@ class LinkedInCoverageTests(unittest.TestCase):
         self.assertEqual(2, get.call_count)
 
     def test_canada_queries_include_finance_coop_and_analyst(self):
-        cfg = json.loads(watcher.CONFIG.read_text(encoding="utf-8"))["boards"]["linkedin_canada"]
+        cfg = load_config(watcher.CONFIG)["boards"]["linkedin_canada"]
         queries = " ".join(cfg["queries"]).lower()
         self.assertIn("banking", queries)
         self.assertIn("co-op", queries)

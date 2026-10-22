@@ -1,0 +1,13 @@
+{
+  "title": "Health tech",
+  "verified": null,
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "sections": {"startups_fintech_consumer": ["oscar_health", "hinge_health", "abridge", "commure", "openevidence"]},
+  "boards": {
+    "oscar_health": {"ats": "greenhouse", "token": "oscar"},
+    "hinge_health": {"ats": "ashby", "token": "hinge-health"},
+    "abridge": {"ats": "ashby", "token": "abridge"},
+    "commure": {"ats": "ashby", "token": "commure"},
+    "openevidence": {"ats": "ashby", "token": "openevidence"}
+  }
+}

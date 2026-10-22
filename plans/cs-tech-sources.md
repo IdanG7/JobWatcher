@@ -159,6 +159,13 @@ A new tech pack (Phase 4) adds full metadata, and each feed is fetched before it
 
 (The key is `"boards"` because the code already calls sources that; the manifest and docs say "sources".)
 
+A pack can also list some of its sources under the config.json heading they had before packs, as
+`"sections": {"startups_fintech_consumer": ["peloton", …]}`. The name of a heading sets the company type of
+employers that are missing from companies.json (`intel/companies.py`). A repository run (the Actions alert runner)
+still reads those headings. Without this, 15 consumer and health employers would change from "fintech" to
+"unknown", and 138 of their postings would drop off a repository run's Finance board. Installed copies never had
+headings, so they see no change either way. Found and fixed in Phase 2, and guarded by a test.
+
 ### 3.2 Manifest
 
 ```json

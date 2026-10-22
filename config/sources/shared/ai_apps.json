@@ -1,0 +1,18 @@
+{
+  "title": "Applied AI startups",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "cursor": {"ats": "ashby", "token": "cursor"},
+    "sierra": {"ats": "ashby", "token": "sierra"},
+    "decagon": {"ats": "ashby", "token": "decagon"},
+    "mercor": {"ats": "ashby", "token": "mercor"},
+    "glean": {"ats": "greenhouse", "token": "gleanwork"},
+    "harvey": {"ats": "ashby", "token": "harvey"},
+    "writer": {"ats": "ashby", "token": "writer"},
+    "braintrust": {"ats": "ashby", "token": "braintrust"},
+    "typeface": {"ats": "greenhouse", "token": "typeface"},
+    "heygen": {"ats": "greenhouse", "token": "heygen"},
+    "descript": {"ats": "greenhouse", "token": "descript"}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Big tech",
+  "verified": null,
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple/Google/Meta have no public API — aggregators cover those)",
+  "boards": {
+    "amazon": {"ats": "amazon_jobs", "query": "software engineer intern", "min_interval": 300},
+    "amazon_newgrad": {"ats": "amazon_jobs", "query": "software development engineer", "min_interval": 900, "max": 2500},
+    "microsoft": {"ats": "microsoft", "query": "software engineer intern", "min_interval": 300, "disabled": true, "_note": "gcsservices.careers.microsoft.com serves a *.azureedge.net cert whose SAN does not cover the host, so every TLS verify fails (server-side misconfig, not a local network issue) — aggregator repos below cover Microsoft"},
+    "nvidia": {"ats": "workday", "host": "nvidia.wd5.myworkdayjobs.com", "tenant": "nvidia", "site": "NVIDIAExternalCareerSite", "min_interval": 600, "facets": {"workerSubType": ["ab40a98049581037a3ada55b087049b7", "0c40f6bd1d8f10adf6dae42e46d44a17"]}, "_note": "facets = New College Graduate + Intern (Fixed Term)"},
+    "salesforce_early": {"ats": "workday", "host": "salesforce.wd12.myworkdayjobs.com", "tenant": "salesforce", "site": "External_Career_Site", "min_interval": 600, "facets": {"workerSubType": ["3a910852b2c31010f48d2cefdccd0000"]}},
+    "adobe_university": {"ats": "workday", "host": "adobe.wd5.myworkdayjobs.com", "tenant": "adobe", "site": "external_experienced", "min_interval": 600, "facets": {"jobFamilyGroup": ["591af8b812fa10737b43a1662896f01c"]}},
+    "salesforce": {"ats": "workday", "host": "salesforce.wd12.myworkdayjobs.com", "tenant": "salesforce", "site": "External_Career_Site", "search": "", "min_interval": 1800},
+    "adobe": {"ats": "workday", "host": "adobe.wd5.myworkdayjobs.com", "tenant": "adobe", "site": "external_experienced", "search": "", "min_interval": 1800},
+    "netflix": {"ats": "eightfold", "host": "explore.jobs.netflix.net", "domain": "netflix.com", "min_interval": 600},
+    "ebay": {"ats": "workday", "host": "ebay.wd5.myworkdayjobs.com", "tenant": "ebay", "site": "apply", "search": "", "min_interval": 1800},
+    "autodesk": {"ats": "workday", "host": "autodesk.wd1.myworkdayjobs.com", "tenant": "autodesk", "site": "Ext", "search": "", "min_interval": 1800},
+    "workday_hq": {"ats": "workday", "host": "workday.wd5.myworkdayjobs.com", "tenant": "workday", "site": "Workday", "search": "", "min_interval": 1800},
+    "zoom": {"ats": "workday", "host": "zoom.wd5.myworkdayjobs.com", "tenant": "zoom", "site": "Zoom", "search": "", "min_interval": 1800},
+    "hp": {"ats": "workday", "host": "hp.wd5.myworkdayjobs.com", "tenant": "hp", "site": "ExternalCareerSite", "search": "", "min_interval": 1800}
+  }
+}

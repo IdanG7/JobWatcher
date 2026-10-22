@@ -1,0 +1,19 @@
+{
+  "title": "Bulge brackets and global banks",
+  "verified": "2026-10-10",
+  "note": "U.S. / global banks on official ATS APIs (Workday CXS, Oracle Recruiting Cloud, Bank of America search service). *_early boards search campus terms server-side; the plain boards browse the newest postings as a safety net. Verified 2026-10-10; Goldman Sachs, Bank of America and Deutsche Bank added 2026-10-15.",
+  "boards": {
+    "jpmorgan": {"ats": "oracle_hcm", "host": "jpmc.fa.oraclecloud.com", "site": "CX_1001", "min_interval": 1800, "max": 10000, "company_key": "jpmorgan", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "jpmorgan_early": {"ats": "oracle_hcm", "host": "jpmc.fa.oraclecloud.com", "site": "CX_1001", "query": "analyst", "min_interval": 900, "company_key": "jpmorgan", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "morgan_stanley": {"ats": "workday", "host": "ms.wd5.myworkdayjobs.com", "tenant": "ms", "site": "External", "search": "", "min_interval": 900, "company_key": "morgan_stanley", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "morgan_stanley_early": {"ats": "workday", "host": "ms.wd5.myworkdayjobs.com", "tenant": "ms", "site": "External", "search": "analyst", "min_interval": 900, "company_key": "morgan_stanley", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "citi": {"ats": "workday", "host": "citi.wd5.myworkdayjobs.com", "tenant": "citi", "site": "2", "search": "", "min_interval": 1800, "company_key": "citi", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "citi_early": {"ats": "workday", "host": "citi.wd5.myworkdayjobs.com", "tenant": "citi", "site": "2", "search": "analyst", "min_interval": 1800, "company_key": "citi", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "barclays": {"ats": "workday", "host": "barclays.wd3.myworkdayjobs.com", "tenant": "barclays", "site": "External_Career_Site_Barclays", "search": "", "min_interval": 900, "company_key": "barclays", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "wells_fargo": {"ats": "workday", "host": "wf.wd1.myworkdayjobs.com", "tenant": "wf", "site": "WellsFargoJobs", "search": "analyst", "min_interval": 1800, "company_key": "wells_fargo", "group": "U.S. Commercial Banks", "priority": 2, "geography": "us"},
+    "goldman_sachs": {"ats": "oracle_hcm", "host": "hdpc.fa.us2.oraclecloud.com", "site": "LateralHiring", "url": "https://higher.gs.com/roles/{id}", "max": 5000, "min_interval": 1800, "company_key": "goldman_sachs", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "bank_of_america_students": {"ats": "bofa", "servlet": "campusjobssearchservlet", "max": 2000, "min_interval": 1800, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "bank_of_america": {"ats": "bofa", "servlet": "jobssearchservlet", "max": 5000, "min_interval": 3600, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "deutsche_bank": {"ats": "workday", "host": "db.wd3.myworkdayjobs.com", "tenant": "db", "site": "DBWebsite", "search": "", "max": 5000, "min_interval": 1800, "company_key": "deutsche_bank", "group": "Bulge Brackets", "priority": 1, "geography": "global"}
+  }
+}

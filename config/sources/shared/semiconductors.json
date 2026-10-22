@@ -1,0 +1,9 @@
+{
+  "title": "Semiconductors",
+  "verified": null,
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response.",
+  "boards": {
+    "intel_early": {"ats": "workday", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External", "min_interval": 600, "facets": {"jobFamilyGroup": ["dc8bf79476611087d67b36517cf17036"]}},
+    "intel": {"ats": "workday", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External", "search": "", "min_interval": 1800}
+  }
+}

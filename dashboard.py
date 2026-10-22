@@ -38,6 +38,7 @@ from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
+from intel.sources import load_config, polled_sources
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
@@ -235,7 +236,7 @@ class JobwatchService:
         self.log_path: Path | None = None
         self.updater = None                   # updater.Updater in the Windows app
         self.app_root: Path | None = None     # the folder holding app/ and runtime/
-        self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
+        self.config = load_config(self.config_path)
         self.boards = {k: v for k, v in self.config.get("boards", {}).items() if not k.startswith("_")}
         self.kn = load_knowledge()
         self._refresh_lock = threading.Lock()
@@ -873,7 +874,7 @@ class JobwatchService:
             searches = self._saved_searches(con, with_counts=True)
             pending = self.pending_facts(con)
             pipeline = dict(con.execute("SELECT status, COUNT(*) FROM applications GROUP BY status").fetchall())
-        enabled = sum(1 for cfg in self.boards.values() if not cfg.get("disabled"))
+        enabled = len(polled_sources(self.config, profile, self.kn))      # the sources this profile's boards poll
         return {
             "profile": {k: profile.get(k) for k in ("name", "headline", "graduation_year", "target_cycles", "alerts")},
             "stats": stats,

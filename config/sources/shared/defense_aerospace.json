@@ -1,0 +1,11 @@
+{
+  "title": "Defense and aerospace",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "palantir": {"ats": "lever", "token": "palantir"},
+    "spacex": {"ats": "greenhouse", "token": "spacex"},
+    "anduril": {"ats": "greenhouse", "token": "andurilindustries"},
+    "shield_ai": {"ats": "lever", "token": "shieldai"}
+  }
+}

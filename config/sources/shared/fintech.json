@@ -1,0 +1,26 @@
+{
+  "title": "Fintech",
+  "verified": null,
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "boards": {
+    "stripe": {"ats": "greenhouse", "token": "stripe"},
+    "plaid": {"ats": "ashby", "token": "plaid"},
+    "ramp": {"ats": "ashby", "token": "ramp"},
+    "brex": {"ats": "greenhouse", "token": "brex"},
+    "affirm": {"ats": "greenhouse", "token": "affirm"},
+    "chime": {"ats": "greenhouse", "token": "chime"},
+    "robinhood": {"ats": "greenhouse", "token": "robinhood"},
+    "coinbase": {"ats": "greenhouse", "token": "coinbase"},
+    "wealthsimple": {"ats": "ashby", "token": "wealthsimple"},
+    "mercury": {"ats": "greenhouse", "token": "mercury"},
+    "sofi": {"ats": "greenhouse", "token": "sofi"},
+    "block": {"ats": "greenhouse", "token": "block"},
+    "gemini": {"ats": "greenhouse", "token": "gemini"},
+    "fireblocks": {"ats": "greenhouse", "token": "fireblocks"},
+    "marqeta": {"ats": "marqeta", "url": "https://www.marqeta.com"},
+    "lithic": {"ats": "greenhouse", "token": "lithic"},
+    "alloy": {"ats": "greenhouse", "token": "alloy"},
+    "betterment": {"ats": "greenhouse", "token": "betterment"},
+    "upstart": {"ats": "greenhouse", "token": "upstart"}
+  }
+}

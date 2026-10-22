@@ -1,0 +1,16 @@
+{
+  "title": "AI infrastructure",
+  "verified": null,
+  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "boards": {
+    "scale_ai": {"ats": "greenhouse", "token": "scaleai"},
+    "databricks": {"ats": "greenhouse", "token": "databricks"},
+    "modal": {"ats": "ashby", "token": "modal"},
+    "together_ai": {"ats": "greenhouse", "token": "togetherai"},
+    "baseten": {"ats": "ashby", "token": "baseten"},
+    "crusoe": {"ats": "ashby", "token": "crusoe"},
+    "lambda_labs": {"ats": "ashby", "token": "lambda"},
+    "runpod": {"ats": "ashby", "token": "runpod"},
+    "assemblyai": {"ats": "greenhouse", "token": "assemblyai"}
+  }
+}

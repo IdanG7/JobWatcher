@@ -1,0 +1,21 @@
+{
+  "title": "AI labs",
+  "verified": null,
+  "note": "",
+  "boards": {
+    "anthropic": {"ats": "greenhouse", "token": "anthropic"},
+    "openai": {"ats": "ashby", "token": "openai"},
+    "xai": {"ats": "greenhouse", "token": "xai"},
+    "deepmind": {"ats": "greenhouse", "token": "deepmind", "disabled": true, "_note": "Google DeepMind now routes openings through Google Careers and has no separate public board API; direct roles remain covered by the aggregator sources."},
+    "perplexity": {"ats": "ashby", "token": "perplexity"},
+    "cohere": {"ats": "ashby", "token": "cohere"},
+    "elevenlabs": {"ats": "ashby", "token": "elevenlabs"},
+    "cartesia": {"ats": "ashby", "token": "cartesia"},
+    "suno": {"ats": "ashby", "token": "suno"},
+    "character_ai": {"ats": "ashby", "token": "character"},
+    "midjourney": {"ats": "ashby", "token": "midjourney"},
+    "poolside": {"ats": "ashby", "token": "poolside"},
+    "runway": {"ats": "ashby", "token": "runway"},
+    "imbue": {"ats": "greenhouse", "token": "imbue"}
+  }
+}

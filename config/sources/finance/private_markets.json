@@ -1,0 +1,14 @@
+{
+  "title": "Private equity and alternatives",
+  "verified": "2026-10-10",
+  "note": "asset managers, hedge funds and private-markets firms. Verified 2026-10-10.",
+  "boards": {
+    "stepstone": {"ats": "greenhouse", "token": "stepstone", "company_key": "stepstone", "group": "Private Equity", "priority": 2, "geography": "global"},
+    "blackstone_campus": {"ats": "workday", "host": "blackstone.wd1.myworkdayjobs.com", "tenant": "blackstone", "site": "Blackstone_Campus_Careers", "search": "", "min_interval": 1800, "company_key": "blackstone", "group": "Private Equity", "priority": 1, "geography": "global"},
+    "blackstone": {"ats": "workday", "host": "blackstone.wd1.myworkdayjobs.com", "tenant": "blackstone", "site": "Blackstone_Careers", "search": "", "min_interval": 1800, "company_key": "blackstone", "group": "Private Equity", "priority": 1, "geography": "global"},
+    "kkr": {"ats": "greenhouse", "token": "stage", "min_interval": 1800, "company_key": "kkr", "group": "Private Equity", "priority": 1, "geography": "global", "_note": "KKR's Greenhouse board is named 'stage'; postings link to kkr.com"},
+    "carlyle": {"ats": "workday", "host": "carlyle.wd1.myworkdayjobs.com", "tenant": "carlyle", "site": "Carlyle", "search": "", "min_interval": 1800, "company_key": "carlyle", "group": "Private Equity", "priority": 1, "geography": "global"},
+    "apollo": {"ats": "workday", "host": "athene.wd5.myworkdayjobs.com", "tenant": "athene", "site": "Apollo_Careers", "search": "", "min_interval": 1800, "company_key": "apollo", "group": "Private Equity", "priority": 1, "geography": "global"},
+    "brookfield": {"ats": "workday", "host": "brookfield.wd5.myworkdayjobs.com", "tenant": "brookfield", "site": "brookfield", "search": "", "min_interval": 1800, "company_key": "brookfield", "group": "Asset Managers", "priority": 1, "geography": "global"}
+  }
+}

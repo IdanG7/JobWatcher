@@ -1,0 +1,28 @@
+{
+  "title": "Consumer tech and media",
+  "verified": null,
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming big/established tech on Workday (Apple/Google/Meta have no public API — aggregators cover those)",
+  "sections": {"startups_fintech_consumer": ["gopuff", "faire", "peloton", "seatgeek", "sweetgreen", "glossier"]},
+  "boards": {
+    "disney_early": {"ats": "workday", "host": "disney.wd5.myworkdayjobs.com", "tenant": "disney", "site": "disneycareer", "min_interval": 600, "facets": {"workerSubType": ["4f84d9e8a0970100aec0ae70150e0000"]}},
+    "disney": {"ats": "workday", "host": "disney.wd5.myworkdayjobs.com", "tenant": "disney", "site": "disneycareer", "search": "", "min_interval": 1800},
+    "airbnb": {"ats": "greenhouse", "token": "airbnb"},
+    "doordash": {"ats": "greenhouse", "token": "doordashusa"},
+    "pinterest": {"ats": "greenhouse", "token": "pinterest"},
+    "reddit": {"ats": "greenhouse", "token": "reddit"},
+    "duolingo": {"ats": "greenhouse", "token": "duolingo"},
+    "discord": {"ats": "greenhouse", "token": "discord"},
+    "lyft": {"ats": "greenhouse", "token": "lyft"},
+    "instacart": {"ats": "greenhouse", "token": "instacart"},
+    "squarespace": {"ats": "greenhouse", "token": "squarespace"},
+    "spotify": {"ats": "lever", "token": "spotify"},
+    "gopuff": {"ats": "lever", "token": "gopuff"},
+    "faire": {"ats": "greenhouse", "token": "faire"},
+    "peloton": {"ats": "greenhouse", "token": "peloton"},
+    "seatgeek": {"ats": "greenhouse", "token": "seatgeek"},
+    "sweetgreen": {"ats": "greenhouse", "token": "sweetgreen"},
+    "glossier": {"ats": "greenhouse", "token": "glossier"},
+    "comcast": {"ats": "workday", "host": "comcast.wd115.myworkdayjobs.com", "tenant": "comcast", "site": "Comcast_Careers", "search": "", "min_interval": 1800},
+    "target": {"ats": "workday", "host": "target.wd5.myworkdayjobs.com", "tenant": "target", "site": "targetcareers", "search": "", "min_interval": 1800}
+  }
+}

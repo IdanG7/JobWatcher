@@ -1,0 +1,8 @@
+{
+  "title": "AI community lists",
+  "verified": null,
+  "note": "community repos: hundreds of companies incl. bespoke boards (Jane Street, Google, Meta, Apple, banks). JSON repos use the Simplify listings format; markdown repos are parsed via github_md with per-repo column maps (cols = 0-based indexes).",
+  "boards": {
+    "speedy_ai": {"ats": "github_md", "repo": "speedyapply/2027-AI-College-Jobs", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "salary": 3, "url": 4}}
+  }
+}

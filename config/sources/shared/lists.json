@@ -1,0 +1,22 @@
+{
+  "title": "Community job lists",
+  "verified": null,
+  "note": "community repos: hundreds of companies incl. bespoke boards (Jane Street, Google, Meta, Apple, banks). JSON repos use the Simplify listings format; markdown repos are parsed via github_md with per-repo column maps (cols = 0-based indexes).",
+  "boards": {
+    "simplify_newgrad": {"ats": "github_listings", "repo": "SimplifyJobs/New-Grad-Positions", "min_interval": 300},
+    "simplify_intern26": {"ats": "github_listings", "repo": "SimplifyJobs/Summer2026-Internships", "min_interval": 300},
+    "vansh_intern26": {"ats": "github_listings", "repo": "vanshb03/Summer2026-Internships", "min_interval": 300},
+    "vansh_intern27": {"ats": "github_listings", "repo": "vanshb03/Summer2027-Internships", "min_interval": 300},
+    "vansh_newgrad27": {"ats": "github_listings", "repo": "vanshb03/New-Grad-2027", "min_interval": 300, "_note": "renamed from New-Grad-2026 — same repo, rolls forward each cycle"},
+    "cvrve_newgrad": {"ats": "github_listings", "repo": "cvrve/New-Grad", "min_interval": 300},
+    "simplify_intern27": {"ats": "github_listings", "repo": "SimplifyJobs/Summer2027-Internships", "min_interval": 600, "disabled": true, "_note": "enable once this repo exists — 404s harmlessly until then"},
+    "canada_intern26": {"ats": "github_md", "repo": "negarprh/Canadian-Tech-Internships-2026", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "url": 3}},
+    "offseason_fall26": {"ats": "github_md", "repo": "zshah101/Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 3, "url": 2}, "_note": "table restructured 2026-10 to 6 cols |Company|Role|Apply|Location|Skills|Posted|. The Recently closed and opening-calendar tables carry no links, so rows without a URL are skipped"},
+    "sndsh_intern27": {"ats": "github_md", "repo": "sndsh404/summer-2027-internships", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "url": 3}},
+    "zapply_intern27": {"ats": "github_md", "repo": "zapplyjobs/Internships-2027", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "age": 3, "url": 5}, "indirect_links": true},
+    "zapply_newgrad27": {"ats": "github_md", "repo": "zapplyjobs/New-Grad-Jobs-2027", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "age": 3, "url": 5}, "indirect_links": true},
+    "zapply_ca_jobs": {"ats": "github_md", "repo": "zapplyjobs/Canada-Jobs-2027", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "age": 3, "url": 5}, "indirect_links": true, "_note": "2026-10: a Visa column was added; Apply moved to column 5. Zapply apply links often open zapply.jobs/jobs instead of the posting (indirect_links)"},
+    "zapply_ca_intern": {"ats": "github_md", "repo": "zapplyjobs/Canada-Internships-2027", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "age": 3, "url": 5}, "indirect_links": true, "_note": "2026-10: a Visa column was added; Apply moved to column 5. Zapply apply links often open zapply.jobs/jobs instead of the posting (indirect_links)"},
+    "derec4_newgrad27": {"ats": "github_md", "repo": "DereC4/internships-and-newgrad", "min_interval": 600, "cols": {"company": 0, "title": 1, "location": 2, "url": 1}, "_note": "|Company|Role|Location|Age| — apply link is embedded in the Role cell, so url col = title col (1); the adapter extracts the md link from it"}
+  }
+}

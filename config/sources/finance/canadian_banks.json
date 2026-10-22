@@ -1,0 +1,18 @@
+{
+  "title": "Canadian banks",
+  "verified": "2026-10-10",
+  "note": "Official public feeds, verified 2026-10-10. Broad boards paginate through reported totals up to max=5000; dedicated student feeds provide a focused backup. Scotiabank's source covers its published Students & New Grads category.",
+  "boards": {
+    "rbc": {"ats": "phenom", "host": "jobs.rbc.com", "query": "", "max": 5000, "min_interval": 1800, "url": "https://jobs.rbc.com/ca/en/job/{id}", "company_key": "rbc", "group": "Canadian Banks", "priority": 1},
+    "rbc_early": {"ats": "phenom", "host": "jobs.rbc.com", "query": "intern", "min_interval": 900, "url": "https://jobs.rbc.com/ca/en/job/{id}", "company_key": "rbc", "group": "Canadian Banks", "priority": 1},
+    "rbc_students": {"ats": "workday", "host": "rbc.wd3.myworkdayjobs.com", "tenant": "rbc", "site": "RBCEARLYTALENT1", "max": 5000, "min_interval": 900, "company_key": "rbc", "group": "Canadian Banks", "priority": 1},
+    "td": {"ats": "workday", "host": "td.wd3.myworkdayjobs.com", "tenant": "td", "site": "TD_Bank_Careers", "search": "", "max": 5000, "min_interval": 3600, "company_key": "td", "group": "Canadian Banks", "priority": 1},
+    "td_students": {"ats": "workday", "host": "td.wd3.myworkdayjobs.com", "tenant": "td", "site": "TD_Bank_Careers", "min_interval": 900, "facets": {"jobFamily": ["de769652963501ab29a8b80c0704c3aa", "de769652963501e60b293b0d070431ab"]}, "company_key": "td", "group": "Canadian Banks", "priority": 1},
+    "bmo": {"ats": "workday", "host": "bmo.wd3.myworkdayjobs.com", "tenant": "bmo", "site": "External", "search": "", "max": 5000, "min_interval": 3600, "company_key": "bmo", "group": "Canadian Banks", "priority": 1},
+    "bmo_students": {"ats": "workday", "host": "bmo.wd3.myworkdayjobs.com", "tenant": "bmo", "site": "External", "min_interval": 900, "facets": {"company": ["99ba898c88ac011c8a873c01f2016c06"]}, "company_key": "bmo", "group": "Canadian Banks", "priority": 1},
+    "cibc": {"ats": "workday", "host": "cibc.wd3.myworkdayjobs.com", "tenant": "cibc", "site": "search", "search": "", "max": 5000, "min_interval": 3600, "company_key": "cibc", "group": "Canadian Banks", "priority": 1},
+    "cibc_students": {"ats": "workday", "host": "cibc.wd3.myworkdayjobs.com", "tenant": "cibc", "site": "search", "min_interval": 900, "facets": {"jobFamilyGroup": ["4bbe6c74e8a7013edb3931a881012710"]}, "company_key": "cibc", "group": "Canadian Banks", "priority": 1},
+    "scotiabank_students": {"ats": "successfactors", "url": "https://jobs.scotiabank.com/go/Student-%26-New-Grad-Jobs/2298417/", "max": 5000, "min_interval": 1800, "company_key": "scotiabank", "group": "Canadian Banks", "priority": 1},
+    "national_bank": {"ats": "avature", "url": "https://emplois.bnc.ca/en_CA/careers/searchjobs/", "max": 5000, "min_interval": 3600, "company_key": "national_bank", "group": "Canadian Banks", "priority": 1}
+  }
+}

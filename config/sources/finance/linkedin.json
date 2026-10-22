@@ -1,0 +1,10 @@
+{
+  "title": "LinkedIn searches",
+  "verified": null,
+  "note": "LinkedIn public guest search is a supplementary, partial keyword/date window, subject to rate limits and page caps. Canada covers finance plus tech, with 30-day rolling lookback, 90-day initial seed and at most 8 pages per query. It never closes missing jobs.",
+  "boards": {
+    "linkedin_us": {"ats": "linkedin", "location": "United States", "min_interval": 1800, "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "queries": ["finance internship", "investment banking summer analyst", "equity research intern", "asset management internship", "private equity intern", "finance new graduate", "software engineer intern", "software engineer new grad", "machine learning intern"]},
+    "linkedin_canada": {"ats": "linkedin", "location": "Canada", "min_interval": 1800, "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "queries": ["finance internship", "investment banking intern", "summer analyst", "sales trading internship", "asset management internship", "equity research intern", "private equity intern", "pension internship", "finance co-op", "finance student", "new graduate analyst", "software engineer intern", "software engineer new grad"]},
+    "linkedin_quant": {"ats": "linkedin", "location": "United States", "min_interval": 900, "queries": ["quantitative trading intern", "quantitative research intern", "quantitative trader 2026"]}
+  }
+}

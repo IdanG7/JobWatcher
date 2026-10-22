@@ -1,0 +1,13 @@
+{
+  "title": "Banks, card networks and exchanges with large tech teams",
+  "verified": null,
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple/Google/Meta have no public API — aggregators cover those)",
+  "boards": {
+    "capital_one_early": {"ats": "workday", "host": "capitalone.wd12.myworkdayjobs.com", "tenant": "capitalone", "site": "Capital_One", "min_interval": 600, "facets": {"workerSubType": ["a12c70bf789e10572aab83c4780919ad"]}},
+    "mastercard_early": {"ats": "workday", "host": "mastercard.wd1.myworkdayjobs.com", "tenant": "mastercard", "site": "CorporateCareers", "min_interval": 600, "facets": {"workerSubType": ["cfba33fac07f49c9b6d3d53336c6a291"]}},
+    "capital_one": {"ats": "workday", "host": "capitalone.wd12.myworkdayjobs.com", "tenant": "capitalone", "site": "Capital_One", "search": "", "min_interval": 1800},
+    "paypal": {"ats": "workday", "host": "paypal.wd1.myworkdayjobs.com", "tenant": "paypal", "site": "jobs", "search": "", "min_interval": 1800},
+    "mastercard": {"ats": "workday", "host": "mastercard.wd1.myworkdayjobs.com", "tenant": "mastercard", "site": "CorporateCareers", "search": "", "min_interval": 1800},
+    "nasdaq": {"ats": "workday", "host": "nasdaq.wd1.myworkdayjobs.com", "tenant": "nasdaq", "site": "Global_External_Site", "search": "", "min_interval": 1800}
+  }
+}

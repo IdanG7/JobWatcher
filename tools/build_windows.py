@@ -21,6 +21,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from intel.profile import DEFAULT_PROFILE, STAGES
+from intel.sources import load_config
 from version import APP_VERSION
 
 PYTHON_VERSION = "3.14.8"
@@ -117,10 +118,26 @@ def clean_config(source: dict) -> dict:
         "description_per_board": 12, "facts_per_cycle": 5000, "profile": profile,
         "filters": {key: value for key, value in source.get("filters", {}).items()
                     if key in {"include", "exclude", "location", "exclude_companies"}},
-        "boards": {name: {key: value for key, value in board.items() if key in BOARD_FIELDS}
-                   for name, board in source["boards"].items()
+        "boards": {name: clean_board(board) for name, board in source["boards"].items()
                    if not name.startswith("_") and isinstance(board, dict)},
     }
+
+
+def clean_board(board: dict) -> dict:
+    return {key: value for key, value in board.items() if key in BOARD_FIELDS}
+
+
+def stage_sources(source: Path, app: Path) -> None:
+    """config/sources: which boards poll which sources, with the sources cleaned like config.json's."""
+    root = source / "config" / "sources"
+    (app / "config" / "sources").mkdir(parents=True)
+    shutil.copyfile(root / "manifest.json", app / "config" / "sources" / "manifest.json")
+    for path in sorted(root.glob("*/*.json")):
+        pack = json.loads(path.read_text(encoding="utf-8"))
+        pack["boards"] = {name: clean_board(board) for name, board in pack["boards"].items()}
+        target = app / "config" / "sources" / path.relative_to(root)
+        target.parent.mkdir(exist_ok=True)
+        target.write_text(json.dumps(pack, indent=2) + "\n", encoding="utf-8")
 
 
 def stage_app(source: Path, destination: Path) -> None:
@@ -136,7 +153,7 @@ def stage_app(source: Path, destination: Path) -> None:
                 target = app / path.relative_to(source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, target)
-    original = json.loads((source / "config.json").read_text(encoding="utf-8"))
+    original = load_config(source / "config.json", source / "config" / "sources")
     cleaned = clean_config(original)
     # Record this release's source defaults so later upgrades recognise them as unedited.
     from tools.source_history import load_history, record_release, save_history
@@ -145,6 +162,7 @@ def stage_app(source: Path, destination: Path) -> None:
     (app / "config").mkdir()
     for name in KNOWLEDGE:
         shutil.copyfile(source / "config" / name, app / "config" / name)
+    stage_sources(source, app)
     (app / "config.json").write_text(json.dumps(cleaned, indent=2) + "\n", encoding="utf-8")
     (app / "subscribers.json").write_text("{}\n", encoding="utf-8")
     shutil.copyfile(source / "Start Foothold.bat", destination / "Start Foothold.bat")
