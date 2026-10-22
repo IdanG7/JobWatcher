@@ -1,271 +1,299 @@
-# Tech/CS sources in per-field packs: design (Phase 1)
+# Tech/CS sources in per-field packs: design (Phase 1, revised)
 
-Status: **design for approval.** No code has changed. Branch `feat/tech-sources`, worktree
-`.claude/worktrees/tech-sources` (the app did not create one for this session, so I made it from `main` at
-`be75c30`, which is v0.3.7).
+Status: **revised design for approval. No code has changed.** Branch `feat/tech-sources`, worktree
+`.claude/worktrees/tech-sources`, created from `main` at `be75c30` (v0.3.7). The brief is
+`plans/cs-tech-sources-prompt.md` in the main checkout.
 
-The brief is `plans/cs-tech-sources-prompt.md` in the main checkout. Section 10 lists the decisions I need
-from you before Phase 2. Each has a recommended default.
+**What changed in this revision:** your rule is that the Finance board must show exactly what it shows today.
+Nothing may go missing, and the tech work stays out of it. That rule overrides the brief where the two
+conflict. Section 11 lists every point where the brief yields.
+
+## Terms
+
+| Your word | Meaning | In the code |
+|---|---|---|
+| **Board** | The field someone picks in onboarding: Finance, Software, AI & Data, Hardware… | `profile.fields`; `FIELD_INFO` in `web/js/fields.js` |
+| **Source** | One site or feed that Foothold polls: a Greenhouse board, a Workday site, a GitHub list, a LinkedIn search | an entry of `config["boards"]` (the code's name is misleading) |
+| **Filter** | A subcategory inside a board: a finance area (Investment Banking · M&A) or a tech specialty (Software · Backend) | a target role such as `software.backend` |
+| **Pack** | A small file of sources, grouped by employer type | `config/sources/<folder>/<group>.json` |
 
 ---
 
-## 1. What the repo and a real install show
+## 1. The Finance board guarantee
+
+**Definition.** Take a profile whose only board is Finance. What it shows today must still be there after
+every phase of this work:
+
+- **Same postings:** the same finance postings in Opportunities.
+- **Same fit and order:** the same fit score and order for each.
+- **Same sources:** the same sources polled, with the same settings and at the same rate.
+
+Today that is 21,951 open postings on this install. The tech work may add new boards, filters and sources
+around the Finance board but never inside it.
+
+**How the storage enforces it.** A source's folder decides which boards may poll it:
+
+| Folder | Polled by | What goes there |
+|---|---|---|
+| `finance/` | the Finance board only | banks, boutiques, private markets, asset managers, pensions, ratings, the finance LinkedIn searches |
+| `shared/` | Finance **and** the tech boards | every other source the Finance board polls today: quant firms, fintech, today's tech employers and community lists |
+| `tech/` | the tech boards only | every new source this work adds |
+
+- The Finance board has no filters yet, so it polls all of `finance/` and `shared/`. Those two folders hold
+  exactly today's 256 sources.
+- A new source goes into `tech/`, so it can never reach the Finance board.
+- A tech board polls only the `shared/` and `tech/` groups its filters ask for, never `finance/`.
+
+**How it's proven.** Each step has a check you can see:
+
+1. **Same sources (checked now).** The design script selects exactly today's 246 enabled sources for a
+   Finance-only profile. The settings of the 256 sources it covers hash to `ddb8d7057c16c87e`, the same as
+   v0.3.7's shipped hash. Phase 2 turns both into tests.
+2. **The bundle is unchanged.** Today's sources keep their settings byte for byte. No metadata is added, and
+   the LinkedIn queries aren't split (section 11). The upgrade therefore leaves every source and every
+   posting where it is (section 5).
+3. **Finance postings, fit and order stay the same.** This is a gate for Phases 3 and 4. I saved the Finance
+   board as you see it now: 21,951 postings with their fit, category, company name and cluster, taken from
+   a read-only copy of your database. Before Phase 3 or Phase 4 is committed, the new code and knowledge
+   recompute facts and scores on a copy of that database for your profile. Any finance posting whose
+   presence, fit, category, cluster or canonical row differs blocks the commit until it's fixed. The diff
+   (expected empty) goes in the report.
+4. **What may differ.** Two labels can change without any job going missing (decision B):
+   - The Employer type filter may name an employer that is "Unclassified" today, for example "AI Lab"
+     instead of "Unclassified".
+   - A posting's "Why" line may name that employer's type.
+
+   Neither changes a job, a fit score or the order: an employer outside finance still scores 4 company
+   points for a finance profile (`intel/scoring.py:170-174`).
+
+---
+
+## 2. What the repo and your install show
 
 Each fact below comes from a file, a command or a copy of the installed database. The database and
-`config.json` were copied read-only from `%LOCALAPPDATA%\Jobwatch` to the session scratchpad. Nothing in the
-data folder was written.
+`config.json` were copied to the session scratchpad. Nothing in `%LOCALAPPDATA%\Jobwatch` was written.
 
-1. **The installed config equals the bundle.** The install is at `sources_version` 9 with 256 boards.
-   `clean_config(config.json)["boards"]` equals the installed boards key for key. Its hash is
-   `ddb8d7057c16c87e`, the same as `__shipped__.hash` in `config/source_defaults_history.json`. Phase 2 can
-   therefore prove the split is byte-identical by hashing the boards flattened from the packs.
-2. **Installed configs carry no `_section` headers.** `clean_config` (tools/build_windows.py:114-123) drops
-   every `_` key. So `board_sections()` (intel_store.py:58) and section-based type inference
-   (`intel/companies.py::_SECTION_TYPES`) only work in a source checkout. On an install, a board's employer
-   type comes from `company_key`, from the posting's company name or from the board name.
-3. **Pack moves do not re-rank anything.** Facts are recomputed when `FACTS_VERSION` changes or when
-   `config_fingerprint()` changes (intel/knowledge.py:386). The fingerprint hashes only `taxonomy.json`,
-   `companies.json`, `skills.json` and `locations.json`, so files under `config/sources/` are not part of it.
-   **Phases 3 and 4 do edit `taxonomy.json` and `companies.json`, so the first start after that update
-   recomputes facts for every stored posting once (about 129k on this install), without any
-   `FACTS_VERSION` bump.** This is the same cost as the 45-minute re-rank seen in 0.3.2. See decision D9.
-4. **The upgrade deletes a board in one case only.** `upgrade_sources()` (portable_start.py:31-87) retires a
-   board when it appears in `__since__`, is missing from the bundled boards, and still has its shipped
-   identity. Every board name keeps shipping in this plan, so the retired list is empty.
-5. **Reusing a 0.3.0 board name is a trap.** The 49 tech boards 0.3.0 added (okta, micron, geotab,
-   `linkedin_us_tech`, …) are still in `__since__` with version 7. An install at version 9 doesn't have them.
-   If a later bundle ships `okta` again, `upgrade_sources` sees `since 7 <= installed 9` and treats it as
-   deleted by the user, so the board is never added. Section 4.3 fixes this in `record_release`.
-6. **Real finance/tech mix per board.** Measured on the installed copy (`job_intel`, 128,954 postings):
-   - Quant firms are 24–70% finance and 22–70% tech. Fintech is 10–46% finance and 13–61% tech. Both are
-     genuinely shared.
-   - Banks are 41–100% finance. JPMorgan alone has 1,962 tech postings, which is why bank technology needs
-     its own boards (decision D3).
-   - Some boards in today's tech sections add finance postings that no finance board finds (counted as
-     finance postings in clusters with no finance-board member). Capital One adds 444, Mastercard 401,
-     PayPal 147 and Nasdaq 41. Community lists add 674 (zapply_newgrad27), 367 (derec4_newgrad27),
-     269 (simplify_intern26), 185 (zapply_intern27), 123 (zapply_ca_jobs) and 35 (sndsh_intern27). For this
-     install's finance profile, 32 postings from five of those lists score fit ≥ 75: zapply_intern27 11,
-     derec4 10, zapply_ca_jobs 5, zapply_newgrad27 4 and sndsh_intern27 2. simplify_intern26 adds 2 more.
-     See decisions D1 and D2.
-   - Some current "tech" boards are barely tech. Target is 3% tech (101 of 2,729 postings), sweetgreen 2%,
-     glossier 0%, gopuff 1% and disney_early 2%. See decision D6.
-7. **The onboarding specialties step already exists.** `web/js/views/welcome.js:113-141` adds a
-   "Which specialties?" step for every family that has subcategories, and
-   `web/tests/specialties.test.js` already covers how specialties become targets. It's hidden today only
-   because `Knowledge.family_tree()` returns empty subcategories. Settings has the matching cards
-   (settings.js:335).
-8. **The GitHub Actions alert runner** (`.github/workflows/jobwatch.yml`, `python watcher.py --once` for the
-   subscribers in `subscribers.json`) has no saved profile. Under "no profile polls finance only" it would
-   stop polling the tech boards its subscriber watches. See decision D4.
-9. **`stash@{0}`** (CS resume matching) imports `intel.sources.profile_fields`, `TECH_FIELDS` and
-   `role_field`. The new `intel/sources.py` keeps those names and signatures so the stash can be applied
-   later with little conflict. It's still not applied.
+1. **The installed config equals the bundle.** The install is at `sources_version` 9 with 256 sources.
+   `clean_config(config.json)["boards"]` equals the installed sources key for key, and its hash
+   `ddb8d7057c16c87e` equals `__shipped__.hash` in `config/source_defaults_history.json`.
+2. **The Finance board today.** Opportunities defaults to the profile's boards. For Finance that means
+   `i.is_finance=1` (`job_query.py:118-126`): 21,951 open postings on this install, 1,767 at fit ≥ 55 and
+   119 at fit ≥ 75.
+3. **Finance postings come from everywhere.** 1,474 finance postings (3 of them at fit ≥ 75) are found only
+   by sources the first draft made tech-only, such as Simplify lists, HP, Oscar Health and Disney. More than
+   1,000 others come only from Capital One, Mastercard, PayPal and Nasdaq, and more than 1,300 only from the
+   zapply/derec4/sndsh lists. That's why every one of today's sources stays on the Finance board.
+4. **Installed configs have no `_section` headers.** `clean_config` drops them (tools/build_windows.py:114).
+   On an install, an employer's type comes from `company_key`, the posting's company name or the source name.
+5. **Pack files don't trigger recomputes.** Facts are recomputed when `FACTS_VERSION` changes or when
+   `config_fingerprint()` changes. The fingerprint hashes only `taxonomy.json`, `companies.json`,
+   `skills.json` and `locations.json` (intel/knowledge.py:386). **Phases 3 and 4 edit `taxonomy.json` and
+   `companies.json`, so the first start after the update recomputes facts once for every stored posting
+   (about 129k), without a `FACTS_VERSION` bump.** That's the ~45-minute re-index seen in 0.3.2. The gate in
+   section 1 proves the recompute leaves the Finance board identical.
+6. **The upgrade deletes a source in one case only.** `upgrade_sources()` (portable_start.py:31-87) retires a
+   source when it's in `__since__`, missing from the bundle, and unedited. Every one of today's sources keeps
+   shipping, so nothing is retired.
+7. **0.3.0 names are a trap.** The 49 tech sources 0.3.0 added (okta, micron, geotab…) are in `__since__`
+   with version 7. If a later bundle ships one of them again, an install at version 9 treats it as deleted by
+   the user and never adds it. Section 5.3 fixes this.
+8. **The onboarding filter step already exists.** `welcome.js:113-141` shows "Which specialties?" for every
+   board with subcategories, and `web/tests/specialties.test.js` covers it. It's hidden only because
+   `Knowledge.family_tree()` returns no subcategories today.
+9. **The GitHub Actions alert runner** (`watcher.py --once` with the subscribers in `subscribers.json`) has
+   no saved profile (decision D4).
+10. **`stash@{0}`** imports `intel.sources.profile_fields`, `TECH_FIELDS` and `role_field`. The new module
+    keeps those names, and the stash stays unapplied.
 
 ---
 
-## 2. Pack layout
+## 3. Layout
 
 ```
 config/sources/
-  manifest.json                 fields -> packs (the only selection logic in data)
-  finance/canadian_banks.json   finance/bulge_brackets.json   finance/boutiques_middle_market.json
-  finance/private_markets.json  finance/asset_managers.json   finance/pensions_insurance.json
-  finance/ratings_data.json     finance/linkedin.json
-  shared/quant_trading.json     shared/fintech.json           shared/financial_services_tech.json
-  shared/lists.json             shared/linkedin.json  (Phase 2 only, emptied by the LinkedIn split)
-  tech/big_tech.json  tech/lists.json  tech/software_core.json  tech/data_core.json  tech/hardware_core.json
-  tech/ai_labs.json  tech/ai_infrastructure.json  tech/ai_apps.json  tech/research_labs.json
-  tech/developer_tools.json  tech/data_infrastructure.json  tech/cloud_infrastructure.json  tech/security.json
-  tech/enterprise_saas.json  tech/consumer_tech.json  tech/gaming.json  tech/health_tech.json
-  tech/canadian_tech.json  tech/bank_technology.json
-  tech/semiconductors.json  tech/robotics_autonomy.json  tech/defense_aerospace.json  tech/devices_iot.json
+  manifest.json                      folders -> boards that may poll them; boards -> groups and filters
+  finance/  canadian_banks  bulge_brackets  boutiques_middle_market  private_markets  asset_managers
+            pensions_insurance  ratings_data  linkedin
+  shared/   quant_trading  fintech  financial_services_tech  lists  swe_lists  ai_lists  big_tech
+            ai_labs  ai_infrastructure  ai_apps  developer_tools  data_infrastructure  cloud_infrastructure
+            security  enterprise_saas  consumer_tech  gaming  health_tech  semiconductors
+            robotics_autonomy  defense_aerospace  devices_iot
+  tech/     (Phase 4, new sources only) the same group names where they apply, plus
+            software_core  data_core  hardware_core  canadian_tech  research_labs  bank_technology
 ```
 
-Finance is split more finely than today's sections (private markets, asset managers, pensions and insurance,
-ratings and data) so finance can be narrowed by area later. That needs only manifest edits.
+A group can have a pack in both `shared/` and `tech/`. For example, `shared/ai_labs.json` holds Anthropic,
+which Finance has always polled, and `tech/ai_labs.json` holds Mistral, which is new. The Software
+board's Backend filter asks for the group `ai_labs` and gets both. The Finance board gets only the shared
+one. The file name is the employer group, and the folder is who may poll it. Nothing is duplicated, and no
+source carries a per-source flag.
 
-### 2.1 Pack file
+### 3.1 Pack file
 
-A pack holds a title, the verification date, a note and an ordered `boards` object. A board's settings are
-exactly today's settings; the pack adds nothing to a board. Here is an example of a shared pack as it would
-look after Phase 4 (Phase 2 keeps today's bare settings):
+Here are two packs. A shared pack lists today's sources exactly as they are now:
 
 ```json
 {
-  "title": "Fintech",
-  "verified": "2026-10-22",
-  "note": "Fintech employers hire finance and software graduates alike, so Finance, Software and AI & Data profiles all poll these official Greenhouse/Ashby feeds (complete listings).",
+  "title": "AI labs",
+  "verified": "2026-10-10",
+  "note": "Sources the Finance board has polled since 0.2.5. They stay on it so it never loses a posting, and tech boards poll them too.",
   "boards": {
-    "stripe":  {"ats": "greenhouse", "token": "stripe",  "company_key": "stripe",  "group": "FinTech", "priority": 1, "geography": "global", "min_interval": 0},
-    "plaid":   {"ats": "ashby",      "token": "plaid",   "company_key": "plaid",   "group": "FinTech", "priority": 2, "geography": "us",     "min_interval": 0},
-    "wealthsimple": {"ats": "ashby", "token": "wealthsimple", "company_key": "wealthsimple", "group": "FinTech", "priority": 1, "geography": "ca", "min_interval": 0}
+    "anthropic": {"ats": "greenhouse", "token": "anthropic"},
+    "openai":    {"ats": "ashby", "token": "openai"}
   }
 }
 ```
 
-`stripe` is defined once, in this file. The manifest lists `shared/fintech` under Finance and under several
-Software and AI & Data specialties, so the board is shared without being copied. A finance-plus-software
-profile polls it once, because the selected boards are a set of names.
+A new tech pack (Phase 4) adds full metadata, and each feed is fetched before it ships:
 
-### 2.2 Manifest
+```json
+{
+  "title": "AI labs",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Feeds fetched successfully on the verified date.",
+  "boards": {
+    "mistral": {"ats": "lever", "token": "…", "company_key": "mistral", "group": "AI Labs", "priority": 2, "geography": "global", "min_interval": 1800}
+  }
+}
+```
+
+(The key is `"boards"` because the code already calls sources that; the manifest and docs say "sources".)
+
+### 3.2 Manifest
 
 ```json
 {
   "version": 1,
+  "folders": {
+    "finance": {"fields": ["finance"]},
+    "shared":  {"fields": ["finance", "software", "data_ml", "hardware", "product", "design"]},
+    "tech":    {"fields": ["software", "data_ml", "hardware", "product", "design"]}
+  },
   "fields": {
-    "finance":  {"core": ["finance/canadian_banks", "...every finance pack...", "shared/quant_trading", "shared/fintech",
-                          "shared/financial_services_tech", "shared/lists"],
-                 "specialties": {}},
-    "software": {"core": ["tech/big_tech", "tech/lists", "tech/software_core", "shared/lists"],
-                 "specialties": {"backend": ["tech/ai_labs", "..."], "game_dev": ["tech/gaming"],
-                                 "quant_dev": ["shared/quant_trading", "shared/fintech", "tech/bank_technology"]}},
-    "data_ml":  {"core": ["tech/big_tech", "tech/lists", "tech/data_core", "shared/lists"], "specialties": {"...": []}},
-    "hardware": {"core": ["tech/big_tech", "tech/lists", "tech/hardware_core", "shared/lists"], "specialties": {"...": []}},
-    "product":  {"core": ["tech/big_tech", "tech/lists", "shared/lists", "tech/enterprise_saas", "tech/consumer_tech",
-                          "tech/developer_tools", "tech/ai_apps", "tech/canadian_tech", "shared/fintech"]},
-    "design":   {"core": ["...same as product..."]},
-    "sales": {"core": "*"}, "operations": {"core": "*"}, "people_legal": {"core": "*"}, "healthcare": {"core": "*"}
+    "finance":  {"groups": "*"},
+    "software": {"core": ["big_tech", "lists", "swe_lists", "software_core"],
+                 "filters": {"backend": ["ai_labs", "…"], "game_dev": ["gaming"], "quant_dev": ["quant_trading", "fintech", "bank_technology"]}},
+    "data_ml":  {"core": ["big_tech", "lists", "ai_lists", "data_core"], "filters": {"…": []}},
+    "hardware": {"core": ["big_tech", "lists", "hardware_core"], "filters": {"…": []}},
+    "product":  {"groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech"]},
+    "design":   {"groups": ["…same as product…"]},
+    "sales": {"everything": true}, "operations": {"everything": true},
+    "people_legal": {"everything": true}, "healthcare": {"everything": true}
   }
 }
 ```
 
-Section 7.2 has the full specialty-to-pack map. Rules that tests enforce:
-- Every board key is defined in exactly one pack.
-- No pack holds more than 50 boards.
-- Every pack the manifest references exists, and every pack is referenced by at least one field.
-- For software, data_ml and hardware, the specialty keys equal that family's taxonomy subcategories. A
-  specialty may map to `[]`, meaning the core packs only.
-- A later field (healthcare, product, …) needs only its pack files and its manifest entry.
+The Finance board's `"groups": "*"` means every pack in the folders it may poll (`finance/`, `shared/`). Later,
+finance filters (narrowing by area) can be added as a `filters` map keyed by finance category, with no code
+change. A future board (healthcare, design…) needs only a folder audience, its packs and a manifest entry.
 
-### 2.3 Assembling `config["boards"]`
-
-`intel/sources.py::load_config(path)` reads `config.json`. If the file has a `boards` key (every install, and
-any local config that keeps its own boards), those boards are used as they are. If it doesn't (the repo's
-`config.json` after Phase 2), the boards are assembled from the packs in manifest order, with one
-`_<pack id>` header before each pack's boards (for example `"_finance/canadian_banks": "<note>"`). This keeps
-`board_sections()`, the `quant`, `fintech`, `canadian_bank`, `bulge` and `boutique` type needles and
-`job_intelligence.board_tags()` working in a source checkout.
-
-The build flattens the packs into the bundled `app/config.json` exactly as today, and ships
-`config/sources/**` beside the other knowledge files.
+**Rules that tests enforce:**
+- Every source is defined once.
+- No pack has more than 50 sources.
+- Every group the manifest names has at least one pack.
+- For Software, AI & Data and Hardware, the filter keys equal that board's taxonomy subcategories.
+- `finance/` ∪ `shared/` is exactly the v0.3.7 source set, with identical settings.
+- `shared/` gains no source in this work.
 
 ---
 
-## 3. Selection contract
-
-`config["boards"]` is the universe. Packs only filter it, and selection never adds a board that isn't in the
-install's own config.
+## 4. Selection
 
 ```
-profile_fields(profile, kn)       -> ordered list: profile.fields plus the field of each target role;
-                                     ['finance'] when that is empty. Mirrors web/js/fields.js profileFields().
-chosen_specialties(profile, field) -> 'software.backend' -> backend; a finance target's category for finance.
-selected_packs(profile, kn)        -> for each field:
-                                        entry missing or core == "*"  -> every pack
-                                        else core + (narrowed ? packs of the chosen specialties
-                                                              : packs of every specialty)
-                                     narrowed = specialties chosen AND the whole field is not itself a target
-                                     (Settings' "All of Software" switch keeps everything).
-polled_boards(config, profile, kn) -> enabled boards in config["boards"] whose pack is selected,
-                                     plus enabled boards that are in no pack (your own sources: always polled).
+profile_fields(profile)        -> profile.fields plus the board of each target role; ['finance'] when empty
+                                  (mirrors fields.js profileFields())
+groups_for(field, profile)     -> "*" | core + the groups of the chosen filters, or of every filter when
+                                  none is chosen or the whole board is itself a target ("All of Software")
+selected_packs(profile)        -> packs whose folder lets the field poll and whose group is in groups_for;
+                                  "everything": every pack
+polled_sources(config, profile) -> enabled sources in config["boards"] whose pack is selected,
+                                   plus enabled sources in no pack (your own: always polled)
 ```
 
-- With no saved profile, `load_profile` returns the default finance profile, so only Finance packs are
-  polled.
-- `cycle()` loads the profile from the database on every run, so a change in Settings or a re-run of setup
-  takes effect on the next poll with no restart. A board selected for the first time is seeded silently, as
-  any new source is today.
-- Boards outside the profile's fields are skipped. They are never deleted, and their postings stay.
-- Finance today: `finance.specialties` is `{}`, so a finance profile polls every finance and shared pack
-  whatever finance areas it picked. Narrowing finance later means moving packs from `core` into area lists
-  keyed by category (`investment_banking: [...]`), with no code change.
+- `config["boards"]` stays the universe; selection never adds a source the install's config doesn't have.
+- **No saved profile:** the default profile is Finance, so it polls today's 246 sources, as it does today.
+- The profile is read from the database on every poll, so a change in Settings or a re-run of setup applies
+  on the next poll without a restart. A newly selected source is seeded silently, as any new source is
+  today.
+- Sources outside the profile's boards are not polled and never deleted. Their postings stay.
 
-### 3.1 Changes in each file that reads `config["boards"]`
+### 4.1 Polled sources (today's 256 sources; Phase 2 reproduces these in tests)
 
-| File | Today | Change |
+| Profile | Sources polled | From `finance/` |
 |---|---|---|
-| `intel/sources.py` (new) | none | `load_packs()` (manifest + packs, cached by modification times, validated), `load_config()`, `profile_fields()`, `chosen_specialties()`, `selected_packs()`, `polled_boards()`, `board_pack()`, `pack_fields()`. Keeps `TECH_FIELDS`/`role_field` for the stash. |
-| `watcher.py:3270` `main()` | `json.loads(config)` | `load_config(args.config)` |
-| `watcher.py:2767` `cycle()` | every enabled board | `cycle(config, con, progress=None, boards=None)`. With `boards=None` it uses `polled_boards()` with the profile from the database. The CLI alert loop passes its own set (decision D4). |
-| `watcher.py:1566` `enrich_descriptions`, `:1649` `enrich_linkedin` | every enabled board | take `boards=` from the cycle's selection, so no requests go to unpolled boards |
-| `watcher.py:2742` `repair_workday_posted` | all Workday boards | unchanged (database only, no network) |
-| `watcher.py:3083` `cmd_check` | validates boards | also validates packs and the manifest: duplicates, sizes, references, specialty coverage, `company_key` |
-| `watcher.py:3169` `--verify`, `:3281` `--list`, `--test` | all boards | unchanged: tools that check every board |
-| `dashboard.py:238-239` | `json.loads(config)` | `load_config(self.config_path)` |
-| `dashboard.py:876` home stats `enabled` | enabled boards | polled boards for the current profile |
-| `dashboard.py:1523` `sources()` | section from header order | adds `pack`, `pack_title`, `fields` (labels of the fields that poll it), `polled`, `own` (no pack). Polled sources sort first; the response also returns the profile's fields. |
-| meta (`families`) | `family_tree()` without subcategories | `family_tree()` with specialties and notes (shows the onboarding step) |
-| `intel_store.py:58,258` | headers in `config["boards"]` | unchanged; works because `load_config` emits pack headers |
-| `job_intelligence.py:45` `board_tags` | headers | unchanged |
-| `portable_start.py::upgrade_sources` | bundled flat boards | **unchanged code** (section 4) |
-| `tools/build_windows.py:133` `stage_app` | `json.loads(config.json)` | `load_config()`; copy `config/sources/**`; `sources_version` 10 when boards change (Phase 4) |
-| `tools/source_history.py` | `git show tag:config.json` | for tags after the split, assemble from `tag:config/sources/**`; `record_release` revives returning names (4.3) and records the shipped board names |
-| tests that read `watcher.CONFIG` boards (`tests/sources/test_source_coverage.py:202`, `tests/install/test_portable.py:112,178`) | raw `config.json` | read through `load_config()` (no test is removed) |
+| today, any profile | 246 | – |
+| **Finance only** | **246 (identical set)** | 58 |
+| Software only | 182 | 0 |
+| AI & Data only | 162 | 0 |
+| Hardware only | 41 (Phase 4 adds hardware employers) | 0 |
+| Finance + Software | 246 | 58 |
+| Software, Game dev filter | 30 | 0 |
+| Software, Backend + Infrastructure filters | 147 | 0 |
+
+### 4.2 Changes in each file that reads `config["boards"]`
+
+| File | Change |
+|---|---|
+| `intel/sources.py` (new) | `load_packs()` (manifest + packs, cached by modification time, validated), `load_config()`, `profile_fields()`, `groups_for()`, `selected_packs()`, `polled_sources()`, `source_pack()`. Keeps `TECH_FIELDS` and `role_field` for the stash. |
+| `watcher.py:3270` `main()` | `load_config(args.config)`. Without a `boards` key (the repo after Phase 2), it assembles sources from the packs, putting a `_<folder>/<group>` header before each pack so `board_sections()` keeps working. |
+| `watcher.py:2767` `cycle()` | `cycle(config, con, progress=None, sources=None)`. By default it uses `polled_sources()` with the profile from the database. |
+| `watcher.py:1555` `enrich_descriptions`, `:1639` `enrich_linkedin` | take the cycle's selection. For a Finance-only profile, the selection is today's set, so behavior is identical. |
+| `watcher.py:2731` `repair_workday_posted` | unchanged (database only) |
+| `watcher.py:3083` `cmd_check` | also validates packs and the manifest (the rules in 3.2) |
+| `--verify`, `--list`, `--test` | unchanged: they check every source |
+| `dashboard.py:238` | `load_config()` |
+| `dashboard.py:876` home stats | counts sources polled for the current profile (246 for Finance-only, unchanged) |
+| `dashboard.py:1523` `sources()` | adds `pack`, `pack_title`, `boards` (the boards that poll it), `polled`, `own` |
+| meta `families` | `family_tree()` with filters and notes (turns on the onboarding filter step) |
+| `intel_store.py`, `job_intelligence.py` | unchanged |
+| `portable_start.py::upgrade_sources` | **unchanged code** |
+| `tools/build_windows.py` | `load_config()`; copy `config/sources/**`; `sources_version` 10 when Phase 4 adds sources |
+| `tools/source_history.py` | the tag rebuild reads packs for tags after the split; `record_release` revives returning names (5.3) |
+| tests reading `config.json` sources (`tests/sources/test_source_coverage.py:202`, `tests/install/test_portable.py:112,178`) | read through `load_config()`; no test removed |
 
 ---
 
-## 4. Upgrade plan: why no board or posting is deleted
+## 5. Upgrades: no source or posting is deleted
 
-### 4.1 Phase 2 (split only)
-- The flattened pack boards hash to `ddb8d7057c16c87e`, which equals v9's `__shipped__`. Phase 2's test
-  asserts this, so the bundle is byte-identical and `record_release` needs no version bump.
-- `upgrade_sources` sees the same bundled boards. The retired list is empty, and `forget_postings` is never
-  called.
-
-### 4.2 Phases 3-5 (new boards, LinkedIn split, metadata)
-- `sources_version` goes to 10. New board names get `__since__` 10, so a v9 install (installed 9 < 10) adds
-  them.
-- Metadata added to moved boards (`company_key`, `group`, …) is applied to unedited installed boards the way
-  any changed default is. A board the user edited keeps their values. Identity keys (ats, token, host, …)
-  don't change, so nothing counts as "pointed elsewhere".
-- The LinkedIn split changes the `queries` of `linkedin_us` and `linkedin_canada` to finance-only queries,
-  which updates unedited installs. The software, data and hardware queries move to new boards. No board
-  disappears, and postings already collected stay.
-- A guard test fails if any board shipped at v9 (from `git show v0.3.7:config.json`) is missing from the
-  packs. A missing pack file can then never become a silent retirement.
-
-### 4.3 Reusing a 0.3.0 name (okta, micron, …)
-`record_release` stores the shipped board names in `__shipped__` (`"boards": [...]`). When a board ships that
-the previous release did not, its `__since__` is set to the new version. For this first release, the
-"previous" set is v0.3.7's boards. A test upgrades a v9 config and checks that a returning name such as
-`okta` is added. `upgrade_sources` itself does not change.
-
-### 4.4 The acceptance test
-A temporary folder holds `app/` (the bundle built from the packs, its history and its `config/sources`) and
-`data/config.json` (from `git show v0.3.7:config.json` through `clean_config`, `sources_version` 9). It also
-holds a synthetic `jobwatch.db` with postings, intel rows, FTS rows and an application on boards from every
-pack, including all 256 v9 boards. `upgrade_sources` must remove 0 boards and delete 0 postings: the board
-set before is a subset of the board set after, and the `jobs`, `job_intel`, `job_fts` and `applications`
-counts are unchanged.
+1. **Phase 2:** today's 256 sources move into packs unchanged. The flattened bundle hashes to v0.3.7's
+   `ddb8d7057c16c87e`, so `upgrade_sources` sees the same bundle, retires nothing and deletes nothing.
+2. **Phase 4:** only new sources are added (in `tech/`), with `__since__` 10 and `sources_version` 10, so a
+   v9 install adds them. Today's sources aren't edited, so nothing about them changes on an install. A guard
+   test fails if any v0.3.7 source is missing from the packs or has different settings.
+3. **Returning 0.3.0 names:** `record_release` stores the shipped source names in `__shipped__`. A source
+   that ships again after being absent gets `__since__` set to the new version, so installs add it. For this
+   release, "absent" means not in v0.3.7. A test upgrades a v9 config and checks that `okta` is added.
+4. **Acceptance test:** a temporary folder with `app/` (the bundle built from the packs) and
+   `data/config.json` (v0.3.7's `config.json`, cleaned, `sources_version` 9). It also holds a synthetic
+   database with postings, intel, FTS rows and an application on all 256 v0.3.7 sources. `upgrade_sources`
+   must remove 0 sources and delete 0 postings, and every v0.3.7 source must keep identical settings.
 
 ---
 
-## 5. Tech taxonomy
+## 6. Tech taxonomy (filters for the tech boards)
 
-Each family gets `subcategories` in the finance style: title, department and description regex fragments, a
-`label`, a `note`, a `tie_priority` and an optional `related`. I'll reuse 0.3.0's `specialty()` scorer from
-`5f834cd`:
-- Title words before the first separator count most.
-- A specialty the title names beats one that only the description suggests.
-- `weights.min_specialty_score` = 3 is the evidence threshold.
-- A specialty read from the description alone needs a full description cap (4 distinct phrases) and a lead
-  of at least 2.
+Each tech board gets subcategories in the finance style: title, department and description patterns, a
+label, a note and a tie priority. They use 0.3.0's `specialty()` scorer:
+- The title's head counts most.
+- A filter the title names beats one only the description suggests.
+- `min_specialty_score` = 3 is the evidence threshold.
+- A filter read from the description alone needs 4 distinct phrases and a lead of at least 2.
 
-Finance classification runs first and is untouched, so the existing finance tests must pass unchanged.
+Finance classification runs first and isn't touched. The existing finance tests must pass unchanged, and
+section 1's gate checks every finance posting on your database.
 
-| Family · specialty | Example titles | Packs (beyond core) |
+| Board · filter | Example titles | Groups (beyond core) |
 |---|---|---|
-| **Software** · backend | Backend Engineer, Payments · Software Engineer, API Platform · Java Developer | AI, dev tools, data, cloud, SaaS, consumer, Canadian, health, bank tech, fintech |
+| **Software** · backend | Backend Engineer, Payments · Software Engineer, API Platform · Java Developer | AI, dev tools, data, cloud, SaaS, consumer, Canadian, health, bank tech, fintech, financial services |
 | · frontend | Frontend Engineer · UI Engineer, Design Systems · React Developer Intern | AI apps, dev tools, SaaS, consumer, Canadian, fintech |
-| · full_stack | Full-Stack Engineer · Software Engineer, Full Stack (New Grad) · Full Stack Developer Co-op | as frontend + health |
+| · full_stack | Full-Stack Engineer · Software Engineer, Full Stack (New Grad) · Full Stack Developer Co-op | frontend's + health |
 | · mobile | iOS Engineer · Android Developer Intern · Mobile Engineer, React Native | consumer, Canadian, health, devices, fintech |
 | · infrastructure | Site Reliability Engineer · DevOps Engineer · Cloud Platform Engineer | AI infra, cloud, dev tools, data, SaaS, bank tech, financial services |
 | · systems | Distributed Systems Engineer · Compiler Engineer · Database Kernel Engineer | data, cloud, AI infra, semiconductors, quant |
 | · security | Security Engineer, Application Security · Detection & Response Engineer · Penetration Tester | security, cloud, defense, bank tech, fintech |
 | · game_dev | Gameplay Programmer · Game Engine Developer · Graphics Engineer, Rendering | gaming |
 | · quant_dev | Quantitative Developer · Software Engineer, Low-Latency Trading · Trading Systems Developer | quant, fintech, bank tech |
-| · qa_test *(proposed, D11)* | Software Engineer in Test · QA Automation Engineer · Test Developer Co-op | SaaS, consumer, Canadian, bank tech |
+| · qa_test *(D11)* | Software Engineer in Test · QA Automation Engineer · Test Developer Co-op | SaaS, consumer, Canadian, bank tech |
 | **AI & Data** · ml_engineering | Machine Learning Engineer · ML Infrastructure Engineer · Applied AI Engineer, LLMs | AI labs, AI infra, AI apps, robotics, consumer, SaaS |
 | · ai_research | Research Scientist, Reinforcement Learning · Research Engineer, Pretraining · AI Resident | AI labs, AI infra, research labs, robotics, quant |
 | · data_science | Data Scientist, Product · Decision Scientist · Data Science Intern, Experimentation | consumer, SaaS, health, Canadian, bank tech, fintech, financial services |
@@ -276,187 +304,115 @@ Finance classification runs first and is untouched, so the existing finance test
 | · electrical | Electrical Engineer, Power Electronics · Hardware Engineer, PCB Design · Analog Circuit Design Intern | semiconductors, devices, defense, robotics |
 | · robotics_autonomy | Robotics Software Engineer · Perception Engineer · Motion Planning Engineer | robotics, defense |
 
-Two classifier decisions follow from this list (D7, D8):
-- **Embedded, firmware and robotics titles move to Hardware.** Today "Embedded Software Engineer" and
-  "Firmware Engineer" land in Software, because `software.title` contains `embedded` and `firmware` and
-  Software is checked before Hardware. For `hardware.embedded_firmware` and `hardware.robotics_autonomy` to
-  receive anything, Hardware gets a short list of occupation words checked before Software (`embedded`,
-  `firmware`, `fpga`, `asic`, `rtl`, `pcb`, `analog`, `robotics`, `perception`, `motion planning`). Those
-  words leave `software.title`.
-- **`quant_dev` overlaps `quant.quant_developer`.** Finance classification wins first, so "Quantitative
-  Developer" stays `quant.quant_developer` (no finance test changes). `software.quant_dev` gets the
-  software-family postings that name trading systems or low latency. In the taxonomy,
-  `software.quant_dev` declares `"also_targets": ["quant.quant_developer"]`, and `_target_match` honours it.
-  A Software profile that picks Quant developer therefore ranks both kinds as targets and polls the quant
-  and fintech packs. Picking it doesn't add Finance to the profile's fields.
+- **Hardware occupation words come first (D7).** Today, "Embedded Software Engineer" and "Firmware Engineer"
+  land on Software. A short list of hardware occupation words is checked before Software: embedded,
+  firmware, fpga, asic, rtl, pcb, analog, robotics, perception, motion planning. Only non-finance postings
+  move. If any finance posting moved, section 1's gate would catch it.
+- **Quant developer (D8).** "Quantitative Developer" stays finance (`quant.quant_developer`), so nothing moves
+  on the Finance board. The Software filter `quant_dev` also targets `quant.quant_developer` when scoring,
+  and polls the quant and fintech groups. Picking it doesn't add the Finance board to the profile.
+- **`FACTS_VERSION` stays as it is.** If anything turns out to need a bump, I'll stop and ask.
 
-Classifier tests: at least 3 realistic titles per specialty, a description-only case, below-threshold cases
-(an evidence-free "Engineer" gets no specialty), the routing cases above, and the full finance suite
-unchanged. `FACTS_VERSION` stays at its current value (section 1.3). If anything ends up requiring a bump,
-I'll stop and ask.
+## 7. Tech employer types
 
----
-
-## 6. Tech employer types
-
-Added to `config/companies.json` `types`. Every type gains a `track`: `finance`, `tech` or `both`. Settings
-shows a type when its track matches the profile's fields:
-- `finance`: the profile has Finance.
-- `tech`: the profile has Software, AI & Data, Hardware, Product or Design.
-- `both`: either of those.
-
-Profiles with only fields like Operations see every type.
+These are added to `config/companies.json`. Each type gets a `track` (finance, tech or both). Settings shows
+finance types to Finance profiles and tech types to tech profiles. A Finance-only profile sees exactly
+today's list, because every type that exists today is finance, or both for fintech and quant firms.
 
 | Type | Label | Track | Examples |
 |---|---|---|---|
-| big_tech | Big Tech | tech | Amazon, Microsoft, Nvidia, Salesforce, Adobe, Netflix, Oracle |
+| big_tech | Big Tech | tech | Amazon, Microsoft, Nvidia, Salesforce, Adobe, Netflix |
 | ai_lab | AI Lab | tech | Anthropic, OpenAI, xAI, Cohere, Mistral |
-| ai_infrastructure | AI Infrastructure | tech | Databricks, Scale AI, Together AI, CoreWeave, Crusoe |
-| developer_tools | Developer Tools | tech | Vercel, Linear, Supabase, GitLab, Datadog, Sentry |
-| data_infrastructure *(added)* | Data Infrastructure | tech | MongoDB, Snowflake, ClickHouse, Confluent, Fivetran |
-| cybersecurity *(added)* | Cybersecurity | tech | CrowdStrike, Zscaler, Okta, 1Password, Palo Alto Networks |
-| enterprise_saas | Enterprise Software | tech | ServiceNow, Workday, Notion, Figma, Atlassian |
-| consumer_tech | Consumer Tech | tech | Airbnb, DoorDash, Pinterest, Reddit, Spotify |
-| semiconductors | Semiconductors | tech | Intel, AMD, Qualcomm, Broadcom, Micron, Cadence |
-| robotics_autonomy | Robotics & Autonomy | tech | Waymo, Zoox, Aurora, Waabi, Applied Intuition |
+| ai_infrastructure | AI Infrastructure | tech | Databricks, Scale AI, Together AI, CoreWeave |
+| developer_tools | Developer Tools | tech | Vercel, Linear, Supabase, GitLab, Datadog |
+| data_infrastructure | Data Infrastructure | tech | MongoDB, Snowflake, ClickHouse, Fivetran |
+| cybersecurity | Cybersecurity | tech | CrowdStrike, Zscaler, Okta, 1Password |
+| enterprise_saas | Enterprise Software | tech | ServiceNow, Workday, Notion, Figma |
+| consumer_tech | Consumer Tech | tech | Airbnb, DoorDash, Pinterest, Spotify |
+| semiconductors | Semiconductors | tech | Intel, AMD, Qualcomm, Broadcom, Micron |
+| robotics_autonomy | Robotics & Autonomy | tech | Waymo, Zoox, Aurora, Waabi |
 | defense_tech | Defense & Aerospace | tech | Anduril, Shield AI, SpaceX, Palantir |
-| gaming | Gaming | tech | Roblox, Epic Games, Riot Games, Ubisoft |
-| high_growth_startup | High-Growth Startup | tech | Cursor, Sierra, Decagon, Harvey, Glean |
-| canadian_tech | Canadian Tech | tech | Geotab, StackAdapt, Wattpad, Clio, Ada |
+| gaming | Gaming | tech | Roblox, Epic Games, Riot Games |
+| high_growth_startup | High-Growth Startup | tech | Cursor, Sierra, Decagon, Harvey |
+| canadian_tech | Canadian Tech | tech | Geotab, StackAdapt, Wattpad, Clio |
 | research_lab | Research Lab | tech | Vector Institute, Mila, AI2 |
-| hardware_devices *(added)* | Devices & IoT | tech | Samsara, Verkada, Garmin, ecobee |
-| health_tech *(added)* | Health Tech | tech | Oscar Health, Hinge Health, Abridge |
-| fintech | FinTech | **both** | exists; shared |
-| quant_firm | Quant / Trading Firm | **both** | exists; shared |
-| every other existing type | unchanged | finance | banks, PE, asset managers… (`corporate`, `unknown`: both) |
+| hardware_devices | Devices & IoT | tech | Samsara, Verkada, Garmin |
+| health_tech | Health Tech | tech | Oscar Health, Hinge Health, Abridge |
+| fintech, quant_firm | (exist) | both | shared |
+| every other existing type | (unchanged) | finance | |
 
-- **Priors.** `company_priors` gains tech types that point at specialties. They apply only when the posting
-  already has a title signal in that family, the same rule finance priors follow. For example: gaming →
-  `software.game_dev` +2, semiconductors → `hardware.chip_design` +2, ai_lab → `data_ml.ai_research` +1,
-  robotics_autonomy → `hardware.robotics_autonomy` +2, quant_firm → `software.quant_dev` +2.
-- **Scoring.** A recognized tech employer earns the same 7 company points as a recognized finance employer,
-  but **only for a profile with a tech field**. A test keeps finance-only scores unchanged.
-- `prune_profile` keeps working: unknown types are dropped as they are today.
+- **Priors** for tech types point only at tech filters (for example gaming → `software.game_dev`). Finance
+  categories never see them.
+- **Scoring:** a recognized tech employer earns 7 company points only for a profile with a tech board. A
+  Finance-only profile keeps 4 points for these employers, exactly as today.
+- **New company keys** equal the company slugs postings resolve to today, so cluster keys don't move. The gate
+  in section 1 checks this.
 
----
-
-## 7. Sources
-
-### 7.1 Candidate employers by pack (Phase 4 verifies every one)
+## 8. New sources (Phase 4, all in `tech/`)
 
 Legend:
-- ✓ already ships (moved as is)
-- ◇ shipped in 0.3.0 with a known setting (re-fetch to verify)
-- ○ new candidate, with the ATS **I expect**, unverified
+- ◇ shipped in 0.3.0 (re-fetch to verify)
+- ○ new, with the ATS I **expect**; `?` marks a guess
 
-A `?` marks a guess about the ATS. Nothing ships unless its feed is fetched successfully in Phase 4. Apple,
-Google, Meta, Uber, Shopify, Tesla and Hugging Face (Workable) have no feed an existing adapter reads, so
-they go to "not added" unless you approve an adapter.
+Nothing ships unless its feed is fetched successfully in Phase 4. Apple, Google, Meta, Uber, Shopify, Tesla
+and Hugging Face have no feed an existing adapter reads. They go to "not added" unless you approve an adapter.
 
-- **tech/big_tech** (core): ✓amazon, ✓amazon_newgrad (amazon_jobs) · ✓microsoft (off; re-check Eightfold?)
-  · ✓nvidia, ✓salesforce(+early), ✓adobe(+university), ✓ebay, ✓autodesk, ✓workday_hq, ✓zoom, ✓hp
-  (workday) · ✓netflix (eightfold) · ○oracle (oracle_hcm) · ○cisco (phenom?) · ○sap (successfactors?) ·
-  ○intuit (radancy?) · ○ibm (avature?) · ○dell (workday?) · ○snap (workday?) · ◇thomson_reuters (workday)
-- **tech/canadian_tech**: ◇stackadapt, ◇geotab, ◇ritual (greenhouse) · ◇wattpad (lever) · ◇benevity
-  (ashby) · ○clio, ○league, ○applyboard (lever?) · ○ada, ○tophat, ○vidyard, ○thinkific (greenhouse?) ·
-  ○d2l, ○kinaxis, ○opentext (workday?) · ○lightspeed, ○coveo, ○hopper (lever/ashby?) · ○hootsuite
-  (workday?)
-- **tech/ai_labs**: ✓anthropic, ✓xai (greenhouse) · ✓openai, ✓cohere, ✓perplexity, ✓character_ai,
-  ✓midjourney, ✓poolside, ✓runway, ✓suno, ✓elevenlabs, ✓cartesia (ashby) · ✓imbue (greenhouse) ·
-  ✓deepmind (off) · ○mistral (lever?) · ○thinking_machines, ○world_labs, ○magic, ○contextual_ai
+- **big_tech:** ○oracle (oracle_hcm) · ○cisco (phenom?) · ○sap (successfactors?) · ○intuit (radancy?) ·
+  ○ibm (avature?) · ○dell, ○snap (workday?) · ◇thomson_reuters (workday)
+- **canadian_tech:** ◇stackadapt, ◇geotab, ◇ritual (greenhouse) · ◇wattpad (lever) · ◇benevity (ashby) ·
+  ○clio, ○league, ○applyboard (lever?) · ○ada, ○tophat, ○vidyard, ○thinkific (greenhouse?) · ○d2l,
+  ○kinaxis, ○opentext, ○hootsuite (workday?) · ○lightspeed, ○coveo, ○hopper (lever/ashby?)
+- **ai_labs:** ○mistral (lever?) · ○thinking_machines, ○world_labs, ○magic, ○contextual_ai
   (ashby/greenhouse?) · ○stability_ai (greenhouse?)
-- **tech/research_labs**: ○ai2 (greenhouse?) · ○vector_institute (?) · ○mila (?). This pack is dropped if
-  fewer than three feeds verify.
-- **tech/ai_infrastructure**: ✓databricks, ✓scale_ai, ✓together_ai (greenhouse) · ✓baseten, ✓modal,
-  ✓crusoe, ✓lambda_labs, ✓runpod (ashby) · ✓assemblyai · ◇coreweave (greenhouse) · ◇anyscale,
-  ◇pinecone (ashby) · ○fireworks_ai, ○snorkel, ○labelbox, ○weights_and_biases (greenhouse/lever?) ·
-  ○langchain, ○deepgram (ashby?)
-- **tech/ai_apps**: ✓cursor, ✓sierra, ✓decagon, ✓mercor, ✓harvey, ✓writer, ✓braintrust (ashby) ·
-  ✓glean, ✓typeface, ✓heygen, ✓descript (greenhouse) · ○cognition, ○hebbia (ashby?)
-- **tech/developer_tools**: ✓vercel, ✓gitlab, ✓launchdarkly, ✓datadog (greenhouse) · ✓linear,
-  ✓supabase, ✓warp, ✓browserbase (ashby) · ✓postman (workday) · ✓retool (off) · ◇replit, ◇sentry,
-  ◇temporal, ◇posthog (ashby) · ◇grafana_labs, ◇new_relic, ◇pagerduty (greenhouse) · ○netlify,
-  ○circleci, ○sourcegraph, ○docker (greenhouse?) · ○render, ○neon (ashby?)
-- **tech/data_infrastructure**: ✓mongodb, ✓elastic, ✓cockroach_labs, ✓planetscale, ✓starburst,
-  ✓fivetran, ✓mixpanel (greenhouse) · ✓clickhouse, ✓hightouch, ✓amplitude (ashby) · ◇snowflake (ashby)
-  · ◇dataiku (greenhouse) · ○confluent (ashby?) · ○dbt_labs, ○redis, ○singlestore, ○sigma_computing
-  (greenhouse?) · ○hex, ○airbyte (ashby?)
-- **tech/cloud_infrastructure**: ✓cloudflare, ✓fastly, ✓twilio (greenhouse) · ◇pure_storage, ◇rubrik
-  (greenhouse) · ◇hpe (workday) · ○nutanix, ○netapp, ○akamai (workday?) · ○digitalocean (greenhouse?)
-- **tech/security**: ✓1password, ✓vanta (ashby) · ◇okta, ◇zscaler (greenhouse) · ◇crowdstrike
-  (workday) · ○palo_alto_networks, ○fortinet, ○tenable (workday?) · ○wiz, ○snyk, ○sentinelone,
-  ○arctic_wolf, ○abnormal_security, ○chainguard, ○tanium (greenhouse?)
-- **tech/enterprise_saas**: ✓servicenow (smartrecruiters) · ✓notion, ✓attio (ashby) · ✓figma, ✓airtable,
-  ✓asana, ✓smartsheet, ✓calendly, ✓webflow, ✓dropbox, ✓gusto, ✓checkr, ✓flexport (greenhouse) ·
-  ✓rippling (off) · ◇box, ◇miro (greenhouse) · ◇zapier (ashby) · ○hubspot, ○zendesk, ○grammarly,
+- **research_labs:** ○ai2 (greenhouse?) · ○vector_institute · ○mila. The group is dropped if fewer than three
+  feeds verify.
+- **ai_infrastructure:** ◇coreweave (greenhouse) · ◇anyscale, ◇pinecone (ashby) · ○fireworks_ai, ○snorkel,
+  ○labelbox, ○weights_and_biases (greenhouse/lever?) · ○langchain, ○deepgram (ashby?)
+- **ai_apps:** ○cognition, ○hebbia (ashby?)
+- **developer_tools:** ◇replit, ◇sentry, ◇temporal, ◇posthog (ashby) · ◇grafana_labs, ◇new_relic,
+  ◇pagerduty (greenhouse) · ○netlify, ○circleci, ○sourcegraph, ○docker (greenhouse?) · ○render, ○neon
+  (ashby?)
+- **data_infrastructure:** ◇snowflake (ashby) · ◇dataiku (greenhouse) · ○confluent (ashby?) · ○dbt_labs,
+  ○redis, ○singlestore, ○sigma_computing (greenhouse?) · ○hex, ○airbyte (ashby?)
+- **cloud_infrastructure:** ◇pure_storage, ◇rubrik (greenhouse) · ◇hpe (workday) · ○nutanix, ○netapp,
+  ○akamai (workday?) · ○digitalocean (greenhouse?)
+- **security:** ◇okta, ◇zscaler (greenhouse) · ◇crowdstrike (workday) · ○palo_alto_networks, ○fortinet,
+  ○tenable (workday?) · ○wiz, ○snyk, ○sentinelone, ○arctic_wolf, ○abnormal_security, ○chainguard, ○tanium
+  (greenhouse?)
+- **enterprise_saas:** ◇box, ◇miro (greenhouse) · ◇zapier (ashby) · ○hubspot, ○zendesk, ○grammarly,
   ○benchling (greenhouse?) · ○docusign (workday?) · ○atlassian (?) · ○canva (lever?)
-- **tech/consumer_tech**: ✓airbnb, ✓doordash, ✓pinterest, ✓reddit, ✓lyft, ✓instacart, ✓discord,
-  ✓duolingo, ✓squarespace, ✓peloton, ✓seatgeek, ✓faire, ✓sweetgreen, ✓glossier (greenhouse) · ✓spotify,
-  ✓gopuff (lever) · ✓target, ✓comcast, ✓disney(+early) (workday) · ◇nextdoor, ◇roku, ◇coursera
-  (greenhouse) · ◇quora (ashby) · ◇zillow (workday) · ○etsy, ○thumbtack (greenhouse?) · ○whatnot (ashby?)
-- **tech/gaming**: ✓roblox · ◇epic_games, ◇riot_games, ◇twitch (greenhouse) · ○ubisoft (smartrecruiters?) ·
-  ○unity (workday/greenhouse?) · ○ea (avature?) · ○take_two, ○niantic, ○scopely, ○bungie (greenhouse?) ·
+- **consumer_tech:** ◇nextdoor, ◇roku, ◇coursera (greenhouse) · ◇quora (ashby) · ◇zillow (workday) ·
+  ○etsy, ○thumbtack (greenhouse?) · ○whatnot (ashby?)
+- **gaming:** ◇epic_games, ◇riot_games, ◇twitch (greenhouse) · ○ubisoft (smartrecruiters?) · ○unity
+  (workday/greenhouse?) · ○ea (avature?) · ○take_two, ○niantic, ○scopely, ○bungie (greenhouse?) ·
   ○behaviour_interactive (smartrecruiters?) · ○mistplay (lever?)
-- **tech/health_tech**: ✓oscar_health (greenhouse) · ✓hinge_health, ✓abridge, ✓commure, ✓openevidence
-  (ashby)
-- **tech/semiconductors**: ✓intel(+early) (workday) · ◇micron, ◇applied_materials, ◇analog_devices,
-  ◇cadence, ◇broadcom, ◇marvell (workday) · ○amd, ○texas_instruments, ○arm, ○lam_research, ○kla, ○nxp,
-  ○microchip, ○globalfoundries (workday?) · ○qualcomm (eightfold?) · ○synopsys (?) · ○tenstorrent,
-  ○cerebras, ○groq, ○sambanova, ○lightmatter (greenhouse?) · ○etched (ashby?)
-- **tech/robotics_autonomy**: ✓waymo, ✓nuro (greenhouse) · ✓zoox, ✓waabi (lever) · ✓aurora (ashby) ·
-  ○applied_intuition, ○kodiak, ○skydio, ○figure, ○wayve, ○motional, ○zipline (greenhouse/lever?) ·
-  ○physical_intelligence (ashby?) · ○boston_dynamics (workday?) · ○sanctuary_ai (lever?)
-- **tech/defense_aerospace**: ✓anduril, ✓spacex (greenhouse) · ✓shield_ai, ✓palantir (lever) ·
-  ○saronic (ashby?) · ○epirus, ○rocket_lab, ○relativity_space, ○astranis, ○planet (greenhouse?) ·
-  ○blue_origin, ○mda_space (workday?)
-- **tech/devices_iot**: ✓samsara, ✓verkada, ✓neuralink (greenhouse) · ◇motorola_solutions, ◇ciena
-  (workday) · ○garmin, ○sonos, ○lucid (workday?) · ○ecobee, ○whoop, ○oura (greenhouse?)
-- **tech/bank_technology** (tech-only boards that share `company_key` with the finance boards; decision D3):
-  ○rbc_tech (phenom `query`) · ○td_tech, ○bmo_tech, ○cibc_tech, ○morgan_stanley_tech, ○citi_tech,
-  ○barclays_tech, ○wells_fargo_tech, ○deutsche_bank_tech (workday `search` or a Technology `facets` id) ·
-  ○jpmorgan_tech, ○goldman_sachs_tech (oracle_hcm `query`) · ○national_bank_tech (avature?) ·
-  ○scotiabank_tech (successfactors category?)
-- **tech/software_core**: ✓speedy_swe, ✓zapply_swe_newgrad · ○linkedin_us_software,
-  ○linkedin_canada_software
-- **tech/data_core**: ✓speedy_ai · ○linkedin_us_data, ○linkedin_canada_data
-- **tech/hardware_core**: ○linkedin_us_hardware, ○linkedin_canada_hardware
-- **shared/fintech**: today's 19 boards (section 8) · ◇koho, ◇neo_financial (ashby) · ◇toast
-  (greenhouse) · ○wealthfront, ○carta, ○addepar (greenhouse?) · ○questrade (?)
-- **shared/financial_services_tech**: today's 6 boards · ○bloomberg (avature?) · ○american_express,
-  ○visa (workday?)
+- **semiconductors:** ◇micron, ◇applied_materials, ◇analog_devices, ◇cadence, ◇broadcom, ◇marvell (workday)
+  · ○amd, ○texas_instruments, ○arm, ○lam_research, ○kla, ○nxp, ○microchip, ○globalfoundries (workday?) ·
+  ○qualcomm (eightfold?) · ○synopsys (?) · ○tenstorrent, ○cerebras, ○groq, ○sambanova, ○lightmatter
+  (greenhouse?) · ○etched (ashby?)
+- **robotics_autonomy:** ○applied_intuition, ○kodiak, ○skydio, ○figure, ○wayve, ○motional, ○zipline
+  (greenhouse/lever?) · ○physical_intelligence (ashby?) · ○boston_dynamics (workday?) · ○sanctuary_ai (lever?)
+- **defense_aerospace:** ○saronic (ashby?) · ○epirus, ○rocket_lab, ○relativity_space, ○astranis, ○planet
+  (greenhouse?) · ○blue_origin, ○mda_space (workday?)
+- **devices_iot:** ◇motorola_solutions, ◇ciena (workday) · ○garmin, ○sonos, ○lucid (workday?) · ○ecobee,
+  ○whoop, ○oura (greenhouse?)
+- **bank_technology (D3):** tech-only sources filtered by search, sharing `company_key` with the finance
+  bank sources: ○rbc_tech (phenom `query`) · ○td_tech, ○bmo_tech, ○cibc_tech, ○morgan_stanley_tech,
+  ○citi_tech, ○barclays_tech, ○wells_fargo_tech, ○deutsche_bank_tech (workday `search` or a Technology
+  facet) · ○jpmorgan_tech, ○goldman_sachs_tech (oracle_hcm `query`) · ○national_bank_tech (avature?) ·
+  ○scotiabank_tech (successfactors?)
+- **software_core / data_core / hardware_core:** a U.S. and a Canada LinkedIn source for each tech board
+  (`linkedin_us_software`, `linkedin_canada_software`, and the same for data and hardware). Each carries
+  3-4 tech queries. All LinkedIn requests already share one rate-limited lock.
+- **fintech (tech folder):** ◇koho, ◇neo_financial (ashby) · ◇toast (greenhouse) · ○wealthfront, ○carta,
+  ○addepar (greenhouse?) · ○questrade (?)
+- **financial_services_tech (tech folder):** ○bloomberg (avature?) · ○american_express, ○visa (workday?)
 
-The six new LinkedIn boards (a U.S. and a Canada board for each tech field) ask for at most 3-4 queries each
-(software intern, new grad, co-op; ML/data science/data engineer; hardware/embedded/FPGA intern). `_linkedin_get` already spaces every LinkedIn
-request through one lock, so more boards make a poll longer, not more aggressive.
+## 9. Where today's 256 sources go (settings unchanged)
 
-### 7.2 Specialty-to-pack map (with Phase 2 polled counts)
+Fin and Tech are open postings on your install classified finance or as a tech board.
 
-The full map is the "Packs" column in section 5. The core packs are added for every tech field. The counts
-below are from a script over today's 256 boards with the Phase 2 manifest (packs that only exist after
-Phase 4 left out). Phase 2 re-prints them from the real code.
-
-| Profile | Polled (enabled) | Finance-only boards | Tech-only boards |
-|---|---|---|---|
-| today, any profile | 246 of 256 | – | – |
-| finance only | 111 | 56 | 0 |
-| software only | 184 | 0 | 134 |
-| data_ml only | 164 | 0 | 113 |
-| hardware only | 41 | 0 | 38 |
-| finance + software | 240 | 56 | 134 |
-| software, game_dev only | 32 | 0 | 27 |
-| software, backend + infrastructure | 149 | 0 | 122 |
-
-Hardware polls little in Phase 2 because today's sources have almost no hardware employers. Phase 4's
-semiconductors, devices, robotics and defense packs fix that.
-
----
-
-## 8. Where today's 256 boards go
-
-Every board is defined once and its settings are unchanged in Phase 2. "Fin" and "Tech" are postings on
-this install classified as finance or as a tech family.
-
-| Pack | Boards | Fin | Tech | Members |
+| Pack | Sources | Fin | Tech | Members |
 |---|---|---|---|---|
 | `finance/canadian_banks` | 11 | 4,719 | 556 | rbc, rbc_early, rbc_students, td, td_students, bmo, bmo_students, cibc, cibc_students, scotiabank_students, national_bank |
 | `finance/bulge_brackets` | 12 | 15,901 | 5,428 | jpmorgan, jpmorgan_early, morgan_stanley, morgan_stanley_early, citi, citi_early, barclays, wells_fargo, goldman_sachs, bank_of_america_students, bank_of_america, deutsche_bank |
@@ -465,90 +421,84 @@ this install classified as finance or as a tech family.
 | `finance/asset_managers` | 4 | 951 | 487 | blackrock, fidelity, vanguard, man_group |
 | `finance/pensions_insurance` | 7 | 529 | 187 | cpp_investments, otpp, cdpq, cdpq_students, manulife, sun_life, sun_life_students |
 | `finance/ratings_data` | 4 | 352 | 214 | moodys, sp_global, msci, msci_us |
-| `finance/linkedin` | 1 | 562 | 295 | linkedin_quant (linkedin_us and linkedin_canada join after the split) |
+| `finance/linkedin` | 3 | 1,261 | 810 | linkedin_us, linkedin_canada, linkedin_quant (queries unchanged) |
 | `shared/quant_trading` | 28 | 949 | 1,153 | jump_trading, hrt, citadel, citadel_sec, point72, sig, imc, optiver_us, akuna, drw, two_sigma, tower_research, five_rings, pdt_partners, voleon, gts, virtu, old_mission, flow_traders, geneva_trading, vatic_labs, squarepoint, schonfeld, qube_rt, aqr, jane_street, worldquant, nwfintech_quant27 (off: citadel, citadel_sec, two_sigma, gts, nwfintech_quant27) |
 | `shared/fintech` | 19 | 682 | 1,043 | stripe, plaid, ramp, brex, affirm, chime, robinhood, coinbase, wealthsimple, mercury, sofi, block, gemini, fireblocks, marqeta, lithic, alloy, betterment, upstart |
-| `shared/financial_services_tech` | 6 | 1,254 | 1,684 | capital_one, capital_one_early, mastercard, mastercard_early, paypal, nasdaq (D2) |
-| `shared/lists` | 5 | 2,239 | 7,229 | zapply_newgrad27, zapply_intern27, zapply_ca_jobs, derec4_newgrad27, sndsh_intern27 (D1) |
-| `shared/linkedin` | 2 | 699 | 515 | linkedin_us, linkedin_canada (Phase 2 only: mixed queries until the split) |
-| `tech/big_tech` | 14 | 307 | 4,291 | amazon, amazon_newgrad, microsoft, nvidia, salesforce, salesforce_early, adobe, adobe_university, netflix, ebay, autodesk, workday_hq, zoom, hp (off: microsoft) |
-| `tech/lists` | 10 | 703 | 10,455 | simplify_newgrad, simplify_intern26, simplify_intern27, vansh_intern26, vansh_intern27, vansh_newgrad27, cvrve_newgrad, canada_intern26, offseason_fall26, zapply_ca_intern (off: simplify_intern27) |
-| `tech/software_core` | 2 | 65 | 1,626 | speedy_swe, zapply_swe_newgrad |
-| `tech/data_core` | 1 | 28 | 176 | speedy_ai |
-| `tech/ai_labs` | 14 | 158 | 1,146 | anthropic, openai, xai, deepmind, cohere, perplexity, character_ai, midjourney, poolside, runway, imbue, suno, elevenlabs, cartesia (off: deepmind) |
-| `tech/ai_infrastructure` | 9 | 101 | 1,078 | databricks, scale_ai, together_ai, baseten, modal, crusoe, lambda_labs, runpod, assemblyai |
-| `tech/ai_apps` | 11 | 39 | 461 | cursor, sierra, decagon, mercor, glean, harvey, writer, typeface, braintrust, heygen, descript |
-| `tech/developer_tools` | 10 | 45 | 377 | vercel, linear, supabase, retool, gitlab, postman, launchdarkly, warp, browserbase, datadog (off: retool) |
-| `tech/data_infrastructure` | 10 | 76 | 792 | mongodb, elastic, cockroach_labs, clickhouse, planetscale, starburst, fivetran, hightouch, amplitude, mixpanel |
-| `tech/cloud_infrastructure` | 3 | 28 | 330 | cloudflare, fastly, twilio |
-| `tech/security` | 2 | 7 | 78 | 1password, vanta |
-| `tech/enterprise_saas` | 14 | 108 | 750 | servicenow, notion, figma, airtable, asana, smartsheet, calendly, webflow, attio, dropbox, rippling, gusto, checkr, flexport (off: rippling) |
-| `tech/consumer_tech` | 20 | 176 | 1,316 | airbnb, doordash, pinterest, reddit, lyft, instacart, discord, duolingo, spotify, squarespace, peloton, seatgeek, gopuff, faire, sweetgreen, glossier, target, comcast, disney, disney_early (D6) |
-| `tech/gaming` | 1 | 5 | 217 | roblox |
-| `tech/health_tech` | 5 | 100 | 122 | oscar_health, hinge_health, abridge, commure, openevidence |
-| `tech/semiconductors` | 2 | 25 | 644 | intel, intel_early |
-| `tech/robotics_autonomy` | 5 | 32 | 623 | waymo, zoox, nuro, aurora, waabi |
-| `tech/defense_aerospace` | 4 | 202 | 3,675 | anduril, shield_ai, spacex, palantir |
-| `tech/devices_iot` | 3 | 20 | 283 | samsara, verkada, neuralink |
+| `shared/financial_services_tech` | 6 | 1,254 | 1,684 | capital_one, capital_one_early, mastercard, mastercard_early, paypal, nasdaq |
+| `shared/lists` | 15 | 2,942 | 17,684 | zapply_newgrad27, zapply_intern27, zapply_ca_jobs, derec4_newgrad27, sndsh_intern27, simplify_newgrad, simplify_intern26, simplify_intern27, vansh_intern26, vansh_intern27, vansh_newgrad27, cvrve_newgrad, canada_intern26, offseason_fall26, zapply_ca_intern (off: simplify_intern27) |
+| `shared/swe_lists` | 2 | 65 | 1,626 | speedy_swe, zapply_swe_newgrad |
+| `shared/ai_lists` | 1 | 28 | 176 | speedy_ai |
+| `shared/big_tech` | 14 | 307 | 4,291 | amazon, amazon_newgrad, microsoft, nvidia, salesforce, salesforce_early, adobe, adobe_university, netflix, ebay, autodesk, workday_hq, zoom, hp (off: microsoft) |
+| `shared/ai_labs` | 14 | 158 | 1,146 | anthropic, openai, xai, deepmind, cohere, perplexity, character_ai, midjourney, poolside, runway, imbue, suno, elevenlabs, cartesia (off: deepmind) |
+| `shared/ai_infrastructure` | 9 | 101 | 1,078 | databricks, scale_ai, together_ai, baseten, modal, crusoe, lambda_labs, runpod, assemblyai |
+| `shared/ai_apps` | 11 | 39 | 461 | cursor, sierra, decagon, mercor, glean, harvey, writer, typeface, braintrust, heygen, descript |
+| `shared/developer_tools` | 10 | 45 | 377 | vercel, linear, supabase, retool, gitlab, postman, launchdarkly, warp, browserbase, datadog (off: retool) |
+| `shared/data_infrastructure` | 10 | 76 | 792 | mongodb, elastic, cockroach_labs, clickhouse, planetscale, starburst, fivetran, hightouch, amplitude, mixpanel |
+| `shared/cloud_infrastructure` | 3 | 28 | 330 | cloudflare, fastly, twilio |
+| `shared/security` | 2 | 7 | 78 | 1password, vanta |
+| `shared/enterprise_saas` | 14 | 108 | 750 | servicenow, notion, figma, airtable, asana, smartsheet, calendly, webflow, attio, dropbox, rippling, gusto, checkr, flexport (off: rippling) |
+| `shared/consumer_tech` | 20 | 176 | 1,316 | airbnb, doordash, pinterest, reddit, lyft, instacart, discord, duolingo, spotify, squarespace, peloton, seatgeek, gopuff, faire, sweetgreen, glossier, target, comcast, disney, disney_early |
+| `shared/gaming` | 1 | 5 | 217 | roblox |
+| `shared/health_tech` | 5 | 100 | 122 | oscar_health, hinge_health, abridge, commure, openevidence |
+| `shared/semiconductors` | 2 | 25 | 644 | intel, intel_early |
+| `shared/robotics_autonomy` | 5 | 32 | 623 | waymo, zoox, nuro, aurora, waabi |
+| `shared/defense_aerospace` | 4 | 202 | 3,675 | anduril, shield_ai, spacex, palantir |
+| `shared/devices_iot` | 3 | 20 | 283 | samsara, verkada, neuralink |
 
-That's 256 boards in total: 56 finance, 60 shared and 140 tech. The largest pack has 28. The assignment was
-checked by a script against `config.json`: every board appears once.
+That's 256 sources: 58 in `finance/`, 198 in `shared/` and 0 in `tech/` until Phase 4. The largest pack has
+28. A script checked the assignment against `config.json`: every source appears once.
 
----
+## 10. Phases and proofs
 
-## 9. Phases and proofs
-
-1. **This design.** Committed. I stop here for approval.
+1. **This design.** Committed, then I stop for approval.
 2. **Packs, selection and upgrade, with no new sources.**
-   - New: `intel/sources.py`, the manifest and the packs. Root `config.json` loses `boards`.
-   - Rewired: `load_config()` everywhere, `cycle(boards=)` and the enrichers.
+   - New: `intel/sources.py`, the manifest and the packs. Root `config.json` loses its sources.
+   - Rewired: `load_config()` everywhere, `cycle(sources=)` and the enrichers.
    - The build copies the packs; `--check` validates them.
-   - Tests in `tests/sources/test_source_packs.py`:
-     - The union of the packs equals `git show v0.3.7:config.json` boards.
-     - The flattened hash equals `ddb8d7057c16c87e`.
-     - No board is defined twice, and no pack has more than 50 boards.
-     - Manifest references are valid.
-     - The five profile counts.
-     - Finance-only polls 0 tech-only boards, and software-only polls 0 finance-only boards.
-     - Finance plus software is the union, with each shared board once.
-     - Specialty narrowing, and the "All of Software" switch.
-     - No profile means finance.
-     - A boards outside every pack is always polled.
-     - A Settings change applies on the next cycle (mocked fetch).
-   - The upgrade test in `tests/install/` (section 4.4).
+   - Tests:
+     - `finance/` ∪ `shared/` equals the v0.3.7 sources with the hash `ddb8d7057c16c87e`.
+     - A Finance-only profile polls exactly today's 246.
+     - No source defined twice, and no pack over 50.
+     - The profile counts in 4.1.
+     - With a test `tech/` pack: Finance-only polls 0 tech-only sources, Software-only polls 0 finance-only
+       sources, Finance + Software polls the union with each shared source once.
+     - Filter narrowing, the "All of Software" switch, and no profile means Finance.
+     - Your own sources are always polled, and a Settings change applies on the next poll.
+     - The upgrade test (5.4).
    - I stop and show you the counts and the test output.
-3. **Taxonomy, specialties and employer types.** Classifier tests per specialty (section 5). The finance
-   suite runs unchanged. Settings type filtering, plus a score-unchanged test for finance profiles. Commit.
-4. **Sources, one subfield at a time.** Each research subagent returns candidates with the feed URL it
-   fetched; I write the packs myself. Each board is fetched once with
-   `watcher.py --list <board>` (through uv, as the brief describes). I record the date in the pack, add
-   `companies.json` entries, then the LinkedIn split, the revival of 0.3.0 names, and
-   `sources_version` 10. Commit per subfield.
+3. **Tech taxonomy, filters and employer types.** Classifier tests for each filter, the finance suite
+   unchanged, and the **Finance board gate** (section 1) run on a copy of your database.
+4. **New sources in `tech/`, one group at a time.** Each feed is fetched once. Then the `companies.json`
+   entries, the 0.3.0 name revival, `sources_version` 10 and the Finance board gate again.
 5. **UI and docs.**
-   - The Sources view groups by pack title. Each row shows "Finance · Software" in small type, and rows
-     that aren't polled are dimmed with "Not polled for your fields". The segmented filter becomes All ·
-     Polled · Issues. No new colors or buttons.
-   - Onboarding gets the specialties step through `family_tree()`.
-   - `PRODUCT.md`: the line "Every profile polls the same sources…" is replaced by the field-pack rule.
-     `docs/ARCHITECTURE.md` gets a Sources section (packs, manifest, selection, upgrade).
-   - Then the full `python -m unittest`, the node suite and the final report.
+   - The Sources view groups by pack. Each row says which boards poll it, and rows not polled for your
+     boards are dimmed. No new colors or buttons.
+   - The onboarding filter step appears through `family_tree()`.
+   - `PRODUCT.md` replaces "Every profile polls the same sources" with the folder rule and the Finance board
+     guarantee. `docs/ARCHITECTURE.md` gets a Sources section.
+   - Then the full test suites and the final report.
 
----
+## 11. Where your rule overrides the brief
 
-## 10. Decisions for you
+| Brief | Now | Why |
+|---|---|---|
+| Move the 0.2.5 tech sources and community lists into tech packs | They go to `shared/`: the Finance board keeps polling them, and tech boards poll them too | At least 1,474 finance postings (3 at fit ≥ 75) are found only by these sources (section 2.3) |
+| Give each moved tech source `company_key`, `group`, `priority`, `geography` and `min_interval` | Today's sources keep their settings byte for byte. New sources get all five. The Sources view takes the group from the pack, and the employer comes from `companies.json`. | `min_interval` would slow polls the Finance board relies on, and any edit changes what installs receive |
+| Split the LinkedIn sources so finance packs carry no software queries | `linkedin_us` and `linkedin_canada` keep their queries (5 of them software). The tech boards get their own LinkedIn sources with tech queries only. | Software queries also surface finance-classified roles such as quant-developer internships |
+| A Finance-only profile must not poll a tech-only source | Holds: `tech/` is never polled by Finance | – |
+| No saved profile polls finance only, as it does today | Holds, and it literally polls today's 246 sources | – |
+
+## 12. Decisions left
 
 | # | Question | Recommendation |
 |---|---|---|
-| D1 | Community lists with real finance yield: `zapply_newgrad27`, `zapply_intern27`, `zapply_ca_jobs`, `derec4_newgrad27` and `sndsh_intern27` (1,384 unique finance postings, 32 at fit ≥ 75 for your profile). Make them shared, or tech-only as the brief says? | **Shared.** Making them tech-only drops those 32 high-fit finance postings. The SWE-specific lists (Simplify, vansh, cvrve, speedy, zapply SWE/CA-intern, canada_intern26, offseason) go to tech. |
-| D2 | Capital One, Mastercard, PayPal and Nasdaq (+early boards) sit in today's tech sections but add over 1,000 unique finance postings (444 + 401 + 147 + 41). Make them shared? | **Shared** (`shared/financial_services_tech`), so finance keeps them. |
-| D3 | Bank technology for tech profiles: separate search-filtered boards (`rbc_tech`, `jpmorgan_tech`, …) in a tech pack, or make the full bank boards shared? | **Separate boards.** A software profile shouldn't page through JPMorgan's 9k postings to find 2k tech ones, and finance boards stay untouched. |
-| D4 | The GitHub Actions alert runner (`watcher.py --once` and the loop) has no profile. Should it poll every pack, or follow "no profile means finance"? | **Every pack** for the CLI loop, since subscribers' filters decide alerts there. The desktop app follows the profile. |
-| D5 | Shared boards that lack metadata (the 28 quant and 19 fintech boards): add `company_key`, `group`, `priority` and `geography`, and `min_interval: 0`, which keeps today's every-cycle cadence? This changes finance-polled boards' settings. | **Yes, with `min_interval: 0`.** Polling cadence stays the same. |
-| D6 | Near-zero-tech boards (target 3%, sweetgreen 2%, glossier 0%, gopuff 1%, disney_early 2%): keep them in `tech/consumer_tech` unchanged, or disable them? (Disabling is a settings change; nothing gets deleted.) | **Keep them for now**, and list them in the final report for a separate call. |
-| D7 | Embedded, firmware and robotics titles move from the Software family to Hardware, as the brief's specialty list implies. | **Yes.** |
-| D8 | `software.quant_dev` as a real specialty that also targets `quant.quant_developer`, without adding Finance to the profile's fields. | **Yes.** |
-| D9 | The taxonomy and companies changes recompute facts for every stored posting once (about 129k, roughly 45 min, with the header's progress count). This happens without a `FACTS_VERSION` bump. | **Accept it**, and ship Phases 3 and 4 in one release so it happens once. |
-| D10 | Fields without packs of their own: Product and Design use the tech employer packs; Sales, Operations, People & Legal and Healthcare poll every pack. | **As stated.** A later healthcare pack is a manifest edit. |
-| D11 | Add a `software.qa_test` specialty (SDET and QA automation, common co-op entry points)? | **Yes.** It maps to the core packs plus SaaS, consumer, Canadian and bank tech. |
-| D12 | Re-use 0.3.0 names (okta, micron, …) with the `__since__` revival in `record_release`, or use new names? | **Revival.** It keeps natural names, and installs at 7 or 8 that still have those boards keep their postings. |
-| D13 | Postings from boards a profile no longer polls stay in the database, but they never close, because closure needs a poll. Opportunities already filters to the profile's fields. | **Leave them.** Optionally hide them later. |
+| A | A profile with Finance **and** a tech board also polls the new `tech/` sources. A finance role at a new tech employer (say, FP&A at Mistral) would then show on that person's Finance board as an addition. Nothing goes missing. Allow additions, or hide finance postings from `tech/` sources on the Finance board? | **Allow.** A Finance-only profile is unaffected either way. |
+| B | Labels only: the Employer type filter and the "Why" line may name an employer type that's "Unclassified" today. No posting, fit or order changes. | **Accept.** |
+| D3 | Bank technology for tech boards as separate search-filtered sources in `tech/` (the finance bank sources stay untouched). | **Yes.** |
+| D4 | The GitHub Actions alert runner has no profile: poll every pack, including `tech/`, or only Finance's 246? | **Every pack**, because subscribers' filters decide alerts there. |
+| D7 | Embedded, firmware and robotics titles move from the Software board to Hardware (non-finance postings only, checked by the gate). | **Yes.** |
+| D8 | The Software filter `quant_dev` also targets finance `quant.quant_developer`, without adding the Finance board. | **Yes.** |
+| D9 | One full facts recompute (about 45 min) on the first start after the update. The gate proves the Finance board comes out identical. | **Accept**, and ship Phases 3 and 4 in one release so it happens once. |
+| D10 | Product and Design poll the tech and shared groups listed; Sales, Operations, People & Legal and Healthcare poll everything. | **As stated.** |
+| D11 | Add the Software filter `qa_test` (SDET and QA automation)? | **Yes.** |
+| D12 | Re-use 0.3.0 names (okta, micron…) with the `__since__` revival? | **Yes.** |
