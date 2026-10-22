@@ -5,7 +5,7 @@ import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
 import {bindMenu, confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
-import {FIELD_INFO, countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
+import {FIELD_INFO, TECH_FIELDS, countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
 
 const STAGES = [
   ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
@@ -26,12 +26,6 @@ const WORK_AUTH = [['citizen', 'Citizen'], ['permanent_resident', 'Permanent res
 const SEASONS = [['summer', 'Summer'], ['fall', 'Fall'], ['winter', 'Winter'], ['spring', 'Spring'], ['off_cycle', 'Off-cycle'], ['new_grad', 'New grad']];
 // role_weights multiply a role's fit points (capped at 1).
 const PRIORITIES = [['1', 'Top choice'], ['0.75', 'Interested'], ['0.5', 'Backup']];
-const EMPLOYER_SECTIONS = [
-  ['Banks', ['bulge_bracket', 'elite_boutique', 'middle_market_bank', 'global_bank', 'canadian_bank', 'commercial_bank']],
-  ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
-  ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
-  ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']],
-];
 // Servers older than this page don't send these lists with /api/meta.
 const FALLBACK_LANGUAGES = ['Arabic', 'Cantonese', 'English', 'French', 'German', 'Hindi', 'Italian', 'Japanese', 'Korean', 'Mandarin', 'Portuguese', 'Russian', 'Spanish'];
 
@@ -313,12 +307,9 @@ export async function render(root, ctx) {
       + '<p class="set-more" data-skill-more hidden><button type="button" class="set-link" data-act="all-skills">Show skill groups for other fields</button></p>'
       + '<p class="set-empty" data-filter-empty hidden>No skills match that filter.</p>');
 
-    // Employer types in four plain-language sections; anything new lands in "Other".
-    const types = new Map(meta.company_types.filter(t => t.key !== 'unknown').map(t => [t.key, t]));
-    const sections = EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => types.has(k))]);
-    const placed = new Set(sections.flatMap(([, keys]) => keys));
-    const rest = [...types.keys()].filter(k => !placed.has(k));
-    if (rest.length) sections.push(['Other', rest]);
+    // Finance employer types under Finance, tech employer types under the tech boards.
+    const types = new Map(meta.company_types.map(t => [t.key, t]));
+    const sections = employerSections(meta.company_types);
     const employerBlocks = list => list.map(([name, keys]) => `<div class="set-block" data-pick-scope><p class="set-mini" data-scope-label>${esc(name)}</p>${picks('ctype', keys.map(k => [k, types.get(k).label]), profile.target_company_types || [])}</div>`).join('');
     const fieldChip = (name, key, text, on) => `<label class="pick field-pick"><input type="checkbox" name="${name}" value="${esc(key)}"${on ? ' checked' : ''}>${icon(FIELD_INFO[key]?.icon || 'list', 14)}<span>${esc(text)}</span></label>`;
     // Finance and families with specialties are fields with options below; any other family is itself a target role.
@@ -335,7 +326,8 @@ export async function render(root, ctx) {
       + specialtyFamilies(meta).map(f => group(esc(f.label), 'Pick the specialties you want ranked first. Other roles in the field still show, lower down.', `<div class="set-cat" data-pick-scope>
           <label class="set-row">${label(`<span data-scope-label>All of ${esc(f.label)}</span>`, 'Every specialty, ranked the same')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(f.key)}" data-role-all${roles.includes(f.key) ? ' checked' : ''}></span></label>
           ${block(picks('role', f.subcategories.map(s => [`${f.key}.${s.key}`, s.label]), roles))}</div>`, {attrs: ` data-field-section="${esc(f.key)}"`})).join('')
-      + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections), {attrs: ' data-field-section="finance"'})
+      + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections.finance), {attrs: ' data-field-section="finance"'})
+      + (sections.tech.length ? group('Tech employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections.tech), {attrs: ` data-field-section="${TECH_FIELDS.join(' ')}"`}) : '')
       + '<p class="set-empty" data-filter-empty hidden>Nothing matches that filter.</p>');
 
     // Cycles: every season for this year and the next three, a dot where postings exist now.
@@ -507,8 +499,7 @@ export async function render(root, ctx) {
   function syncFields() {
     const fields = currentFields();
     root.querySelectorAll('[data-field-section]').forEach(el => {
-      const section = el.dataset.fieldSection;
-      el.hidden = !fields.includes(section);
+      el.hidden = !el.dataset.fieldSection.split(' ').some(f => fields.includes(f));
     });
     const groups = skillGroupsFor(fields);
     let tucked = 0;
@@ -595,7 +586,7 @@ export async function render(root, ctx) {
     // So do the employer types shown only for it (bank tiers once Finance is off). Types in a
     // section that was already hidden when the profile was saved stay: nobody turned them off here.
     const savedFields = profileFields(saved, financeKeys());
-    const wasShown = section => savedFields.includes(section);
+    const wasShown = section => section.split(' ').some(f => savedFields.includes(f));
     const ctypes = [...root.querySelectorAll('[name="ctype"]:checked')].filter(box => {
       const section = box.closest('[data-field-section]');
       return !section?.hidden || !wasShown(section.dataset.fieldSection);

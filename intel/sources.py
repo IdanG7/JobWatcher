@@ -28,6 +28,7 @@ from .knowledge import CONFIG_DIR
 SOURCES_DIR = CONFIG_DIR / "sources"
 MAX_PACK = 50
 EVERYTHING = "everything"
+TECH_FIELDS = frozenset({"software", "data_ml", "hardware", "product", "design"})     # the tech boards
 
 _LOCK = threading.Lock()
 _CACHE: dict[str, tuple[tuple, "Packs"]] = {}

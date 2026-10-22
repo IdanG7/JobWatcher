@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {countryList, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
+import {countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
 
 const FINANCE = ['investment_banking', 'private_markets', 'public_markets'];
 
@@ -57,4 +57,16 @@ test('suggested cycles run from the next summer through graduation', () => {
   assert.deepEqual(suggestCycles(2027, ['internship'], new Date(2027, 2, 1)), ['summer_2027']);
   assert.deepEqual(suggestCycles(2027, ['entry'], october), []);
   assert.deepEqual(suggestCycles(null, ['internship'], october), []);
+});
+
+test('finance employer types keep their sections and tech types are listed apart for the tech boards', () => {
+  const types = [{key: 'bulge_bracket', track: 'finance'}, {key: 'quant_firm', track: 'both'}, {key: 'fintech', track: 'both'},
+    {key: 'corporate', track: 'finance'}, {key: 'new_finance_type', track: 'finance'}, {key: 'big_tech', track: 'tech'},
+    {key: 'ai_lab', track: 'tech'}, {key: 'unknown'}];
+  const {finance, tech} = employerSections(types);
+  assert.deepEqual(finance, [['Banks', ['bulge_bracket']], ['Investing', ['quant_firm']], ['Financial services', ['fintech']],
+    ['Advisory & corporate', ['corporate']], ['Other', ['new_finance_type']]]);
+  assert.deepEqual(tech, [['Tech', ['big_tech', 'ai_lab']]]);
+  // A server without tracks lists every type under Finance, as before.
+  assert.deepEqual(employerSections([{key: 'bulge_bracket'}, {key: 'unknown'}]).tech, []);
 });

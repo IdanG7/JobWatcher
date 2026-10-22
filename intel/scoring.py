@@ -17,6 +17,7 @@ from datetime import date, datetime, timezone
 
 from .cycle import window_status
 from .knowledge import Knowledge
+from .sources import TECH_FIELDS, profile_fields
 
 FINANCE_TYPES = {"bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank", "canadian_bank",
                  "commercial_bank", "private_equity", "venture_capital", "hedge_fund", "quant_firm",
@@ -63,6 +64,19 @@ def _target_match(targets: list[str], category: str, sub: str | None) -> tuple[s
     return "", None
 
 
+def _related_target(kn: Knowledge, targets: list[str], category: str, sub: str | None) -> str | None:
+    """A targeted specialty the posting's specialty is related to (Full-Stack and Backend)."""
+    if not sub:
+        return None
+    mine = kn.subcategories.get(f"{category}.{sub}")
+    for target in targets:
+        node = kn.subcategories.get(target)
+        if node and mine and node.parent == category and (
+                node.key in (mine.meta.get("related") or []) or sub in (node.meta.get("related") or [])):
+            return target
+    return None
+
+
 def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None,
               now: float | None = None) -> dict:
     """Score one job.  ``dyn`` carries mutable state: posted, first_seen,
@@ -77,6 +91,10 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     elig = facts.get("eligibility") or {}
     company = facts["company"]
     targets = list(profile.get("target_roles") or [])
+    # A specialty can count a finance group as itself: Quant Development matches Quant Developer.
+    extra = [t for target in targets if target in kn.subcategories
+             for t in kn.subcategories[target].meta.get("also_targets") or []]
+    targets += [t for t in dict.fromkeys(extra) if t not in targets]
     subscores: list[dict] = []
     penalties: list[dict] = []
     reasons: list[str] = []
@@ -100,9 +118,12 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{kn.category_label(cls['category'])} target")
     elif match == "category":
         # A sibling of a target (Accounting next to an FP&A target) is related
-        # work, not a target: partial credit only.
-        pts = 14 if not cls.get("subcategory") else 9
-        detail = (f"{role_label}: same division as your "
+        # work, not a target: partial credit only.  Specialties the taxonomy
+        # marks as related (Full-Stack next to Backend) earn more.
+        related = _related_target(kn, targets, cls["category"], cls.get("subcategory"))
+        which = related or which
+        pts = 14 if not cls.get("subcategory") or related else 9
+        detail = (f"{role_label}: {'related to' if related else 'same division as'} your "
                   f"{kn.subcategory_label(*which.split('.')) or kn.category_label(which)} target")
     elif any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or []):
         pts, detail = 14, f"{role_label}; secondary fit with a target ({', '.join(cls.get('secondary_labels') or [])})"
@@ -127,7 +148,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
                 f"{role_label} is not one of your target roles")
     elif targets and cls["category"] == "other":
         penalty("off_target", "Not a target role", 6, "Couldn't place this role in any of your targets")
-    has_nonfinance_target = any(t in kn.families for t in targets)
+    has_nonfinance_target = any(t.split(".")[0] in kn.families for t in targets)
     if not cls.get("is_finance") and targets and not has_nonfinance_target and cls["category"] != "other":
         penalty("role_mismatch", "Role mismatch", 10, f"{cls['category_label']} role; your targets are finance roles")
 
@@ -169,6 +190,12 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{company['type_label']} priority")
     elif company["type"] in FINANCE_TYPES:
         pts, detail = 7, f"{company['type_label']} — recognized finance employer"
+    elif kn.company_types.get(company["type"], {}).get("track") == "tech":
+        # Only a tech board makes a tech employer count: Finance-only profiles score them as before.
+        if TECH_FIELDS.intersection(profile_fields(profile, kn)):
+            pts, detail = 7, f"{company['type_label']} — recognized tech employer"
+        else:
+            pts, detail = 4, f"{company['type_label']} — outside finance"
     elif company["type"] in ("consulting", "accounting_advisory"):
         pts, detail = 6, f"{company['type_label']}"
     else:

@@ -414,10 +414,11 @@ class FamilyClassifierTests(unittest.TestCase):
             self.assertIn(cls(title)["family"], ("software", "data_ml"), title)
 
     def test_subject_words_do_not_override_a_business_occupation(self):
-        for title, family in (("Cybersecurity Analyst", "software"), ("2027 Summer Intern - Cyber Security", "software"),
-                              ("AI Research Intern", "data_ml")):
+        for title, family, sub in (("Cybersecurity Analyst", "software", "security"),
+                                   ("2027 Summer Intern - Cyber Security", "software", "security"),
+                                   ("AI Research Intern", "data_ml", "ai_research")):
             result = cls(title)
-            self.assertEqual((family, None, False), (result["family"], result["subcategory"], result["is_finance"]), title)
+            self.assertEqual((family, sub, False), (result["family"], result["subcategory"], result["is_finance"]), title)
         self.assertEqual("product", cls("Principal Product Manager - Identity Threat Detection & Response")["family"])
         self.assertEqual("people_legal", cls("Recruiter, AI Research")["family"])
         self.assertEqual("people_legal", cls("Senior Legal Counsel – Cybersecurity & Data Protection")["family"])

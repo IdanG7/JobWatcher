@@ -217,15 +217,16 @@ class DashboardServiceTests(ServiceFixture):
         self.assertIn("English", meta["languages"])
 
     def test_choices_this_version_dropped_are_pruned_at_start(self):
-        # A profile saved by 0.3.0, which offered tech specialties, employer types and skills.
+        # A profile saved by 0.3.0, whose specialties, employer types and skills this version
+        # renamed or doesn't offer (software.backend is offered again and stays).
         from intel_store import save_profile
         with self.service.db() as con:
             save_profile(con, {"fields": ["software"],
-                               "target_roles": ["software.backend", "software.frontend", "investment_banking.ma"],
-                               "role_weights": {"software.backend": 0.75, "investment_banking.ma": 1.0},
-                               "target_company_types": ["big_tech", "bulge_bracket"], "skills": ["kubernetes", "python"]})
+                               "target_roles": ["software.embedded", "data_ml.research", "software.backend", "investment_banking.ma"],
+                               "role_weights": {"software.embedded": 0.75, "investment_banking.ma": 1.0},
+                               "target_company_types": ["established_tech", "bulge_bracket"], "skills": ["kubernetes", "python"]})
         profile = JobwatchService(self.db_path, self.config_path, self.subscribers_path).get_profile()["profile"]
-        self.assertEqual(["software", "investment_banking.ma"], profile["target_roles"])
+        self.assertEqual(["software", "data_ml", "software.backend", "investment_banking.ma"], profile["target_roles"])
         self.assertEqual({"software": 0.75, "investment_banking.ma": 1.0}, profile["role_weights"])
         self.assertEqual((["bulge_bracket"], ["python"]), (profile["target_company_types"], profile["skills"]))
         self.service.put_profile(profile)       # Settings can save it again

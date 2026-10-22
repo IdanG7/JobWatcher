@@ -5,7 +5,9 @@ department (medium), description (weak, capped) and the employer type
 (prior).  The best category wins; runners-up within reach become secondary
 categories.  The returned ``evidence`` list explains the decision, and the
 function signature leaves room for an optional LLM classifier to override a
-low-confidence result later without changing callers.
+low-confidence result later without changing callers.  Roles outside finance
+get a job family (software, AI & data…) and, where the family defines them, a
+specialty such as software.backend.
 """
 
 from __future__ import annotations
@@ -41,6 +43,16 @@ _SOFTWARE_WORK = re.compile(
 
 def _physical_engineering(title: str) -> bool:
     return bool(_PHYSICAL_ENGINEERING.search(title)) and not _SOFTWARE_WORK.search(title)
+
+
+# Hardware occupations that also write code: 'Embedded Software Engineer', 'Firmware
+# Engineer' and 'Robotics Software Engineer' are Hardware roles, not Software.
+_HARDWARE_OCCUPATION = re.compile(
+    r"\b(embedded|firmware|fpga|asic|rtl|pcb|analog|robotics(?! process automation)|perception|motion planning)\b", re.I)
+
+
+def _software_or_hardware(title: str) -> str:
+    return "hardware" if _HARDWARE_OCCUPATION.search(title) else "software"
 
 
 # A business occupation keeps its family when the title only names a subject:
@@ -91,6 +103,62 @@ def _node_score(node: Node, title: str, department: str, description: str,
     return score, evidence
 
 
+# The occupation comes before the first comma or spaced dash; the team after it.
+_TITLE_TAIL = re.compile(r"\s[-–—|:]\s|[,(|–—:]")
+
+
+def specialty(title: str, kn: Knowledge, family: str, department: str = "",
+              description: str = "", company_type: str = "unknown") -> tuple[str | None, list[str], list[str]]:
+    """Best specialty within a job family: (key, evidence, runner-up keys).
+
+    'Backend Engineer, Payments Infrastructure' is backend work on an
+    infrastructure team, so title words before the first separator count
+    more than those after it, and a specialty the title names always beats
+    one only the description suggests.  Ties go to the higher tie_priority
+    (the more specific occupation).  Postings list every tool the team
+    touches, so a specialty read from the description alone needs a full
+    set of distinct phrases and a clear lead.  The employer type adds its
+    prior (a game studio leans Game Development) but names nothing itself.
+    """
+    nodes = [n for n in kn.subcategories.values() if n.parent == family]
+    if not nodes:
+        return None, [], []
+    weights = kn.weights
+    priors = kn.company_priors.get(company_type, {})
+    tail = _TITLE_TAIL.search(title)
+    head_end = tail.start() if tail else len(title)
+    scored = []
+    for node in nodes:
+        title_points, title_hits, in_head = 0, [], False
+        for pattern in node.title:
+            match = pattern.search(title)
+            if match:
+                title_hits.append(match.group(0).strip())
+                in_head = in_head or match.start() < head_end
+                title_points += weights["title"] if match.start() < head_end else weights["title"] - 1
+        dept = _hits(node.department, department)
+        desc = _hits(node.description, description)
+        prior = priors.get(f"{family}.{node.key}", 0)
+        score = (title_points + len(dept) * weights["department"]
+                 + min(len(desc), weights["description_cap"]) * weights["description"] + prior)
+        evidence = ([f"title: {h}" for h in title_hits[:2]] + [f"department: {h}" for h in dept[:1]]
+                    + [f"description: {h}" for h in desc[:2]] + ([f"employer type: {company_type}"] if prior else []))
+        named = 3 if in_head else 2 if title_hits else 1 if dept else 0
+        scored.append((named, score, node.meta.get("tie_priority", 0), node.key, evidence))
+    scored.sort(key=lambda s: (-s[0], -s[1], -s[2]))
+    named, score, _, key, evidence = scored[0]
+    runner_up = scored[1][1] if len(scored) > 1 else 0
+    if named:
+        ok = score >= weights["min_specialty_score"]
+    else:
+        ok = score >= weights["description_cap"] * weights["description"] and score - runner_up >= 2
+    if not ok:
+        return None, [], []
+    floor = max(weights["min_specialty_score"], score * 0.5)
+    secondary = [s[3] for s in scored[1:] if s[1] >= floor][:2]
+    return key, evidence[:4], secondary
+
+
 def family_of(title: str, kn: Knowledge) -> str:
     """Non-finance family for a title (legacy broad tracks)."""
     # Division-only campus titles do not contain "software engineer", but
@@ -101,9 +169,9 @@ def family_of(title: str, kn: Knowledge) -> str:
         if physical and key == "software":
             continue
         if _hits(node.title, title) or (not business and _hits(node.domain, title)):
-            return key
+            return _software_or_hardware(title) if key == "software" and not business else key
     if not physical and re.search(r"(?:[,|–—-]\s*engineering\b|\bengineering\s*[,|–—-])", title, re.I) and not re.search(r"\bfinancial engineering\b", title, re.I):
-        return "software"
+        return _software_or_hardware(title)
     if re.search(r"\b(public affairs|corporate communications)\b", title, re.I):
         return "people_legal"
     return "other"
@@ -121,7 +189,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     cs_occupation = bool(_CS_OCCUPATION.search(title))
     support_occupation = bool(_SUPPORT_OCCUPATION.search(title))
     if family == "other" and cs_occupation and not _physical_engineering(title):
-        family = "software"
+        family = _software_or_hardware(title)
     elif family == "other" and support_occupation:
         family = "operations"
 
@@ -190,25 +258,30 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
 
     min_score = weights["min_finance_score"]
     is_finance = best["score"] >= min_score and (finance_title_hit or family == "other")
-    if not is_finance and family == "other" and generic and priors and best["score"] > 0:
+    # Tech employer types carry priors for tech specialties only; those never make a role finance.
+    finance_priors = any(k.split(".")[0] in kn.categories for k in priors)
+    if not is_finance and family == "other" and generic and finance_priors and best["score"] > 0:
         # 'Summer Analyst' at a bank with no division named: finance, low confidence
         is_finance = True
 
     if not is_finance:
         secondary = [k for k, r in ranked[:2] if r["score"] >= min_score]
+        sub, sub_evidence, secondary_subs = specialty(title, kn, family, department, description, company_type)
         return {
             "family": family if family != "other" else "other",
             "category": family,
             "category_label": kn.category_label(family),
-            "subcategory": None,
-            "subcategory_label": "",
+            "subcategory": sub,
+            "subcategory_label": kn.subcategory_label(family, sub),
             "secondary": secondary,
             "secondary_labels": [kn.category_label(k) for k in secondary],
             "confidence": 0.6 if family != "other" else 0.2,
             "is_finance": False,
-            "evidence": [f"title family: {family}"] if family != "other" else ["no strong signal"],
+            "evidence": ([f"title family: {family}"] + sub_evidence) if family != "other" else ["no strong signal"],
             "competitive": False,
             "associate_stage": "entry",
+            "secondary_subcategories": secondary_subs,
+            "secondary_subcategory_labels": [kn.subcategory_label(family, k) for k in secondary_subs],
         }
 
     top = best["score"]

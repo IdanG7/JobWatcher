@@ -66,6 +66,28 @@ export function specialtyFamilies(meta) {
   return (meta.families || []).filter(f => f.subcategories?.length).sort((a, b) => fieldRank(a.key) - fieldRank(b.key));
 }
 
+// The tech boards. They see the tech employer types; finance types belong to Finance.
+export const TECH_FIELDS = ['software', 'data_ml', 'hardware', 'product', 'design'];
+const EMPLOYER_SECTIONS = [
+  ['Banks', ['bulge_bracket', 'elite_boutique', 'middle_market_bank', 'global_bank', 'canadian_bank', 'commercial_bank']],
+  ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
+  ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
+  ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']],
+];
+
+/** Employer types as [section, keys] lists: finance types in four plain-language sections
+ * (anything new lands in "Other"), tech types in one list for the tech boards. */
+export function employerSections(companyTypes = []) {
+  const types = companyTypes.filter(t => t.key !== 'unknown');
+  const finance = types.filter(t => t.track !== 'tech').map(t => t.key);
+  const sections = EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => finance.includes(k))]);
+  const placed = new Set(sections.flatMap(([, keys]) => keys));
+  const rest = finance.filter(k => !placed.has(k));
+  if (rest.length) sections.push(['Other', rest]);
+  const tech = types.filter(t => t.track === 'tech').map(t => t.key);
+  return {finance: sections, tech: tech.length ? [['Tech', tech]] : []};
+}
+
 /** Skill groups to show for these fields, or null for all of them. */
 export function skillGroupsFor(fields) {
   if (!fields.length) return null;

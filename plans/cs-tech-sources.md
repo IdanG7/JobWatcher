@@ -305,7 +305,7 @@ section 1's gate checks every finance posting on your database.
 | · ai_research | Research Scientist, Reinforcement Learning · Research Engineer, Pretraining · AI Resident | AI labs, AI infra, research labs, robotics, quant |
 | · data_science | Data Scientist, Product · Decision Scientist · Data Science Intern, Experimentation | consumer, SaaS, health, Canadian, bank tech, fintech, financial services |
 | · data_engineering | Data Engineer · Analytics Engineer · Big Data Developer (Spark) | data, consumer, SaaS, Canadian, bank tech, fintech, financial services |
-| · analytics | Data Analyst · Business Intelligence Developer · Analytics Co-op, Tableau | consumer, SaaS, Canadian, bank tech, fintech, financial services |
+| · analytics | Data Analyst · Business Intelligence Developer · Data Analytics Co-op, Tableau | consumer, SaaS, Canadian, bank tech, fintech, financial services |
 | **Hardware** · embedded_firmware | Embedded Software Engineer · Firmware Engineer Intern · Embedded Systems Developer (RTOS) | devices, robotics, defense, semiconductors |
 | · chip_design | ASIC Design Engineer · Design Verification Engineer · FPGA Engineer | semiconductors |
 | · electrical | Electrical Engineer, Power Electronics · Hardware Engineer, PCB Design · Analog Circuit Design Intern | semiconductors, devices, defense, robotics |
@@ -315,9 +315,14 @@ section 1's gate checks every finance posting on your database.
   land on Software. A short list of hardware occupation words is checked before Software: embedded,
   firmware, fpga, asic, rtl, pcb, analog, robotics, perception, motion planning. Only non-finance postings
   move. If any finance posting moved, section 1's gate would catch it.
-- **Quant developer (D8).** "Quantitative Developer" stays finance (`quant.quant_developer`), so nothing moves
-  on the Finance board. The Software filter `quant_dev` also targets `quant.quant_developer` when scoring,
-  and polls the quant and fintech groups. Picking it doesn't add the Finance board to the profile.
+- **Quant developer (D8).** Phase 3 found that a title naming the developer ("Quantitative Developer",
+  "Quant Dev Analyst") is already Software in 0.3.7, even at a quant firm, so it now lands in `quant_dev`
+  and nothing moves on the Finance board. `quant.quant_developer` holds the finance postings whose title
+  names no developer but whose description is trading systems (62 on your install). The Software filter
+  `quant_dev` also targets those when scoring, and polls the quant and fintech groups. Picking it doesn't add
+  the Finance board to the profile.
+- **"Analytics Co-op" stays where it is.** At a bank it's a finance posting today, so AI & Data doesn't claim a
+  bare "Analytics" title; "Data Analytics Co-op" is the example instead.
 - **`FACTS_VERSION` stays as it is.** If anything turns out to need a bump, I'll stop and ask.
 
 ## 7. Tech employer types
