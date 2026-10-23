@@ -1,0 +1,17 @@
+{
+  "title": "Robotics and autonomy",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "applied_intuition": {"ats": "ashby", "token": "applied", "min_interval": 1800, "company_key": "applied_intuition", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "kodiak": {"ats": "greenhouse", "token": "kodiak", "min_interval": 1800, "company_key": "kodiak", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "skydio": {"ats": "ashby", "token": "skydio", "min_interval": 1800, "company_key": "skydio", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "figure": {"ats": "greenhouse", "token": "figureai", "min_interval": 1800, "company_key": "figure", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "wayve": {"ats": "ashby", "token": "wayve", "min_interval": 1800, "company_key": "wayve", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "motional": {"ats": "greenhouse", "token": "motional", "min_interval": 1800, "company_key": "motional", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "zipline": {"ats": "greenhouse", "token": "flyzipline", "min_interval": 1800, "company_key": "zipline", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "physical_intelligence": {"ats": "ashby", "token": "physicalintelligence", "min_interval": 1800, "company_key": "physical_intelligence", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "boston_dynamics": {"ats": "workday", "host": "bostondynamics.wd1.myworkdayjobs.com", "tenant": "bostondynamics", "site": "Boston_Dynamics", "min_interval": 1800, "company_key": "boston_dynamics", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "niantic_spatial": {"ats": "ashby", "token": "niantic-spatial", "min_interval": 1800, "company_key": "niantic_spatial", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"}
+  }
+}

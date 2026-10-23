@@ -7,9 +7,11 @@ MISSING marks a release where the key was absent. Two bookkeeping entries:
     "__since__":   board -> the sources_version that first shipped it, so a
                    board newer than a recipient's config is added on upgrade
                    (an older one missing from it was deleted by them)
-                   and one the bundle stops shipping is removed
-    "__shipped__": the sources_version and a hash of the boards last built, so
-                   a build fails when defaults change without a version bump
+                   and one the bundle stops shipping is removed; a board
+                   shipped again after a release without it counts from then
+    "__shipped__": the sources_version, a hash and the names of the boards last
+                   built, so a build fails when defaults change without a
+                   version bump
 
 tools/build_windows.py records each release here before bundling.
 
@@ -49,16 +51,27 @@ def merge_history(history: dict, boards: dict, version: int = 1) -> dict:
     return history
 
 
-def record_release(history: dict, boards: dict, version: int) -> dict:
-    """merge_history for a build; refuses changed defaults under an old version."""
+def ship(history: dict, boards: dict, version: int) -> dict:
+    """merge_history, then record these boards as the last release's."""
     shipped = history.get("__shipped__") or {}
-    digest = boards_hash(boards)
-    if shipped and shipped.get("hash") != digest and version <= shipped.get("version", 0):
+    if version > shipped.get("version", version) and "names" in shipped:
+        # A board the last release dropped is new again: installs that lost it get it back
+        # (sources_version 10 brings back tech employers 0.3.0 added and 0.3.2 removed).
+        since = history.setdefault("__since__", {})
+        for name in set(boards) & set(since) - set(shipped["names"]):
+            since[name] = version
+    merge_history(history, boards, version)
+    history["__shipped__"] = {"version": version, "hash": boards_hash(boards), "names": sorted(boards)}
+    return history
+
+
+def record_release(history: dict, boards: dict, version: int) -> dict:
+    """ship() for a build; refuses changed defaults under an old version."""
+    shipped = history.get("__shipped__") or {}
+    if shipped and shipped.get("hash") != boards_hash(boards) and version <= shipped.get("version", 0):
         raise SystemExit(f"Source defaults changed since sources_version {shipped['version']} was built; "
                          "raise sources_version in tools/build_windows.py so installs pick them up.")
-    merge_history(history, boards, version)
-    history["__shipped__"] = {"version": version, "hash": digest}
-    return history
+    return ship(history, boards, version)
 
 
 def load_history(path: Path = HISTORY) -> dict:
@@ -103,9 +116,6 @@ if __name__ == "__main__":
 
     history = merge_history({}, json.loads((ROOT / "config/source_defaults_v1.json").read_text(encoding="utf-8"))["boards"], 1)
     for tag in sys.argv[1:]:
-        boards = clean_config(_tag_config(tag))["boards"]
-        version = _tag_version(tag)
-        merge_history(history, boards, version)
-        history["__shipped__"] = {"version": version, "hash": boards_hash(boards)}
+        ship(history, clean_config(_tag_config(tag))["boards"], _tag_version(tag))
     save_history(history)
     print(f"{len(history) - 2} boards recorded in {HISTORY.relative_to(ROOT)}")

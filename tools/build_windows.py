@@ -112,7 +112,7 @@ def clean_config(source: dict) -> dict:
                    target_cycles=[], target_locations=[], target_company_types=[],
                    skills=[], languages=[], work_authorization={"CA": "unknown", "US": "unknown"})
     return {
-        "sources_version": 9,
+        "sources_version": 10,
         "interval_seconds": 300, "feed_flush_minutes": 90, "digest_hour_utc": None,
         "healthcheck_url": "", "dashboard_url": "", "description_budget": 60,
         "description_per_board": 12, "facts_per_cycle": 5000, "profile": profile,

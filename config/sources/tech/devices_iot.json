@@ -1,0 +1,13 @@
+{
+  "title": "Devices and IoT",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "motorola_solutions": {"ats": "workday", "host": "motorolasolutions.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Careers", "tenant": "motorolasolutions", "company_key": "motorola_solutions", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "ciena": {"ats": "workday", "host": "ciena.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Careers", "tenant": "ciena", "company_key": "ciena", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "sonos": {"ats": "workday", "host": "sonos.wd1.myworkdayjobs.com", "tenant": "sonos", "site": "Sonos", "min_interval": 1800, "company_key": "sonos", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "lucid": {"ats": "greenhouse", "token": "lucidmotors", "min_interval": 1800, "company_key": "lucid", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "whoop": {"ats": "ashby", "token": "whoop", "min_interval": 1800, "company_key": "whoop", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "oura": {"ats": "greenhouse", "token": "oura", "min_interval": 1800, "company_key": "oura", "group": "Devices & IoT", "priority": 2, "geography": "global"}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Canadian tech",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "stackadapt": {"ats": "greenhouse", "token": "stackadapt", "min_interval": 1800, "company_key": "stackadapt", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "geotab": {"ats": "greenhouse", "token": "geotab", "min_interval": 1800, "company_key": "geotab", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "ritual": {"ats": "greenhouse", "token": "ritual", "min_interval": 1800, "company_key": "ritual", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "wattpad": {"ats": "lever", "token": "wattpad", "min_interval": 1800, "company_key": "wattpad", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "benevity": {"ats": "ashby", "token": "benevity", "min_interval": 1800, "company_key": "benevity", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "clio": {"ats": "workday", "host": "clio.wd3.myworkdayjobs.com", "tenant": "clio", "site": "ClioCareerSite", "min_interval": 1800, "company_key": "clio", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "league": {"ats": "greenhouse", "token": "leagueinc", "min_interval": 1800, "company_key": "league", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "applyboard": {"ats": "workday", "host": "applyboard.wd3.myworkdayjobs.com", "tenant": "applyboard", "site": "ApplyBoardNH", "min_interval": 1800, "company_key": "applyboard", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "ada": {"ats": "greenhouse", "token": "ada18", "min_interval": 1800, "company_key": "ada", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "top_hat": {"ats": "ashby", "token": "top-hat", "min_interval": 1800, "company_key": "top_hat", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "thinkific": {"ats": "ashby", "token": "thinkific", "min_interval": 1800, "company_key": "thinkific", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "d2l": {"ats": "greenhouse", "token": "d2l", "min_interval": 1800, "company_key": "d2l", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "kinaxis": {"ats": "icims", "host": "careers-kinaxis.icims.com", "min_interval": 1800, "company_key": "kinaxis", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "opentext": {"ats": "phenom", "host": "careers.opentext.com", "min_interval": 1800, "company_key": "opentext", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "lightspeed_commerce": {"ats": "ashby", "token": "lightspeedhq", "min_interval": 1800, "company_key": "lightspeed_commerce", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "coveo": {"ats": "greenhouse", "token": "coveoen", "min_interval": 1800, "company_key": "coveo", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "hopper": {"ats": "ashby", "token": "hopper", "min_interval": 1800, "company_key": "hopper", "group": "Canadian Tech", "priority": 2, "geography": "canada"}
+  }
+}

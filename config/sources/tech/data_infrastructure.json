@@ -1,0 +1,13 @@
+{
+  "title": "Databases and data platforms",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "snowflake": {"ats": "ashby", "token": "snowflake", "min_interval": 1800, "company_key": "snowflake", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "dataiku": {"ats": "greenhouse", "token": "dataiku", "min_interval": 1800, "company_key": "dataiku", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "singlestore": {"ats": "greenhouse", "token": "singlestore", "min_interval": 1800, "company_key": "singlestore", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "sigma_computing": {"ats": "greenhouse", "token": "sigmacomputing", "min_interval": 1800, "company_key": "sigma_computing", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "hex": {"ats": "ashby", "token": "hex", "min_interval": 1800, "company_key": "hex", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "airbyte": {"ats": "ashby", "token": "airbyte", "min_interval": 1800, "company_key": "airbyte", "group": "Data Infrastructure", "priority": 2, "geography": "global"}
+  }
+}

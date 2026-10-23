@@ -1,0 +1,14 @@
+{
+  "title": "Enterprise software",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "box": {"ats": "greenhouse", "token": "boxinc", "min_interval": 1800, "company_key": "box", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "miro": {"ats": "greenhouse", "token": "realtimeboardglobal", "min_interval": 1800, "company_key": "miro", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "zapier": {"ats": "ashby", "token": "zapier", "min_interval": 1800, "company_key": "zapier", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "hubspot": {"ats": "greenhouse", "token": "hubspotjobs", "min_interval": 1800, "company_key": "hubspot", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "zendesk": {"ats": "workday", "host": "zendesk.wd1.myworkdayjobs.com", "tenant": "zendesk", "site": "zendesk", "min_interval": 1800, "company_key": "zendesk", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "benchling": {"ats": "ashby", "token": "benchling", "min_interval": 1800, "company_key": "benchling", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "canva": {"ats": "smartrecruiters", "token": "Canva", "min_interval": 1800, "company_key": "canva", "group": "Enterprise Software", "priority": 2, "geography": "global"}
+  }
+}

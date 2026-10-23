@@ -80,6 +80,18 @@ class PackTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "at most 50"):
             Packs(manifest | {"fields": {}}, too_many)
 
+    def test_tech_sources_carry_their_employer_metadata_and_a_verified_date(self):
+        packs, kn = load_packs(), load_knowledge()
+        tech = {key: pack for key, pack in packs.packs.items() if pack.folder == "tech"}
+        self.assertGreater(sum(len(pack.sources) for pack in tech.values()), 150)
+        for key, pack in tech.items():
+            with self.subTest(pack=key):
+                self.assertRegex(pack.verified or "", r"^\d{4}-\d{2}-\d{2}$")      # fetched before shipping
+                for name, cfg in pack.sources.items():
+                    self.assertLessEqual({"group", "priority", "geography", "min_interval"}, set(cfg), name)
+                    if cfg["ats"] != "linkedin":
+                        self.assertIn(cfg.get("company_key"), kn.companies, name)
+
     def test_the_repository_config_lists_no_sources_of_its_own(self):
         self.assertNotIn("boards", json.loads((ROOT / "config.json").read_text(encoding="utf-8")))
 
@@ -94,8 +106,10 @@ class FinanceBoardTests(unittest.TestCase):
                          if pack.folder in ("finance", "shared") for name, cfg in pack.sources.items()}
         self.assertEqual(old, finance_board)            # same sources, same settings
         assembled = load_config(ROOT / "config.json")["boards"]
-        self.assertEqual(old, {k: v for k, v in assembled.items() if not k.startswith("_")})
-        self.assertEqual(SHIPPED_0_3_7, boards_hash(clean_config(load_config(ROOT / "config.json"))["boards"]))
+        self.assertEqual(old, {k: v for k, v in assembled.items() if k in finance_board})
+        self.assertEqual(set(assembled) - set(old) - {k for k in assembled if k.startswith("_")}, in_folder(packs, "tech"))
+        shipped = clean_config(load_config(ROOT / "config.json"))["boards"]
+        self.assertEqual(SHIPPED_0_3_7, boards_hash({k: v for k, v in shipped.items() if k in finance_board}))
 
     def test_every_source_keeps_the_company_type_its_old_heading_implied(self):
         # A heading's name types employers missing from companies.json (intel/companies.py).
@@ -157,7 +171,8 @@ class SelectionTests(unittest.TestCase):
                 polled = self.polled({"fields": [field]})
                 self.assertTrue(polled)
                 self.assertFalse(polled & finance_only)
-                self.assertLess(len(polled), len(self.polled({})))
+                self.assertTrue(polled & in_folder(self.packs, "tech"))
+                self.assertLess(len(polled), len(enabled_sources(self.config)))
 
     def test_a_filter_narrows_its_board_and_all_of_it_keeps_every_filter(self):
         software = self.packs.fields["software"]

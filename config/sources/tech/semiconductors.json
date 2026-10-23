@@ -1,0 +1,22 @@
+{
+  "title": "Semiconductors",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "micron": {"ats": "workday", "host": "micron.wd1.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "External", "tenant": "micron", "company_key": "micron_technology", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "applied_materials": {"ats": "workday", "host": "amat.wd1.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "External", "tenant": "amat", "company_key": "applied_materials", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "analog_devices": {"ats": "workday", "host": "analogdevices.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External", "tenant": "analogdevices", "company_key": "analog_devices", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "cadence": {"ats": "workday", "host": "cadence.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Careers", "tenant": "cadence", "company_key": "cadence", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "broadcom": {"ats": "workday", "host": "broadcom.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Career", "tenant": "broadcom", "company_key": "broadcom", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "marvell": {"ats": "workday", "host": "marvell.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "MarvellCareers", "tenant": "marvell", "company_key": "marvell", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "texas_instruments": {"ats": "oracle_hcm", "host": "edbz.fa.us2.oraclecloud.com", "site": "CX", "min_interval": 1800, "company_key": "texas_instruments", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "kla": {"ats": "workday", "host": "kla.wd1.myworkdayjobs.com", "tenant": "kla", "site": "Search", "min_interval": 3600, "company_key": "kla", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "nxp": {"ats": "workday", "host": "nxp.wd3.myworkdayjobs.com", "tenant": "nxp", "site": "careers", "min_interval": 1800, "company_key": "nxp_semiconductors", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "microchip": {"ats": "workday", "host": "microchiphr.wd5.myworkdayjobs.com", "tenant": "microchiphr", "site": "External", "min_interval": 1800, "company_key": "microchip_technology", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "synopsys": {"ats": "radancy", "host": "careers.synopsys.com", "min_interval": 1800, "company_key": "synopsys", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "tenstorrent": {"ats": "greenhouse", "token": "tenstorrent", "min_interval": 1800, "company_key": "tenstorrent", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "sambanova": {"ats": "greenhouse", "token": "sambanovasystems", "min_interval": 1800, "company_key": "sambanova_systems", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "lightmatter": {"ats": "greenhouse", "token": "lightmatter", "min_interval": 1800, "company_key": "lightmatter", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "etched": {"ats": "ashby", "token": "etched", "min_interval": 1800, "company_key": "etched", "group": "Semiconductors", "priority": 2, "geography": "global"}
+  }
+}

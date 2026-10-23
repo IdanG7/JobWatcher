@@ -420,6 +420,41 @@ and Hugging Face have no feed an existing adapter reads. They go to "not added" 
   ○addepar (greenhouse?) · ○questrade (?)
 - **financial_services_tech (tech folder):** ○bloomberg (avature?) · ○american_express, ○visa (workday?)
 
+### 8.1 What Phase 4 shipped (fetched 2026-10-22)
+
+181 candidate feeds were fetched once each with the app's own adapters. Four research agents found the
+identifiers on the employers' careers pages, without calling ATS APIs. 164 feeds ship in 22 `tech/` packs,
+all 47 of the 0.3.0 employers among them:
+
+| Pack | Sources | Pack | Sources | Pack | Sources |
+|---|---|---|---|---|---|
+| canadian_tech | 17 | robotics_autonomy | 10 | fintech | 6 |
+| semiconductors | 15 | big_tech | 7 | ai_labs | 6 |
+| security | 13 | enterprise_saas | 7 | defense_aerospace | 6 |
+| developer_tools | 12 | consumer_tech | 7 | devices_iot | 6 |
+| gaming | 12 | data_infrastructure | 6 | cloud_infrastructure | 4 |
+| bank_technology | 11 | ai_infrastructure | 9 | ai_apps, financial_services_tech, software_core, data_core, hardware_core | 2 each |
+
+Changes from the list above:
+- **No `research_labs` pack.** Only Ai2 has a feed an adapter reads (Vector Institute uses ADP, Mila uses
+  Workable), so Ai2 is in `tech/ai_labs` with the employer type Research Lab.
+- **Bank technology** reads the finance sources' own endpoints. The Workday banks are filtered by their
+  technology and data job families, read from each bank's facet list. JPMorgan, Goldman Sachs and RBC use a
+  keyword. Bank of America, National Bank and Scotiabank are left out, because their adapters can't filter.
+- **companies.json** gains 139 tech employers, only for the new sources. Each key is the slug its
+  postings already had, so cluster keys don't move. The entries for Micron ("Micron Technology") and
+  HPE (no `=hpe` alias) were adjusted because finance postings used those names.
+- **A tech employer's HQ never stands in for a posting's location** (`intel/companies.py`). Without
+  this, 39 finance postings at Cisco, Oracle, Kinaxis and others would have gained a country and moved
+  in fit. The country stays in companies.json for the Companies view.
+- **Existing shared tech employers are not in companies.json yet.** Anthropic's postings show "anthropic",
+  the source name, today. An entry would rename them on the Finance board (75 postings), so it's a
+  follow-up for you to decide.
+- Not added, with reasons: see `tech-sources-phase4.md` in the session notes. Examples: Apple, Google and Meta have
+  no adapter. Grammarly, Whatnot, Redis and Cerebras returned 404 tokens. Qualcomm, Lam Research and
+  GlobalFoundries returned Eightfold 403s. The Atlassian, Docusign, AMD and Garmin iCIMS pages are unreadable,
+  as are the EA and Bloomberg Avature pages. Arm and NetApp (Radancy) list postings with no titles.
+
 ## 9. Where today's 256 sources go (settings unchanged)
 
 Fin and Tech are open postings on your install classified finance or as a tech board.

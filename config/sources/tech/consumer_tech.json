@@ -1,0 +1,14 @@
+{
+  "title": "Consumer tech and media",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "nextdoor": {"ats": "greenhouse", "token": "nextdoor", "min_interval": 1800, "company_key": "nextdoor", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "roku": {"ats": "greenhouse", "token": "roku", "min_interval": 1800, "company_key": "roku", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "coursera": {"ats": "greenhouse", "token": "coursera", "min_interval": 1800, "company_key": "coursera", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "quora": {"ats": "ashby", "token": "quora", "min_interval": 1800, "company_key": "quora", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "zillow": {"ats": "workday", "host": "zillow.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Zillow_Group_External", "tenant": "zillow", "company_key": "zillow", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "mozilla": {"ats": "greenhouse", "token": "mozilla", "min_interval": 1800, "company_key": "mozilla", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "thumbtack": {"ats": "ashby", "token": "thumbtack", "min_interval": 1800, "company_key": "thumbtack", "group": "Consumer Tech", "priority": 2, "geography": "global"}
+  }
+}

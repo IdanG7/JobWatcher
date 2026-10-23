@@ -1,0 +1,9 @@
+{
+  "title": "LinkedIn software searches",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22. LinkedIn public guest search: a partial keyword and date window. The finance LinkedIn searches already cover 'software engineer intern' and 'software engineer new grad'.",
+  "boards": {
+    "linkedin_us_software": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["software developer intern", "backend engineer new grad", "full stack engineer intern", "site reliability engineer new grad"], "group": "LinkedIn", "priority": 1, "geography": "us"},
+    "linkedin_canada_software": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["software developer co-op", "software developer intern", "software engineer new graduate", "full stack developer co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada"}
+  }
+}

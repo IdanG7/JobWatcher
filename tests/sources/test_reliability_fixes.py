@@ -111,6 +111,14 @@ class SourceUpgradeTests(unittest.TestCase):
             record_release(history, {"a": {"ats": "lever", "max": 9}}, 4)
         self.assertEqual(5, record_release(history, {"a": {"ats": "lever", "max": 9}}, 5)["__shipped__"]["version"])
 
+    def test_a_board_shipped_again_after_a_release_without_it_counts_as_new(self):
+        a, b = {"ats": "lever", "token": "a"}, {"ats": "lever", "token": "b"}
+        history = record_release(record_release({}, {"a": a, "b": b}, 1), {"a": a}, 2)
+        self.assertEqual(["a"], history["__shipped__"]["names"])
+        history = record_release(history, {"a": a, "b": b}, 3)
+        self.assertEqual({"a": 1, "b": 3}, history["__since__"])
+        self.assertEqual(3, record_release(history, {"a": a, "b": b}, 3)["__since__"]["b"])     # rebuilt: unchanged
+
 
 class AutostartTests(unittest.TestCase):
     def setUp(self):

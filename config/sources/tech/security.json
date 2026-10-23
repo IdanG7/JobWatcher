@@ -1,0 +1,20 @@
+{
+  "title": "Security",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "okta": {"ats": "greenhouse", "token": "okta", "min_interval": 1800, "company_key": "okta", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "zscaler": {"ats": "greenhouse", "token": "zscaler", "min_interval": 1800, "company_key": "zscaler", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "crowdstrike": {"ats": "workday", "host": "crowdstrike.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "crowdstrikecareers", "tenant": "crowdstrike", "company_key": "crowdstrike", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "palo_alto_networks": {"ats": "workday", "host": "paloaltonetworks.wd5.myworkdayjobs.com", "tenant": "paloaltonetworks", "site": "panwexternalcareers", "min_interval": 3600, "company_key": "palo_alto_networks", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "fortinet": {"ats": "oracle_hcm", "host": "edel.fa.us2.oraclecloud.com", "site": "CX_2001", "min_interval": 3600, "company_key": "fortinet", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "tenable": {"ats": "greenhouse", "token": "tenableinc", "min_interval": 1800, "company_key": "tenable", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "wiz": {"ats": "greenhouse", "token": "wizinc", "min_interval": 1800, "company_key": "wiz", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "snyk": {"ats": "ashby", "token": "Snyk", "min_interval": 1800, "company_key": "snyk", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "sentinelone": {"ats": "greenhouse", "token": "sentinellabs", "min_interval": 1800, "company_key": "sentinelone", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "arctic_wolf": {"ats": "workday", "host": "arcticwolf.wd1.myworkdayjobs.com", "tenant": "arcticwolf", "site": "External", "min_interval": 1800, "company_key": "arctic_wolf", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "abnormal_security": {"ats": "greenhouse", "token": "abnormalsecurity", "min_interval": 1800, "company_key": "abnormal_security", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "chainguard": {"ats": "greenhouse", "token": "chainguard", "min_interval": 1800, "company_key": "chainguard", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "tanium": {"ats": "greenhouse", "token": "tanium", "min_interval": 1800, "company_key": "tanium", "group": "Cybersecurity", "priority": 2, "geography": "global"}
+  }
+}

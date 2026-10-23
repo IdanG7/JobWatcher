@@ -4,6 +4,7 @@ import time
 import unittest
 
 from intel import analyze, load_knowledge, merge_profile, score_job, validate_profile
+from intel.companies import resolve_company, slug
 from intel.facts import build_facts
 from intel.sources import load_packs
 from intel.taxonomy import classify
@@ -180,6 +181,30 @@ class TechFitTests(unittest.TestCase):
         self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == "both"})
         self.assertIn("ai_lab", {k for k, t in tracks.items() if t == "tech"})
         self.assertEqual(17, sum(t == "tech" for t in tracks.values()))
+
+
+class TechEmployerTests(unittest.TestCase):
+    def test_a_tech_employers_key_is_the_one_its_postings_had_before_it_was_known(self):
+        # Unknown employers key on the slug of their name, and cluster keys start with it.
+        tech = [c for c in KN.companies.values() if KN.company_types[c.type].get("track") == "tech"]
+        self.assertGreater(len(tech), 100)
+        for company in tech:
+            self.assertEqual(slug(company.name), company.key, company.name)
+
+    def test_a_tech_employers_hq_never_stands_in_for_a_postings_location(self):
+        okta = resolve_company("Okta", KN)
+        self.assertEqual(("okta", "Cybersecurity", ""), (okta["key"], okta["type_label"], okta["country"]))
+        self.assertEqual("US", KN.companies["okta"].country)               # still shown in the Companies view
+        self.assertEqual("CA", resolve_company("RBC", KN)["country"])       # finance employers as before
+        self.assertEqual("US", resolve_company("Visa", KN)["country"])      # and fintech
+
+    def test_names_near_a_new_employer_keep_the_employer_they_had(self):
+        # The Finance board gate: these postings resolved this way before tech employers were added.
+        for name, key, ctype in (("HPE (University)", "hpe", "unknown"), ("Micron Technology", "micron_technology", "semiconductors"),
+                                 ("Lightspeed Venture Partners", "lightspeed", "venture_capital")):
+            resolved = resolve_company(name, KN)
+            self.assertEqual((key, ctype), (resolved["key"], resolved["type"]), name)
+        self.assertEqual("Micron Technology", resolve_company("Micron Technology", KN)["name"])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+{
+  "title": "Applied AI startups",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "cognition": {"ats": "ashby", "token": "cognition", "min_interval": 1800, "company_key": "cognition", "group": "Startups", "priority": 2, "geography": "global"},
+    "hebbia": {"ats": "ashby", "token": "hebbia-ai", "min_interval": 1800, "company_key": "hebbia", "group": "Startups", "priority": 2, "geography": "global"}
+  }
+}

@@ -7,40 +7,499 @@
    "1password"
   ]
  },
+ "2k": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "2k"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "2k"
+  ]
+ },
  "__shipped__": {
-  "hash": "ddb8d7057c16c87e",
-  "version": 9
+  "hash": "5c50af1d17924cc1",
+  "names": [
+   "1password",
+   "2k",
+   "abnormal_security",
+   "abridge",
+   "ada",
+   "addepar",
+   "adobe",
+   "adobe_university",
+   "affirm",
+   "ai2",
+   "airbnb",
+   "airbyte",
+   "airtable",
+   "akuna",
+   "alloy",
+   "amazon",
+   "amazon_newgrad",
+   "american_express",
+   "amplitude",
+   "analog_devices",
+   "anduril",
+   "anthropic",
+   "anyscale",
+   "apollo",
+   "applied_intuition",
+   "applied_materials",
+   "applyboard",
+   "aqr",
+   "arctic_wolf",
+   "asana",
+   "assemblyai",
+   "astranis",
+   "attio",
+   "aurora",
+   "autodesk",
+   "bank_of_america",
+   "bank_of_america_students",
+   "barclays",
+   "barclays_tech",
+   "baseten",
+   "behaviour_interactive",
+   "benchling",
+   "benevity",
+   "betterment",
+   "blackrock",
+   "blackstone",
+   "blackstone_campus",
+   "block",
+   "bmo",
+   "bmo_students",
+   "bmo_tech",
+   "boston_dynamics",
+   "box",
+   "braintrust",
+   "brex",
+   "broadcom",
+   "brookfield",
+   "browserbase",
+   "bungie",
+   "cadence",
+   "calendly",
+   "canada_intern26",
+   "canva",
+   "capital_one",
+   "capital_one_early",
+   "carlyle",
+   "carta",
+   "cartesia",
+   "cdpq",
+   "cdpq_students",
+   "chainguard",
+   "character_ai",
+   "checkr",
+   "chime",
+   "cibc",
+   "cibc_students",
+   "cibc_tech",
+   "ciena",
+   "circleci",
+   "cisco",
+   "citadel",
+   "citadel_sec",
+   "citi",
+   "citi_early",
+   "citi_tech",
+   "clickhouse",
+   "clio",
+   "cloudflare",
+   "cockroach_labs",
+   "cognition",
+   "cohere",
+   "coinbase",
+   "comcast",
+   "commure",
+   "coreweave",
+   "coursera",
+   "coveo",
+   "cpp_investments",
+   "crowdstrike",
+   "crusoe",
+   "cursor",
+   "cvrve_newgrad",
+   "d2l",
+   "databricks",
+   "datadog",
+   "dataiku",
+   "decagon",
+   "deepgram",
+   "deepmind",
+   "dell",
+   "derec4_newgrad27",
+   "descript",
+   "deutsche_bank",
+   "deutsche_bank_tech",
+   "digitalocean",
+   "discord",
+   "disney",
+   "disney_early",
+   "docker",
+   "doordash",
+   "dropbox",
+   "drw",
+   "duolingo",
+   "ebay",
+   "elastic",
+   "elevenlabs",
+   "epic_games",
+   "epirus",
+   "etched",
+   "evercore",
+   "evercore_students",
+   "faire",
+   "fastly",
+   "fidelity",
+   "figma",
+   "figure",
+   "fireblocks",
+   "fireworks_ai",
+   "five_rings",
+   "fivetran",
+   "flexport",
+   "flow_traders",
+   "fortinet",
+   "gemini",
+   "geneva_trading",
+   "geotab",
+   "gitlab",
+   "glean",
+   "glossier",
+   "goldman_sachs",
+   "goldman_sachs_tech",
+   "gopuff",
+   "grafana_labs",
+   "gts",
+   "gusto",
+   "harvey",
+   "hebbia",
+   "hex",
+   "heygen",
+   "hightouch",
+   "hinge_health",
+   "hopper",
+   "houlihan_lokey",
+   "houlihan_lokey_campus",
+   "hp",
+   "hpe",
+   "hrt",
+   "hubspot",
+   "imbue",
+   "imc",
+   "instacart",
+   "intel",
+   "intel_early",
+   "intuit",
+   "jane_street",
+   "jefferies_campus",
+   "jpmorgan",
+   "jpmorgan_early",
+   "jpmorgan_tech",
+   "jump_trading",
+   "kinaxis",
+   "kkr",
+   "kla",
+   "kodiak",
+   "koho",
+   "labelbox",
+   "lambda_labs",
+   "langchain",
+   "launchdarkly",
+   "lazard",
+   "league",
+   "lightmatter",
+   "lightspeed_commerce",
+   "linear",
+   "linkedin_canada",
+   "linkedin_canada_data",
+   "linkedin_canada_hardware",
+   "linkedin_canada_software",
+   "linkedin_quant",
+   "linkedin_us",
+   "linkedin_us_data",
+   "linkedin_us_hardware",
+   "linkedin_us_software",
+   "lithic",
+   "lucid",
+   "lyft",
+   "magic",
+   "man_group",
+   "manulife",
+   "marqeta",
+   "marvell",
+   "mastercard",
+   "mastercard_early",
+   "mercor",
+   "mercury",
+   "microchip",
+   "micron",
+   "microsoft",
+   "midjourney",
+   "miro",
+   "mistplay",
+   "mistral",
+   "mixpanel",
+   "modal",
+   "moelis",
+   "mongodb",
+   "moodys",
+   "morgan_stanley",
+   "morgan_stanley_early",
+   "morgan_stanley_tech",
+   "motional",
+   "motorola_solutions",
+   "mozilla",
+   "msci",
+   "msci_us",
+   "nasdaq",
+   "national_bank",
+   "neo_financial",
+   "netflix",
+   "netlify",
+   "neuralink",
+   "new_relic",
+   "nextdoor",
+   "niantic_spatial",
+   "notion",
+   "nuro",
+   "nvidia",
+   "nwfintech_quant27",
+   "nxp",
+   "offseason_fall26",
+   "okta",
+   "old_mission",
+   "openai",
+   "openevidence",
+   "opentext",
+   "optiver_us",
+   "oracle",
+   "oscar_health",
+   "otpp",
+   "oura",
+   "pagerduty",
+   "palantir",
+   "palo_alto_networks",
+   "paypal",
+   "pdt_partners",
+   "peloton",
+   "perplexity",
+   "physical_intelligence",
+   "pinecone",
+   "pinterest",
+   "piper_sandler",
+   "pjt_partners",
+   "plaid",
+   "planet",
+   "planetscale",
+   "point72",
+   "poolside",
+   "posthog",
+   "postman",
+   "pure_storage",
+   "qube_rt",
+   "quora",
+   "ramp",
+   "rbc",
+   "rbc_early",
+   "rbc_students",
+   "rbc_tech",
+   "reddit",
+   "relativity_space",
+   "render",
+   "replit",
+   "retool",
+   "riot_games",
+   "rippling",
+   "ritual",
+   "robinhood",
+   "roblox",
+   "rocket_lab",
+   "rockstar_games",
+   "roku",
+   "rubrik",
+   "runpod",
+   "runway",
+   "salesforce",
+   "salesforce_early",
+   "sambanova",
+   "samsara",
+   "sap",
+   "saronic",
+   "scale_ai",
+   "schonfeld",
+   "scopely",
+   "scotiabank_students",
+   "seatgeek",
+   "sentinelone",
+   "sentry",
+   "servicenow",
+   "shield_ai",
+   "sierra",
+   "sig",
+   "sigma_computing",
+   "simplify_intern26",
+   "simplify_intern27",
+   "simplify_newgrad",
+   "singlestore",
+   "skydio",
+   "smartsheet",
+   "snap",
+   "sndsh_intern27",
+   "snorkel",
+   "snowflake",
+   "snyk",
+   "sofi",
+   "sonos",
+   "sourcegraph",
+   "sp_global",
+   "spacex",
+   "speedy_ai",
+   "speedy_swe",
+   "spotify",
+   "squarepoint",
+   "squarespace",
+   "stability_ai",
+   "stackadapt",
+   "starburst",
+   "stepstone",
+   "stripe",
+   "sun_life",
+   "sun_life_students",
+   "suno",
+   "supabase",
+   "sweetgreen",
+   "synopsys",
+   "take_two",
+   "tanium",
+   "target",
+   "td",
+   "td_students",
+   "td_tech",
+   "temporal",
+   "tenable",
+   "tenstorrent",
+   "texas_instruments",
+   "thinkific",
+   "thinking_machines",
+   "thomson_reuters",
+   "thumbtack",
+   "toast",
+   "together_ai",
+   "top_hat",
+   "tower_research",
+   "twilio",
+   "twitch",
+   "two_sigma",
+   "typeface",
+   "ubisoft",
+   "unity",
+   "upstart",
+   "vanguard",
+   "vansh_intern26",
+   "vansh_intern27",
+   "vansh_newgrad27",
+   "vanta",
+   "vatic_labs",
+   "vercel",
+   "verkada",
+   "virtu",
+   "visa",
+   "voleon",
+   "waabi",
+   "warp",
+   "wattpad",
+   "waymo",
+   "wayve",
+   "wealthfront",
+   "wealthsimple",
+   "webflow",
+   "weights_and_biases",
+   "wells_fargo",
+   "wells_fargo_tech",
+   "whoop",
+   "william_blair",
+   "wiz",
+   "workday_hq",
+   "world_labs",
+   "worldquant",
+   "writer",
+   "xai",
+   "zapier",
+   "zapply_ca_intern",
+   "zapply_ca_jobs",
+   "zapply_intern27",
+   "zapply_newgrad27",
+   "zapply_swe_newgrad",
+   "zendesk",
+   "zillow",
+   "zipline",
+   "zoom",
+   "zoox",
+   "zscaler"
+  ],
+  "version": 10
  },
  "__since__": {
   "1password": 1,
+  "2k": 10,
+  "abnormal_security": 10,
   "abridge": 1,
+  "ada": 10,
+  "addepar": 10,
   "adobe": 1,
   "adobe_university": 1,
   "affirm": 1,
+  "ai2": 10,
   "airbnb": 1,
+  "airbyte": 10,
   "airtable": 1,
   "akuna": 1,
   "alloy": 1,
   "amazon": 1,
   "amazon_newgrad": 1,
+  "american_express": 10,
   "amplitude": 1,
-  "analog_devices": 7,
+  "analog_devices": 10,
   "anduril": 1,
   "anthropic": 1,
-  "anyscale": 7,
+  "anyscale": 10,
   "apollo": 6,
-  "applied_materials": 7,
+  "applied_intuition": 10,
+  "applied_materials": 10,
+  "applyboard": 10,
   "aqr": 1,
+  "arctic_wolf": 10,
   "asana": 1,
   "assemblyai": 1,
+  "astranis": 10,
   "attio": 1,
   "aurora": 1,
   "autodesk": 1,
   "bank_of_america": 6,
   "bank_of_america_students": 6,
   "barclays": 1,
+  "barclays_tech": 10,
   "baseten": 1,
-  "benevity": 7,
+  "behaviour_interactive": 10,
+  "benchling": 10,
+  "benevity": 10,
   "betterment": 1,
   "blackrock": 1,
   "blackstone": 6,
@@ -48,56 +507,75 @@
   "block": 1,
   "bmo": 1,
   "bmo_students": 2,
-  "box": 7,
+  "bmo_tech": 10,
+  "boston_dynamics": 10,
+  "box": 10,
   "braintrust": 1,
   "brex": 1,
-  "broadcom": 7,
+  "broadcom": 10,
   "brookfield": 6,
   "browserbase": 1,
-  "cadence": 7,
+  "bungie": 10,
+  "cadence": 10,
   "calendly": 1,
   "canada_intern26": 1,
+  "canva": 10,
   "capital_one": 1,
   "capital_one_early": 1,
   "carlyle": 6,
+  "carta": 10,
   "cartesia": 1,
   "cdpq": 6,
   "cdpq_students": 6,
+  "chainguard": 10,
   "character_ai": 1,
   "checkr": 1,
   "chime": 1,
   "cibc": 1,
   "cibc_students": 2,
-  "ciena": 7,
+  "cibc_tech": 10,
+  "ciena": 10,
+  "circleci": 10,
+  "cisco": 10,
   "citadel": 1,
   "citadel_sec": 1,
   "citi": 1,
   "citi_early": 1,
+  "citi_tech": 10,
   "clickhouse": 1,
+  "clio": 10,
   "cloudflare": 1,
   "cockroach_labs": 1,
+  "cognition": 10,
   "cohere": 1,
   "coinbase": 1,
   "comcast": 1,
   "commure": 1,
-  "coreweave": 7,
-  "coursera": 7,
+  "coreweave": 10,
+  "coursera": 10,
+  "coveo": 10,
   "cpp_investments": 6,
-  "crowdstrike": 7,
+  "crowdstrike": 10,
   "crusoe": 1,
   "cursor": 1,
   "cvrve_newgrad": 1,
+  "d2l": 10,
   "databricks": 1,
   "datadog": 1,
-  "dataiku": 7,
+  "dataiku": 10,
   "decagon": 1,
+  "deepgram": 10,
   "deepmind": 1,
+  "dell": 10,
   "derec4_newgrad27": 1,
   "descript": 1,
   "deutsche_bank": 6,
+  "deutsche_bank_tech": 10,
+  "digitalocean": 10,
   "discord": 1,
   "disney": 1,
   "disney_early": 1,
+  "docker": 10,
   "doordash": 1,
   "dropbox": 1,
   "drw": 1,
@@ -105,73 +583,104 @@
   "ebay": 1,
   "elastic": 1,
   "elevenlabs": 1,
-  "epic_games": 7,
+  "epic_games": 10,
+  "epirus": 10,
+  "etched": 10,
   "evercore": 6,
   "evercore_students": 6,
   "faire": 1,
   "fastly": 1,
   "fidelity": 6,
   "figma": 1,
+  "figure": 10,
   "fireblocks": 1,
+  "fireworks_ai": 10,
   "five_rings": 1,
   "fivetran": 1,
   "flexport": 1,
   "flow_traders": 1,
+  "fortinet": 10,
   "gemini": 1,
   "geneva_trading": 1,
-  "geotab": 7,
+  "geotab": 10,
   "gitlab": 1,
   "glean": 1,
   "glossier": 1,
   "goldman_sachs": 6,
+  "goldman_sachs_tech": 10,
   "gopuff": 1,
-  "grafana_labs": 7,
+  "grafana_labs": 10,
   "gts": 1,
   "gusto": 1,
   "harvey": 1,
+  "hebbia": 10,
+  "hex": 10,
   "heygen": 1,
   "hightouch": 1,
   "hinge_health": 1,
+  "hopper": 10,
   "houlihan_lokey": 1,
   "houlihan_lokey_campus": 1,
   "hp": 1,
-  "hpe": 7,
+  "hpe": 10,
   "hrt": 1,
+  "hubspot": 10,
   "imbue": 1,
   "imc": 1,
   "instacart": 1,
   "intel": 1,
   "intel_early": 1,
+  "intuit": 10,
   "jane_street": 1,
   "jefferies_campus": 6,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
+  "jpmorgan_tech": 10,
   "jump_trading": 1,
+  "kinaxis": 10,
   "kkr": 6,
-  "koho": 7,
+  "kla": 10,
+  "kodiak": 10,
+  "koho": 10,
+  "labelbox": 10,
   "lambda_labs": 1,
+  "langchain": 10,
   "launchdarkly": 1,
   "lazard": 6,
+  "league": 10,
+  "lightmatter": 10,
+  "lightspeed_commerce": 10,
   "linear": 1,
   "linkedin_canada": 1,
+  "linkedin_canada_data": 10,
+  "linkedin_canada_hardware": 10,
+  "linkedin_canada_software": 10,
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
   "linkedin_us": 1,
+  "linkedin_us_data": 10,
+  "linkedin_us_hardware": 10,
+  "linkedin_us_software": 10,
   "linkedin_us_tech": 7,
   "lithic": 1,
+  "lucid": 10,
   "lyft": 1,
+  "magic": 10,
   "man_group": 1,
   "manulife": 6,
   "marqeta": 1,
-  "marvell": 7,
+  "marvell": 10,
   "mastercard": 1,
   "mastercard_early": 1,
   "mercor": 1,
   "mercury": 1,
-  "micron": 7,
+  "microchip": 10,
+  "micron": 10,
   "microsoft": 1,
   "midjourney": 1,
-  "miro": 7,
+  "miro": 10,
+  "mistplay": 10,
+  "mistral": 10,
   "mixpanel": 1,
   "modal": 1,
   "moelis": 1,
@@ -179,83 +688,112 @@
   "moodys": 6,
   "morgan_stanley": 1,
   "morgan_stanley_early": 1,
-  "motorola_solutions": 7,
-  "mozilla": 7,
+  "morgan_stanley_tech": 10,
+  "motional": 10,
+  "motorola_solutions": 10,
+  "mozilla": 10,
   "msci": 6,
   "msci_us": 6,
   "nasdaq": 1,
   "national_bank": 2,
-  "neo_financial": 7,
+  "neo_financial": 10,
   "netflix": 1,
+  "netlify": 10,
   "neuralink": 1,
-  "new_relic": 7,
-  "nextdoor": 7,
+  "new_relic": 10,
+  "nextdoor": 10,
+  "niantic_spatial": 10,
   "notion": 1,
   "nuro": 1,
   "nvidia": 1,
   "nwfintech_quant27": 1,
+  "nxp": 10,
   "offseason_fall26": 1,
-  "okta": 7,
+  "okta": 10,
   "old_mission": 1,
   "openai": 1,
   "openevidence": 1,
+  "opentext": 10,
   "optiver_us": 1,
+  "oracle": 10,
   "oscar_health": 1,
   "otpp": 6,
-  "pagerduty": 7,
+  "oura": 10,
+  "pagerduty": 10,
   "palantir": 1,
+  "palo_alto_networks": 10,
   "paypal": 1,
   "pdt_partners": 1,
   "peloton": 1,
   "perplexity": 1,
-  "pinecone": 7,
+  "physical_intelligence": 10,
+  "pinecone": 10,
   "pinterest": 1,
   "piper_sandler": 1,
   "pjt_partners": 1,
   "plaid": 1,
+  "planet": 10,
   "planetscale": 1,
   "point72": 1,
   "poolside": 1,
-  "posthog": 7,
+  "posthog": 10,
   "postman": 1,
-  "pure_storage": 7,
+  "pure_storage": 10,
   "qube_rt": 1,
-  "quora": 7,
+  "quora": 10,
   "ramp": 1,
   "rbc": 1,
   "rbc_early": 1,
   "rbc_students": 2,
+  "rbc_tech": 10,
   "reddit": 1,
-  "replit": 7,
+  "relativity_space": 10,
+  "render": 10,
+  "replit": 10,
   "retool": 1,
-  "riot_games": 7,
+  "riot_games": 10,
   "rippling": 1,
-  "ritual": 7,
+  "ritual": 10,
   "robinhood": 1,
   "roblox": 1,
-  "roku": 7,
-  "rubrik": 7,
+  "rocket_lab": 10,
+  "rockstar_games": 10,
+  "roku": 10,
+  "rubrik": 10,
   "runpod": 1,
   "runway": 1,
   "salesforce": 1,
   "salesforce_early": 1,
+  "sambanova": 10,
   "samsara": 1,
+  "sap": 10,
+  "saronic": 10,
   "scale_ai": 1,
   "schonfeld": 1,
+  "scopely": 10,
   "scotiabank_students": 2,
   "seatgeek": 1,
-  "sentry": 7,
+  "sentinelone": 10,
+  "sentry": 10,
   "servicenow": 1,
   "shield_ai": 1,
   "sierra": 1,
   "sig": 1,
+  "sigma_computing": 10,
   "simplify_intern26": 1,
   "simplify_intern27": 1,
   "simplify_newgrad": 1,
+  "singlestore": 10,
+  "skydio": 10,
   "smartsheet": 1,
+  "snap": 10,
   "sndsh_intern27": 1,
-  "snowflake": 7,
+  "snorkel": 10,
+  "snowflake": 10,
+  "snyk": 10,
   "sofi": 1,
+  "sonos": 10,
+  "sourcegraph": 10,
   "sp_global": 6,
   "spacex": 1,
   "speedy_ai": 1,
@@ -263,7 +801,8 @@
   "spotify": 1,
   "squarepoint": 1,
   "squarespace": 1,
-  "stackadapt": 7,
+  "stability_ai": 10,
+  "stackadapt": 10,
   "starburst": 1,
   "stepstone": 1,
   "stripe": 1,
@@ -272,18 +811,31 @@
   "suno": 1,
   "supabase": 1,
   "sweetgreen": 1,
+  "synopsys": 10,
+  "take_two": 10,
+  "tanium": 10,
   "target": 1,
   "td": 1,
   "td_students": 2,
-  "temporal": 7,
-  "thomson_reuters": 7,
-  "toast": 7,
+  "td_tech": 10,
+  "temporal": 10,
+  "tenable": 10,
+  "tenstorrent": 10,
+  "texas_instruments": 10,
+  "thinkific": 10,
+  "thinking_machines": 10,
+  "thomson_reuters": 10,
+  "thumbtack": 10,
+  "toast": 10,
   "together_ai": 1,
+  "top_hat": 10,
   "tower_research": 1,
   "twilio": 1,
-  "twitch": 7,
+  "twitch": 10,
   "two_sigma": 1,
   "typeface": 1,
+  "ubisoft": 10,
+  "unity": 10,
   "upstart": 1,
   "vanguard": 6,
   "vansh_intern26": 1,
@@ -294,29 +846,62 @@
   "vercel": 1,
   "verkada": 1,
   "virtu": 1,
+  "visa": 10,
   "voleon": 1,
   "waabi": 1,
   "warp": 1,
-  "wattpad": 7,
+  "wattpad": 10,
   "waymo": 1,
+  "wayve": 10,
+  "wealthfront": 10,
   "wealthsimple": 1,
   "webflow": 1,
+  "weights_and_biases": 10,
   "wells_fargo": 1,
+  "wells_fargo_tech": 10,
+  "whoop": 10,
   "william_blair": 1,
+  "wiz": 10,
   "workday_hq": 1,
+  "world_labs": 10,
   "worldquant": 1,
   "writer": 1,
   "xai": 1,
-  "zapier": 7,
+  "zapier": 10,
   "zapply_ca_intern": 1,
   "zapply_ca_jobs": 1,
   "zapply_intern27": 1,
   "zapply_newgrad27": 1,
   "zapply_swe_newgrad": 1,
-  "zillow": 7,
+  "zendesk": 10,
+  "zillow": 10,
+  "zipline": 10,
   "zoom": 1,
   "zoox": 1,
-  "zscaler": 7
+  "zscaler": 10
+ },
+ "abnormal_security": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "abnormal_security"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "abnormalsecurity"
+  ]
  },
  "abridge": {
   "ats": [
@@ -324,6 +909,52 @@
   ],
   "token": [
    "abridge"
+  ]
+ },
+ "ada": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ada"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ada18"
+  ]
+ },
+ "addepar": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "addepar"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "FinTech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "addepar1"
   ]
  },
  "adobe": {
@@ -378,12 +1009,58 @@
    "affirm"
   ]
  },
+ "ai2": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ai2"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Research Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "thealleninstitute"
+  ]
+ },
  "airbnb": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "airbnb"
+  ]
+ },
+ "airbyte": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "airbyte"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "airbyte"
   ]
  },
  "airtable": {
@@ -437,6 +1114,32 @@
    "software development engineer"
   ]
  },
+ "american_express": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "american_express"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "FinTech"
+  ],
+  "host": [
+   "egug.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "amplitude": {
   "ats": [
    "ashby"
@@ -449,15 +1152,31 @@
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "analog_devices"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "analogdevices.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -489,9 +1208,29 @@
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "anyscale"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "anyscale"
@@ -529,19 +1268,58 @@
    "athene"
   ]
  },
+ "applied_intuition": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "applied_intuition"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "applied"
+  ]
+ },
  "applied_materials": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "applied_materials"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "amat.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    3600
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -553,12 +1331,70 @@
    "amat"
   ]
  },
+ "applyboard": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "applyboard"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "host": [
+   "applyboard.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ApplyBoardNH"
+  ],
+  "tenant": [
+   "applyboard"
+  ]
+ },
  "aqr": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "aqr"
+  ]
+ },
+ "arctic_wolf": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "arctic_wolf"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "host": [
+   "arcticwolf.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "arcticwolf"
   ]
  },
  "asana": {
@@ -575,6 +1411,29 @@
   ],
   "token": [
    "assemblyai"
+  ]
+ },
+ "astranis": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "astranis"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "astranis"
   ]
  },
  "attio": {
@@ -697,6 +1556,43 @@
    "barclays"
   ]
  },
+ "barclays_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "barclays"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "112c054282011001e9162cfccdc10000",
+     "1ab48a98eb7c1001e8e0bdc7d4a10000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "barclays.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "External_Career_Site_Barclays"
+  ],
+  "tenant": [
+   "barclays"
+  ]
+ },
  "baseten": {
   "ats": [
    "ashby"
@@ -705,13 +1601,79 @@
    "baseten"
   ]
  },
+ "behaviour_interactive": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "behaviour_interactive"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bhvr"
+  ]
+ },
+ "benchling": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "benchling"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "benchling"
+  ]
+ },
  "benevity": {
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "benevity"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "canada"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "benevity"
@@ -899,13 +1861,99 @@
    "bmo"
   ]
  },
+ "bmo_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bmo"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "c3170091f3cd01a93a216b6ad000d820",
+     "c3170091f3cd01924064646ad000c620"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "bmo.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "bmo"
+  ]
+ },
+ "boston_dynamics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "boston_dynamics"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "host": [
+   "bostondynamics.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Boston_Dynamics"
+  ],
+  "tenant": [
+   "bostondynamics"
+  ]
+ },
  "box": {
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "box"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "boxinc"
@@ -931,15 +1979,31 @@
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "broadcom"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "broadcom.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -991,19 +2055,58 @@
    "browserbase"
   ]
  },
+ "bungie": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "bungie"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bungie"
+  ]
+ },
  "cadence": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "cadence"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "cadence.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -1044,6 +2147,29 @@
   "track": [
    "__missing__",
    "tech"
+  ]
+ },
+ "canva": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "canva"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Canva"
   ]
  },
  "capital_one": {
@@ -1130,6 +2256,29 @@
    "carlyle"
   ]
  },
+ "carta": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "carta"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "FinTech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "carta"
+  ]
+ },
  "cartesia": {
   "ats": [
    "ashby"
@@ -1194,6 +2343,29 @@
   ],
   "tenant": [
    "cdpq"
+  ]
+ },
+ "chainguard": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "chainguard"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "chainguard"
   ]
  },
  "character_ai": {
@@ -1290,19 +2462,73 @@
    "cibc"
   ]
  },
+ "cibc_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cibc"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "4bbe6c74e8a70126f29430a881012510",
+     "4bbe6c74e8a7011e314d36a881013310",
+     "678f7c5a7b70100112c0e8c658a10000"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "cibc.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "search"
+  ],
+  "tenant": [
+   "cibc"
+  ]
+ },
  "ciena": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "ciena"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Devices & IoT"
   ],
   "host": [
    "ciena.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -1312,6 +2538,52 @@
   ],
   "tenant": [
    "ciena"
+  ]
+ },
+ "circleci": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "circleci"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "circleci"
+  ]
+ },
+ "cisco": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "cisco"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "host": [
+   "careers.cisco.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
   ]
  },
  "citadel": {
@@ -1406,12 +2678,78 @@
    "citi"
   ]
  },
+ "citi_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "citi"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e32326e1708d01575bddff0c120102c1",
+     "e32326e1708d0106eb75f50c1201dac0"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "citi.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "2"
+  ],
+  "tenant": [
+   "citi"
+  ]
+ },
  "clickhouse": {
   "ats": [
    "ashby"
   ],
   "token": [
    "clickhouse"
+  ]
+ },
+ "clio": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "clio"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "host": [
+   "clio.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ClioCareerSite"
+  ],
+  "tenant": [
+   "clio"
   ]
  },
  "cloudflare": {
@@ -1428,6 +2766,29 @@
   ],
   "token": [
    "cockroachlabs"
+  ]
+ },
+ "cognition": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "cognition"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Startups"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "cognition"
   ]
  },
  "cohere": {
@@ -1478,9 +2839,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "coreweave"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "coreweave"
@@ -1490,12 +2871,55 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "coursera"
+  ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "coursera"
+  ]
+ },
+ "coveo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "coveo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "coveoen"
   ]
  },
  "cpp_investments": {
@@ -1531,15 +2955,31 @@
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "crowdstrike"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Cybersecurity"
   ],
   "host": [
    "crowdstrike.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -1582,6 +3022,29 @@
    "both"
   ]
  },
+ "d2l": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "d2l"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "d2l"
+  ]
+ },
  "databricks": {
   "ats": [
    "greenhouse"
@@ -1602,9 +3065,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "dataiku"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "dataiku"
@@ -1618,6 +3101,29 @@
    "decagon"
   ]
  },
+ "deepgram": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "deepgram"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Deepgram"
+  ]
+ },
  "deepmind": {
   "ats": [
    "greenhouse"
@@ -1627,6 +3133,32 @@
   ],
   "token": [
    "deepmind"
+  ]
+ },
+ "dell": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "dell_technologies"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "host": [
+   "enterpriseplatform.dell.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "CX_1001"
   ]
  },
  "derec4_newgrad27": {
@@ -1695,6 +3227,65 @@
    "db"
   ]
  },
+ "deutsche_bank_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "deutsche_bank"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "645e861bc53a0168c673f8fe073b20a8"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "db.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "DBWebsite"
+  ],
+  "tenant": [
+   "db"
+  ]
+ },
+ "digitalocean": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "digitalocean"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "digitalocean98"
+  ]
+ },
  "discord": {
   "ats": [
    "greenhouse"
@@ -1745,6 +3336,29 @@
   ],
   "tenant": [
    "disney"
+  ]
+ },
+ "docker": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "docker"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "docker"
   ]
  },
  "doordash": {
@@ -1819,12 +3433,78 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "epic_games"
+  ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Gaming"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "epicgames"
+  ]
+ },
+ "epirus": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "epirus"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "epirus"
+  ]
+ },
+ "etched": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "etched"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "etched"
   ]
  },
  "evercore": {
@@ -1932,12 +3612,58 @@
    "figma"
   ]
  },
+ "figure": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "figure"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "figureai"
+  ]
+ },
  "fireblocks": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "fireblocks"
+  ]
+ },
+ "fireworks_ai": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "fireworks_ai"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fireworks"
   ]
  },
  "five_rings": {
@@ -1972,6 +3698,32 @@
    "flowtraders"
   ]
  },
+ "fortinet": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "fortinet"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "host": [
+   "edel.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_2001"
+  ]
+ },
  "gemini": {
   "ats": [
    "greenhouse"
@@ -1992,9 +3744,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "geotab"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "canada"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "geotab"
@@ -2056,6 +3828,38 @@
    "https://higher.gs.com/roles/{id}"
   ]
  },
+ "goldman_sachs_tech": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "goldman_sachs"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "hdpc.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "engineering"
+  ],
+  "site": [
+   "LateralHiring"
+  ],
+  "url": [
+   "https://higher.gs.com/roles/{id}"
+  ]
+ },
  "gopuff": {
   "ats": [
    "lever"
@@ -2068,9 +3872,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "grafana_labs"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "grafanalabs"
@@ -2103,6 +3927,52 @@
    "harvey"
   ]
  },
+ "hebbia": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "hebbia"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Startups"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hebbia-ai"
+  ]
+ },
+ "hex": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "hex"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hex"
+  ]
+ },
  "heygen": {
   "ats": [
    "greenhouse"
@@ -2127,6 +3997,29 @@
   ],
   "token": [
    "hinge-health"
+  ]
+ },
+ "hopper": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "hopper"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hopper"
   ]
  },
  "houlihan_lokey": {
@@ -2223,15 +4116,31 @@
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "hewlett_packard_enterprise"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Big Tech"
   ],
   "host": [
    "hpe.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    3600
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -2249,6 +4158,29 @@
   ],
   "token": [
    "wehrtyou"
+  ]
+ },
+ "hubspot": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hubspot"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hubspotjobs"
   ]
  },
  "imbue": {
@@ -2317,6 +4249,29 @@
   ],
   "tenant": [
    "intel"
+  ]
+ },
+ "intuit": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "intuit"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "host": [
+   "jobs.intuit.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
   ]
  },
  "jane_street": {
@@ -2410,12 +4365,64 @@
    "CX_1001"
   ]
  },
+ "jpmorgan_tech": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "jpmorgan"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "jpmc.fa.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "software engineer"
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
  "jump_trading": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "jumptrading"
+  ]
+ },
+ "kinaxis": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "kinaxis"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "host": [
+   "careers-kinaxis.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "kkr": {
@@ -2441,16 +4448,111 @@
    "stage"
   ]
  },
+ "kla": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "kla"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "host": [
+   "kla.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Search"
+  ],
+  "tenant": [
+   "kla"
+  ]
+ },
+ "kodiak": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "kodiak"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "kodiak"
+  ]
+ },
  "koho": {
   "ats": [
    "ashby"
+  ],
+  "company_key": [
+   "__missing__",
+   "koho"
   ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "FinTech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "koho"
+  ]
+ },
+ "labelbox": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "labelbox"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "labelbox"
   ]
  },
  "lambda_labs": {
@@ -2459,6 +4561,29 @@
   ],
   "token": [
    "lambda"
+  ]
+ },
+ "langchain": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "langchain"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "langchain"
   ]
  },
  "launchdarkly": {
@@ -2496,6 +4621,75 @@
   ],
   "site": [
    "LazardProfessionalCareers"
+  ]
+ },
+ "league": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "league"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "leagueinc"
+  ]
+ },
+ "lightmatter": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "lightmatter"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "lightmatter"
+  ]
+ },
+ "lightspeed_commerce": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "lightspeed_commerce"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "lightspeedhq"
   ]
  },
  "linear": {
@@ -2570,6 +4764,126 @@
   "track": [
    "__missing__",
    "finance"
+  ]
+ },
+ "linkedin_canada_data": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "data science co-op",
+    "data analyst co-op",
+    "machine learning co-op",
+    "data engineer new grad"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_canada_hardware": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "electrical engineering co-op",
+    "embedded software co-op",
+    "hardware engineer intern",
+    "firmware co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_canada_software": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "software developer co-op",
+    "software developer intern",
+    "software engineer new graduate",
+    "full stack developer co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
   ]
  },
  "linkedin_canada_tech": {
@@ -2695,6 +5009,126 @@
    "finance"
   ]
  },
+ "linkedin_us_data": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "data science intern",
+    "data engineer new grad",
+    "machine learning engineer new grad",
+    "data analyst intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_us_hardware": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "hardware engineer intern",
+    "embedded software intern",
+    "electrical engineering intern",
+    "firmware engineer new grad"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_us_software": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "software developer intern",
+    "backend engineer new grad",
+    "full stack engineer intern",
+    "site reliability engineer new grad"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_us_tech": {
   "ats": [
    "linkedin"
@@ -2744,12 +5178,58 @@
    "lithic"
   ]
  },
+ "lucid": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "lucid"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "lucidmotors"
+  ]
+ },
  "lyft": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "lyft"
+  ]
+ },
+ "magic": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "magic"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "magic.dev"
   ]
  },
  "man_group": {
@@ -2816,15 +5296,31 @@
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "marvell"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "marvell.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -2896,19 +5392,64 @@
    "mercury"
   ]
  },
+ "microchip": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "microchip_technology"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "host": [
+   "microchiphr.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "microchiphr"
+  ]
+ },
  "micron": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "micron_technology"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Semiconductors"
   ],
   "host": [
    "micron.wd1.myworkdayjobs.com"
   ],
   "min_interval": [
    3600
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -2946,12 +5487,78 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "miro"
+  ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "realtimeboardglobal"
+  ]
+ },
+ "mistplay": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "mistplay"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mistplay"
+  ]
+ },
+ "mistral": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "mistral_ai"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mistral.ai"
   ]
  },
  "mixpanel": {
@@ -3106,19 +5713,101 @@
    "ms"
   ]
  },
+ "morgan_stanley_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "morgan_stanley"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e38d1cf2ff5a10014d19aa66ad230000",
+     "96af745083d401ecd47812d07856070d",
+     "9065a9a95b1a10014d20d69599ed0000",
+     "b46569570f4b10014d292e3ae0a00000",
+     "c775545e643010014d1946c1c35e0000",
+     "96af745083d4016ae83caccf7856fd0c",
+     "b46569570f4b10014d294e44a67c0000",
+     "96af745083d401edc987e2cf7856010d"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "ms.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "ms"
+  ]
+ },
+ "motional": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "motional"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "motional"
+  ]
+ },
  "motorola_solutions": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "motorola_solutions"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Devices & IoT"
   ],
   "host": [
    "motorolasolutions.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -3134,9 +5823,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "mozilla"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "mozilla"
@@ -3241,9 +5950,29 @@
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "neo_financial"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "FinTech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "neofinancial"
@@ -3263,6 +5992,29 @@
    600
   ]
  },
+ "netlify": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "netlify"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "netlify"
+  ]
+ },
  "neuralink": {
   "ats": [
    "greenhouse"
@@ -3275,9 +6027,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "new_relic"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "newrelic"
@@ -3287,12 +6059,55 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "nextdoor"
+  ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "nextdoor"
+  ]
+ },
+ "niantic_spatial": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "niantic_spatial"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "niantic-spatial"
   ]
  },
  "notion": {
@@ -3354,6 +6169,35 @@
    "finance"
   ]
  },
+ "nxp": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "nxp_semiconductors"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "host": [
+   "nxp.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "careers"
+  ],
+  "tenant": [
+   "nxp"
+  ]
+ },
  "offseason_fall26": {
   "ats": [
    "github_md"
@@ -3387,9 +6231,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "okta"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "okta"
@@ -3419,12 +6283,61 @@
    "openevidence"
   ]
  },
+ "opentext": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "opentext"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "host": [
+   "careers.opentext.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "optiver_us": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "optiverus"
+  ]
+ },
+ "oracle": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "oracle"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "host": [
+   "eeho.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "CX_45001"
   ]
  },
  "oscar_health": {
@@ -3468,13 +6381,56 @@
    "otppb"
   ]
  },
+ "oura": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "oura"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "oura"
+  ]
+ },
  "pagerduty": {
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "pagerduty"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "pagerduty"
@@ -3486,6 +6442,35 @@
   ],
   "token": [
    "palantir"
+  ]
+ },
+ "palo_alto_networks": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "palo_alto_networks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "host": [
+   "paloaltonetworks.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "panwexternalcareers"
+  ],
+  "tenant": [
+   "paloaltonetworks"
   ]
  },
  "paypal": {
@@ -3532,13 +6517,56 @@
    "perplexity"
   ]
  },
+ "physical_intelligence": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "physical_intelligence"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "physicalintelligence"
+  ]
+ },
  "pinecone": {
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "pinecone"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "pinecone"
@@ -3630,6 +6658,29 @@
    "plaid"
   ]
  },
+ "planet": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "planet"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "planetlabs"
+  ]
+ },
  "planetscale": {
   "ats": [
    "greenhouse"
@@ -3662,9 +6713,29 @@
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "posthog"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "posthog"
@@ -3691,9 +6762,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "pure_storage"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "purestorage"
@@ -3715,9 +6806,29 @@
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "quora"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "quora"
@@ -3824,6 +6935,35 @@
    "rbc"
   ]
  },
+ "rbc_tech": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "rbc"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "jobs.rbc.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "technology"
+  ],
+  "url": [
+   "https://jobs.rbc.com/ca/en/job/{id}"
+  ]
+ },
  "reddit": {
   "ats": [
    "greenhouse"
@@ -3832,13 +6972,79 @@
    "reddit"
   ]
  },
+ "relativity_space": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "relativity_space"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "relativity"
+  ]
+ },
+ "render": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "render"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "render"
+  ]
+ },
  "replit": {
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "replit"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "replit"
@@ -3859,9 +7065,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "riot_games"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Gaming"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "riotgames"
@@ -3882,9 +7108,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "ritual"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "canada"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "ritual"
@@ -3906,13 +7152,79 @@
    "roblox"
   ]
  },
+ "rocket_lab": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "rocket_lab"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "rocketlab"
+  ]
+ },
+ "rockstar_games": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "rockstar_games"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "rockstargames"
+  ]
+ },
  "roku": {
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "roku"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "roku"
@@ -3922,9 +7234,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "rubrik"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "rubrik"
@@ -3990,12 +7322,81 @@
    "salesforce"
   ]
  },
+ "sambanova": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sambanova_systems"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sambanovasystems"
+  ]
+ },
  "samsara": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "samsara"
+  ]
+ },
+ "sap": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "sap"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "token": [
+   "SAPITBusinessSysteme"
+  ]
+ },
+ "saronic": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "saronic"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Defense & Aerospace"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "saronic"
   ]
  },
  "scale_ai": {
@@ -4016,6 +7417,29 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "scopely": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "scopely"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "scopely"
   ]
  },
  "scotiabank_students": {
@@ -4049,13 +7473,56 @@
    "seatgeek"
   ]
  },
+ "sentinelone": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sentinelone"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sentinellabs"
+  ]
+ },
  "sentry": {
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "sentry"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "sentry"
@@ -4111,6 +7578,29 @@
    "__missing__"
   ]
  },
+ "sigma_computing": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sigma_computing"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sigmacomputing"
+  ]
+ },
  "simplify_intern26": {
   "ats": [
    "github_listings"
@@ -4159,12 +7649,87 @@
    "both"
   ]
  },
+ "singlestore": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "singlestore"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "singlestore"
+  ]
+ },
+ "skydio": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "skydio"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "skydio"
+  ]
+ },
  "smartsheet": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "smartsheet"
+  ]
+ },
+ "snap": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "snap"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "host": [
+   "wd1.myworkdaysite.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "snap"
+  ],
+  "tenant": [
+   "snapchat"
   ]
  },
  "sndsh_intern27": {
@@ -4190,16 +7755,82 @@
    "both"
   ]
  },
+ "snorkel": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "snorkel_ai"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "snorkelai"
+  ]
+ },
  "snowflake": {
   "ats": [
    "ashby"
+  ],
+  "company_key": [
+   "__missing__",
+   "snowflake"
   ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Data Infrastructure"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "snowflake"
+  ]
+ },
+ "snyk": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "snyk"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Snyk"
   ]
  },
  "sofi": {
@@ -4208,6 +7839,58 @@
   ],
   "token": [
    "sofi"
+  ]
+ },
+ "sonos": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sonos"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "host": [
+   "sonos.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Sonos"
+  ],
+  "tenant": [
+   "sonos"
+  ]
+ },
+ "sourcegraph": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sourcegraph"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Developer Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sourcegraph91"
   ]
  },
  "sp_global": {
@@ -4325,13 +8008,56 @@
    "squarespace"
   ]
  },
+ "stability_ai": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "stability_ai"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "stabilityai"
+  ]
+ },
  "stackadapt": {
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "stackadapt"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "canada"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "stackadapt"
@@ -4458,6 +8184,75 @@
    "sweetgreen"
   ]
  },
+ "synopsys": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "synopsys"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "host": [
+   "careers.synopsys.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "take_two": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "take_two_interactive"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "taketwo"
+  ]
+ },
+ "tanium": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tanium"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tanium"
+  ]
+ },
  "target": {
   "ats": [
    "workday"
@@ -4549,31 +8344,223 @@
    "td"
   ]
  },
+ "td_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "td"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "de769652963501f2001247b507040dac",
+     "a744730d4e001001a147acd3cdc10000",
+     "de76965296350195765906b50704e3ab"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "td.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "TD_Bank_Careers"
+  ],
+  "tenant": [
+   "td"
+  ]
+ },
  "temporal": {
   "ats": [
    "ashby"
+  ],
+  "company_key": [
+   "__missing__",
+   "temporal"
   ],
   "disabled": [
    "__missing__",
    true
   ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Developer Tools"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
+  ],
   "token": [
    "temporal"
+  ]
+ },
+ "tenable": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tenable"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tenableinc"
+  ]
+ },
+ "tenstorrent": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tenstorrent"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tenstorrent"
+  ]
+ },
+ "texas_instruments": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "texas_instruments"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Semiconductors"
+  ],
+  "host": [
+   "edbz.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
+  ]
+ },
+ "thinkific": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "thinkific"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "thinkific"
+  ]
+ },
+ "thinking_machines": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "thinking_machines_lab"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ThinkingMachines"
   ]
  },
  "thomson_reuters": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "thomson_reuters"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Enterprise Software"
   ],
   "host": [
    "thomsonreuters.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   1
   ],
   "search": [
    ""
@@ -4585,13 +8572,56 @@
    "thomsonreuters"
   ]
  },
+ "thumbtack": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "thumbtack"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "thumbtack"
+  ]
+ },
  "toast": {
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "toast"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "FinTech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "toast"
@@ -4603,6 +8633,29 @@
   ],
   "token": [
    "togetherai"
+  ]
+ },
+ "top_hat": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "top_hat"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "top-hat"
   ]
  },
  "tower_research": {
@@ -4625,9 +8678,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "twitch"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Gaming"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "twitch"
@@ -4650,6 +8723,58 @@
   ],
   "token": [
    "typeface"
+  ]
+ },
+ "ubisoft": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "ubisoft"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Ubisoft2"
+  ]
+ },
+ "unity": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "unity"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Gaming"
+  ],
+  "host": [
+   "unitytech.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Unity"
+  ],
+  "tenant": [
+   "unitytech"
   ]
  },
  "upstart": {
@@ -4780,6 +8905,35 @@
    "virtu"
   ]
  },
+ "visa": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "visa"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "FinTech"
+  ],
+  "host": [
+   "visa.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Visa"
+  ],
+  "tenant": [
+   "visa"
+  ]
+ },
  "voleon": {
   "ats": [
    "ashby"
@@ -4808,9 +8962,29 @@
   "ats": [
    "lever"
   ],
+  "company_key": [
+   "__missing__",
+   "wattpad"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "canada"
+  ],
+  "group": [
+   "__missing__",
+   "Canadian Tech"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "wattpad"
@@ -4822,6 +8996,52 @@
   ],
   "token": [
    "waymo"
+  ]
+ },
+ "wayve": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "wayve"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "wayve"
+  ]
+ },
+ "wealthfront": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "wealthfront"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "FinTech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "wealthfront"
   ]
  },
  "wealthsimple": {
@@ -4838,6 +9058,29 @@
   ],
   "token": [
    "webflow"
+  ]
+ },
+ "weights_and_biases": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "weights_biases"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "weights_and_biases"
   ]
  },
  "wells_fargo": {
@@ -4872,6 +9115,66 @@
    "wf"
   ]
  },
+ "wells_fargo_tech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "wells_fargo"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "b5c3287c76c20100b318a19542940001",
+     "b5c3287c76c20100b3189b6fdb430000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Bank Technology"
+  ],
+  "host": [
+   "wf.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   1
+  ],
+  "site": [
+   "WellsFargoJobs"
+  ],
+  "tenant": [
+   "wf"
+  ]
+ },
+ "whoop": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "whoop"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "whoop"
+  ]
+ },
  "william_blair": {
   "ats": [
    "greenhouse"
@@ -4892,6 +9195,29 @@
    "williamblair"
   ]
  },
+ "wiz": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "wiz"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "wizinc"
+  ]
+ },
  "workday_hq": {
   "ats": [
    "workday"
@@ -4910,6 +9236,29 @@
   ],
   "tenant": [
    "workday"
+  ]
+ },
+ "world_labs": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "world_labs"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "AI Labs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "worldlabs"
   ]
  },
  "worldquant": {
@@ -4940,9 +9289,29 @@
   "ats": [
    "ashby"
   ],
+  "company_key": [
+   "__missing__",
+   "zapier"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "zapier"
@@ -5130,19 +9499,64 @@
    "tech"
   ]
  },
+ "zendesk": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "zendesk"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "host": [
+   "zendesk.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "zendesk"
+  ],
+  "tenant": [
+   "zendesk"
+  ]
+ },
  "zillow": {
   "ats": [
    "workday"
   ],
+  "company_key": [
+   "__missing__",
+   "zillow"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Consumer Tech"
   ],
   "host": [
    "zillow.wd5.myworkdayjobs.com"
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "search": [
    ""
@@ -5152,6 +9566,29 @@
   ],
   "tenant": [
    "zillow"
+  ]
+ },
+ "zipline": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "zipline"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Robotics & Autonomy"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "flyzipline"
   ]
  },
  "zoom": {
@@ -5186,9 +9623,29 @@
   "ats": [
    "greenhouse"
   ],
+  "company_key": [
+   "__missing__",
+   "zscaler"
+  ],
   "disabled": [
    "__missing__",
    true
+  ],
+  "geography": [
+   "__missing__",
+   "global"
+  ],
+  "group": [
+   "__missing__",
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   "__missing__",
+   1800
+  ],
+  "priority": [
+   "__missing__",
+   2
   ],
   "token": [
    "zscaler"

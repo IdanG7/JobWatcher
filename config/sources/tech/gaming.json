@@ -1,0 +1,19 @@
+{
+  "title": "Gaming",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "epic_games": {"ats": "greenhouse", "token": "epicgames", "min_interval": 1800, "company_key": "epic_games", "group": "Gaming", "priority": 2, "geography": "global"},
+    "riot_games": {"ats": "greenhouse", "token": "riotgames", "min_interval": 1800, "company_key": "riot_games", "group": "Gaming", "priority": 2, "geography": "global"},
+    "twitch": {"ats": "greenhouse", "token": "twitch", "min_interval": 1800, "company_key": "twitch", "group": "Gaming", "priority": 2, "geography": "global"},
+    "ubisoft": {"ats": "smartrecruiters", "token": "Ubisoft2", "min_interval": 1800, "company_key": "ubisoft", "group": "Gaming", "priority": 2, "geography": "global"},
+    "unity": {"ats": "workday", "host": "unitytech.wd1.myworkdayjobs.com", "tenant": "unitytech", "site": "Unity", "min_interval": 1800, "company_key": "unity", "group": "Gaming", "priority": 2, "geography": "global"},
+    "take_two": {"ats": "greenhouse", "token": "taketwo", "min_interval": 1800, "company_key": "take_two_interactive", "group": "Gaming", "priority": 2, "geography": "global"},
+    "rockstar_games": {"ats": "greenhouse", "token": "rockstargames", "min_interval": 1800, "company_key": "rockstar_games", "group": "Gaming", "priority": 2, "geography": "global"},
+    "2k": {"ats": "greenhouse", "token": "2k", "min_interval": 1800, "company_key": "2k", "group": "Gaming", "priority": 2, "geography": "global"},
+    "scopely": {"ats": "greenhouse", "token": "scopely", "min_interval": 1800, "company_key": "scopely", "group": "Gaming", "priority": 2, "geography": "global"},
+    "bungie": {"ats": "greenhouse", "token": "bungie", "min_interval": 1800, "company_key": "bungie", "group": "Gaming", "priority": 2, "geography": "global"},
+    "behaviour_interactive": {"ats": "lever", "token": "bhvr", "min_interval": 1800, "company_key": "behaviour_interactive", "group": "Gaming", "priority": 2, "geography": "global"},
+    "mistplay": {"ats": "lever", "token": "mistplay", "min_interval": 1800, "company_key": "mistplay", "group": "Gaming", "priority": 2, "geography": "global"}
+  }
+}

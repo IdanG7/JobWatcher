@@ -17,32 +17,32 @@
       "groups": "*"
     },
     "software": {
-      "core": ["big_tech", "lists", "swe_lists"],
+      "core": ["big_tech", "lists", "swe_lists", "software_core"],
       "filters": {
-        "backend": ["ai_labs", "ai_infrastructure", "ai_apps", "developer_tools", "data_infrastructure", "cloud_infrastructure", "enterprise_saas", "consumer_tech", "health_tech", "fintech", "financial_services_tech"],
-        "frontend": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "fintech"],
-        "full_stack": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "health_tech", "fintech"],
-        "mobile": ["consumer_tech", "health_tech", "devices_iot", "fintech"],
-        "infrastructure": ["ai_infrastructure", "cloud_infrastructure", "developer_tools", "data_infrastructure", "enterprise_saas", "financial_services_tech"],
+        "backend": ["ai_labs", "ai_infrastructure", "ai_apps", "developer_tools", "data_infrastructure", "cloud_infrastructure", "enterprise_saas", "consumer_tech", "canadian_tech", "health_tech", "bank_technology", "fintech", "financial_services_tech"],
+        "frontend": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "canadian_tech", "fintech"],
+        "full_stack": ["ai_apps", "developer_tools", "enterprise_saas", "consumer_tech", "canadian_tech", "health_tech", "fintech"],
+        "mobile": ["consumer_tech", "canadian_tech", "health_tech", "devices_iot", "fintech"],
+        "infrastructure": ["ai_infrastructure", "cloud_infrastructure", "developer_tools", "data_infrastructure", "enterprise_saas", "bank_technology", "financial_services_tech"],
         "systems": ["data_infrastructure", "cloud_infrastructure", "ai_infrastructure", "semiconductors", "quant_trading"],
-        "security": ["security", "cloud_infrastructure", "defense_aerospace", "fintech"],
+        "security": ["security", "cloud_infrastructure", "defense_aerospace", "bank_technology", "fintech"],
         "game_dev": ["gaming"],
-        "quant_dev": ["quant_trading", "fintech"],
-        "qa_test": ["enterprise_saas", "consumer_tech"]
+        "quant_dev": ["quant_trading", "fintech", "bank_technology"],
+        "qa_test": ["enterprise_saas", "consumer_tech", "canadian_tech", "bank_technology"]
       }
     },
     "data_ml": {
-      "core": ["big_tech", "lists", "ai_lists"],
+      "core": ["big_tech", "lists", "ai_lists", "data_core"],
       "filters": {
         "ml_engineering": ["ai_labs", "ai_infrastructure", "ai_apps", "robotics_autonomy", "consumer_tech", "enterprise_saas"],
         "ai_research": ["ai_labs", "ai_infrastructure", "robotics_autonomy", "quant_trading"],
-        "data_science": ["consumer_tech", "enterprise_saas", "health_tech", "fintech", "financial_services_tech"],
-        "data_engineering": ["data_infrastructure", "consumer_tech", "enterprise_saas", "fintech", "financial_services_tech"],
-        "analytics": ["consumer_tech", "enterprise_saas", "fintech", "financial_services_tech"]
+        "data_science": ["consumer_tech", "enterprise_saas", "health_tech", "canadian_tech", "bank_technology", "fintech", "financial_services_tech"],
+        "data_engineering": ["data_infrastructure", "consumer_tech", "enterprise_saas", "canadian_tech", "bank_technology", "fintech", "financial_services_tech"],
+        "analytics": ["consumer_tech", "enterprise_saas", "canadian_tech", "bank_technology", "fintech", "financial_services_tech"]
       }
     },
     "hardware": {
-      "core": ["big_tech", "lists"],
+      "core": ["big_tech", "lists", "hardware_core"],
       "filters": {
         "embedded_firmware": ["devices_iot", "robotics_autonomy", "defense_aerospace", "semiconductors"],
         "chip_design": ["semiconductors"],
@@ -51,10 +51,10 @@
       }
     },
     "product": {
-      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "fintech"]
+      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech"]
     },
     "design": {
-      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "fintech"]
+      "groups": ["big_tech", "lists", "enterprise_saas", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech"]
     },
     "sales": {
       "everything": true

@@ -1,0 +1,19 @@
+{
+  "title": "Developer tools",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "replit": {"ats": "ashby", "token": "replit", "min_interval": 1800, "company_key": "replit", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "sentry": {"ats": "ashby", "token": "sentry", "min_interval": 1800, "company_key": "sentry", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "temporal": {"ats": "ashby", "token": "temporal", "min_interval": 1800, "company_key": "temporal", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "posthog": {"ats": "ashby", "token": "posthog", "min_interval": 1800, "company_key": "posthog", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "grafana_labs": {"ats": "greenhouse", "token": "grafanalabs", "min_interval": 1800, "company_key": "grafana_labs", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "new_relic": {"ats": "greenhouse", "token": "newrelic", "min_interval": 1800, "company_key": "new_relic", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "pagerduty": {"ats": "greenhouse", "token": "pagerduty", "min_interval": 1800, "company_key": "pagerduty", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "netlify": {"ats": "greenhouse", "token": "netlify", "min_interval": 1800, "company_key": "netlify", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "circleci": {"ats": "greenhouse", "token": "circleci", "min_interval": 1800, "company_key": "circleci", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "sourcegraph": {"ats": "greenhouse", "token": "sourcegraph91", "min_interval": 1800, "company_key": "sourcegraph", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "docker": {"ats": "ashby", "token": "docker", "min_interval": 1800, "company_key": "docker", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "render": {"ats": "ashby", "token": "render", "min_interval": 1800, "company_key": "render", "group": "Developer Tools", "priority": 2, "geography": "global"}
+  }
+}

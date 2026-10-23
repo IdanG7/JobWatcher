@@ -1,0 +1,13 @@
+{
+  "title": "AI labs",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22. Includes Ai2, a nonprofit research lab. Vector Institute and Mila use ATSs no adapter reads, so there is no separate research-lab pack.",
+  "boards": {
+    "mistral": {"ats": "ashby", "token": "mistral.ai", "min_interval": 1800, "company_key": "mistral_ai", "group": "AI Labs", "priority": 2, "geography": "global"},
+    "thinking_machines": {"ats": "ashby", "token": "ThinkingMachines", "min_interval": 1800, "company_key": "thinking_machines_lab", "group": "AI Labs", "priority": 2, "geography": "global"},
+    "world_labs": {"ats": "ashby", "token": "worldlabs", "min_interval": 1800, "company_key": "world_labs", "group": "AI Labs", "priority": 2, "geography": "global"},
+    "magic": {"ats": "ashby", "token": "magic.dev", "min_interval": 1800, "company_key": "magic", "group": "AI Labs", "priority": 2, "geography": "global"},
+    "stability_ai": {"ats": "greenhouse", "token": "stabilityai", "min_interval": 1800, "company_key": "stability_ai", "group": "AI Labs", "priority": 2, "geography": "global"},
+    "ai2": {"ats": "greenhouse", "token": "thealleninstitute", "min_interval": 1800, "company_key": "ai2", "group": "Research Labs", "priority": 2, "geography": "global"}
+  }
+}

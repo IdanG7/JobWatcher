@@ -1,0 +1,13 @@
+{
+  "title": "Defense and aerospace",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "saronic": {"ats": "ashby", "token": "saronic", "min_interval": 1800, "company_key": "saronic", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "epirus": {"ats": "greenhouse", "token": "epirus", "min_interval": 1800, "company_key": "epirus", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "rocket_lab": {"ats": "greenhouse", "token": "rocketlab", "min_interval": 1800, "company_key": "rocket_lab", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "relativity_space": {"ats": "greenhouse", "token": "relativity", "min_interval": 1800, "company_key": "relativity_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "astranis": {"ats": "greenhouse", "token": "astranis", "min_interval": 1800, "company_key": "astranis", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "planet": {"ats": "greenhouse", "token": "planetlabs", "min_interval": 1800, "company_key": "planet", "group": "Defense & Aerospace", "priority": 2, "geography": "global"}
+  }
+}

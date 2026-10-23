@@ -1,0 +1,13 @@
+{
+  "title": "Fintech",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "koho": {"ats": "ashby", "token": "koho", "min_interval": 1800, "company_key": "koho", "group": "FinTech", "priority": 2, "geography": "global"},
+    "neo_financial": {"ats": "ashby", "token": "neofinancial", "min_interval": 1800, "company_key": "neo_financial", "group": "FinTech", "priority": 2, "geography": "global"},
+    "toast": {"ats": "greenhouse", "token": "toast", "min_interval": 1800, "company_key": "toast", "group": "FinTech", "priority": 2, "geography": "global"},
+    "wealthfront": {"ats": "lever", "token": "wealthfront", "min_interval": 1800, "company_key": "wealthfront", "group": "FinTech", "priority": 2, "geography": "global"},
+    "carta": {"ats": "greenhouse", "token": "carta", "min_interval": 1800, "company_key": "carta", "group": "FinTech", "priority": 2, "geography": "global"},
+    "addepar": {"ats": "greenhouse", "token": "addepar1", "min_interval": 1800, "company_key": "addepar", "group": "FinTech", "priority": 2, "geography": "global"}
+  }
+}

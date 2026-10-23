@@ -111,15 +111,21 @@ class PortableTests(unittest.TestCase):
             self.assertEqual(saved, (data / "config.json").read_bytes())
             self.assertEqual('{"secret":"unchanged"}', (data / "subscribers.json").read_text())
 
-    def test_an_upgrade_removes_the_tech_sources_0_3_0_added_and_their_postings(self):
+    def test_an_upgrade_from_0_3_0_keeps_the_tech_employers_tech_boards_poll_again(self):
         # 0.3.0 (sources_version 7) added tech employers and tagged boards with a track, 0.3.1 (8)
-        # switched them off, and 9 ships the 0.2.5 sources again: they go, with their postings.
+        # switched them off and 9 shipped the 0.2.5 sources again. 10 ships the employers again in
+        # tech/ packs (counted as new from 10, see source_history.ship); its two tech LinkedIn
+        # searches stay retired and go, with their postings.
         root = Path(__file__).resolve().parents[2]
         bundled = clean_config(load_config(root / "config.json"))
         history = json.loads((root / "config" / "source_defaults_history.json").read_text(encoding="utf-8"))
-        added = {name for name, since in history["__since__"].items() if since == 7}
-        self.assertTrue({"okta", "geotab", "micron", "linkedin_us_tech"} <= added)
-        self.assertFalse(added & set(bundled["boards"]))
+        v0_3_7 = json.loads((root / "tests/sources/v0_3_7_sources.json").read_text(encoding="utf-8"))
+        added = {name for name, known in history.items() if not name.startswith("__") and name not in v0_3_7
+                 and known.get("disabled") == ["__missing__", True]}
+        self.assertEqual(49, len(added))
+        retired = {"linkedin_us_tech", "linkedin_canada_tech"}
+        self.assertEqual(added - retired, added & set(bundled["boards"]))
+        self.assertEqual({name: 10 for name in added - retired}, {n: history["__since__"][n] for n in added - retired})
         as_shipped = {name: {k: v[0] for k, v in history[name].items() if v[0] != "__missing__"} for name in added}
         old_queries = history["linkedin_us"]["queries"][-1]
         self.assertNotEqual(bundled["boards"]["linkedin_us"]["queries"], old_queries)
@@ -137,11 +143,13 @@ class PortableTests(unittest.TestCase):
                     old["linkedin_us"] = {**old["linkedin_us"], "track": "finance", "queries": old_queries}
                 (data / "config.json").write_text(json.dumps({"sources_version": installed, "boards": old}), encoding="utf-8")
                 with closing(watcher.db_open(data / "jobwatch.db")) as con:
-                    for board, job_id in (("geotab", "1"), ("geotab", "2"), ("micron", "3"), ("okta", "4"), ("jpmorgan", "5")):
+                    for board, job_id in (("geotab", "1"), ("micron", "2"), ("okta", "3"), ("jpmorgan", "4"),
+                                          ("linkedin_us_tech", "5"), ("linkedin_canada_tech", "6")):
                         con.execute("INSERT INTO jobs(board,job_id,title,location,url,first_seen,last_seen) "
                                     "VALUES (?,?,'Analyst','Toronto, ON','https://example.com','t','t')", (board, job_id))
-                    con.execute("INSERT INTO applications(job_key, board, job_id) VALUES ('geotab:2', 'geotab', '2')")
-                    con.execute("INSERT INTO boards(board, seeded) VALUES ('geotab', 1)")
+                    con.execute("INSERT INTO applications(job_key, board, job_id) "
+                                "VALUES ('linkedin_canada_tech:6', 'linkedin_canada_tech', '6')")
+                    con.execute("INSERT INTO boards(board, seeded) VALUES ('linkedin_us_tech', 1), ('geotab', 1)")
                     IntelStore(con, {"boards": old}).refresh(force_score=True)
                     con.commit()
                 upgrade_sources(app, data)
@@ -149,24 +157,27 @@ class PortableTests(unittest.TestCase):
                 with closing(sqlite3.connect(data / "jobwatch.db")) as con:
                     keys = lambda table: sorted(r[0] for r in con.execute(f"SELECT board || ':' || job_id FROM {table}"))
                     jobs, intel, fts = keys("jobs"), keys("job_intel"), con.execute("SELECT COUNT(*) FROM job_fts").fetchone()[0]
-                    seeded = con.execute("SELECT board FROM boards").fetchall()
-                self.assertEqual(9, config["sources_version"])
-                self.assertEqual(set(bundled["boards"]) | {"okta"}, set(config["boards"]))
-                self.assertEqual(["geotab:2", "jpmorgan:5", "okta:4"], jobs)      # an application keeps its posting
-                self.assertEqual(jobs, intel)
+                    seeded = [r[0] for r in con.execute("SELECT board FROM boards")]
+                self.assertEqual(10, config["sources_version"])
+                self.assertEqual(set(bundled["boards"]), set(config["boards"]))
+                self.assertEqual(["geotab:1", "jpmorgan:4", "linkedin_canada_tech:6", "micron:2", "okta:3"], jobs)
+                self.assertEqual(jobs, intel)                                       # an application keeps its posting
                 self.assertEqual(len(jobs), fts)
-                self.assertEqual([], seeded)
+                self.assertEqual(["geotab"], seeded)
+                self.assertEqual(bundled["boards"]["geotab"], config["boards"]["geotab"])     # today's settings, enabled
+                self.assertEqual("my-okta", config["boards"]["okta"]["token"])                # pointed elsewhere: theirs
                 self.assertFalse([name for name, board in config["boards"].items() if "track" in board])
                 self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], config["boards"]["linkedin_us"]["queries"])
 
-    def test_upgrading_a_0_3_7_install_to_source_packs_removes_no_source_or_posting(self):
-        # The sources moved from config.json into config/sources packs; the next release
-        # (sources_version 10) must leave a 0.3.7 install's sources and postings alone.
+    def test_upgrading_a_0_3_7_install_keeps_every_source_and_posting_and_adds_tech_ones(self):
+        # The sources moved from config.json into config/sources packs, and the next release
+        # (sources_version 10) adds tech/ packs: a 0.3.7 install keeps its sources, settings and
+        # postings, gains only the tech sources, and its Finance board polls what it did.
         root = Path(__file__).resolve().parents[2]
-        bundled = {**clean_config(load_config(root / "config.json")), "sources_version": 10}
+        bundled = clean_config(load_config(root / "config.json"))
         history = (root / "config" / "source_defaults_history.json").read_text(encoding="utf-8")
         old = clean_config({"boards": json.loads((root / "tests/sources/v0_3_7_sources.json").read_text(encoding="utf-8"))})["boards"]
-        self.assertEqual(old, bundled["boards"])
+        self.assertEqual(old, {name: board for name, board in bundled["boards"].items() if name in old})
         mine = {**old, "rbc": {**old["rbc"], "disabled": True}, "mine": {"ats": "greenhouse", "token": "mine"}}
         with tempfile.TemporaryDirectory() as directory:
             app, data = Path(directory) / "app", Path(directory) / "data"
@@ -190,13 +201,18 @@ class PortableTests(unittest.TestCase):
                 count = lambda table: con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                 postings = {table: count(table) for table in ("jobs", "job_intel", "job_fts", "applications")}
             packs = load_packs(app / "config" / "sources")
+        tech = {name for name, key in packs.source_pack.items() if packs.packs[key].folder == "tech"}
         self.assertEqual(10, config["sources_version"])
-        self.assertEqual(mine, config["boards"])                  # 0 removed, 0 added, every setting kept
+        self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
+        self.assertEqual(tech, set(config["boards"]) - set(mine))         # 0 removed; added: tech/ only
+        self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= tech)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
         self.assertEqual(set(bundled["boards"]), set(packs.source_pack))     # every shipped source is in a pack
-        finance = polled_sources(config, profile, load_knowledge(), packs)
-        self.assertEqual(set(enabled_sources(config)), set(finance))    # the Finance board polls what it did
+        kn = load_knowledge()
+        finance = polled_sources(config, profile, kn, packs)
+        self.assertEqual(set(enabled_sources({"boards": mine})), set(finance))    # the Finance board polls what it did
+        self.assertIn("okta", polled_sources(config, {"fields": ["software"]}, kn, packs))
 
     def test_distribution_drops_private_config_and_subscribers(self):
         source = {

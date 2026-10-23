@@ -1,0 +1,14 @@
+{
+  "title": "Big tech",
+  "verified": "2026-10-22",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "boards": {
+    "thomson_reuters": {"ats": "workday", "host": "thomsonreuters.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Career_Site", "tenant": "thomsonreuters", "company_key": "thomson_reuters", "group": "Enterprise Software", "priority": 1, "geography": "global"},
+    "oracle": {"ats": "oracle_hcm", "host": "eeho.fa.us2.oraclecloud.com", "site": "CX_45001", "min_interval": 3600, "company_key": "oracle", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "cisco": {"ats": "phenom", "host": "careers.cisco.com", "min_interval": 3600, "company_key": "cisco", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "sap": {"ats": "smartrecruiters", "token": "SAPITBusinessSysteme", "min_interval": 1800, "company_key": "sap", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "intuit": {"ats": "radancy", "host": "jobs.intuit.com", "min_interval": 1800, "company_key": "intuit", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "dell": {"ats": "oracle_hcm", "host": "enterpriseplatform.dell.com", "site": "CX_1001", "min_interval": 1800, "company_key": "dell_technologies", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "snap": {"ats": "workday", "host": "wd1.myworkdaysite.com", "tenant": "snapchat", "site": "snap", "min_interval": 1800, "company_key": "snap", "group": "Consumer Tech", "priority": 1, "geography": "global"}
+  }
+}
