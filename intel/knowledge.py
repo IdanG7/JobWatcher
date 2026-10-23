@@ -180,6 +180,7 @@ class Skill:
     label: str
     group: str
     pattern: re.Pattern
+    tech: bool = False      # read only where finance fit can't change (see skills.json)
 
 
 class Knowledge:
@@ -327,7 +328,7 @@ class Knowledge:
             label = re.escape(entry["label"]).replace(r"\ ", " ")
             pattern = compile_union(entry.get("synonyms", []) + [label])
             self.skills.append(Skill(entry["key"], entry["label"],
-                                     entry.get("group", "other"), pattern))
+                                     entry.get("group", "other"), pattern, entry.get("track") == "tech"))
         self.skill_by_key = {s.key: s for s in self.skills}
 
     # ------------------------------------------------------------ geography

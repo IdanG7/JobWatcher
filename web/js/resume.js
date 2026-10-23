@@ -18,10 +18,16 @@ export function resumeFacts(parsed = {}) {
 }
 
 export function resumeChanges(changes = {}, meta = {}) {
-  const labels = Object.fromEntries((meta.skills || []).map(s => [s.key, s.label]));
+  const labels = Object.fromEntries([...(meta.company_types || []), ...(meta.skills || [])].map(s => [s.key, s.label]));
   for (const cat of meta.taxonomy || []) {
     labels[cat.key] = cat.label;
     for (const sub of cat.subcategories || []) labels[`${cat.key}.${sub.key}`] = sub.label;
+  }
+  // Fields and tech targets: 'software' → Software, 'software.backend' → Software · Backend.
+  labels.finance = 'Finance';
+  for (const family of meta.families || []) {
+    labels[family.key] = family.label;
+    for (const sub of family.subcategories || []) labels[`${family.key}.${sub.key}`] = `${family.label} · ${sub.label}`;
   }
   const display = value => {
     if (Array.isArray(value)) return value.map(v => labels[v] || prettyKey(v)).join(', ') || 'None';
@@ -46,7 +52,7 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
   try { saved = await request.get('/api/resume'); }
   catch (err) { root.innerHTML = `${head(`<p role="alert">${esc(err.message)} Reload Settings to retry.</p>`)}`; return; }
   if (!root.isConnected) return;
-  root.innerHTML = `${head('<p>Keep your saved career targets and add experience from your resume. Review extracted facts before applying them.</p>')}
+  root.innerHTML = `${head('<p>Your resume sets your target roles, skills and education from your experience. Review extracted facts before applying them.</p>')}
     <div data-resume-saved></div>
     <fieldset class="resume-inputs" data-resume-inputs>
       <legend class="sr-only">Add a resume</legend>
@@ -104,7 +110,7 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
         if (!root.isConnected) return;
         $('[data-resume-result]').innerHTML = `<h3>Review extracted facts</h3>${resumeFacts(preview.parsed)}
           <h3>Proposed profile changes</h3>${resumeChanges(preview.changes, meta)}
-          <p class="fine">Applying replaces your skill list with the skills found here, updates education and recruiting cycles, and adds resume roles to your saved targets. Eligible finance roles stay visible; targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
+          <p class="fine">Applying replaces your skill list with the skills found here, updates education and recruiting cycles, and sets your target roles from your experience, adding any field they belong to. Other roles in your fields stay visible; your targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
           <div class="form-actions"><button type="button" class="btn primary" data-resume-apply>Apply &amp; enable matching</button><button type="button" class="btn ghost" data-resume-cancel>Cancel</button></div>`;
         $('[data-resume-result]').hidden = false;
         message('Preview ready. Check these facts before applying.');

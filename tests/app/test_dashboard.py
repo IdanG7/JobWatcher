@@ -218,17 +218,18 @@ class DashboardServiceTests(ServiceFixture):
 
     def test_choices_this_version_dropped_are_pruned_at_start(self):
         # A profile saved by 0.3.0, whose specialties, employer types and skills this version
-        # renamed or doesn't offer (software.backend is offered again and stays).
+        # renamed or doesn't offer (software.backend and the Kubernetes skill are offered again and stay).
         from intel_store import save_profile
         with self.service.db() as con:
             save_profile(con, {"fields": ["software"],
                                "target_roles": ["software.embedded", "data_ml.research", "software.backend", "investment_banking.ma"],
                                "role_weights": {"software.embedded": 0.75, "investment_banking.ma": 1.0},
-                               "target_company_types": ["established_tech", "bulge_bracket"], "skills": ["kubernetes", "python"]})
+                               "target_company_types": ["established_tech", "bulge_bracket"],
+                               "skills": ["kubernetes", "python", "retired_skill"]})
         profile = JobwatchService(self.db_path, self.config_path, self.subscribers_path).get_profile()["profile"]
         self.assertEqual(["software", "data_ml", "software.backend", "investment_banking.ma"], profile["target_roles"])
         self.assertEqual({"software": 0.75, "investment_banking.ma": 1.0}, profile["role_weights"])
-        self.assertEqual((["bulge_bracket"], ["python"]), (profile["target_company_types"], profile["skills"]))
+        self.assertEqual((["bulge_bracket"], ["kubernetes", "python"]), (profile["target_company_types"], profile["skills"]))
         self.service.put_profile(profile)       # Settings can save it again
 
     def test_sources_name_their_pack_and_whether_your_boards_poll_them(self):

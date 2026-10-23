@@ -23,8 +23,10 @@ test('a target role belongs to finance or to its job family, specialties include
 test('each field shows the skill groups that fit it; no field picked shows them all', () => {
   assert.equal(skillGroupsFor([]), null);
   assert.deepEqual([...skillGroupsFor(['finance'])].sort(), ['accounting', 'markets', 'modeling', 'programming', 'quant', 'soft', 'tools']);
-  assert.deepEqual([...skillGroupsFor(['software'])].sort(), ['programming', 'soft']);
-  assert.ok(skillGroupsFor(['data_ml']).has('quant'));
+  assert.deepEqual([...skillGroupsFor(['software'])].sort(), ['cloud', 'cs', 'data', 'programming', 'soft', 'web']);
+  assert.ok(skillGroupsFor(['data_ml']).has('quant') && skillGroupsFor(['data_ml']).has('ml'));
+  assert.ok(skillGroupsFor(['hardware']).has('hardware'));
+  assert.ok(!skillGroupsFor(['finance']).has('web'));
   const both = skillGroupsFor(['software', 'finance']);
   assert.ok(both.has('modeling') && both.has('programming'));
   assert.deepEqual([...skillGroupsFor(['people_legal', 'unknown'])], ['soft']);

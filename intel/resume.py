@@ -22,6 +22,7 @@ from xml.etree import ElementTree
 from .knowledge import Knowledge
 from .locations import parse_location
 from .skills import extract_skills
+from .sources import TECH_FIELDS, profile_fields, role_field
 from .taxonomy import classify
 from . import resume_insights as insights
 
@@ -112,7 +113,7 @@ def _pdf_text(data: bytes) -> str:
                 if chars > MAX_CHARS:
                     raise ResumeError("resume PDF contains too much text; upload a shorter resume")
                 parts.append(part)
-            text = "\n".join(parts)
+            text = clean_pdf_text("\n".join(parts))
     except ResumeError:
         raise
     except Exception as exc:                  # pypdf raises many types on bad input
@@ -120,6 +121,25 @@ def _pdf_text(data: bytes) -> str:
     if len(text.strip()) < 40:
         raise ResumeError("this PDF has no extractable text (it may be a scanned image) — paste the text instead")
     return text
+
+
+# LaTeX resumes often embed fonts with no Unicode map, so pypdf returns their raw
+# codes: ligatures (the "fi" in "firmware" as \x1c), dashes and bullets come out as
+# control characters, and Unicode ligature letters appear in other exporters' PDFs.
+_PDF_CODES = str.maketrans({"\x1b": "ff", "\x1c": "fi", "\x1d": "fl", "\x1e": "ffi", "\x1f": "ffl",
+                            "\x15": "–", "\x16": "—", "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl",
+                            "ﬃ": "ffi", "ﬄ": "ffl"})
+_PDF_BULLET = re.compile(r"^([ \t]*)[\x88\x95]", re.M)
+# Kerning can split a word after its first capitals: "T oronto", "NA TS".
+_SPLIT_WORD = re.compile(r"\b([A-Z]{1,2}) ([a-z]{2,}|[A-Z]{2,})\b")
+
+
+def clean_pdf_text(text: str) -> str:
+    """PDF text with font codes read as letters, dashes and bullets, and kerning splits
+    rejoined where the whole word also appears elsewhere in the text."""
+    text = _PDF_BULLET.sub(r"\1•", text.translate(_PDF_CODES))
+    words = set(re.findall(r"[A-Za-z]+", text))
+    return _SPLIT_WORD.sub(lambda m: m[1] + m[2] if m[1] + m[2] in words else m[0], text)
 
 
 def _single_words(text: str) -> bool:
@@ -310,8 +330,9 @@ def _education(edu_lines: list[str], full: str) -> dict:
             "graduation_text": grad_text}
 
 
-def _experience(lines: list[str], kn: Knowledge) -> tuple[list[dict], list[str]]:
-    """Role-like lines (classified with the job taxonomy) and achievement bullets."""
+def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[list[dict], list[str]]:
+    """Role-like lines (classified with the job taxonomy) and achievement bullets.
+    Finance roles, and with ``tech`` also Software, AI & Data, Hardware, Product and Design ones."""
     roles, bullets = [], []
     for raw in lines:
         line = raw.strip()
@@ -339,7 +360,8 @@ def _experience(lines: list[str], kn: Knowledge) -> tuple[list[dict], list[str]]
                 # inference from "capital markets" or the employer's name.
                 if re.search(r"\btreasury\b", seg, re.I):
                     cls = classify("Treasury Analyst", kn)
-                if cls["is_finance"] and (best is None or cls["confidence"] > best[1]["confidence"]):
+                if ((cls["is_finance"] or (tech and cls.get("family") in TECH_FIELDS))
+                        and (best is None or cls["confidence"] > best[1]["confidence"])):
                     best = (seg, cls)
             if best and best[1]["confidence"] >= 0.45:
                 seg, cls = best
@@ -351,7 +373,7 @@ def _experience(lines: list[str], kn: Knowledge) -> tuple[list[dict], list[str]]
 
 _ROLE_WORD = re.compile(r"\b(?:analyst|associate|intern|internship|co-?op|summer|trader|trading|manager|"
                         r"researcher|research|banker|banking|consultant|developer|engineer|actuar\w*|underwriter|"
-                        r"advisor|specialist|assistant|fellow|portfolio)\b", re.I)
+                        r"advisor|specialist|assistant|fellow|portfolio|scientist|programmer|designer)\b", re.I)
 
 
 def _languages(text: str) -> list[str]:
@@ -375,12 +397,14 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     edu_lines = sections.get("education", [])
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
-    roles, bullets = _experience(exp_lines or lines, kn)
     entries = insights.experience_entries(sections)
+    # A resume with no tech title or degree is read with the finance vocabulary alone.
+    tech = insights.tech_resume(entries, education, kn)
+    roles, bullets = _experience(exp_lines or lines, kn, tech)
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
-    interests = insights.role_interests(entries, edu_text, kn)
+    interests = insights.role_interests(entries, edu_text, kn, tech)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))
-    skills = extract_skills(text, kn, limit=60)
+    skills = extract_skills(text, kn, limit=60, tech=tech)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference
     for line in top[:6] + exp_lines:
@@ -403,7 +427,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "skills": skills,
         "roles": roles,
         "bullets": bullets,
-        # specific role targets (never whole categories), strongest first
+        # specific role targets (never whole finance categories), strongest first
         "role_categories": [i["key"] for i in interests],
         "role_interests": interests,
         "career": career,
@@ -478,10 +502,15 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     """
     result = copy.deepcopy(profile)
     edu = parsed.get("education") or {}
-    result["education"] = {**(result.get("education") or {}),
-        **{k: edu[k] for k in ("school", "program", "level", "gpa") if edu.get(k) not in (None, "")}}
+    found = {k: edu[k] for k in ("school", "program", "level", "gpa") if edu.get(k) not in (None, "")}
+    before = result.get("education") or {}
+    if found.get("school") and before.get("school") and found["school"] != before["school"]:
+        # Another school: the saved program and GPA were for the old one.
+        before = {**before, "program": "", "gpa": None}
+    result["education"] = {**before, **found}
     result["skills"] = [s["key"] for s in parsed.get("skills", []) if s["key"] in kn.skill_by_key]
-    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()}
+    # Specialties and finance subcategories, or a whole tech family ("Software Engineer").
+    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | (TECH_FIELDS & set(kn.families))
     interests = [i for i in parsed.get("role_interests") or [] if i["key"] in valid]
     if interests:
         # The resume decides the targets; weights grade them (strongest = 1.0).
@@ -490,6 +519,12 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     else:
         roles = [r for r in parsed.get("role_categories", []) if r in valid]
         result["target_roles"] = list(dict.fromkeys([*(profile.get("target_roles") or []), *roles]))
+    # Targets beyond the fields in use bring their own: chosen fields stay, and Finance,
+    # the default when none were chosen, stays only if the resume points there too.
+    fields = list(dict.fromkeys(role_field(r, kn) for r in result["target_roles"]))
+    if not set(fields) <= set(profile_fields(profile, kn)):
+        chosen = [f for f in profile.get("fields") or [] if isinstance(f, str)]
+        result["fields"] = list(dict.fromkeys([*chosen, *fields]))
     types = [t for t in parsed.get("company_types") or [] if t in kn.company_types]
     if types:
         result["target_company_types"] = types

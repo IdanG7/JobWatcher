@@ -33,11 +33,11 @@ ES-module JavaScript with no build step.
 | `intel/cycle.py` | Recruiting cycle (`summer_2027`, `new_grad_2027`, off-cycle), graduation windows, deadline extraction with confidence, rolling detection and window status. |
 | `intel/eligibility.py` | Degree, GPA, work authorization, sponsorship, citizenship, languages and experience. Fields stay `None` ("Not specified") unless the text states them. |
 | `intel/compensation.py` | CAD/USD/GBP parsing. Keeps the original text and labels annualized hourly or monthly pay as an estimate. |
-| `intel/skills.py` | Skill extraction with synonym normalization (`DCF` → Valuation, `CapIQ` → Capital IQ). |
+| `intel/skills.py` | Skill extraction with synonym normalization (`DCF` → Valuation, `CapIQ` → Capital IQ). Tech skills (`"track": "tech"` in `skills.json`) are read only from postings outside finance and from tech resumes. |
 | `intel/profile.py` | Candidate profile defaults, merge and validation, and the version hash that triggers rescoring. |
 | `intel/scoring.py` | Fit Score 2.0: subscores, penalties, reasons, urgency and badges. |
-| `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. |
-| `intel/matching.py` | Resume shortlist decisions, explicit conflicts and unknown requirements for review. |
+| `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. A resume with a tech job or project title, or a tech degree, is also read for Software, AI & Data and Hardware specialties and tech skills, and proposes their fields; any other resume is read with the finance vocabulary alone. |
+| `intel/matching.py` | Resume shortlist decisions, explicit conflicts and unknown requirements for review. Roles outside the profile's fields are excluded; finance roles stay eligible only when Finance is one of them. |
 | `intel/sources.py` | Source packs and selection: which sources each profile's boards poll (see Sources). |
 | `intel_store.py` | Incremental facts and score passes, clustering and canonical selection, FTS, change and lifecycle tracking. |
 | `job_query.py` | One SQL filter builder shared by the API, CSV export and saved-search alerts. |

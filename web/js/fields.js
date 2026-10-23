@@ -18,9 +18,9 @@ export const FIELD_INFO = {
 // Skill groups worth showing for each field.
 const FIELD_SKILLS = {
   finance: ['modeling', 'accounting', 'tools', 'programming', 'markets', 'quant', 'soft'],
-  software: ['programming', 'soft'],
-  data_ml: ['programming', 'quant', 'tools', 'soft'],
-  hardware: ['programming', 'soft'],
+  software: ['programming', 'web', 'cloud', 'data', 'cs', 'soft'],
+  data_ml: ['programming', 'data', 'ml', 'quant', 'tools', 'cs', 'soft'],
+  hardware: ['programming', 'hardware', 'cs', 'soft'],
   product: ['tools', 'programming', 'soft'],
   design: ['tools', 'soft'],
   sales: ['tools', 'soft'],

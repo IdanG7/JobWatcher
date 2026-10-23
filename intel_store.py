@@ -517,7 +517,7 @@ class IntelStore:
                    "watched": ckey in self.watched, "recent_change": (board, job_id) in changed}
             result = score_job(facts, self.profile, self.kn, dyn, now)
             if resume:
-                match = match_resume(facts, self.profile, result)
+                match = match_resume(facts, self.profile, result, self.kn)
                 matches.append((board, job_id, int(match["matched"]), json.dumps(match), self.version))
             detail = {k: result[k] for k in ("subscores", "penalties", "reasons", "concerns", "raw_total",
                                              "urgency_label", "days_left", "posting_age_hours")}

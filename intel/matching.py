@@ -1,5 +1,9 @@
 """Explainable resume filtering: explicit conflicts exclude, unknowns stay visible."""
 
+from __future__ import annotations
+
+from .sources import profile_fields
+
 # Finance roles that need a background a resume must show; outside the
 # candidate's targets they are filtered instead of merely ranked lower.
 SPECIALIST = {
@@ -8,7 +12,9 @@ SPECIALIST = {
 }
 
 
-def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
+def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
+    """``kn`` lets the profile's fields decide which roles outside its targets stay
+    eligible; without it, or for a finance-only profile, finance roles do."""
     cls, stage = facts["classification"], facts["seniority"].get("stage")
     loc, elig = facts["location"], facts.get("eligibility") or {}
     exclusions, reasons, review = [], [], []
@@ -17,15 +23,21 @@ def match_resume(facts: dict, profile: dict, scored: dict) -> dict:
     full = f"{category}.{sub}" if sub else category
     relevant = not targets or category in targets or full in targets or (
         not sub and any(t.startswith(f"{category}.") for t in targets))
-    if not relevant and cls.get("is_finance") and category in SPECIALIST:
+    fields = set(profile_fields(profile, kn)) if kn else {"finance"}
+    family, label = cls.get("family"), cls.get("category_label") or category
+    if not relevant and cls.get("is_finance") and "finance" in fields and category in SPECIALIST:
         exclusions.append(SPECIALIST[category])
-    elif not relevant and cls.get("is_finance"):
+    elif not relevant and cls.get("is_finance") and "finance" in fields:
         reasons.append("Eligible finance role; your targets and experience affect ranking")
     elif not relevant and any(t.startswith(f"{category}.") for t in targets):
         # Frontend work for someone targeting Backend: same field, ranked lower.
-        reasons.append(f"{cls.get('category_label') or category} role outside your specialties; ranked lower")
-    elif not relevant and cls.get("family") not in (None, "unknown", "other"):
-        exclusions.append("Role is outside finance and your selected career targets")
+        reasons.append(f"{label} role outside your specialties; ranked lower")
+    elif not relevant and not cls.get("is_finance") and family != "finance" and family in fields:
+        # A field the user recruits in (Software, AI & Data…) with no target in it.
+        reasons.append(f"Eligible {label} role; your targets and experience affect ranking")
+    elif not relevant and family not in (None, "unknown", "other"):
+        exclusions.append("Role is outside finance and your selected career targets" if fields == {"finance"} else
+                          f"{'Finance' if cls.get('is_finance') else label} role is outside the fields you recruit in")
     elif not relevant:
         review.append("Role relevance needs review")
     elif cls.get("prior_only"):
