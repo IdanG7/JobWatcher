@@ -1,0 +1,8 @@
+{
+  "title": "Telecom & networks",
+  "verified": "2026-10-23",
+  "note": "Each feed was fetched successfully on 2026-10-23.",
+  "boards": {
+    "verizon": {"ats": "jobs_api", "host": "mycareer.verizon.com", "min_interval": 3600, "company_key": "verizon", "group": "Telecom & Networks", "priority": 2, "geography": "global"}
+  }
+}

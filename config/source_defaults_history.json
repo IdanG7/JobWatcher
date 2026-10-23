@@ -77,7 +77,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "06424099379e078d",
+  "hash": "99184ec16a625ce7",
   "names": [
    "1password",
    "1x_technologies",
@@ -91,6 +91,7 @@
    "addepar",
    "adobe",
    "adobe_university",
+   "adp",
    "affirm",
    "agility_robotics",
    "ai2",
@@ -316,12 +317,14 @@
    "encord",
    "enovix",
    "epic_games",
+   "epic_systems",
    "epirus",
    "equifax",
    "etched",
    "evercore",
    "evercore_students",
    "exa_ai",
+   "exabeam",
    "expedia_group",
    "f5",
    "faire",
@@ -348,6 +351,7 @@
    "ford_motor_company",
    "form_energy",
    "fortinet",
+   "freshbooks",
    "freshworks",
    "fullstory",
    "garmin",
@@ -453,6 +457,8 @@
    "league",
    "leidos",
    "lemonade",
+   "lenovo_canada",
+   "lenovo_us",
    "letta",
    "lightmatter",
    "lightning_ai",
@@ -687,6 +693,9 @@
    "serve_robotics",
    "servicenow",
    "shield_ai",
+   "siemens_canada",
+   "siemens_finance",
+   "siemens_us",
    "sierra",
    "sierra_nevada",
    "sierra_space",
@@ -805,6 +814,7 @@
    "vatic_labs",
    "veeva_systems",
    "vercel",
+   "verizon",
    "verkada",
    "viam",
    "viavi_solutions",
@@ -880,6 +890,7 @@
   "addepar": 10,
   "adobe": 1,
   "adobe_university": 1,
+  "adp": 10,
   "affirm": 1,
   "agility_robotics": 10,
   "ai2": 10,
@@ -1105,12 +1116,14 @@
   "encord": 10,
   "enovix": 10,
   "epic_games": 10,
+  "epic_systems": 10,
   "epirus": 10,
   "equifax": 10,
   "etched": 10,
   "evercore": 6,
   "evercore_students": 6,
   "exa_ai": 10,
+  "exabeam": 10,
   "expedia_group": 10,
   "f5": 10,
   "faire": 1,
@@ -1137,6 +1150,7 @@
   "ford_motor_company": 10,
   "form_energy": 10,
   "fortinet": 10,
+  "freshbooks": 10,
   "freshworks": 10,
   "fullstory": 10,
   "garmin": 10,
@@ -1242,6 +1256,8 @@
   "league": 10,
   "leidos": 10,
   "lemonade": 10,
+  "lenovo_canada": 10,
+  "lenovo_us": 10,
   "letta": 10,
   "lightmatter": 10,
   "lightning_ai": 10,
@@ -1478,6 +1494,9 @@
   "serve_robotics": 10,
   "servicenow": 1,
   "shield_ai": 1,
+  "siemens_canada": 10,
+  "siemens_finance": 10,
+  "siemens_us": 10,
   "sierra": 1,
   "sierra_nevada": 10,
   "sierra_space": 10,
@@ -1596,6 +1615,7 @@
   "vatic_labs": 1,
   "veeva_systems": 10,
   "vercel": 1,
+  "verizon": 10,
   "verkada": 1,
   "viam": 10,
   "viavi_solutions": 10,
@@ -1821,6 +1841,26 @@
   ],
   "tenant": [
    "adobe"
+  ]
+ },
+ "adp": {
+  "ats": [
+   "adp"
+  ],
+  "company_key": [
+   "adp"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "affirm": {
@@ -6998,6 +7038,29 @@
    "epicgames"
   ]
  },
+ "epic_systems": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "epic_systems"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Health Tech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://epic.avature.net/Careers/SearchJobs"
+  ]
+ },
  "epirus": {
   "ats": [
    "greenhouse"
@@ -7140,6 +7203,29 @@
   ],
   "token": [
    "exa"
+  ]
+ },
+ "exabeam": {
+  "account": [
+   "q31bVfwU"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "exabeam"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Cybersecurity"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "expedia_group": {
@@ -7672,6 +7758,29 @@
   ],
   "site": [
    "CX_2001"
+  ]
+ },
+ "freshbooks": {
+  "account": [
+   "freshbooks"
+  ],
+  "ats": [
+   "gem"
+  ],
+  "company_key": [
+   "freshbooks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "freshworks": {
@@ -10061,6 +10170,64 @@
   ],
   "token": [
    "lemonade"
+  ]
+ },
+ "lenovo_canada": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "lenovo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "label": [
+   "Lenovo \u00b7 Canada"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.lenovo.com/en_US/careers/SearchJobs"
+  ]
+ },
+ "lenovo_us": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "lenovo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "label": [
+   "Lenovo \u00b7 United States"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.lenovo.com/en_US/careers/SearchJobs"
   ]
  },
  "letta": {
@@ -15815,6 +15982,96 @@
    "shieldai"
   ]
  },
+ "siemens_canada": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "siemens"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "label": [
+   "Siemens \u00b7 Canada"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.siemens.com/en_US/externaljobs/SearchJobs"
+  ]
+ },
+ "siemens_finance": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "siemens"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "label": [
+   "Siemens finance roles \u00b7 United States"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "query": [
+   "finance"
+  ],
+  "url": [
+   "https://jobs.siemens.com/en_US/externaljobs/SearchJobs"
+  ]
+ },
+ "siemens_us": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "siemens"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Devices & IoT"
+  ],
+  "label": [
+   "Siemens \u00b7 United States"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   21600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.siemens.com/en_US/externaljobs/SearchJobs"
+  ]
+ },
  "sierra": {
   "ats": [
    "ashby"
@@ -18001,7 +18258,7 @@
  },
  "uber": {
   "ats": [
-   "uber"
+   "jobs_api"
   ],
   "company_key": [
    "uber"
@@ -18011,6 +18268,9 @@
   ],
   "group": [
    "Big Tech"
+  ],
+  "host": [
+   "jobs.uber.com"
   ],
   "min_interval": [
    1800
@@ -18400,6 +18660,29 @@
   ],
   "token": [
    "vercel"
+  ]
+ },
+ "verizon": {
+  "ats": [
+   "jobs_api"
+  ],
+  "company_key": [
+   "verizon"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Telecom & Networks"
+  ],
+  "host": [
+   "mycareer.verizon.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "verkada": {

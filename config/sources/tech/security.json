@@ -39,6 +39,7 @@
     "rapid7": {"ats": "workday", "host": "mymoose.wd1.myworkdayjobs.com", "tenant": "mymoose", "site": "careers", "min_interval": 1800, "company_key": "rapid7", "group": "Cybersecurity", "priority": 2, "geography": "global"},
     "darktrace": {"ats": "workday", "host": "darktrace.wd3.myworkdayjobs.com", "tenant": "darktrace", "site": "DarktaceExternal", "min_interval": 1800, "company_key": "darktrace", "group": "Cybersecurity", "priority": 2, "geography": "global"},
     "check_point_software": {"ats": "smartrecruiters", "token": "CheckPointSoftwareTechnologies2", "min_interval": 1800, "company_key": "check_point_software", "group": "Cybersecurity", "priority": 2, "geography": "global"},
-    "mimecast": {"ats": "workday", "host": "mimecast.wd5.myworkdayjobs.com", "tenant": "mimecast", "site": "Mimecast-Careers", "min_interval": 1800, "company_key": "mimecast", "group": "Cybersecurity", "priority": 2, "geography": "global"}
+    "mimecast": {"ats": "workday", "host": "mimecast.wd5.myworkdayjobs.com", "tenant": "mimecast", "site": "Mimecast-Careers", "min_interval": 1800, "company_key": "mimecast", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "exabeam": {"ats": "jobvite", "account": "q31bVfwU", "min_interval": 1800, "company_key": "exabeam", "group": "Cybersecurity", "priority": 2, "geography": "global"}
   }
 }

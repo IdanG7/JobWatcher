@@ -159,6 +159,55 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(12, get.call_args_list[1].kwargs["params"]["jobOffset"])
         self.assertTrue(jobs.complete)
 
+    @patch("watcher.requests.get")
+    def test_avature_location_search_and_next_links(self, get):
+        siemens = '''<article class="article article--result"><h3 class="title"><a class="link"
+            href="https://jobs.siemens.com/en_US/externaljobs/JobDetail/{jid}">{title}</a></h3>
+            <div class="article__header__text__subtitle"><span class="list-item-location">{loc}</span>
+            <span class="separator"> &#8226; </span></div></article>'''
+        nested = ('<span class="list-item-jobCity">Kitchener</span><span class="separator">, </span>'
+                  '<span class="list-item-jobState">Ontario</span><span class="separator">, </span>'
+                  '<span class="list-item-jobCountry">Canada</span> ')
+        get.side_effect = [
+            response(text=siemens.format(jid=526944, title="Platform Engineer", loc=nested)
+                     + '<li class="list-controls__pagination__item paginationNextLink"><a href="https://jobs.siemens.com/'
+                       'en_US/externaljobs/SearchJobs/?folderRecordsPerPage=6&amp;folderOffset=6">Next</a></li>'),
+            response(text=siemens.format(jid=526950, title="Data Engineer", loc="Multiple Locations"))]
+        jobs = watcher.fetch_avature({"url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs", "location": "Canada"})
+        self.assertEqual(["Kitchener, Ontario, Canada", "Multiple Locations, Canada"], [j["location"] for j in jobs])
+        first, second = (c.kwargs["params"] for c in get.call_args_list)
+        self.assertEqual(("Canada", 1, 0), (first["search"], first["listFilterMode"], first["jobOffset"]))
+        self.assertEqual((6, "Canada"), (second["folderOffset"], second["search"]))
+        self.assertTrue(jobs.complete)
+        lenovo = '''<article class="article article--result"><h3><a href="https://jobs.lenovo.com/en_US/careers/JobDetail/
+            AI-Engineer/83002"> AI Engineer </a></h3><span class="paragraph">Development</span>
+            <div class="article__header__text__subtitle">
+            <span> United States of America, North Carolina, Morrisville </span><br><span>Req #: WD1</span></div></article>'''
+        get.side_effect = [response(text=lenovo)]
+        jobs = watcher.fetch_avature({"url": "https://jobs.lenovo.com/en_US/careers/SearchJobs", "location": "United States"})
+        self.assertEqual("United States of America, North Carolina, Morrisville", jobs[0]["location"])
+        get.side_effect = [response(text=siemens.format(jid=1, title="Controller", loc="Multiple Locations"))]
+        jobs = watcher.fetch_avature({"url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs",
+                                      "query": "finance", "location": "United States"})
+        self.assertEqual("finance United States", get.call_args.kwargs["params"]["search"])
+        self.assertEqual("Multiple Locations, United States", jobs[0]["location"])
+
+    @patch("watcher.requests.get")
+    def test_avature_folder_list(self, get):
+        def item(slug, title, jid):
+            return (f'<li role="listitem" class="jobResultItem itemJob"><h3 class="jobTitleMain"><a href="https://'
+                    f'epic.avature.net/Careers/FolderDetail/{slug}/{jid}" class="color1">{title}</a></h3></li>')
+        get.side_effect = [
+            response(text=item("Verona-Wisconsin-United-States-Software-Developer", "Software Developer", 740)
+                     + '<a class="paginationItem paginationLink" href="https://epic.avature.net/Careers/SearchJobs/?folderOffset=10">2</a>'),
+            response(text=item("Verona-Wisconsin-United-States-Senior-In-House-Counsel", "Senior In-House Counsel", 10455))]
+        jobs = watcher.fetch_avature({"url": "https://epic.avature.net/Careers/SearchJobs"})
+        self.assertEqual([("740", "Software Developer", "Verona Wisconsin United States"),
+                          ("10455", "Senior In-House Counsel", "Verona Wisconsin United States")],
+                         [(j["id"], j["title"], j["location"]) for j in jobs])
+        self.assertEqual(10, get.call_args_list[1].kwargs["params"]["folderOffset"])
+        self.assertTrue(jobs.complete)
+
 
 class NewAdapterTests(unittest.TestCase):
     @patch("watcher.requests.get")
@@ -332,17 +381,68 @@ class NewAdapterTests(unittest.TestCase):
         self.assertTrue(jobs.complete)
 
     @patch("watcher.requests.get")
-    def test_uber_search_pages(self, get):
+    def test_jobs_api_search_pages(self, get):
         def page(*ids):
             return response({"totalJobs": 3, "jobs": [{
                 "Id": i, "Title": f"Engineer {i}", "DisplayDate": "2026-10-23T01:33:28Z", "Description": "<p>Scale</p>",
                 "Teams": ["Engineering"], "Urls": [{"Url": f"/en/jobs/{i}/", "IsDefault": True}],
                 "Locations": [{"City": "Toronto", "Region": "Ontario", "Country": "Canada"}]} for i in ids]})
         get.side_effect = [page(303157, 303158), page(303159)]
-        jobs = watcher.fetch_uber({})
+        jobs = watcher.fetch_jobs_api({"host": "jobs.uber.com"})
         self.assertEqual(["303157", "303158", "303159"], [j["id"] for j in jobs])
         self.assertEqual(("Toronto, Ontario, Canada", "https://jobs.uber.com/en/jobs/303157/"),
                          (jobs[0]["location"], jobs[0]["url"]))
+        self.assertEqual("https://jobs.uber.com/api/jobs/search/", get.call_args_list[0][0][0])
+        self.assertEqual({"page": 2, "pagesize": 1000}, get.call_args_list[1].kwargs["params"])
+        self.assertTrue(jobs.complete)
+        with self.assertRaises(ValueError):
+            watcher.fetch_jobs_api({"host": "evil.example"})
+
+    @patch("watcher.requests.get")
+    def test_gem_job_board_api(self, get):
+        get.return_value = response([{
+            "id": "am9icG9zdDpb", "title": "Senior Payroll Specialist ", "absolute_url": "https://jobs.gem.com/freshbooks/am9icG9zdDpb",
+            "first_published_at": "2026-10-06T18:24:59.272Z", "content_plain": "Run payroll", "content": "<p>Run payroll</p>",
+            "location": {"name": "Canada - Remote"}, "offices": [{"name": "Toronto"}], "departments": [{"name": "Finance"}]}])
+        jobs = watcher.fetch_gem({"account": "freshbooks"})
+        self.assertEqual(("am9icG9zdDpb", "Senior Payroll Specialist", "Canada - Remote", "Run payroll", "Finance"),
+                         tuple(jobs[0][k] for k in ("id", "title", "location", "description", "department")))
+        self.assertEqual("https://api.gem.com/job_board/v0/freshbooks/job_posts/", get.call_args[0][0])
+        self.assertTrue(jobs.complete)
+        with self.assertRaises(ValueError):
+            watcher.fetch_gem({"account": "../x"})
+
+    @patch("watcher.requests.get")
+    def test_jobvite_company_feed(self, get):
+        get.return_value = response()
+        get.return_value.content = '''<?xml version="1.0" encoding="UTF-8"?><result><job><id>oQjXAfwq</id>
+            <title>Principal Architect</title><category>Cloud, Engineering and R&amp;D</category>
+            <location>Broomfield, Colorado</location><date>10/13/2026</date>
+            <detail-url><![CDATA[http://app.jobvite.com/CompanyJobs/Job.aspx?c=q31bVfwU&j=oQjXAfwq]]></detail-url>
+            <description>&lt;p&gt;Design &lt;b&gt;SIEM&lt;/b&gt;&lt;/p&gt;</description></job></result>'''.encode()
+        jobs = watcher.fetch_jobvite({"account": "q31bVfwU"})
+        self.assertEqual(("oQjXAfwq", "Broomfield, Colorado", "Design SIEM", "Cloud, Engineering and R&D"),
+                         tuple(jobs[0][k] for k in ("id", "location", "description", "department")))
+        self.assertEqual("https://app.jobvite.com/CompanyJobs/Job.aspx?c=q31bVfwU&j=oQjXAfwq", jobs[0]["url"])
+        self.assertEqual(watcher._us_date_epoch("10/13/2026"), jobs[0]["posted"])
+        self.assertTrue(jobs.complete)
+
+    @patch("watcher.requests.get")
+    def test_adp_result_cards(self, get):
+        def page(jid, title, last):
+            return response(text=f'''<div class="card card-job" data-id="{jid}"><div class="job-meta">
+                <p><time datetime="2026-10-22">10/22/2026</time></p><p>Technology</p></div>
+                <h2 class="card-title"><a class="stretched-link js-view-job" href="/en/jobs/{jid}/x/">{title}</a></h2>
+                <span class="job-meta-location">Roseland, New Jersey, United States + 2 other locations</span></div>
+                <a href="https://jobs.adp.com/en/jobs/?page=2#results">2</a>{last}''')
+        get.side_effect = [page(281472, "Software Engineer", ""), page(281125, "Data Engineer", "")]
+        jobs = watcher.fetch_adp({})
+        self.assertEqual(["281472", "281125"], [j["id"] for j in jobs])
+        self.assertEqual(("Roseland, New Jersey, United States + 2 other locations", "Technology",
+                          "https://jobs.adp.com/en/jobs/281472/x/"),
+                         (jobs[0]["location"], jobs[0]["department"], jobs[0]["url"]))
+        self.assertEqual(watcher._date_epoch("2026-10-22"), jobs[0]["posted"])
+        self.assertEqual(2, get.call_args_list[1].kwargs["params"]["page"])
         self.assertTrue(jobs.complete)
 
 

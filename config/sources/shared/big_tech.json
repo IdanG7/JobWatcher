@@ -24,7 +24,7 @@
     "cisco": {"ats": "phenom", "host": "careers.cisco.com", "min_interval": 3600, "company_key": "cisco", "group": "Big Tech", "priority": 1, "geography": "global"},
     "dell": {"ats": "oracle_hcm", "host": "enterpriseplatform.dell.com", "site": "CX_1001", "min_interval": 1800, "company_key": "dell_technologies", "group": "Big Tech", "priority": 1, "geography": "global"},
     "google": {"ats": "google", "min_interval": 3600, "company_key": "google", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "uber": {"ats": "uber", "min_interval": 1800, "company_key": "uber", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "uber": {"ats": "jobs_api", "host": "jobs.uber.com", "min_interval": 1800, "company_key": "uber", "group": "Big Tech", "priority": 1, "geography": "global"},
     "amazon_finance": {"ats": "amazon_jobs", "query": "", "max": 5000, "categories": ["finance-accounting", "economics", "business-intelligence"], "min_interval": 1800, "company_key": "amazon", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Amazon finance, economics and BI roles"},
     "microsoft_finance": {"ats": "eightfold", "host": "apply.careers.microsoft.com", "domain": "microsoft.com", "api": "pcsx", "query": "finance", "min_interval": 10800, "company_key": "microsoft", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Microsoft finance roles"},
     "apple_finance": {"ats": "apple", "query": "finance", "min_interval": 3600, "company_key": "apple", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Apple finance roles"}

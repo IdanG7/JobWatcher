@@ -1,7 +1,7 @@
 {
   "title": "Banks, card networks and exchanges with large tech teams",
   "verified": null,
-  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple, Google and Uber are read from their own career-site search; Meta refuses automated requests, so a LinkedIn search covers it on the tech boards) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): visa, american_express. Added 2026-10-23 (each fetched successfully that day): fis, global_payments, ss_c_technologies, paychex, equifax, transunion, fiserv.",
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple, Google and Uber are read from their own career-site search; Meta refuses automated requests, so a LinkedIn search covers it on the tech boards) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): visa, american_express. Added 2026-10-23 (each fetched successfully that day): fis, global_payments, ss_c_technologies, paychex, equifax, transunion, fiserv, adp.",
   "boards": {
     "capital_one_early": {"ats": "workday", "host": "capitalone.wd12.myworkdayjobs.com", "tenant": "capitalone", "site": "Capital_One", "min_interval": 600, "facets": {"workerSubType": ["a12c70bf789e10572aab83c4780919ad"]}},
     "mastercard_early": {"ats": "workday", "host": "mastercard.wd1.myworkdayjobs.com", "tenant": "mastercard", "site": "CorporateCareers", "min_interval": 600, "facets": {"workerSubType": ["cfba33fac07f49c9b6d3d53336c6a291"]}},
@@ -17,6 +17,7 @@
     "paychex": {"ats": "jibe", "host": "careers.paychex.com", "min_interval": 1800, "company_key": "paychex", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "equifax": {"ats": "workday", "host": "equifax.wd5.myworkdayjobs.com", "tenant": "equifax", "site": "External", "min_interval": 1800, "company_key": "equifax", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "transunion": {"ats": "workday", "host": "transunion.wd5.myworkdayjobs.com", "tenant": "transunion", "site": "TransUnion", "min_interval": 1800, "company_key": "transunion", "group": "Enterprise Software", "priority": 2, "geography": "global"},
-    "fiserv": {"ats": "phenom", "host": "careers.fiserv.com", "min_interval": 1800, "company_key": "fiserv", "group": "Enterprise Software", "priority": 2, "geography": "global"}
+    "fiserv": {"ats": "phenom", "host": "careers.fiserv.com", "min_interval": 1800, "company_key": "fiserv", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "adp": {"ats": "adp", "min_interval": 1800, "company_key": "adp", "group": "Enterprise Software", "priority": 2, "geography": "global"}
   }
 }

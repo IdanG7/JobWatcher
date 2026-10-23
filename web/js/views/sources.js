@@ -1,22 +1,9 @@
 // Sources: health of every source, grouped by pack with the boards that poll it; coverage by
-// employer group; known gaps.
+// employer group.
 import {get, post} from '../api.js';
 import {age, esc, toEpochMs} from '../lib.js';
 import {hBars} from '../charts.js';
 import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toast} from '../ui.js';
-
-// Employers without a usable public job feed (researched 2026-10-15, tech employers 2026-10-22).
-// Covered indirectly via GitHub/LinkedIn sources.
-const KNOWN_GAPS = [
-  ['UBS', 'Job search is behind bot protection'],
-  ['Centerview', 'No public job board; recruits through campuses and directly'],
-  ['Meta, Tesla, IBM, Shopify', 'Career sites refuse automated requests; their roles come from a LinkedIn search for these employers'],
-  ['Groq, Etsy, Questrade', 'Job boards need a CAPTCHA or a sign-in; their roles come from the same LinkedIn search'],
-  ['T-Mobile, SAIC, Arista, CGI', 'Career sites answer automated requests with a bot check'],
-  ['Epic Systems, Verizon, ADP, Wayfair', 'Career sites with no public job feed'],
-  ['Lenovo, Siemens', 'Search pages Foothold cannot read yet'],
-  ['FreshBooks, Exabeam', 'Job boards on Gem and Jobvite, which Foothold does not read yet'],
-];
 
 // Sources whose employer is a recognised finance type (not a generic corporate or an aggregator).
 const financeEmployer = s => s.company_type && !['corporate', 'unknown'].includes(s.company_type);
@@ -98,16 +85,8 @@ export async function render(root, ctx) {
     for (const s of enabled) { const g = s.group || 'Other'; groups[g] = groups[g] || {n: 0, jobs: 0, fit: 0}; groups[g].n += 1; groups[g].jobs += s.jobs; groups[g].fit += s.finance_jobs; }
     body.innerHTML = `
     <div class="ledger sources">
-      <div class="two-col">
-        <section class="panel"><div class="panel-head"><h2>Coverage by employer group</h2><span class="panel-note">finance roles open now</span></div>
-          <div class="panel-body">${hBars(Object.entries(groups).sort((a, b) => b[1].fit - a[1].fit).slice(0, 12).map(([g, v]) => ({label: prettyKey(g), value: v.fit, tip: `<b>${esc(prettyKey(g))}</b> · ${v.n} sources · ${v.fit} finance of ${v.jobs} open roles`})))}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Known coverage gaps <span class="count">${KNOWN_GAPS.length}</span></h2></div>
-          <div class="panel-body gaps">
-            <p>These employers have no public job feed Foothold can read, so it doesn't scrape them. Their roles still arrive through GitHub listings and LinkedIn guest search when cross-posted.</p>
-            <dl class="gap-list">${KNOWN_GAPS.map(([name, why]) => `<div><dt>${esc(name)}</dt><dd>${esc(why)}</dd></div>`).join('')}</dl>
-            <p class="fine">Found an official Greenhouse, Lever, Ashby, Workday, Oracle, SmartRecruiters, Eightfold, Workable, iCIMS, Jibe, Radancy, UKG or Oleeo feed? Add it to <code>boards</code> in <code>config.json</code>.</p>
-          </div></section>
-      </div>
+      <section class="panel"><div class="panel-head"><h2>Coverage by employer group</h2><span class="panel-note">finance roles open now</span></div>
+        <div class="panel-body">${hBars(Object.entries(groups).sort((a, b) => b[1].fit - a[1].fit).slice(0, 12).map(([g, v]) => ({label: prettyKey(g), value: v.fit, tip: `<b>${esc(prettyKey(g))}</b> · ${v.n} sources · ${v.fit} finance of ${v.jobs} open roles`})))}</div></section>
       <section class="panel"><div class="panel-head"><h2>All sources <span class="count">${list.length}</span></h2>${packs.size ? `<span class="panel-note">Dimmed: not polled for your boards${everyPack.length ? ` · ${esc(everyPack.join(', '))} poll every source` : ''}</span>` : ''}</div>
         ${list.length ? `<div class="table-wrap"><table class="data tidy sources-table"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>${packs.size ? 'Boards' : 'Group'}</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th class="num">Last success</th><th>Coverage</th></tr></thead>
         <tbody>${byPack.map(([key, rows]) => `${packs.size ? `<tr class="static pack-row"><td colspan="9"><b>${esc(key ? packs.get(key).title : 'Your sources')}</b><span class="count">${rows.length}</span></td></tr>` : ''}${rows.map(s => { const h = health(s, liveStatus?.progress); const detail = [s.name, s.geography, s.note].filter(Boolean).join(' · '); return `<tr class="static${polled(s) ? '' : ' off'}">

@@ -834,6 +834,13 @@
     {"key": "curtiss_wright", "name": "Curtiss-Wright", "type": "defense_tech", "country": "US", "hq": "Davidson", "aliases": ["=curtiss-wright"]},
     {"key": "mimecast", "name": "Mimecast", "type": "cybersecurity", "country": "US", "hq": "London", "aliases": ["=mimecast"]},
     {"key": "spring_health", "name": "Spring Health", "type": "health_tech", "country": "US", "hq": "New York", "aliases": ["=spring health"]},
-    {"key": "playstation", "name": "PlayStation", "type": "gaming", "country": "US", "hq": "San Mateo", "aliases": ["=playstation", "=sony interactive entertainment"]}
+    {"key": "playstation", "name": "PlayStation", "type": "gaming", "country": "US", "hq": "San Mateo", "aliases": ["=playstation", "=sony interactive entertainment"]},
+    {"key": "lenovo", "name": "Lenovo", "type": "hardware_devices", "country": "US", "hq": "Morrisville", "aliases": ["=lenovo"]},
+    {"key": "siemens", "name": "Siemens", "type": "hardware_devices", "country": "DE", "hq": "Munich", "aliases": ["=siemens"]},
+    {"key": "epic_systems", "name": "Epic Systems", "type": "health_tech", "country": "US", "hq": "Verona", "aliases": ["=epic systems", "=epic"]},
+    {"key": "verizon", "name": "Verizon", "type": "telecom", "country": "US", "hq": "New York", "aliases": ["=verizon", "=verizon communications"]},
+    {"key": "adp", "name": "ADP", "type": "enterprise_saas", "country": "US", "hq": "Roseland", "aliases": ["=adp", "=automatic data processing"]},
+    {"key": "freshbooks", "name": "FreshBooks", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=freshbooks"]},
+    {"key": "exabeam", "name": "Exabeam", "type": "cybersecurity", "country": "US", "hq": "Foster City", "aliases": ["=exabeam"]}
   ]
 }

@@ -1332,17 +1332,11 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 
 /* ================================================================ analytics & sources */
 .ledger.analytics, .ledger.sources { display: grid; gap: 40px; }
-.ledger.analytics .two-col, .ledger.sources .two-col { gap: 48px; }
+.ledger.analytics .two-col { gap: 48px; }
 .ledger .panel-head h2 .count { font-size: 12px; font-weight: 500; }
 .hbar a.l { color: var(--text-2); transition: color 120ms; }
 .hbar a.l:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); }
 
-.gaps > p:first-child { margin: 0 0 12px; max-width: 68ch; color: var(--text-2); font-size: 13px; }
-.gap-list { margin: 0 0 14px; }
-.gap-list > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; padding: 9px 0; border-top: 1px solid var(--border); font-size: 13px; }
-.gap-list > div:last-child { border-bottom: 1px solid var(--border); }
-.gap-list dt { font-weight: 600; }
-.gap-list dd { margin: 0; color: var(--text-2); }
 .sources-table td.c-source { min-width: 220px; max-width: 360px; }
 .sources-table td.c-source b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sources-table td.c-source small { display: block; margin-top: 1px; color: var(--text-3); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1636,7 +1630,7 @@ body.onboarding main { padding: 0 24px; max-width: none; }
   .set-tab[aria-current] { background: none; border-radius: 0; box-shadow: inset 0 -2px 0 var(--ink); }
   .set-tab-dot { margin-left: 0; }
   .cal-sheet .cal .day { min-height: 92px; }
-  .ledger.analytics .two-col, .ledger.sources .two-col { gap: 40px; }
+  .ledger.analytics .two-col { gap: 40px; }
 }
 @media (max-width: 640px) {
   .toolbar-search { flex: 1 1 100%; margin-left: 0; }
@@ -1659,7 +1653,6 @@ body.onboarding main { padding: 0 24px; max-width: none; }
   .more-link { font-size: 10.5px; margin-left: 0; }
   .cal-foot { flex-direction: column; }
   .agenda-day { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
-  .gap-list > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .inline-field { flex-direction: column; align-items: stretch; }
   .set-row { grid-template-columns: minmax(0, 1fr); align-items: start; padding: 12px 14px; }
   .set-row:has(.switch) { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }

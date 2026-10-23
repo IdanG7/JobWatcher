@@ -33,6 +33,7 @@
     "guidewire_software": {"ats": "workday", "host": "guidewire.wd5.myworkdayjobs.com", "tenant": "guidewire", "site": "external", "min_interval": 1800, "company_key": "guidewire_software", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "f5": {"ats": "workday", "host": "ffive.wd5.myworkdayjobs.com", "tenant": "ffive", "site": "f5jobs", "min_interval": 1800, "company_key": "f5", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "ncr_voyix": {"ats": "workday", "host": "ncr.wd1.myworkdayjobs.com", "tenant": "ncr", "site": "ext_us", "min_interval": 1800, "company_key": "ncr_voyix", "group": "Enterprise Software", "priority": 2, "geography": "global"},
-    "sabre": {"ats": "workday", "host": "sabre.wd1.myworkdayjobs.com", "tenant": "sabre", "site": "SabreJobs", "min_interval": 1800, "company_key": "sabre", "group": "Enterprise Software", "priority": 2, "geography": "global"}
+    "sabre": {"ats": "workday", "host": "sabre.wd1.myworkdayjobs.com", "tenant": "sabre", "site": "SabreJobs", "min_interval": 1800, "company_key": "sabre", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "freshbooks": {"ats": "gem", "account": "freshbooks", "min_interval": 1800, "company_key": "freshbooks", "group": "Enterprise Software", "priority": 2, "geography": "global"}
   }
 }

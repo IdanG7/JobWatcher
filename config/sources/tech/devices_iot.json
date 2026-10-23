@@ -8,6 +8,7 @@
     "lucid": {"ats": "greenhouse", "token": "lucidmotors", "min_interval": 1800, "company_key": "lucid", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "garmin": {"ats": "jibe", "host": "careers.garmin.com", "min_interval": 1800, "company_key": "garmin", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "zebra_technologies": {"ats": "workday", "host": "zebra.wd501.myworkdayjobs.com", "tenant": "zebra", "site": "Zebra_careers", "min_interval": 1800, "company_key": "zebra_technologies", "group": "Devices & IoT", "priority": 2, "geography": "global"},
-    "logitech": {"ats": "workday", "host": "logitech.wd5.myworkdayjobs.com", "tenant": "logitech", "site": "Logitech", "min_interval": 1800, "company_key": "logitech", "group": "Devices & IoT", "priority": 2, "geography": "global"}
+    "logitech": {"ats": "workday", "host": "logitech.wd5.myworkdayjobs.com", "tenant": "logitech", "site": "Logitech", "min_interval": 1800, "company_key": "logitech", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "siemens_us": {"ats": "avature", "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs", "location": "United States", "min_interval": 21600, "company_key": "siemens", "group": "Devices & IoT", "priority": 2, "geography": "us", "label": "Siemens · United States"}
   }
 }

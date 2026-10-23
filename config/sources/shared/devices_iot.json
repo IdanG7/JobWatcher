@@ -1,7 +1,7 @@
 {
   "title": "Devices and IoT",
   "verified": null,
-  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): oura, whoop, motorola_solutions. Added 2026-10-23 (each fetched successfully that day): rockwell_automation, flex, trimble, honeywell, keysight_technologies, nokia.",
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): oura, whoop, motorola_solutions. Added 2026-10-23 (each fetched successfully that day): rockwell_automation, flex, trimble, honeywell, keysight_technologies, nokia, lenovo_us, lenovo_canada, siemens_finance, siemens_canada.",
   "sections": {"startups_fintech_consumer": ["samsara"]},
   "boards": {
     "verkada": {"ats": "greenhouse", "token": "verkada"},
@@ -15,6 +15,10 @@
     "trimble": {"ats": "workday", "host": "trimble.wd1.myworkdayjobs.com", "tenant": "trimble", "site": "TrimbleCareers", "min_interval": 1800, "company_key": "trimble", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "honeywell": {"ats": "oracle_hcm", "host": "ibqbjb.fa.ocs.oraclecloud.com", "site": "Honeywell", "min_interval": 3600, "company_key": "honeywell", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "keysight_technologies": {"ats": "jibe", "host": "jobs.keysight.com", "min_interval": 1800, "company_key": "keysight_technologies", "group": "Devices & IoT", "priority": 2, "geography": "global"},
-    "nokia": {"ats": "oracle_hcm", "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "nokia", "group": "Devices & IoT", "priority": 2, "geography": "global"}
+    "nokia": {"ats": "oracle_hcm", "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "nokia", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "lenovo_us": {"ats": "avature", "url": "https://jobs.lenovo.com/en_US/careers/SearchJobs", "location": "United States", "min_interval": 1800, "company_key": "lenovo", "group": "Devices & IoT", "priority": 2, "geography": "us", "label": "Lenovo · United States"},
+    "lenovo_canada": {"ats": "avature", "url": "https://jobs.lenovo.com/en_US/careers/SearchJobs", "location": "Canada", "min_interval": 1800, "company_key": "lenovo", "group": "Devices & IoT", "priority": 2, "geography": "canada", "label": "Lenovo · Canada"},
+    "siemens_finance": {"ats": "avature", "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs", "query": "finance", "location": "United States", "min_interval": 1800, "company_key": "siemens", "group": "Devices & IoT", "priority": 2, "geography": "us", "label": "Siemens finance roles · United States"},
+    "siemens_canada": {"ats": "avature", "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs", "location": "Canada", "min_interval": 1800, "company_key": "siemens", "group": "Devices & IoT", "priority": 2, "geography": "canada", "label": "Siemens · Canada"}
   }
 }

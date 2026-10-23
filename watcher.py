@@ -1118,8 +1118,9 @@ def fetch_successfactors(cfg):
 
 
 def _avature_cards(text, root):
-    """Avature result cards (EA, Bloomberg): <article class="article--result"> with the
-    title link in an <h3> and a list-item-location span."""
+    """Avature result cards (EA, Bloomberg, Siemens, Lenovo): <article class="article--result">
+    with the title link in an <h3> and a list-item-location span (Siemens nests city, state
+    and country spans in it), or else the subtitle's first span (Lenovo)."""
     page = []
     for card in re.findall(r'<article\b[^>]*\barticle--result\b[^>]*>(.*?)</article>', text, re.S | re.I):
         link = re.search(r'<h3\b[^>]*>\s*<a\b([^>]*)>(.*?)</a>', card, re.S | re.I)
@@ -1127,20 +1128,46 @@ def _avature_cards(text, root):
             continue
         job_url = urljoin(root, _html_attr(link.group(1), "href"))
         jid = re.search(r"/(\d+)/?$", urlsplit(job_url).path)
-        loc = re.search(r'class="list-item-location"[^>]*>(.*?)</span>', card, re.S | re.I)
+        loc = (re.search(r'class="list-item-location"[^>]*>((?:[^<]|<span\b[^>]*>[^<]*</span>)*)</span>', card, re.S | re.I)
+               or re.search(r'class="article__header__text__subtitle"[^>]*>\s*<span>([^<]*)</span>', card, re.S | re.I))
         page.append({"id": jid.group(1) if jid else "", "title": html_to_text(link.group(2)).strip(),
-                     "location": html_to_text(loc.group(1)).strip() if loc else "", "url": job_url})
+                     "location": html_to_text(re.sub(r"</?span\b[^>]*>", "", loc.group(1))).strip() if loc else "",
+                     "url": job_url})
+    return page
+
+
+def _avature_folders(text, root):
+    """Avature folder lists (Epic): <li class="jobResultItem"> with the title link in an <h3>.
+    The place is only in the link: /FolderDetail/Verona-Wisconsin-United-States-Software-Developer/740."""
+    page = []
+    for item in re.findall(r'<li\b[^>]*\bjobResultItem\b[^>]*>(.*?)</li>', text, re.S | re.I):
+        link = re.search(r'<h3\b[^>]*>\s*<a\b([^>]*)>(.*?)</a>', item, re.S | re.I)
+        if not link:
+            continue
+        job_url = urljoin(root, _html_attr(link.group(1), "href"))
+        title = html_to_text(link.group(2)).strip()
+        slug = re.search(r"/FolderDetail/([^/]+)/(\d+)", urlsplit(job_url).path)
+        parts = slug.group(1).split("-") if slug else []
+        first = re.match(r"[A-Za-z0-9]+", title)
+        cut = next((i for i, p in enumerate(parts) if first and p.lower() == first.group(0).lower()), 0)
+        page.append({"id": slug.group(2) if slug else "", "title": title, "location": " ".join(parts[:cut]),
+                     "url": job_url})
     return page
 
 
 def fetch_avature(cfg):
-    """Avature career sites: National Bank's jobs table, or result cards (EA,
-    Bloomberg), with jobOffset pagination. cfg: url (the SearchJobs page), max."""
+    """Avature career sites: National Bank's jobs table, result cards (EA, Bloomberg) or
+    a folder list (Epic), with jobOffset pagination (folderOffset on Siemens, Epic). cfg: url (the
+    SearchJobs page), max, and optionally for the site's keyword search a query and a
+    location (a country, also added to rows that say only "Multiple Locations")."""
     root = cfg["url"]
     out, offset, seen = SourceListing(), 0, set()
     limit = _source_limit(cfg)
+    key = "job"
+    words = " ".join(w for w in (cfg.get("query"), cfg.get("location")) if w)
+    search = {"search": words, "listFilterMode": 1} if words else {}
     while offset < limit:
-        r = requests.get(root, params={"jobRecordsPerPage": 20, "jobOffset": offset},
+        r = requests.get(root, params={f"{key}RecordsPerPage": 20, f"{key}Offset": offset, **search},
                          headers={"User-Agent": UA}, timeout=TIMEOUT)
         r.raise_for_status()
         page = []
@@ -1159,22 +1186,31 @@ def fetch_avature(cfg):
             page.append({"id": jid.group(1) if jid else "", "title": html_to_text(title).strip(),
                          "location": loc, "url": job_url})
         if not page:
-            page = _avature_cards(r.text, root)
+            page = _avature_cards(r.text, root) or _avature_folders(r.text, root)
             total = re.search(r'aria-label="(\d+) results"', r.text)
             if out.total is None and total:
                 out.total = int(total.group(1))
+            for job in page if cfg.get("location") else []:
+                if job["location"] in ("", "Multiple Locations"):
+                    job["location"] = ", ".join(p for p in (job["location"], cfg["location"]) if p)
         if not page:
             raise RuntimeError("Avature pagination response has no parsed jobs")
         if _consume_page(out, page, seen, "Avature", limit):
             break
+        # Page links: class paginationLink, or paginationNextLink on the <a> or its <li>
+        # (Lenovo, Siemens). Siemens and Epic page by folderOffset.
+        pages = [attrs for attrs, _ in re.findall(r"<a\b([^>]*)>(.*?)</a>", r.text, re.S | re.I)
+                 if re.search(r"pagination(?:Next)?Link", _html_attr(attrs, "class"))]
+        pages += re.findall(r'<li\b[^>]*\bpaginationNextLink\b[^>]*>\s*<a\b([^>]*)>', r.text, re.I)
         next_offsets = []
-        for attrs, _ in re.findall(r"<a\b([^>]*)>(.*?)</a>", r.text, re.S | re.I):
-            if "paginationLink" not in _html_attr(attrs, "class"):
-                continue
+        for attrs in pages:
             href = urljoin(root, _html_attr(attrs, "href"))
             if urlsplit(href).netloc != urlsplit(root).netloc:
                 continue
-            value = parse_qs(urlsplit(href).query).get("jobOffset", [""])[0]
+            query = parse_qs(urlsplit(href).query)
+            if "folderOffset" in query:
+                key = "folder"
+            value = query.get(f"{key}Offset", [""])[0]
             if value.isdigit() and int(value) > offset:
                 next_offsets.append(int(value))
         if not next_offsets:
@@ -1554,6 +1590,52 @@ def fetch_kula(cfg):
     return out
 
 
+def fetch_gem(cfg):
+    """Gem job boards (jobs.gem.com/<account>): Gem's public job board API lists every
+    live post with its text. cfg: account."""
+    account = cfg["account"]
+    if not re.fullmatch(r"[a-z0-9-]+", account):
+        raise ValueError("Gem account must be the board's lowercase name")
+    r = requests.get(f"https://api.gem.com/job_board/v0/{account}/job_posts/",
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    posts = r.json()
+    if not isinstance(posts, list):
+        raise RuntimeError("Gem job board response is not a list of posts")
+    out = SourceListing(complete=True)
+    for p in posts:
+        offices = "; ".join(o.get("name") for o in p.get("offices") or [] if o.get("name"))
+        out.append({"id": p.get("id") or "", "title": (p.get("title") or "").strip(),
+                    "location": (p.get("location") or {}).get("name") or offices,
+                    "url": p.get("absolute_url") or f"https://jobs.gem.com/{account}/{p.get('id')}",
+                    "posted": _iso_epoch(p.get("first_published_at")),
+                    "description": p.get("content_plain") or html_to_text(p.get("content") or ""),
+                    "department": " / ".join(d.get("name") for d in p.get("departments") or [] if d.get("name"))})
+    return out
+
+
+def fetch_jobvite(cfg):
+    """Jobvite career sites (jobs.jobvite.com/<name>): the company's public XML job feed,
+    keyed by the company id its board page carries (companyEId). cfg: account."""
+    account = cfg["account"]
+    if not re.fullmatch(r"[A-Za-z0-9]+", account):
+        raise ValueError("Jobvite account must be the company id from its board page")
+    r = requests.get("https://app.jobvite.com/CompanyJobs/Xml.aspx", params={"c": account},
+                     headers={"User-Agent": UA, "Accept": "application/xml"}, timeout=60)
+    r.raise_for_status()
+    root = ET.fromstring(r.content)
+    if root.tag != "result":
+        raise RuntimeError("Jobvite feed has no <result> root")
+    out = SourceListing(complete=True)
+    for job in root.findall("job"):
+        text = {el.tag: (el.text or "").strip() for el in job}
+        out.append({"id": text.get("id", ""), "title": text.get("title", ""), "location": text.get("location", ""),
+                    "url": re.sub(r"^http:", "https:", text.get("detail-url", "")),
+                    "posted": _us_date_epoch(text.get("date")),
+                    "description": html_to_text(text.get("description", "")), "department": text.get("category", "")})
+    return out
+
+
 APPLE_BACKOFF = (5, 20)        # waits before asking again for a page Apple answered empty
 
 
@@ -1637,12 +1719,19 @@ def fetch_google(cfg):
     return _finish_listing(out, "Google", limit)
 
 
-def fetch_uber(cfg):
-    """jobs.uber.com search JSON (10 per page). cfg: max."""
+JOBS_API_HOSTS = {"jobs.uber.com", "mycareer.verizon.com"}
+
+
+def fetch_jobs_api(cfg):
+    """The /api/jobs/search JSON behind Uber's and Verizon's career sites. Its order has
+    ties, so pages of 1,000 (the most it serves) keep a read from shifting. cfg: host, max."""
+    host = cfg["host"]
+    if host not in JOBS_API_HOSTS:
+        raise ValueError(f"jobs_api host must be one of {sorted(JOBS_API_HOSTS)}")
     out, seen, page_no = SourceListing(), set(), 1
     limit = _source_limit(cfg)
     while len(out) < limit:
-        r = requests.get("https://jobs.uber.com/api/jobs/search", params={"page": page_no, "pageSize": 10},
+        r = requests.get(f"https://{host}/api/jobs/search/", params={"page": page_no, "pagesize": 1000},
                          headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
         r.raise_for_status()
         data = r.json()
@@ -1654,13 +1743,46 @@ def fetch_uber(cfg):
             page.append({"id": str(j.get("Id") or ""), "title": j.get("Title") or "",
                          "location": "; ".join(_place(l.get("City"), l.get("Region"), l.get("Country"))
                                                for l in j.get("Locations") or []),
-                         "url": urljoin("https://jobs.uber.com", link), "posted": _iso_epoch(j.get("DisplayDate")),
+                         "url": urljoin(f"https://{host}", link), "posted": _iso_epoch(j.get("DisplayDate")),
                          "description": html_to_text(j.get("Description") or ""),
                          "department": " / ".join(j.get("Teams") or [])})
-        if _consume_page(out, page, seen, "Uber", limit):
+        if _consume_page(out, page, seen, host, limit):
             break
         page_no += 1
-    return _finish_listing(out, "Uber", limit)
+    return _finish_listing(out, host, limit)
+
+
+def fetch_adp(cfg):
+    """jobs.adp.com, ADP's career site: server-rendered result cards, newest first.
+    cfg: max."""
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get("https://jobs.adp.com/en/jobs/", params={"orderby": 0, "pagesize": 100, "page": page_no},
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        pages = [int(n) for n in re.findall(r'href="[^"]*[?&]page=(\d+)', r.text)]
+        if not pages and "card-job" not in r.text and not re.search(r"no (?:matching )?jobs", r.text, re.I):
+            raise RuntimeError("ADP search page has no result cards")
+        page = []
+        for card in re.split(r'<div class="card card-job"', r.text)[1:]:
+            link = re.search(r'<a\b[^>]*href="(/en/jobs/(\d+)/[^"]*)"[^>]*>(.*?)</a>', card, re.S)
+            if not link:
+                continue
+            when = re.search(r'<time datetime="([\d-]+)"[^>]*>.*?</p>\s*(?:<p>([^<]*)</p>)?', card, re.S)
+            loc = re.search(r'class="job-meta-location">(.*?)</span>', card, re.S)
+            page.append({"id": link.group(2), "title": html_to_text(link.group(3)).strip(),
+                         "location": html_to_text(loc.group(1)).strip() if loc else "",
+                         "url": urljoin("https://jobs.adp.com", link.group(1)),
+                         "posted": _date_epoch(when.group(1)) if when else None,
+                         "department": html_to_text(when.group(2) or "").strip() if when else ""})
+        if _consume_page(out, page, seen, "ADP", limit):
+            break
+        if page_no >= max(pages, default=0):
+            out.complete = True
+            break
+        page_no += 1
+    return _finish_listing(out, "ADP", limit)
 
 
 ADAPTERS = {
@@ -1691,9 +1813,12 @@ ADAPTERS = {
     "ukg": fetch_ukg,
     "xml_feed": fetch_xml_feed,
     "kula": fetch_kula,
+    "gem": fetch_gem,
+    "jobvite": fetch_jobvite,
     "apple": fetch_apple,
     "google": fetch_google,
-    "uber": fetch_uber,
+    "jobs_api": fetch_jobs_api,
+    "adp": fetch_adp,
 }
 
 

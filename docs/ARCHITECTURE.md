@@ -75,7 +75,7 @@ A source is one feed Foothold polls (`config["boards"]` in the code). Sources li
 | `shared/` | Finance and the tech boards | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
 | `tech/` | Software, AI & Data, Hardware, Product, Design | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
 
-An employer whose whole listing is slow to read (Apple, Microsoft, Qualcomm) reads it on the tech boards
+An employer whose whole listing is slow to read (Apple, Microsoft, Qualcomm, Siemens) reads it on the tech boards
 only, and gives the Finance board a finance search of its site (`query`) instead, since a poll waits for
 its slowest source.
 
@@ -149,7 +149,7 @@ The drawer's **Why 91?** panel shows every line. The scores in this section are 
 
 ## Closure detection
 
-Closure detection only runs for sources that return a complete listing: Greenhouse, Lever, Ashby, the Jane Street and Marqeta adapters, GitHub listing repos, a paged adapter (Workday, Eightfold, Jibe, UKG, Apple, Google…) that read every posting up to the total its site reported, the whole-listing pages (Atlassian, Workable, Kula, XML feeds), and boards marked `"complete_listing": true`.
+Closure detection only runs for sources that return a complete listing: Greenhouse, Lever, Ashby, the Jane Street and Marqeta adapters, GitHub listing repos, a paged adapter (Workday, Eightfold, Jibe, UKG, Apple, Google…) that read every posting up to the total its site reported, the whole-listing pages (Atlassian, Workable, Kula, Gem, Jobvite, XML feeds), and boards marked `"complete_listing": true`.
 
 1. One miss marks a role `possibly_closed`.
 2. Three misses spanning at least 24 hours mark it `closed`.
