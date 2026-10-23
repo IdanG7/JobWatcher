@@ -231,6 +231,22 @@ class DashboardServiceTests(ServiceFixture):
         self.assertEqual((["bulge_bracket"], ["python"]), (profile["target_company_types"], profile["skills"]))
         self.service.put_profile(profile)       # Settings can save it again
 
+    def test_sources_name_their_pack_and_whether_your_boards_poll_them(self):
+        from intel_store import save_profile
+        result = self.service.sources()
+        rows = {s["name"]: s for s in result["sources"]}
+        self.assertEqual(("finance/canadian_banks", True), (rows["rbc"]["pack"], rows["rbc"]["polled"]))
+        self.assertEqual(("", True), (rows["demo_quant"]["pack"], rows["demo_quant"]["polled"]))   # your own
+        packs = {p["key"]: p for p in result["packs"]}
+        self.assertEqual(["Finance"], packs["finance/canadian_banks"]["boards"])
+        self.assertEqual(["Software"], packs["tech/gaming"]["boards"])
+        self.assertEqual(["Finance", "Software", "AI & Data"], packs["shared/ai_labs"]["boards"])
+        self.assertIn("Sales & Growth", result["every_pack"])
+        with self.service.db() as con:
+            save_profile(con, {"fields": ["software"], "target_roles": ["software"]})
+        rows = {s["name"]: s for s in self.service.sources()["sources"]}
+        self.assertEqual((False, True), (rows["rbc"]["polled"], rows["demo_quant"]["polled"]))
+
     def test_analytics_activity_sources(self):
         evidence = {"fetched": 1, "reported_total": 300, "complete": False,
                     "detects_removals": False, "reason": "Configured cap reached"}

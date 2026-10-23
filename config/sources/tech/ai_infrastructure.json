@@ -7,7 +7,7 @@
     "anyscale": {"ats": "ashby", "token": "anyscale", "min_interval": 1800, "company_key": "anyscale", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "pinecone": {"ats": "ashby", "token": "pinecone", "min_interval": 1800, "company_key": "pinecone", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "fireworks_ai": {"ats": "ashby", "token": "fireworks", "min_interval": 1800, "company_key": "fireworks_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
-    "snorkel": {"ats": "greenhouse", "token": "snorkelai", "min_interval": 1800, "company_key": "snorkel_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "snorkel": {"ats": "greenhouse", "token": "snorkelai", "min_interval": 1800, "company_key": "snorkel_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global", "label": "Snorkel AI Careers"},
     "labelbox": {"ats": "greenhouse", "token": "labelbox", "min_interval": 1800, "company_key": "labelbox", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "weights_and_biases": {"ats": "greenhouse", "token": "weights_and_biases", "min_interval": 1800, "company_key": "weights_biases", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "langchain": {"ats": "ashby", "token": "langchain", "min_interval": 1800, "company_key": "langchain", "group": "AI Infrastructure", "priority": 2, "geography": "global"},

@@ -38,7 +38,7 @@ from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
-from intel.sources import load_config, polled_sources
+from intel.sources import load_config, load_packs, pack_boards, polled_sources
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
@@ -1530,12 +1530,15 @@ class JobwatchService:
                    LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
                    WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""")}
             last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
+            profile = self.profile(con)
             coverage = {}
             for r in con.execute("SELECT k,v FROM kv WHERE k LIKE 'source_coverage:%'"):
                 try:
                     coverage[r[0].split(':', 1)[1]] = json.loads(r[1])
                 except (ValueError, TypeError):
                     pass
+        packs = load_packs()
+        polled = polled_sources(self.config, profile, self.kn, packs)       # what this profile's boards poll
         sources = []
         section = ""
         for name, cfg in self.config.get("boards", {}).items():
@@ -1560,9 +1563,15 @@ class JobwatchService:
                 "failures": state.get("failures", 0), "last_poll": state.get("last_poll", 0),
                 "jobs": jobs or 0, "finance_jobs": finance or 0, "high_fit": high or 0,
                 "coverage": coverage.get(name),
+                "pack": packs.source_pack.get(name, ""), "polled": name in polled,
             })
         sources.sort(key=lambda s: (s["disabled"], -s["failures"], s["group"] or "", s["label"]))
-        return {"sources": sources, "last_run": dict(last_run) if last_run else None}
+        labels = {"finance": "Finance", **{f["key"]: f["label"] for f in self.kn.family_tree()}}
+        boards, everywhere = pack_boards(self.kn, packs)
+        return {"sources": sources, "last_run": dict(last_run) if last_run else None,
+                "packs": [{"key": key, "title": pack.title, "verified": pack.verified,
+                           "boards": [labels.get(f, f) for f in boards[key]]} for key, pack in packs.packs.items()],
+                "every_pack": [labels.get(f, f) for f in everywhere]}
 
     # ------------------------------------------------------------ profile & meta
     def _update_resume_version(self, con) -> str:

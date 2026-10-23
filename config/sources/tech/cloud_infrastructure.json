@@ -5,7 +5,7 @@
   "boards": {
     "pure_storage": {"ats": "greenhouse", "token": "purestorage", "min_interval": 1800, "company_key": "pure_storage", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "rubrik": {"ats": "greenhouse", "token": "rubrik", "min_interval": 1800, "company_key": "rubrik", "group": "Cybersecurity", "priority": 2, "geography": "global"},
-    "hpe": {"ats": "workday", "host": "hpe.wd5.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "Jobsathpe", "tenant": "hpe", "company_key": "hewlett_packard_enterprise", "group": "Big Tech", "priority": 2, "geography": "global"},
+    "hpe": {"ats": "workday", "host": "hpe.wd5.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "Jobsathpe", "tenant": "hpe", "company_key": "hewlett_packard_enterprise", "group": "Big Tech", "priority": 2, "geography": "global", "label": "Hewlett Packard Enterprise Careers"},
     "digitalocean": {"ats": "greenhouse", "token": "digitalocean98", "min_interval": 1800, "company_key": "digitalocean", "group": "Developer Tools", "priority": 2, "geography": "global"}
   }
 }

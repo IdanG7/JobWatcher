@@ -525,6 +525,16 @@ That's 256 sources: 58 in `finance/`, 198 in `shared/` and 0 in `tech/` until Ph
      guarantee. `docs/ARCHITECTURE.md` gets a Sources section.
    - Then the full test suites and the final report.
 
+   Phase 5 notes:
+   - The Sources view also says which boards poll every source (Sales, Operations, People & Legal,
+     Healthcare) once, above the table, instead of on every row.
+   - 19 tech sources carry a `label`: the bank technology sources, the LinkedIn searches, Snorkel and HPE.
+     Otherwise the Sources view and posting rows would name them like the finance sources ("BMO Careers",
+     "LinkedIn · Canada"). `label` joins the packaged fields, and the unreleased `sources_version` 10
+     was recorded again.
+   - Onboarding and Settings say that picked filters decide which employers are checked, since other
+     roles show up only from those employers (and the shared lists).
+
 ## 11. Where your rule overrides the brief
 
 | Brief | Now | Why |

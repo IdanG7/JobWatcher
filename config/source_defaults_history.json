@@ -31,7 +31,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "5c50af1d17924cc1",
+  "hash": "74142535286a288e",
   "names": [
    "1password",
    "2k",
@@ -1580,6 +1580,9 @@
   "host": [
    "barclays.wd3.myworkdayjobs.com"
   ],
+  "label": [
+   "Barclays Technology"
+  ],
   "min_interval": [
    3600
   ],
@@ -1884,6 +1887,9 @@
   ],
   "host": [
    "bmo.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "BMO Technology"
   ],
   "min_interval": [
    3600
@@ -2487,6 +2493,9 @@
   "host": [
    "cibc.wd3.myworkdayjobs.com"
   ],
+  "label": [
+   "CIBC Technology"
+  ],
   "min_interval": [
    3600
   ],
@@ -2701,6 +2710,9 @@
   ],
   "host": [
    "citi.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Citi Technology"
   ],
   "min_interval": [
    3600
@@ -3249,6 +3261,9 @@
   ],
   "host": [
    "db.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "Deutsche Bank Technology"
   ],
   "min_interval": [
    3600
@@ -3844,6 +3859,9 @@
   "host": [
    "hdpc.fa.us2.oraclecloud.com"
   ],
+  "label": [
+   "Goldman Sachs Technology"
+  ],
   "min_interval": [
    3600
   ],
@@ -4135,6 +4153,10 @@
   "host": [
    "hpe.wd5.myworkdayjobs.com"
   ],
+  "label": [
+   "__missing__",
+   "Hewlett Packard Enterprise Careers"
+  ],
   "min_interval": [
    3600
   ],
@@ -4380,6 +4402,9 @@
   ],
   "host": [
    "jpmc.fa.oraclecloud.com"
+  ],
+  "label": [
+   "JPMorgan Chase Technology"
   ],
   "min_interval": [
    3600
@@ -4776,6 +4801,9 @@
   "group": [
    "LinkedIn"
   ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 AI & Data"
+  ],
   "location": [
    "Canada"
   ],
@@ -4816,6 +4844,9 @@
   "group": [
    "LinkedIn"
   ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Hardware"
+  ],
   "location": [
    "Canada"
   ],
@@ -4855,6 +4886,9 @@
   ],
   "group": [
    "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Software"
   ],
   "location": [
    "Canada"
@@ -5019,6 +5053,9 @@
   "group": [
    "LinkedIn"
   ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 AI & Data"
+  ],
   "location": [
    "United States"
   ],
@@ -5059,6 +5096,9 @@
   "group": [
    "LinkedIn"
   ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Hardware"
+  ],
   "location": [
    "United States"
   ],
@@ -5098,6 +5138,9 @@
   ],
   "group": [
    "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Software"
   ],
   "location": [
    "United States"
@@ -5742,6 +5785,9 @@
   ],
   "host": [
    "ms.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Morgan Stanley Technology"
   ],
   "min_interval": [
    3600
@@ -6951,6 +6997,9 @@
   "host": [
    "jobs.rbc.com"
   ],
+  "label": [
+   "RBC Technology"
+  ],
   "min_interval": [
    3600
   ],
@@ -7768,6 +7817,9 @@
   "group": [
    "AI Infrastructure"
   ],
+  "label": [
+   "Snorkel AI Careers"
+  ],
   "min_interval": [
    1800
   ],
@@ -8368,6 +8420,9 @@
   ],
   "host": [
    "td.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "TD Technology"
   ],
   "min_interval": [
    3600
@@ -9138,6 +9193,9 @@
   ],
   "host": [
    "wf.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Wells Fargo Technology"
   ],
   "min_interval": [
    3600

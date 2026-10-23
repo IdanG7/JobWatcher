@@ -3,7 +3,7 @@
   "verified": "2026-10-22",
   "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22. LinkedIn public guest search: a partial keyword and date window. The finance LinkedIn searches already cover 'machine learning intern'.",
   "boards": {
-    "linkedin_us_data": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["data science intern", "data engineer new grad", "machine learning engineer new grad", "data analyst intern"], "group": "LinkedIn", "priority": 1, "geography": "us"},
-    "linkedin_canada_data": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["data science co-op", "data analyst co-op", "machine learning co-op", "data engineer new grad"], "group": "LinkedIn", "priority": 1, "geography": "canada"}
+    "linkedin_us_data": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["data science intern", "data engineer new grad", "machine learning engineer new grad", "data analyst intern"], "group": "LinkedIn", "priority": 1, "geography": "us", "label": "LinkedIn · United States · AI & Data"},
+    "linkedin_canada_data": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["data science co-op", "data analyst co-op", "machine learning co-op", "data engineer new grad"], "group": "LinkedIn", "priority": 1, "geography": "canada", "label": "LinkedIn · Canada · AI & Data"}
   }
 }

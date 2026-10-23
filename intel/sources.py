@@ -196,6 +196,10 @@ def groups_for(field: str, profile: dict, kn, packs: Packs) -> set[str] | str:
     return groups
 
 
+def _takes(packs: Packs, field: str, groups: set[str] | str, pack: Pack) -> bool:
+    return field in packs.folders.get(pack.folder, ()) and (groups == "*" or pack.group in groups)
+
+
 def selected_packs(profile: dict, kn, packs: Packs | None = None) -> set[str]:
     packs = packs or load_packs()
     out: set[str] = set()
@@ -203,9 +207,25 @@ def selected_packs(profile: dict, kn, packs: Packs | None = None) -> set[str]:
         groups = groups_for(field, profile, kn, packs)
         if groups == EVERYTHING:
             return set(packs.packs)
-        out |= {key for key, pack in packs.packs.items()
-                if field in packs.folders.get(pack.folder, ()) and (groups == "*" or pack.group in groups)}
+        out |= {key for key, pack in packs.packs.items() if _takes(packs, field, groups, pack)}
     return out
+
+
+def pack_boards(kn, packs: Packs | None = None) -> tuple[dict[str, list[str]], list[str]]:
+    """Each pack's boards (those that poll it with every filter picked), and the boards that
+    poll every pack, which the Sources view names once instead of on every row."""
+    packs = packs or load_packs()
+    out: dict[str, list[str]] = {key: [] for key in packs.packs}
+    everywhere = []
+    for field in packs.fields:
+        groups = groups_for(field, {}, kn, packs)
+        if groups == EVERYTHING:
+            everywhere.append(field)
+            continue
+        for key, pack in packs.packs.items():
+            if _takes(packs, field, groups, pack):
+                out[key].append(field)
+    return out, everywhere
 
 
 def polled_sources(config: dict, profile: dict, kn, packs: Packs | None = None) -> dict:

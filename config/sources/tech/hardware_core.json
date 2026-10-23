@@ -3,7 +3,7 @@
   "verified": "2026-10-22",
   "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22. LinkedIn public guest search: a partial keyword and date window.",
   "boards": {
-    "linkedin_us_hardware": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["hardware engineer intern", "embedded software intern", "electrical engineering intern", "firmware engineer new grad"], "group": "LinkedIn", "priority": 1, "geography": "us"},
-    "linkedin_canada_hardware": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["electrical engineering co-op", "embedded software co-op", "hardware engineer intern", "firmware co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada"}
+    "linkedin_us_hardware": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["hardware engineer intern", "embedded software intern", "electrical engineering intern", "firmware engineer new grad"], "group": "LinkedIn", "priority": 1, "geography": "us", "label": "LinkedIn · United States · Hardware"},
+    "linkedin_canada_hardware": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["electrical engineering co-op", "embedded software co-op", "hardware engineer intern", "firmware co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada", "label": "LinkedIn · Canada · Hardware"}
   }
 }

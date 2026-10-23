@@ -1352,6 +1352,9 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 .sources-table td.c-coverage { min-width: 200px; font-size: 12.5px; }
 .sources-table td.c-coverage small { display: block; margin-top: 1px; color: var(--text-3); font-size: 11.5px; }
 .sources-table tr.off td { opacity: .55; }
+.sources-table tr.pack-row td { height: 34px; padding-top: 14px; padding-bottom: 6px; font-size: 12px; color: var(--text-2); }
+.sources-table tr.pack-row b { font-weight: 600; color: var(--text); }
+.sources-table tr.pack-row .count { margin-left: 8px; color: var(--text-3); font: 500 11px var(--mono); font-variant-numeric: tabular-nums; }
 
 /* ================================================================ settings */
 /* A settings window: a sidebar of sections, and one section on screen at a time.

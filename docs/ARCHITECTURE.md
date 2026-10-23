@@ -38,6 +38,7 @@ ES-module JavaScript with no build step.
 | `intel/scoring.py` | Fit Score 2.0: subscores, penalties, reasons, urgency and badges. |
 | `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. |
 | `intel/matching.py` | Resume shortlist decisions, explicit conflicts and unknown requirements for review. |
+| `intel/sources.py` | Source packs and selection: which sources each profile's boards poll (see Sources). |
 | `intel_store.py` | Incremental facts and score passes, clustering and canonical selection, FTS, change and lifecycle tracking. |
 | `job_query.py` | One SQL filter builder shared by the API, CSV export and saved-search alerts. |
 | `dashboard.py` | `JobwatchService` (business logic) and a hardened stdlib HTTP handler. |
@@ -61,6 +62,47 @@ profile. The two POST routes allow bounded file payloads; other routes retain
 their normal request cap. PDF parsing uses the documented
 [pypdf decompression guards](https://pypdf.readthedocs.io/en/6.10.0/user/security.html).
 Private resume data is excluded from portable state and CSV.
+
+## Sources
+
+A source is one feed Foothold polls (`config["boards"]` in the code). Sources live in packs,
+`config/sources/<folder>/<group>.json`, each with a `title`, a `verified` date, a `note` and its
+`boards`. The folder decides which boards (the fields picked in setup) may poll a pack:
+
+| Folder | Polled by | Holds |
+|---|---|---|
+| `finance/` | Finance | Banks, boutiques, private markets, asset managers, pensions, ratings, finance LinkedIn searches |
+| `shared/` | Finance and the tech boards | Everything the Finance board polled in 0.3.7 that tech boards want too (quant, fintech, lists, big tech…) |
+| `tech/` | Software, AI & Data, Hardware, Product, Design | Sources added for the tech boards, each fetched before it shipped (`verified`) |
+
+`config/sources/manifest.json` names each board's groups (pack file names, which may repeat across
+folders): Finance polls every pack it may (`"groups": "*"`); a tech board polls its `core` groups plus
+each picked filter's groups (every filter's when none is picked); `everything` boards poll every pack.
+`intel/sources.py` turns a profile into polled sources: `profile_fields` → `groups_for` →
+`selected_packs` → `polled_sources`. A source in no pack (one the user added) is always polled, and a
+disabled one never. `watcher.cycle` polls a profile's sources; the CLI alert runner, which has no
+profile, polls every enabled source. The Sources view groups rows by pack and names the boards that poll
+each (`pack_boards`); rows the profile's boards don't poll are dimmed.
+
+**The Finance board guarantee.** `finance/` ∪ `shared/` equals the 0.3.7 sources, setting for setting
+(`tests/sources/test_source_packs.py` checks their packaged hash, `ddb8d7057c16c87e`). Finance
+classification runs first, and tech filters only refine postings it leaves outside finance (the finance
+tests and the gate check this). A tech employer type (track `tech` in `companies.json`) only labels a posting: its priors point
+at tech filters, and its HQ country never stands in for a posting's location. Before a release that
+changes sources or knowledge, a gate recomputes every posting on a copy of a real database, at a frozen
+time, with the old and the new code, and compares the Finance board posting by posting.
+
+**Configs and upgrades.** The repository's `config.json` lists no sources; `load_config` assembles them
+from the packs (`Packs.flat()`, with `_<pack>` headings, and a pack's `sections` keep the old
+config.json headings that type employers missing from `companies.json`). The Windows build copies the
+packs and writes the sources into the install's `config.json` (`clean_board` keeps `BOARD_FIELDS`).
+`config/source_defaults_history.json` records every value each release shipped, the version that first
+shipped each source (`__since__`) and the last release's version, hash and names (`__shipped__`). On
+upgrade (`portable_start.upgrade_sources`), unedited settings take new defaults, a source newer than the
+install is added, and one the bundle stopped shipping is removed with its postings unless the user
+re-pointed it. A source shipped again after a release without it counts from the new version, so
+installs that lost it get it back. Raise `sources_version` in `tools/build_windows.py` whenever source
+defaults change; the build refuses otherwise.
 
 ## Fit Score 2.0
 

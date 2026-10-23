@@ -323,7 +323,7 @@ export async function render(root, ctx) {
       + group('Finance', 'Turn on a whole category, or pick specific groups within it.', meta.taxonomy.map(c => `<div class="set-cat" data-pick-scope>
           <label class="set-row">${label(`<span data-scope-label>${esc(c.label)}</span>`, 'Every group in this category')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(c.key)}" data-role-all${roles.includes(c.key) ? ' checked' : ''}></span></label>
           ${block(picks('role', c.subcategories.map(s => [`${c.key}.${s.key}`, s.label]), roles))}</div>`).join(''), {attrs: ' data-field-section="finance"'})
-      + specialtyFamilies(meta).map(f => group(esc(f.label), 'Pick the specialties you want ranked first. Other roles in the field still show, lower down.', `<div class="set-cat" data-pick-scope>
+      + specialtyFamilies(meta).map(f => group(esc(f.label), 'Pick the specialties you want ranked first. Foothold checks the employers that hire for them, and their other roles still show, lower down.', `<div class="set-cat" data-pick-scope>
           <label class="set-row">${label(`<span data-scope-label>All of ${esc(f.label)}</span>`, 'Every specialty, ranked the same')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(f.key)}" data-role-all${roles.includes(f.key) ? ' checked' : ''}></span></label>
           ${block(picks('role', f.subcategories.map(s => [`${f.key}.${s.key}`, s.label]), roles))}</div>`, {attrs: ` data-field-section="${esc(f.key)}"`})).join('')
       + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections.finance), {attrs: ' data-field-section="finance"'})

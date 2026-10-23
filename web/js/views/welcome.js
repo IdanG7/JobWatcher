@@ -110,7 +110,7 @@ export async function render(root, ctx) {
   const thisYear = new Date().getFullYear();
   const state = {step: 0, ...setupAnswers(profile, {firstRun, financeKeys, thisYear})};
 
-  // Job families split into specialties (Software, AI & Data) that were picked as fields.
+  // Job families split into specialties (Software, AI & Data, Hardware) that were picked as fields.
   const chosenSpecialtyFamilies = () => specialtyFamilies(meta).filter(f => state.fields.has(f.key));
   const steps = () => ['fields', ...(state.fields.has('finance') ? ['finance'] : []),
     ...(chosenSpecialtyFamilies().length ? ['specialties'] : []), 'you', 'where', 'done'];
@@ -136,7 +136,7 @@ export async function render(root, ctx) {
     }),
     specialties: () => ({
       title: 'Which specialties?',
-      sub: 'Pick the kinds of roles you want ranked first, or continue to rank every role in the field the same. Other roles still show up, lower down.',
+      sub: 'Pick the kinds of roles you want ranked first, or continue to cover the whole field. Foothold checks the employers that hire for your picks, and their other roles still show up, lower down.',
       body: chosenSpecialtyFamilies().map(f => `<section class="welcome-q"><h2>${esc(f.label)}</h2><div class="choices">${f.subcategories.map(s =>
         card('checkbox', 'specialty', `${f.key}.${s.key}`, state.specialties.has(`${f.key}.${s.key}`), s.label, s.note || '')).join('')}</div></section>`).join(''),
       ready: true,

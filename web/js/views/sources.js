@@ -1,16 +1,19 @@
-// Sources: health of every board, coverage by employer group, known gaps.
+// Sources: health of every source, grouped by pack with the boards that poll it; coverage by
+// employer group; known gaps.
 import {get, post} from '../api.js';
 import {age, esc, toEpochMs} from '../lib.js';
 import {hBars} from '../charts.js';
 import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toast} from '../ui.js';
 
-// Employers without a usable public job feed (researched 2026-10-15).
+// Employers without a usable public job feed (researched 2026-10-15, tech employers 2026-10-22).
 // Covered indirectly via GitHub/LinkedIn sources.
 const KNOWN_GAPS = [
   ['UBS', 'Job search is behind bot protection'],
   ['Centerview', 'No public job board; recruits through campuses and directly'],
   ['Google, Apple, Meta', 'Own career sites with no public job feed'],
   ['Shopify, Uber', 'Own career sites with no public job feed'],
+  ['Qualcomm, Lam Research', 'Job search refuses automated requests'],
+  ['Atlassian, AMD, EA', 'Career sites Foothold cannot read yet'],
 ];
 
 // Sources whose employer is a recognised finance type (not a generic corporate or an aggregator).
@@ -39,6 +42,12 @@ function coverage(s) {
     + (c.reason ? `<div class="source-error">${esc(c.reason)}</div>` : '');
 }
 
+// The boards that poll a source: its pack's, or every board for a source you added.
+function boardsCell(s, packs, isPolled) {
+  const boards = packs.has(s.pack) ? packs.get(s.pack).boards.join(' · ') : 'Every board';
+  return `${esc(boards)}${!isPolled && !s.disabled ? '<small>Not polled for your boards</small>' : ''}`;
+}
+
 export async function render(root, ctx) {
   const state = {q: '', filter: ctx.route.params.filter || 'all', data: null};
   let liveStatus = ctx.status;
@@ -59,7 +68,8 @@ export async function render(root, ctx) {
     } catch (err) { body.innerHTML = errorState(err); }
   }
 
-  const polled = s => !s.disabled;
+  // Polled for this profile's boards (servers before source packs poll every enabled source).
+  const polled = s => !s.disabled && s.polled !== false;
   const isIssue = s => polled(s) && (s.failures || liveStatus?.progress?.sources?.[s.name]?.state === 'failed' || !s.seeded);
 
   function draw() {
@@ -74,9 +84,14 @@ export async function render(root, ctx) {
     root.querySelectorAll('[data-n]').forEach(n => { n.textContent = counts[n.dataset.n]; });
     root.querySelector('[data-summary]').innerHTML = `${enabled.length} polled · ${enabled.filter(s => s.seeded && !s.failures).length} healthy · ${failing.length ? `<span class="neg">${failing.length} with errors</span>` : 'no errors'}${run ? ` · last check ${age(toEpochMs(run.finished_at))} ago (${run.ok_count} ok, ${run.fail_count} failed, ${Math.round(run.duration || 0)}s)` : ''}`;
     const q = state.q.toLowerCase();
-    let list = all.filter(s => !q || `${s.label} ${s.name} ${s.adapter} ${s.company} ${s.group}`.toLowerCase().includes(q));
+    const packs = new Map((state.data.packs || []).map(p => [p.key, p]));
+    let list = all.filter(s => !q || `${s.label} ${s.name} ${s.adapter} ${s.company} ${s.group} ${packs.get(s.pack)?.title || ''}`.toLowerCase().includes(q));
     if (state.filter === 'failing') list = list.filter(isIssue);
     if (state.filter === 'finance') list = list.filter(financeEmployer);
+    // Rows under their pack, packs in manifest order; sources in no pack (your own) last.
+    const order = [...packs.keys(), ''];
+    const byPack = order.map(key => [key, list.filter(s => (packs.has(s.pack) ? s.pack : '') === key)]).filter(([, rows]) => rows.length);
+    const everyPack = state.data.every_pack || [];
     const groups = {};
     for (const s of enabled) { const g = s.group || 'Other'; groups[g] = groups[g] || {n: 0, jobs: 0, fit: 0}; groups[g].n += 1; groups[g].jobs += s.jobs; groups[g].fit += s.finance_jobs; }
     body.innerHTML = `
@@ -91,17 +106,17 @@ export async function render(root, ctx) {
             <p class="fine">Found an official Greenhouse, Lever, Ashby, Workday, Oracle, SmartRecruiters, iCIMS, Radancy or Oleeo feed? Add it to <code>boards</code> in <code>config.json</code>.</p>
           </div></section>
       </div>
-      <section class="panel"><div class="panel-head"><h2>All sources <span class="count">${list.length}</span></h2></div>
-        ${list.length ? `<div class="table-wrap"><table class="data tidy sources-table"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>Group</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th class="num">Last success</th><th>Coverage</th></tr></thead>
-        <tbody>${list.map(s => { const h = health(s, liveStatus?.progress); const detail = [s.name, s.geography, s.note].filter(Boolean).join(' · '); return `<tr class="static${s.disabled || s.polled === false ? ' off' : ''}">
+      <section class="panel"><div class="panel-head"><h2>All sources <span class="count">${list.length}</span></h2>${packs.size ? `<span class="panel-note">Dimmed: not polled for your boards${everyPack.length ? ` · ${esc(everyPack.join(', '))} poll every source` : ''}</span>` : ''}</div>
+        ${list.length ? `<div class="table-wrap"><table class="data tidy sources-table"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>${packs.size ? 'Boards' : 'Group'}</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th class="num">Last success</th><th>Coverage</th></tr></thead>
+        <tbody>${byPack.map(([key, rows]) => `${packs.size ? `<tr class="static pack-row"><td colspan="9"><b>${esc(key ? packs.get(key).title : 'Your sources')}</b><span class="count">${rows.length}</span></td></tr>` : ''}${rows.map(s => { const h = health(s, liveStatus?.progress); const detail = [s.name, s.geography, s.note].filter(Boolean).join(' · '); return `<tr class="static${polled(s) ? '' : ' off'}">
           <td class="c-source"><b>${esc(s.label)}</b><small title="${esc(detail)}">${esc(detail)}</small></td>
           <td class="c-health"><span class="status-pill ${h.cls}"><i></i>${esc(h.label)}</span>${h.error ? `<div class="source-error">${esc(h.error)}</div>` : ''}${h.note ? `<small>${esc(h.note)}</small>` : ''}</td>
           <td class="c-adapter">${esc(s.adapter || '')}</td>
-          <td class="c-group dim nowrap">${esc(prettyKey(s.group || s.section || ''))}</td>
+          <td class="c-group dim nowrap">${packs.size ? boardsCell(s, packs, polled(s)) : esc(prettyKey(s.group || s.section || ''))}</td>
           <td class="num">${s.jobs}</td><td class="num">${s.finance_jobs}</td>
           <td class="num">${s.high_fit ? `<span class="hl">${s.high_fit}</span>` : '<span class="muted">0</span>'}</td>
           <td class="num muted">${s.last_ok ? `${age(toEpochMs(s.last_ok))} ago` : '—'}</td>
-          <td class="c-coverage">${coverage(s)}</td></tr>`; }).join('')}</tbody></table></div>`
+          <td class="c-coverage">${coverage(s)}</td></tr>`; }).join('')}`).join('')}</tbody></table></div>`
           : emptyState('No sources match', state.filter === 'failing' ? 'Every source is healthy.' : 'Try a different search.')}
       </section>
     </div>`;
