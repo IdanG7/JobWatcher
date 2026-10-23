@@ -1,13 +1,18 @@
 {
   "title": "Health tech",
   "verified": null,
-  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming Added 2026-10-23 (each fetched successfully that day): unitedhealth_group, intuitive_surgical, cvs_health_finance, cigna_finance, ge_healthcare_finance.",
   "sections": {"startups_fintech_consumer": ["oscar_health", "hinge_health", "abridge", "commure", "openevidence"]},
   "boards": {
     "oscar_health": {"ats": "greenhouse", "token": "oscar"},
     "hinge_health": {"ats": "ashby", "token": "hinge-health"},
     "abridge": {"ats": "ashby", "token": "abridge"},
     "commure": {"ats": "ashby", "token": "commure"},
-    "openevidence": {"ats": "ashby", "token": "openevidence"}
+    "openevidence": {"ats": "ashby", "token": "openevidence"},
+    "unitedhealth_group": {"ats": "radancy", "host": "careers.unitedhealthgroup.com", "min_interval": 3600, "company_key": "unitedhealth_group", "group": "Health Tech", "priority": 2, "geography": "global"},
+    "intuitive_surgical": {"ats": "smartrecruiters", "token": "Intuitive", "min_interval": 1800, "company_key": "intuitive_surgical", "group": "Health Tech", "priority": 2, "geography": "global"},
+    "cvs_health_finance": {"ats": "workday", "host": "cvshealth.wd1.myworkdayjobs.com", "tenant": "cvshealth", "site": "CVS_Health_Careers", "facets": {"jobFamilyGroup": ["e65dbadf6a50100168ed805f37060000"]}, "min_interval": 1800, "company_key": "cvs_health", "group": "Health Tech", "priority": 2, "geography": "global", "label": "CVS Health finance roles"},
+    "cigna_finance": {"ats": "workday", "host": "cigna.wd5.myworkdayjobs.com", "tenant": "cigna", "site": "cignacareers", "facets": {"jobFamilyGroup": ["b7947bbbfff2012176fc0916390c8916", "b7947bbbfff20113d67b1416390c8f16"]}, "min_interval": 1800, "company_key": "cigna", "group": "Health Tech", "priority": 2, "geography": "global", "label": "Cigna finance roles"},
+    "ge_healthcare_finance": {"ats": "workday", "host": "gehc.wd5.myworkdayjobs.com", "tenant": "gehc", "site": "GEHC_ExternalSite", "facets": {"jobFamilyGroup": ["864c17d3c011100151a995af6e1e0000", "85e6093984ac1025ddded5682e260000"]}, "min_interval": 1800, "company_key": "ge_healthcare", "group": "Health Tech", "priority": 2, "geography": "global", "label": "GE HealthCare finance roles"}
   }
 }

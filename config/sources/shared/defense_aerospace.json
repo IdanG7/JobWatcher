@@ -1,11 +1,24 @@
 {
   "title": "Defense and aerospace",
   "verified": null,
-  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "note": "dev tools, data & infra (fits distributed-systems background) Added 2026-10-23 (each fetched successfully that day): blue_origin, boeing, booz_allen_hamilton, caci_international, leidos, northrop_grumman_finance, gdit, l3harris_technologies, the_aerospace, ge_aerospace, curtiss_wright, rtx_finance, lockheed_martin_finance.",
   "boards": {
     "palantir": {"ats": "lever", "token": "palantir"},
     "spacex": {"ats": "greenhouse", "token": "spacex"},
     "anduril": {"ats": "greenhouse", "token": "andurilindustries"},
-    "shield_ai": {"ats": "lever", "token": "shieldai"}
+    "shield_ai": {"ats": "lever", "token": "shieldai"},
+    "blue_origin": {"ats": "workday", "host": "blueorigin.wd5.myworkdayjobs.com", "tenant": "blueorigin", "site": "BlueOrigin", "min_interval": 3600, "company_key": "blue_origin", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "boeing": {"ats": "workday", "host": "boeing.wd1.myworkdayjobs.com", "tenant": "boeing", "site": "EXTERNAL_CAREERS", "min_interval": 1800, "company_key": "boeing", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "booz_allen_hamilton": {"ats": "workday", "host": "bah.wd1.myworkdayjobs.com", "tenant": "bah", "site": "BAH_Jobs", "min_interval": 3600, "company_key": "booz_allen_hamilton", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "caci_international": {"ats": "workday", "host": "caci.wd1.myworkdayjobs.com", "tenant": "caci", "site": "External", "min_interval": 3600, "company_key": "caci_international", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "leidos": {"ats": "workday", "host": "leidos.wd5.myworkdayjobs.com", "tenant": "leidos", "site": "External", "min_interval": 3600, "company_key": "leidos", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "northrop_grumman_finance": {"ats": "eightfold", "host": "jobs.northropgrumman.com", "domain": "ngc.com", "api": "pcsx", "query": "finance", "min_interval": 3600, "company_key": "northrop_grumman", "group": "Defense & Aerospace", "priority": 2, "geography": "global", "label": "Northrop Grumman finance roles"},
+    "gdit": {"ats": "workday", "host": "gdit.wd5.myworkdayjobs.com", "tenant": "gdit", "site": "External_Career_Site", "min_interval": 3600, "company_key": "gdit", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "l3harris_technologies": {"ats": "radancy", "host": "careers.l3harris.com", "min_interval": 3600, "company_key": "l3harris_technologies", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "the_aerospace": {"ats": "workday", "host": "aero.wd5.myworkdayjobs.com", "tenant": "aero", "site": "External", "min_interval": 1800, "company_key": "the_aerospace", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "ge_aerospace": {"ats": "phenom", "host": "careers.geaerospace.com", "min_interval": 1800, "company_key": "ge_aerospace", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "curtiss_wright": {"ats": "workday", "host": "curtisswright.wd1.myworkdayjobs.com", "tenant": "curtisswright", "site": "CW_External_Career_Site", "min_interval": 1800, "company_key": "curtiss_wright", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "rtx_finance": {"ats": "workday", "host": "globalhr.wd5.myworkdayjobs.com", "tenant": "globalhr", "site": "REC_RTX_Ext_Gateway", "facets": {"jobFamilyGroup": ["bac5186f63f210324b590a5029ae3ccf"]}, "min_interval": 1800, "company_key": "rtx", "group": "Defense & Aerospace", "priority": 2, "geography": "global", "label": "RTX finance roles"},
+    "lockheed_martin_finance": {"ats": "eightfold", "host": "lockheedmartin.eightfold.ai", "domain": "lockheedmartin.com", "api": "pcsx", "query": "finance", "min_interval": 1800, "company_key": "lockheed_martin", "group": "Defense & Aerospace", "priority": 2, "geography": "global", "label": "Lockheed Martin finance roles"}
   }
 }

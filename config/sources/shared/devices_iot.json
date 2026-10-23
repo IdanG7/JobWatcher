@@ -1,11 +1,20 @@
 {
   "title": "Devices and IoT",
   "verified": null,
-  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): oura, whoop, motorola_solutions. Added 2026-10-23 (each fetched successfully that day): rockwell_automation, flex, trimble, honeywell, keysight_technologies, nokia.",
   "sections": {"startups_fintech_consumer": ["samsara"]},
   "boards": {
     "verkada": {"ats": "greenhouse", "token": "verkada"},
     "neuralink": {"ats": "greenhouse", "token": "neuralink"},
-    "samsara": {"ats": "greenhouse", "token": "samsara"}
+    "samsara": {"ats": "greenhouse", "token": "samsara"},
+    "oura": {"ats": "greenhouse", "token": "oura", "min_interval": 1800, "company_key": "oura", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "whoop": {"ats": "ashby", "token": "whoop", "min_interval": 1800, "company_key": "whoop", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "motorola_solutions": {"ats": "workday", "host": "motorolasolutions.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Careers", "tenant": "motorolasolutions", "company_key": "motorola_solutions", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "rockwell_automation": {"ats": "workday", "host": "rockwellautomation.wd1.myworkdayjobs.com", "tenant": "rockwellautomation", "site": "External_Rockwell_Automation", "min_interval": 1800, "company_key": "rockwell_automation", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "flex": {"ats": "workday", "host": "flextronics.wd1.myworkdayjobs.com", "tenant": "flextronics", "site": "Careers", "min_interval": 3600, "company_key": "flex", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "trimble": {"ats": "workday", "host": "trimble.wd1.myworkdayjobs.com", "tenant": "trimble", "site": "TrimbleCareers", "min_interval": 1800, "company_key": "trimble", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "honeywell": {"ats": "oracle_hcm", "host": "ibqbjb.fa.ocs.oraclecloud.com", "site": "Honeywell", "min_interval": 3600, "company_key": "honeywell", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "keysight_technologies": {"ats": "jibe", "host": "jobs.keysight.com", "min_interval": 1800, "company_key": "keysight_technologies", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "nokia": {"ats": "oracle_hcm", "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "nokia", "group": "Devices & IoT", "priority": 2, "geography": "global"}
   }
 }

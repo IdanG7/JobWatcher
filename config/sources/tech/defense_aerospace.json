@@ -1,13 +1,24 @@
 {
   "title": "Defense and aerospace",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "saronic": {"ats": "ashby", "token": "saronic", "min_interval": 1800, "company_key": "saronic", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
     "epirus": {"ats": "greenhouse", "token": "epirus", "min_interval": 1800, "company_key": "epirus", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
     "rocket_lab": {"ats": "greenhouse", "token": "rocketlab", "min_interval": 1800, "company_key": "rocket_lab", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
     "relativity_space": {"ats": "greenhouse", "token": "relativity", "min_interval": 1800, "company_key": "relativity_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
     "astranis": {"ats": "greenhouse", "token": "astranis", "min_interval": 1800, "company_key": "astranis", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
-    "planet": {"ats": "greenhouse", "token": "planetlabs", "min_interval": 1800, "company_key": "planet", "group": "Defense & Aerospace", "priority": 2, "geography": "global"}
+    "planet": {"ats": "greenhouse", "token": "planetlabs", "min_interval": 1800, "company_key": "planet", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "mda_space": {"ats": "ukg", "host": "recruiting.ultipro.ca", "tenant": "MAC5000MCDW", "board": "664818ff-3594-4bec-9f30-3394e59e19f3", "min_interval": 1800, "company_key": "mda_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "voyager_space": {"ats": "greenhouse", "token": "voyagertechnologiesinc", "min_interval": 1800, "company_key": "voyager_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "apex_space": {"ats": "ashby", "token": "apex-technology-inc", "min_interval": 1800, "company_key": "apex_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "vast_space": {"ats": "greenhouse", "token": "vast", "min_interval": 1800, "company_key": "vast_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "firefly_aerospace": {"ats": "workday", "host": "fireflyspace.wd115.myworkdayjobs.com", "tenant": "fireflyspace", "site": "Firefly", "min_interval": 1800, "company_key": "firefly_aerospace", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "sierra_space": {"ats": "workday", "host": "sierraspace.wd1.myworkdayjobs.com", "tenant": "sierraspace", "site": "Sierra_Space_External_Career_Site", "min_interval": 1800, "company_key": "sierra_space", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "terran_orbital": {"ats": "greenhouse", "token": "terranorbitalcorporation", "min_interval": 1800, "company_key": "terran_orbital", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "northrop_grumman": {"ats": "eightfold", "host": "jobs.northropgrumman.com", "domain": "ngc.com", "api": "pcsx", "min_interval": 10800, "company_key": "northrop_grumman", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "sierra_nevada": {"ats": "workday", "host": "snc.wd1.myworkdayjobs.com", "tenant": "snc", "site": "SNC_External_Career_Site", "min_interval": 1800, "company_key": "sierra_nevada", "group": "Defense & Aerospace", "priority": 2, "geography": "global"},
+    "lockheed_martin": {"ats": "eightfold", "host": "lockheedmartin.eightfold.ai", "domain": "lockheedmartin.com", "api": "pcsx", "min_interval": 21600, "company_key": "lockheed_martin", "group": "Defense & Aerospace", "priority": 2, "geography": "global", "max": 7000},
+    "rtx": {"ats": "workday", "host": "globalhr.wd5.myworkdayjobs.com", "tenant": "globalhr", "site": "REC_RTX_Ext_Gateway", "facets": {"jobFamilyGroup": ["4af3a9414ae11010c76a87724762dca7", "bac5186f63f210324b590667f0243ccd"]}, "min_interval": 3600, "company_key": "rtx", "group": "Defense & Aerospace", "priority": 2, "geography": "global", "label": "RTX engineering and digital roles"}
   }
 }

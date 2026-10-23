@@ -1,14 +1,13 @@
 {
   "title": "Big tech",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "thomson_reuters": {"ats": "workday", "host": "thomsonreuters.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Career_Site", "tenant": "thomsonreuters", "company_key": "thomson_reuters", "group": "Enterprise Software", "priority": 1, "geography": "global"},
-    "oracle": {"ats": "oracle_hcm", "host": "eeho.fa.us2.oraclecloud.com", "site": "CX_45001", "min_interval": 3600, "company_key": "oracle", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "cisco": {"ats": "phenom", "host": "careers.cisco.com", "min_interval": 3600, "company_key": "cisco", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "sap": {"ats": "smartrecruiters", "token": "SAPITBusinessSysteme", "min_interval": 1800, "company_key": "sap", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "intuit": {"ats": "radancy", "host": "jobs.intuit.com", "min_interval": 1800, "company_key": "intuit", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "dell": {"ats": "oracle_hcm", "host": "enterpriseplatform.dell.com", "site": "CX_1001", "min_interval": 1800, "company_key": "dell_technologies", "group": "Big Tech", "priority": 1, "geography": "global"},
-    "snap": {"ats": "workday", "host": "wd1.myworkdaysite.com", "tenant": "snapchat", "site": "snap", "min_interval": 1800, "company_key": "snap", "group": "Consumer Tech", "priority": 1, "geography": "global"}
+    "snap": {"ats": "workday", "host": "wd1.myworkdaysite.com", "tenant": "snapchat", "site": "snap", "min_interval": 1800, "company_key": "snap", "group": "Consumer Tech", "priority": 1, "geography": "global"},
+    "amazon_tech": {"ats": "amazon_jobs", "query": "", "max": 7500, "categories": ["software-development", "machine-learning-science", "data-science", "research-science", "hardware-development", "systems-quality-security-engineering", "solutions-architect", "project-program-product-management-technical"], "min_interval": 3600, "company_key": "amazon", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Amazon tech roles"},
+    "linkedin_us_hard_to_reach": {"ats": "linkedin", "location": "United States", "queries": [""], "companies": [10667, 15564, 1009, 784652, 67849, 88873, 12994410, 1253671], "recency": "r86400", "pages": 15, "seed_recency": "r604800", "seed_pages": 25, "min_interval": 1800, "group": "LinkedIn", "geography": "us", "priority": 1, "label": "LinkedIn · United States · Meta, Tesla, IBM and others"},
+    "linkedin_canada_hard_to_reach": {"ats": "linkedin", "location": "Canada", "queries": [""], "companies": [10667, 15564, 1009, 784652, 67849, 88873, 12994410, 1253671, 94666], "recency": "r86400", "pages": 5, "seed_recency": "r604800", "seed_pages": 10, "min_interval": 1800, "group": "LinkedIn", "geography": "canada", "priority": 1, "label": "LinkedIn · Canada · Meta, Tesla, IBM and others"},
+    "apple": {"ats": "apple", "min_interval": 10800, "company_key": "apple", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "microsoft_careers": {"ats": "eightfold", "host": "apply.careers.microsoft.com", "domain": "microsoft.com", "api": "pcsx", "min_interval": 21600, "company_key": "microsoft", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Microsoft"}
   }
 }

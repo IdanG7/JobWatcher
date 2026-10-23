@@ -1,7 +1,7 @@
 {
   "title": "Developer tools",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "replit": {"ats": "ashby", "token": "replit", "min_interval": 1800, "company_key": "replit", "group": "Developer Tools", "priority": 2, "geography": "global"},
     "sentry": {"ats": "ashby", "token": "sentry", "min_interval": 1800, "company_key": "sentry", "group": "Developer Tools", "priority": 2, "geography": "global"},
@@ -14,6 +14,21 @@
     "circleci": {"ats": "greenhouse", "token": "circleci", "min_interval": 1800, "company_key": "circleci", "group": "Developer Tools", "priority": 2, "geography": "global"},
     "sourcegraph": {"ats": "greenhouse", "token": "sourcegraph91", "min_interval": 1800, "company_key": "sourcegraph", "group": "Developer Tools", "priority": 2, "geography": "global"},
     "docker": {"ats": "ashby", "token": "docker", "min_interval": 1800, "company_key": "docker", "group": "Developer Tools", "priority": 2, "geography": "global"},
-    "render": {"ats": "ashby", "token": "render", "min_interval": 1800, "company_key": "render", "group": "Developer Tools", "priority": 2, "geography": "global"}
+    "render": {"ats": "ashby", "token": "render", "min_interval": 1800, "company_key": "render", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "jfrog": {"ats": "greenhouse", "token": "jfrog", "min_interval": 1800, "company_key": "jfrog", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "sumo_logic": {"ats": "greenhouse", "token": "sumologic", "min_interval": 1800, "company_key": "sumo_logic", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "buildkite": {"ats": "greenhouse", "token": "buildkite", "min_interval": 1800, "company_key": "buildkite", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "cortex": {"ats": "greenhouse", "token": "cortex", "min_interval": 1800, "company_key": "cortex", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "honeycomb_io": {"ats": "greenhouse", "token": "honeycomb", "min_interval": 1800, "company_key": "honeycomb_io", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "cribl": {"ats": "greenhouse", "token": "cribl", "min_interval": 1800, "company_key": "cribl", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "harness": {"ats": "greenhouse", "token": "harnessinc", "min_interval": 1800, "company_key": "harness", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "sonatype": {"ats": "lever", "token": "sonatype", "min_interval": 1800, "company_key": "sonatype", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "kong": {"ats": "ashby", "token": "kong", "min_interval": 1800, "company_key": "kong", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "workos": {"ats": "ashby", "token": "workos", "min_interval": 1800, "company_key": "workos", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "semgrep": {"ats": "ashby", "token": "semgrep", "min_interval": 1800, "company_key": "semgrep", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "swarmia": {"ats": "ashby", "token": "swarmia", "min_interval": 1800, "company_key": "swarmia", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "coder": {"ats": "ashby", "token": "coder", "min_interval": 1800, "company_key": "coder", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "tailscale": {"ats": "greenhouse", "token": "tailscale", "min_interval": 1800, "company_key": "tailscale", "group": "Developer Tools", "priority": 2, "geography": "global"},
+    "github": {"ats": "jibe", "host": "www.github.careers", "min_interval": 1800, "company_key": "github", "group": "Developer Tools", "priority": 2, "geography": "global"}
   }
 }

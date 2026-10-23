@@ -1,0 +1,9 @@
+{
+  "title": "Banks without a separate technology feed",
+  "verified": null,
+  "note": "Bank of America has no technology-filtered feed, so the tech boards read its whole listing (moved from finance/ in Phase 7; settings unchanged).",
+  "boards": {
+    "bank_of_america": {"ats": "bofa", "servlet": "jobssearchservlet", "max": 5000, "min_interval": 3600, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
+    "bank_of_america_students": {"ats": "bofa", "servlet": "campusjobssearchservlet", "max": 2000, "min_interval": 1800, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"}
+  }
+}

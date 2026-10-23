@@ -1,9 +1,8 @@
 {
   "title": "Banks, card networks and exchanges with large tech teams",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "american_express": {"ats": "oracle_hcm", "host": "egug.fa.us2.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "american_express", "group": "FinTech", "priority": 2, "geography": "global"},
-    "visa": {"ats": "workday", "host": "visa.wd5.myworkdayjobs.com", "tenant": "visa", "site": "Visa", "min_interval": 1800, "company_key": "visa", "group": "FinTech", "priority": 2, "geography": "global"}
+    "fico": {"ats": "workday", "host": "fico.wd1.myworkdayjobs.com", "tenant": "fico", "site": "External", "min_interval": 1800, "company_key": "fico", "group": "Enterprise Software", "priority": 2, "geography": "global"}
   }
 }

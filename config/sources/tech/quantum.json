@@ -1,0 +1,13 @@
+{
+  "title": "Quantum computing",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-23.",
+  "boards": {
+    "ionq": {"ats": "greenhouse", "token": "ionq", "min_interval": 1800, "company_key": "ionq", "group": "Quantum Computing", "priority": 2, "geography": "global"},
+    "rigetti_computing": {"ats": "lever", "token": "rigetti", "min_interval": 1800, "company_key": "rigetti_computing", "group": "Quantum Computing", "priority": 2, "geography": "global"},
+    "quera_computing": {"ats": "greenhouse", "token": "queracomputinginc", "min_interval": 1800, "company_key": "quera_computing", "group": "Quantum Computing", "priority": 2, "geography": "global"},
+    "atom_computing": {"ats": "lever", "token": "atomcomputing", "min_interval": 1800, "company_key": "atom_computing", "group": "Quantum Computing", "priority": 2, "geography": "global"},
+    "quantinuum": {"ats": "lever", "token": "quantinuum", "region": "eu", "min_interval": 1800, "company_key": "quantinuum", "group": "Quantum Computing", "priority": 2, "geography": "global"},
+    "psiquantum": {"ats": "greenhouse", "token": "psiquantum", "min_interval": 1800, "company_key": "psiquantum", "group": "Quantum Computing", "priority": 2, "geography": "global"}
+  }
+}

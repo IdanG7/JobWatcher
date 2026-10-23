@@ -1,0 +1,10 @@
+{
+  "title": "Climate & energy",
+  "verified": "2026-10-23",
+  "note": "Each feed was fetched successfully on 2026-10-23. Added 2026-10-23 (each fetched successfully that day): ge_vernova_finance.",
+  "boards": {
+    "terrapower": {"ats": "greenhouse", "token": "terrapowerllc", "min_interval": 1800, "company_key": "terrapower", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "nextracker": {"ats": "workday", "host": "nextracker.wd5.myworkdayjobs.com", "tenant": "nextracker", "site": "nextpower_careers", "min_interval": 1800, "company_key": "nextracker", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "ge_vernova_finance": {"ats": "workday", "host": "gevernova.wd5.myworkdayjobs.com", "tenant": "gevernova", "site": "Vernova_ExternalSite", "facets": {"jobFamilyGroup": ["efb947d8be4310015d7a272039d30000"]}, "min_interval": 1800, "company_key": "ge_vernova", "group": "Climate & Energy", "priority": 2, "geography": "global", "label": "GE Vernova finance roles"}
+  }
+}

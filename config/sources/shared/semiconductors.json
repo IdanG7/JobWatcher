@@ -1,9 +1,21 @@
 {
   "title": "Semiconductors",
   "verified": null,
-  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response.",
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): applied_materials, micron, nxp, kla, texas_instruments, cadence, analog_devices. Added 2026-10-23 (each fetched successfully that day): lam_research, globalfoundries, amd, qualcomm_finance, western_digital. Qualcomm's finance roles come from a finance search of its career site; its whole listing polls on the tech boards only.",
   "boards": {
     "intel_early": {"ats": "workday", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External", "min_interval": 600, "facets": {"jobFamilyGroup": ["dc8bf79476611087d67b36517cf17036"]}},
-    "intel": {"ats": "workday", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External", "search": "", "min_interval": 1800}
+    "intel": {"ats": "workday", "host": "intel.wd1.myworkdayjobs.com", "tenant": "intel", "site": "External", "search": "", "min_interval": 1800},
+    "applied_materials": {"ats": "workday", "host": "amat.wd1.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "External", "tenant": "amat", "company_key": "applied_materials", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "micron": {"ats": "workday", "host": "micron.wd1.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "External", "tenant": "micron", "company_key": "micron_technology", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "nxp": {"ats": "workday", "host": "nxp.wd3.myworkdayjobs.com", "tenant": "nxp", "site": "careers", "min_interval": 1800, "company_key": "nxp_semiconductors", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "kla": {"ats": "workday", "host": "kla.wd1.myworkdayjobs.com", "tenant": "kla", "site": "Search", "min_interval": 3600, "company_key": "kla", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "texas_instruments": {"ats": "oracle_hcm", "host": "edbz.fa.us2.oraclecloud.com", "site": "CX", "min_interval": 1800, "company_key": "texas_instruments", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "cadence": {"ats": "workday", "host": "cadence.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Careers", "tenant": "cadence", "company_key": "cadence", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "analog_devices": {"ats": "workday", "host": "analogdevices.wd1.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External", "tenant": "analogdevices", "company_key": "analog_devices", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "lam_research": {"ats": "eightfold", "host": "careers.lamresearch.com", "domain": "lamresearch.com", "api": "pcsx", "min_interval": 3600, "company_key": "lam_research", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "globalfoundries": {"ats": "eightfold", "host": "careers.gf.com", "domain": "globalfoundries.com", "api": "pcsx", "min_interval": 1800, "company_key": "globalfoundries", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "amd": {"ats": "jibe", "host": "careers.amd.com", "min_interval": 3600, "company_key": "amd", "group": "Semiconductors", "priority": 2, "geography": "global"},
+    "qualcomm_finance": {"ats": "eightfold", "host": "careers.qualcomm.com", "domain": "qualcomm.com", "api": "pcsx", "query": "finance", "min_interval": 3600, "company_key": "qualcomm", "group": "Semiconductors", "priority": 2, "geography": "global", "label": "Qualcomm finance roles"},
+    "western_digital": {"ats": "smartrecruiters", "token": "WesternDigital", "min_interval": 1800, "company_key": "western_digital", "group": "Semiconductors", "priority": 2, "geography": "global"}
   }
 }

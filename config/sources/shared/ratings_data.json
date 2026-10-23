@@ -1,11 +1,12 @@
 {
   "title": "Ratings and market data",
   "verified": "2026-10-10",
-  "note": "asset managers, hedge funds and private-markets firms. Verified 2026-10-10.",
+  "note": "asset managers, hedge funds and private-markets firms. Verified 2026-10-10. Added 2026-10-23 (each fetched successfully that day): bloomberg.",
   "boards": {
     "moodys": {"ats": "radancy", "host": "careers.moodys.com", "lang": "en", "max": 5000, "min_interval": 3600, "company_key": "moodys", "group": "Ratings & Data", "priority": 2, "geography": "global"},
     "sp_global": {"ats": "workday", "host": "spgi.wd5.myworkdayjobs.com", "tenant": "spgi", "site": "SPGI_Careers", "search": "", "max": 5000, "min_interval": 3600, "company_key": "sp_global", "group": "Ratings & Data", "priority": 2, "geography": "global"},
     "msci": {"ats": "icims", "host": "globalcareers-msci.icims.com", "max": 2000, "min_interval": 3600, "company_key": "msci", "group": "Ratings & Data", "priority": 2, "geography": "global"},
-    "msci_us": {"ats": "icims", "host": "uscareers-msci.icims.com", "max": 2000, "min_interval": 3600, "company_key": "msci", "group": "Ratings & Data", "priority": 2, "geography": "global"}
+    "msci_us": {"ats": "icims", "host": "uscareers-msci.icims.com", "max": 2000, "min_interval": 3600, "company_key": "msci", "group": "Ratings & Data", "priority": 2, "geography": "global"},
+    "bloomberg": {"ats": "avature", "url": "https://bloomberg.avature.net/careers/SearchJobs/", "min_interval": 1800, "company_key": "bloomberg", "group": "Exchanges & Data", "priority": 2, "geography": "global"}
   }
 }

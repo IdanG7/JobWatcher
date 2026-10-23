@@ -71,9 +71,13 @@ A source is one feed Foothold polls (`config["boards"]` in the code). Sources li
 
 | Folder | Polled by | Holds |
 |---|---|---|
-| `finance/` | Finance | Banks, boutiques, private markets, asset managers, pensions, ratings, finance LinkedIn searches |
-| `shared/` | Finance and the tech boards | Everything the Finance board polled in 0.3.7 that tech boards want too (quant, fintech, lists, big tech…) |
-| `tech/` | Software, AI & Data, Hardware, Product, Design | Sources added for the tech boards, each fetched before it shipped (`verified`) |
+| `finance/` | Finance | Banks, boutiques, private markets, asset managers, pensions, finance LinkedIn searches (0.3.7 sources only) |
+| `shared/` | Finance and the tech boards | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
+| `tech/` | Software, AI & Data, Hardware, Product, Design | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
+
+An employer whose whole listing is slow to read (Apple, Microsoft, Qualcomm) reads it on the tech boards
+only, and gives the Finance board a finance search of its site (`query`) instead, since a poll waits for
+its slowest source.
 
 `config/sources/manifest.json` names each board's groups (pack file names, which may repeat across
 folders): Finance polls every pack it may (`"groups": "*"`); a tech board polls its `core` groups plus
@@ -84,8 +88,9 @@ disabled one never. `watcher.cycle` polls a profile's sources; the CLI alert run
 profile, polls every enabled source. The Sources view groups rows by pack and names the boards that poll
 each (`pack_boards`); rows the profile's boards don't poll are dimmed.
 
-**The Finance board guarantee.** `finance/` ∪ `shared/` equals the 0.3.7 sources, setting for setting
-(`tests/sources/test_source_packs.py` checks their packaged hash, `ddb8d7057c16c87e`). Finance
+**The Finance board guarantee.** `finance/` ∪ `shared/` holds every 0.3.7 source, setting for setting
+(`tests/sources/test_source_packs.py` checks their packaged hash, `ddb8d7057c16c87e`); sources added
+since go to `shared/` only, each with its employer (`company_key`) and a verified fetch. Finance
 classification runs first, and tech filters only refine postings it leaves outside finance (the finance
 tests and the gate check this). A tech employer type (track `tech` in `companies.json`) only labels a posting: its priors point
 at tech filters, and its HQ country never stands in for a posting's location. Before a release that
@@ -144,7 +149,7 @@ The drawer's **Why 91?** panel shows every line. The scores in this section are 
 
 ## Closure detection
 
-Closure detection only runs for sources that return a complete listing: Greenhouse, Lever, Ashby, the Jane Street and Marqeta adapters, GitHub listing repos, and boards marked `"complete_listing": true`.
+Closure detection only runs for sources that return a complete listing: Greenhouse, Lever, Ashby, the Jane Street and Marqeta adapters, GitHub listing repos, a paged adapter (Workday, Eightfold, Jibe, UKG, Apple, Google…) that read every posting up to the total its site reported, the whole-listing pages (Atlassian, Workable, Kula, XML feeds), and boards marked `"complete_listing": true`.
 
 1. One miss marks a role `possibly_closed`.
 2. Three misses spanning at least 24 hours mark it `closed`.

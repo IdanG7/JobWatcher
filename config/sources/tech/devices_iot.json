@@ -1,13 +1,13 @@
 {
   "title": "Devices and IoT",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "motorola_solutions": {"ats": "workday", "host": "motorolasolutions.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Careers", "tenant": "motorolasolutions", "company_key": "motorola_solutions", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "ciena": {"ats": "workday", "host": "ciena.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Careers", "tenant": "ciena", "company_key": "ciena", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "sonos": {"ats": "workday", "host": "sonos.wd1.myworkdayjobs.com", "tenant": "sonos", "site": "Sonos", "min_interval": 1800, "company_key": "sonos", "group": "Devices & IoT", "priority": 2, "geography": "global"},
     "lucid": {"ats": "greenhouse", "token": "lucidmotors", "min_interval": 1800, "company_key": "lucid", "group": "Devices & IoT", "priority": 2, "geography": "global"},
-    "whoop": {"ats": "ashby", "token": "whoop", "min_interval": 1800, "company_key": "whoop", "group": "Devices & IoT", "priority": 2, "geography": "global"},
-    "oura": {"ats": "greenhouse", "token": "oura", "min_interval": 1800, "company_key": "oura", "group": "Devices & IoT", "priority": 2, "geography": "global"}
+    "garmin": {"ats": "jibe", "host": "careers.garmin.com", "min_interval": 1800, "company_key": "garmin", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "zebra_technologies": {"ats": "workday", "host": "zebra.wd501.myworkdayjobs.com", "tenant": "zebra", "site": "Zebra_careers", "min_interval": 1800, "company_key": "zebra_technologies", "group": "Devices & IoT", "priority": 2, "geography": "global"},
+    "logitech": {"ats": "workday", "host": "logitech.wd5.myworkdayjobs.com", "tenant": "logitech", "site": "Logitech", "min_interval": 1800, "company_key": "logitech", "group": "Devices & IoT", "priority": 2, "geography": "global"}
   }
 }

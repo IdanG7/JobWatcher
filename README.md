@@ -293,8 +293,8 @@ or alert behavior:
 | Kind | Coverage |
 |---|---|
 | Greenhouse, Lever, Ashby, SmartRecruiters | Direct company boards, including a large startup/AI/fintech set. Ashby includes compensation where published. |
-| Workday, Phenom, Eightfold | Banks, NVIDIA, Salesforce, Adobe, Capital One, Intel, PayPal, Mastercard, Disney, Netflix, and others. |
-| Bespoke adapters | Amazon, Microsoft, and Jane Street. |
+| Workday, Phenom, Eightfold, Oracle, iCIMS, Jibe, Radancy, Avature, SuccessFactors, Workable, UKG | Banks, NVIDIA, Salesforce, Adobe, Capital One, Intel, PayPal, Mastercard, Disney, Netflix, Qualcomm, AMD, Microsoft, and others. |
+| Bespoke adapters | Amazon, Apple, Google, Uber, Atlassian, Microsoft, and Jane Street. |
 | LinkedIn guest search | Fresh U.S. and Canadian searches without a login, with repost filtering. |
 | GitHub listing repos | Simplify, New Grad, internship, off-season, Canada, and salary-aware lists covering bespoke ATSs and long-tail companies. |
 

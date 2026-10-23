@@ -1,9 +1,26 @@
 {
   "title": "Applied AI startups",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "cognition": {"ats": "ashby", "token": "cognition", "min_interval": 1800, "company_key": "cognition", "group": "Startups", "priority": 2, "geography": "global"},
-    "hebbia": {"ats": "ashby", "token": "hebbia-ai", "min_interval": 1800, "company_key": "hebbia", "group": "Startups", "priority": 2, "geography": "global"}
+    "hebbia": {"ats": "ashby", "token": "hebbia-ai", "min_interval": 1800, "company_key": "hebbia", "group": "Startups", "priority": 2, "geography": "global"},
+    "otter_ai": {"ats": "greenhouse", "token": "otterai", "min_interval": 1800, "company_key": "otter_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "speechify": {"ats": "greenhouse", "token": "speechify", "min_interval": 1800, "company_key": "speechify", "group": "Startups", "priority": 2, "geography": "global"},
+    "exa_ai": {"ats": "ashby", "token": "exa", "min_interval": 1800, "company_key": "exa_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "ideogram": {"ats": "ashby", "token": "ideogram", "min_interval": 1800, "company_key": "ideogram", "group": "Startups", "priority": 2, "geography": "global"},
+    "pika_labs": {"ats": "ashby", "token": "pika", "min_interval": 1800, "company_key": "pika_labs", "group": "Startups", "priority": 2, "geography": "global"},
+    "vapi_ai": {"ats": "ashby", "token": "vapi", "min_interval": 1800, "company_key": "vapi_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "bland_ai": {"ats": "ashby", "token": "bland", "min_interval": 1800, "company_key": "bland_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "synthesia": {"ats": "ashby", "token": "synthesia", "min_interval": 1800, "company_key": "synthesia", "group": "Startups", "priority": 2, "geography": "global"},
+    "deepl": {"ats": "ashby", "token": "deepl", "min_interval": 1800, "company_key": "deepl", "group": "Startups", "priority": 2, "geography": "global"},
+    "luma_ai": {"ats": "ashby", "token": "lumaai", "min_interval": 1800, "company_key": "luma_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "inworld_ai": {"ats": "ashby", "token": "inworld-ai", "min_interval": 1800, "company_key": "inworld_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "backstory": {"ats": "lever", "token": "people-ai", "min_interval": 1800, "company_key": "backstory", "group": "Startups", "priority": 2, "geography": "global"},
+    "krea_ai": {"ats": "ashby", "token": "krea", "min_interval": 1800, "company_key": "krea_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "speechmatics": {"ats": "greenhouse", "token": "speechmatics", "min_interval": 1800, "company_key": "speechmatics", "group": "Startups", "priority": 2, "geography": "global"},
+    "you_com": {"ats": "greenhouse", "token": "youcom", "min_interval": 1800, "company_key": "you_com", "group": "Startups", "priority": 2, "geography": "global"},
+    "gradient_ai": {"ats": "greenhouse", "token": "gradientai", "min_interval": 1800, "company_key": "gradient_ai", "group": "Startups", "priority": 2, "geography": "global"},
+    "tractable": {"ats": "ashby", "token": "tractable", "min_interval": 1800, "company_key": "tractable", "group": "Startups", "priority": 2, "geography": "global"}
   }
 }

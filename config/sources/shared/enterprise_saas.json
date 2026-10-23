@@ -1,7 +1,7 @@
 {
   "title": "Enterprise software",
   "verified": null,
-  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming dev tools, data & infra (fits distributed-systems background)",
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming dev tools, data & infra (fits distributed-systems background) Added 2026-10-23 (each fetched successfully that day): alphasense, kyndryl, workiva, ptc, blackbaud, ukg.",
   "sections": {"startups_fintech_consumer": ["flexport", "gusto", "checkr"]},
   "boards": {
     "figma": {"ats": "greenhouse", "token": "figma"},
@@ -17,6 +17,12 @@
     "webflow": {"ats": "greenhouse", "token": "webflow"},
     "smartsheet": {"ats": "greenhouse", "token": "smartsheet"},
     "calendly": {"ats": "greenhouse", "token": "calendly"},
-    "attio": {"ats": "ashby", "token": "attio"}
+    "attio": {"ats": "ashby", "token": "attio"},
+    "alphasense": {"ats": "greenhouse", "token": "alphasense", "min_interval": 1800, "company_key": "alphasense", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "kyndryl": {"ats": "workday", "host": "kyndryl.wd5.myworkdayjobs.com", "tenant": "kyndryl", "site": "KyndrylProfessionalCareers", "min_interval": 1800, "company_key": "kyndryl", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "workiva": {"ats": "workday", "host": "workiva.wd503.myworkdayjobs.com", "tenant": "workiva", "site": "careers", "min_interval": 1800, "company_key": "workiva", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "ptc": {"ats": "workday", "host": "ptc.wd1.myworkdayjobs.com", "tenant": "ptc", "site": "PTC", "min_interval": 1800, "company_key": "ptc", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "blackbaud": {"ats": "workday", "host": "blackbaud.wd1.myworkdayjobs.com", "tenant": "blackbaud", "site": "ExternalCareers", "min_interval": 1800, "company_key": "blackbaud", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "ukg": {"ats": "eightfold", "host": "apply.ukg.com", "domain": "ukg.com", "api": "pcsx", "min_interval": 1800, "company_key": "ukg", "group": "Enterprise Software", "priority": 2, "geography": "global"}
   }
 }

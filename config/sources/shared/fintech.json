@@ -1,7 +1,7 @@
 {
   "title": "Fintech",
   "verified": null,
-  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming",
+  "note": "hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): carta, toast.",
   "boards": {
     "stripe": {"ats": "greenhouse", "token": "stripe"},
     "plaid": {"ats": "ashby", "token": "plaid"},
@@ -21,6 +21,8 @@
     "lithic": {"ats": "greenhouse", "token": "lithic"},
     "alloy": {"ats": "greenhouse", "token": "alloy"},
     "betterment": {"ats": "greenhouse", "token": "betterment"},
-    "upstart": {"ats": "greenhouse", "token": "upstart"}
+    "upstart": {"ats": "greenhouse", "token": "upstart"},
+    "carta": {"ats": "greenhouse", "token": "carta", "min_interval": 1800, "company_key": "carta", "group": "FinTech", "priority": 2, "geography": "global"},
+    "toast": {"ats": "greenhouse", "token": "toast", "min_interval": 1800, "company_key": "toast", "group": "FinTech", "priority": 2, "geography": "global"}
   }
 }

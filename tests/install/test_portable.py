@@ -171,8 +171,8 @@ class PortableTests(unittest.TestCase):
 
     def test_upgrading_a_0_3_7_install_keeps_every_source_and_posting_and_adds_tech_ones(self):
         # The sources moved from config.json into config/sources packs, and the next release
-        # (sources_version 10) adds tech/ packs: a 0.3.7 install keeps its sources, settings and
-        # postings, gains only the tech sources, and its Finance board polls what it did.
+        # (sources_version 10) adds tech/ and shared/ sources: a 0.3.7 install keeps its sources,
+        # settings and postings, and its Finance board polls what it did plus the shared/ additions.
         root = Path(__file__).resolve().parents[2]
         bundled = clean_config(load_config(root / "config.json"))
         history = (root / "config" / "source_defaults_history.json").read_text(encoding="utf-8")
@@ -201,17 +201,20 @@ class PortableTests(unittest.TestCase):
                 count = lambda table: con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                 postings = {table: count(table) for table in ("jobs", "job_intel", "job_fts", "applications")}
             packs = load_packs(app / "config" / "sources")
-        tech = {name for name, key in packs.source_pack.items() if packs.packs[key].folder == "tech"}
+        folder = lambda name: packs.packs[packs.source_pack[name]].folder
+        added = set(packs.source_pack) - set(old)
+        shared = {name for name in added if folder(name) == "shared"}
         self.assertEqual(10, config["sources_version"])
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
-        self.assertEqual(tech, set(config["boards"]) - set(mine))         # 0 removed; added: tech/ only
-        self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= tech)  # okta, micron: 0.3.0 names again
+        self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
+        self.assertEqual({"tech", "shared"}, {folder(name) for name in added})
+        self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= added)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
         self.assertEqual(set(bundled["boards"]), set(packs.source_pack))     # every shipped source is in a pack
         kn = load_knowledge()
         finance = polled_sources(config, profile, kn, packs)
-        self.assertEqual(set(enabled_sources({"boards": mine})), set(finance))    # the Finance board polls what it did
+        self.assertEqual(set(enabled_sources({"boards": mine})) | shared, set(finance))    # what it did, plus shared/
         self.assertIn("okta", polled_sources(config, {"fields": ["software"]}, kn, packs))
 
     def test_distribution_drops_private_config_and_subscribers(self):

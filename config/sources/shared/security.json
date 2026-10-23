@@ -1,9 +1,12 @@
 {
   "title": "Security",
   "verified": null,
-  "note": "",
+  "note": " Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): fortinet, palo_alto_networks, okta.",
   "boards": {
     "vanta": {"ats": "ashby", "token": "vanta"},
-    "1password": {"ats": "ashby", "token": "1password"}
+    "1password": {"ats": "ashby", "token": "1password"},
+    "fortinet": {"ats": "oracle_hcm", "host": "edel.fa.us2.oraclecloud.com", "site": "CX_2001", "min_interval": 3600, "company_key": "fortinet", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "palo_alto_networks": {"ats": "workday", "host": "paloaltonetworks.wd5.myworkdayjobs.com", "tenant": "paloaltonetworks", "site": "panwexternalcareers", "min_interval": 3600, "company_key": "palo_alto_networks", "group": "Cybersecurity", "priority": 2, "geography": "global"},
+    "okta": {"ats": "greenhouse", "token": "okta", "min_interval": 1800, "company_key": "okta", "group": "Cybersecurity", "priority": 2, "geography": "global"}
   }
 }

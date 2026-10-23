@@ -274,7 +274,8 @@ def _lever_text(j):
 
 
 def fetch_lever(cfg):
-    url = f"https://api.lever.co/v0/postings/{cfg['token']}?mode=json"
+    host = "api.eu.lever.co" if cfg.get("region") == "eu" else "api.lever.co"
+    url = f"https://{host}/v0/postings/{cfg['token']}?mode=json"
     r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
     r.raise_for_status()
     return [{
@@ -483,7 +484,7 @@ def fetch_workday(cfg):
 
 def fetch_amazon_jobs(cfg):
     """amazon.jobs public search JSON. cfg: query (e.g. 'software intern'),
-    optionally country and max (default 1000). Reads every page of matches,
+    optionally country, categories (job category slugs) and max (default 1000). Reads every page of matches,
     newest first; a keyword search is never treated as Amazon's full listing."""
     limit = cfg.get("max", 1000)
     out, seen, offset = SourceListing(reason="amazon.jobs keyword search"), set(), 0
@@ -492,6 +493,8 @@ def fetch_amazon_jobs(cfg):
                   "result_limit": 100, "offset": offset, "sort": "recent"}
         if cfg.get("country"):
             params["country"] = cfg["country"]
+        if cfg.get("categories"):
+            params["category[]"] = cfg["categories"]      # e.g. machine-learning-science
         r = requests.get("https://www.amazon.jobs/en/search.json", params=params,
                          headers={"User-Agent": UA, "Accept": "application/json"},
                          timeout=TIMEOUT)
@@ -740,7 +743,7 @@ def _linkedin_get(url, params=None):
 
 def fetch_linkedin(cfg):
     """LinkedIn public guest results, no login. cfg: queries (list) or query,
-    location ('United States'), recency
+    location ('United States'), companies (LinkedIn company ids), recency
     ('r86400' = posted in last 24h), pages (default 3, ~10 results/page).
     seed_recency/seed_pages can widen the first poll. This feed is always partial."""
     if cfg.get("_initial_seed"):
@@ -769,9 +772,13 @@ def _linkedin_query(cfg, q, location, out, seen):
     if isinstance(pages, bool) or not isinstance(pages, int) or not 1 <= pages <= 40:
         raise ValueError("LinkedIn pages must be an integer from 1 to 40")
     previous_pages = set()
+    params = {"keywords": q, "location": location, "f_TPR": cfg.get("recency", "r86400")}
+    if cfg.get("companies"):
+        # LinkedIn company ids (urn:li:organization:<id> on the company's page): employers
+        # whose own career sites refuse automated requests.
+        params["f_C"] = ",".join(str(c) for c in cfg["companies"])
     for _ in range(pages):
-        r = _linkedin_get(LINKEDIN_SEARCH, {"keywords": q, "location": location,
-                                            "f_TPR": cfg.get("recency", "r86400"), "start": start})
+        r = _linkedin_get(LINKEDIN_SEARCH, {**params, "start": start})
         if r.status_code in (400, 404):         # past the end of results
             break
         r.raise_for_status()
@@ -847,8 +854,8 @@ PHENOM_PASSES = 4
 
 
 def fetch_phenom(cfg):
-    """Phenom People career sites (jobs.rbc.com etc). cfg: host, query,
-    size (page size, default 100), max (default 5000), url template.
+    """Phenom People career sites (jobs.rbc.com etc). cfg: host, query, categories
+    (the site's own category names), size (page size, default 100), max (default 5000), url template.
 
     Phenom orders ties differently on every request, so one paged pass can
     repeat some postings and skip others (RBC: 798-825 of 827). Pages are
@@ -864,7 +871,8 @@ def fetch_phenom(cfg):
             "jobs": True, "counts": True, "size": size, "sortBy": cfg.get("sort", "Most recent"),
             "clearAll": False, "jdsource": "facets", "siteType": "external",
             "keywords": cfg.get("query", ""), "global": True,
-            "selected_fields": {}, "all_fields": ["category", "location"]}
+            "selected_fields": {"category": cfg["categories"]} if cfg.get("categories") else {},
+            "all_fields": ["category", "location"]}
     url_tmpl = cfg.get("url", f"https://{cfg['host']}/en/job/{{id}}")
     out, seen = SourceListing(), set()
     passes = 0
@@ -921,10 +929,62 @@ def fetch_phenom(cfg):
     return out
 
 
+EIGHTFOLD_BACKOFF = (10, 30, 60)       # waits after successive 429s on one request
+
+
+def _eightfold_pcsx_get(cfg, path, params):
+    for wait in (*EIGHTFOLD_BACKOFF, None):
+        r = requests.get(f"https://{cfg['host']}/api/pcsx/{path}", params={"domain": cfg["domain"], **params},
+                         headers={"User-Agent": UA, "Accept": "application/json",
+                                  "Referer": f"https://{cfg['host']}/careers"}, timeout=TIMEOUT)
+        if r.status_code != 429 or wait is None:
+            break
+        time.sleep(wait)
+    r.raise_for_status()
+    data = r.json().get("data")
+    if not isinstance(data, dict):
+        raise RuntimeError("Eightfold search response has no data")
+    return data
+
+
+def fetch_eightfold_pcsx(cfg):
+    """Eightfold's newer search (Qualcomm, Lam Research), for sites that refuse the
+    older API. cfg: host, domain, api 'pcsx', optional query, max. It serves 10 per page, and
+    answers bursts with 429, so pages are spaced; a listing it stops serving
+    part-way keeps what was read (incomplete, so nothing is closed)."""
+    out, seen, start = SourceListing(), set(), 0
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        if start:
+            time.sleep(1)
+        try:
+            data = _eightfold_pcsx_get(cfg, "search", {"query": cfg.get("query", ""), "location": "", "start": start,
+                                                       "num": 10, "sort_by": "timestamp"})
+        except requests.HTTPError as exc:
+            if not out or exc.response is None or exc.response.status_code != 429:
+                raise
+            out.reason = f"Eightfold rate-limited the listing at {len(out)} of {out.total} postings"
+            return out
+        if out.total is None and isinstance(data.get("count"), int):
+            out.total = data["count"]
+        # Standardized places read "Fremont, CA, US" where Lam's own say "US-CA-Fremont (1003)".
+        page = [{"id": str(p.get("id") or ""), "title": p.get("name") or "",
+                 "location": "; ".join(", ".join(part.strip() for part in place.split(","))
+                                       for place in p.get("standardizedLocations") or p.get("locations") or []),
+                 "url": f"https://{cfg['host']}{p.get('positionUrl') or '/careers/job/' + str(p.get('id'))}",
+                 "posted": p.get("postedTs")} for p in data.get("positions") or []]
+        if _consume_page(out, page, seen, "Eightfold", limit):
+            break
+        start += len(page)
+    return _finish_listing(out, "Eightfold", limit)
+
+
 def fetch_eightfold(cfg):
     """Eightfold-powered career sites (Netflix etc). cfg: host
     ('explore.jobs.netflix.net'), domain ('netflix.com'), optional query,
     max (default 2000). The API serves 10 per page."""
+    if cfg.get("api") == "pcsx":
+        return fetch_eightfold_pcsx(cfg)
     limit = cfg.get("max", 2000)
     out, seen, start = SourceListing(), set(), 0
     while start < limit:
@@ -1013,14 +1073,18 @@ def _html_attr(tag, name):
 
 
 def fetch_successfactors(cfg):
-    """Public SuccessFactors Recruiting Marketing HTML (Scotiabank)."""
+    """Public SuccessFactors Recruiting Marketing HTML: a category page (Scotiabank's
+    /go/<name>/<id>/, paged by path) or the site search (Rogers' /search/, paged by startrow)."""
     root = cfg["url"].rstrip("/") + "/"
+    search = urlsplit(root).path.endswith("/search/")
     out, offset, seen = SourceListing(), 0, set()
     limit = _source_limit(cfg)
     while offset < limit:
-        url = root if offset == 0 else f"{root}{offset}/"
-        r = requests.get(url, params={"q": "", "sortColumn": "referencedate", "sortDirection": "desc"},
-                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        url = root if offset == 0 or search else f"{root}{offset}/"
+        params = {"q": "", "sortColumn": "referencedate", "sortDirection": "desc"}
+        if search and offset:
+            params["startrow"] = offset
+        r = requests.get(url, params=params, headers={"User-Agent": UA}, timeout=TIMEOUT)
         r.raise_for_status()
         total = re.search(r'class=["\'][^"\']*paginationLabel[^"\']*["\'][^>]*>.*?of\s*<b>\s*([\d,]+)', r.text, re.S)
         if out.total is None and total:
@@ -1053,8 +1117,25 @@ def fetch_successfactors(cfg):
     return _finish_listing(out, "SuccessFactors", limit)
 
 
+def _avature_cards(text, root):
+    """Avature result cards (EA, Bloomberg): <article class="article--result"> with the
+    title link in an <h3> and a list-item-location span."""
+    page = []
+    for card in re.findall(r'<article\b[^>]*\barticle--result\b[^>]*>(.*?)</article>', text, re.S | re.I):
+        link = re.search(r'<h3\b[^>]*>\s*<a\b([^>]*)>(.*?)</a>', card, re.S | re.I)
+        if not link:
+            continue
+        job_url = urljoin(root, _html_attr(link.group(1), "href"))
+        jid = re.search(r"/(\d+)/?$", urlsplit(job_url).path)
+        loc = re.search(r'class="list-item-location"[^>]*>(.*?)</span>', card, re.S | re.I)
+        page.append({"id": jid.group(1) if jid else "", "title": html_to_text(link.group(2)).strip(),
+                     "location": html_to_text(loc.group(1)).strip() if loc else "", "url": job_url})
+    return page
+
+
 def fetch_avature(cfg):
-    """National Bank's public Avature jobs table and jobOffset pagination."""
+    """Avature career sites: National Bank's jobs table, or result cards (EA,
+    Bloomberg), with jobOffset pagination. cfg: url (the SearchJobs page), max."""
     root = cfg["url"]
     out, offset, seen = SourceListing(), 0, set()
     limit = _source_limit(cfg)
@@ -1077,6 +1158,11 @@ def fetch_avature(cfg):
                 loc += ", Canada"
             page.append({"id": jid.group(1) if jid else "", "title": html_to_text(title).strip(),
                          "location": loc, "url": job_url})
+        if not page:
+            page = _avature_cards(r.text, root)
+            total = re.search(r'aria-label="(\d+) results"', r.text)
+            if out.total is None and total:
+                out.total = int(total.group(1))
         if not page:
             raise RuntimeError("Avature pagination response has no parsed jobs")
         if _consume_page(out, page, seen, "Avature", limit):
@@ -1216,14 +1302,19 @@ def fetch_radancy(cfg):
         if out.total is None and total:
             out.total = int(total.group(1))
         page = []
-        for href, inner in re.findall(r'<a\b[^>]*href="(/(?:[a-z]{2}(?:-[a-z]{2})?/)?job/[^"]+)"[^>]*>(.*?)</a>',
-                                      results, re.S | re.I):
+        for card in re.finditer(r'<a\b[^>]*href="(/(?:[a-z]{2}(?:-[a-z]{2})?/)?job/[^"]+)"[^>]*>(.*?)</a>',
+                                results, re.S | re.I):
+            href, inner = card.groups()
             jid = href.rstrip("/").rsplit("/", 1)[-1]
-            title = re.search(r"<h2[^>]*>(.*?)</h2>", inner, re.S)
-            loc = re.search(r'class="job-location"[^>]*>(.*?)</span>', inner, re.S)
+            title = re.search(r"<(h[23])[^>]*>(.*?)</\1>", inner, re.S)
+            loc = re.search(r'class="job-location(?:\s[^"]*)?"[^>]*>(.*?)</span>', inner, re.S)
+            if not loc:
+                # Arm's cards put the location after the link: <a>Title</a> <span class="location">
+                tail = results[card.end():].split("</li>", 1)[0]
+                loc = re.search(r'class="(?:job-)?location"[^>]*>(.*?)</span>', tail, re.S)
             date = re.search(r'class="job-date-posted"[^>]*>(.*?)</span>', inner, re.S)
             page.append({"id": jid if jid.isdigit() else "",
-                         "title": html_to_text(title.group(1)) if title else "",
+                         "title": html_to_text(title.group(2)) if title else " ".join(html_to_text(inner).split()),
                          "location": html_to_text(loc.group(1)) if loc else "",
                          "url": f"https://{host}{href}",
                          "posted": _us_date_epoch(html_to_text(date.group(1))) if date else None})
@@ -1282,6 +1373,296 @@ def fetch_icims(cfg):
     return _finish_listing(out, "iCIMS", limit)
 
 
+def fetch_jibe(cfg):
+    """Jibe career sites over iCIMS (careers.amd.com, careers.garmin.com), whose
+    /api/jobs JSON carries each posting's description. cfg: host, max."""
+    host = cfg["host"]
+    if not re.fullmatch(r"[a-z0-9.-]+\.[a-z]{2,}", host):
+        raise ValueError("Jibe host must be a hostname")
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get(f"https://{host}/api/jobs", params={"page": page_no, "limit": 100},
+                         headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("totalCount"), int):
+            out.total = data["totalCount"]
+        page = []
+        for item in data.get("jobs") or []:
+            j = item.get("data") or {}
+            loc = j.get("full_location") or ""
+            if j.get("country_code") and j.get("country") and j["country"] not in loc:
+                loc = f"{loc}, {j['country_code']}" if loc else j["country"]   # US and Canada omit it
+            page.append({"id": str(j.get("req_id") or ""), "title": j.get("title") or "", "location": loc,
+                         "url": (j.get("meta_data") or {}).get("canonical_url") or f"https://{host}/jobs/{j.get('req_id')}",
+                         "posted": _iso_epoch(j.get("posted_date")),
+                         "description": "\n\n".join(html_to_text(j.get(k)) for k in (
+                             "description", "responsibilities", "qualifications") if j.get(k)),
+                         "department": " / ".join(c.strip() for c in j.get("category") or [] if c.strip())})
+        if _consume_page(out, page, seen, "Jibe", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Jibe", limit)
+
+
+def _atlassian_place(text):
+    """'Salt Lake City - United States -   Salt Lake City, Utah 84044 United States' ->
+    'Salt Lake City, Utah 84044 United States' (the last, fullest part)."""
+    return re.sub(r"\s+", " ", text.rsplit(" - ", 1)[-1]).strip()
+
+
+def fetch_atlassian(cfg):
+    """Atlassian's careers page, which embeds every open posting (from its iCIMS
+    portals) in the page's data. cfg: none."""
+    url = "https://www.atlassian.com/company/careers/all-jobs"
+    r = requests.get(url, headers={"User-Agent": UA}, timeout=60)
+    r.raise_for_status()
+    marker = re.search(r'"type"\s*:\s*"careersGallery"\s*,\s*"parameters"\s*:\s*\{\s*"data"\s*:\s*'
+                       r'\{\s*"type"\s*:\s*"json"\s*,\s*"value"\s*:\s*(?=\[)', r.text)
+    if not marker:
+        raise RuntimeError("Atlassian careers page has no job gallery")
+    entries, _ = json.JSONDecoder().raw_decode(r.text, marker.end())
+    out, seen = SourceListing(), set()
+    for entry in entries:
+        f = entry.get("fields") or {}
+        jid = str(f.get("id") or "")
+        if not jid or jid in seen:
+            continue
+        seen.add(jid)
+        out.append({"id": jid, "title": re.sub(r"\s+", " ", f.get("title") or "").strip(),
+                    "location": "; ".join(_atlassian_place(p) for p in f.get("locations") or []),
+                    "url": f"https://www.atlassian.com/company/careers/details/{jid}"})
+    if not out:
+        raise RuntimeError("Atlassian job gallery is empty")
+    out.complete = True
+    return out
+
+
+def _place(*parts):
+    return ", ".join(p.strip() for p in parts if p and p.strip())
+
+
+def fetch_workable(cfg):
+    """Workable boards (apply.workable.com/<account>): the careers widget's JSON lists
+    every published posting. cfg: account."""
+    account = cfg["account"]
+    if not re.fullmatch(r"[a-z0-9-]+", account):
+        raise ValueError("Workable account must be the board's lowercase name")
+    r = requests.get(f"https://apply.workable.com/api/v1/widget/accounts/{account}",
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    jobs = r.json().get("jobs")
+    if not isinstance(jobs, list):
+        raise RuntimeError("Workable widget response has no jobs list")
+    out = SourceListing(complete=True)
+    for j in jobs:
+        places = [_place(p.get("city"), p.get("region"), p.get("country"))
+                  for p in j.get("locations") or [] if not p.get("hidden")]
+        out.append({"id": j.get("shortcode") or "", "title": j.get("title") or "",
+                    "location": "; ".join(p for p in places if p) or _place(j.get("city"), j.get("state"), j.get("country")),
+                    "url": j.get("url") or f"https://apply.workable.com/{account}/j/{j.get('shortcode')}/",
+                    "posted": _date_epoch(j.get("published_on"))})
+    return out
+
+
+def fetch_ukg(cfg):
+    """UKG Pro Recruiting (UltiPro) job boards, newest first. cfg: host
+    ('recruiting.ultipro.ca'), tenant ('MAC5000MCDW'), board (the job board's GUID), max."""
+    host, tenant, board = cfg["host"], cfg["tenant"], cfg["board"]
+    if host not in ("recruiting.ultipro.com", "recruiting.ultipro.ca", "recruiting2.ultipro.com"):
+        raise ValueError("UKG host must be a recruiting.ultipro host")
+    base = f"https://{host}/{tenant}/JobBoard/{board}"
+    out, seen, skip = SourceListing(), set(), 0
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        body = {"opportunitySearch": {"Top": 50, "Skip": skip, "QueryString": "", "Filters": [],
+                                      "OrderBy": [{"Value": "postedDateDesc", "PropertyName": "PostedDate",
+                                                   "Ascending": False}]}}
+        r = requests.post(f"{base}/JobBoardView/LoadSearchResults", json=body,
+                          headers={"User-Agent": UA, "Accept": "application/json", "Referer": f"{base}/"},
+                          timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("totalCount"), int):
+            out.total = data["totalCount"]
+        page = []
+        for o in data.get("opportunities") or []:
+            places = []
+            for loc in o.get("Locations") or []:
+                a = loc.get("Address") or {}
+                places.append(_place(a.get("City"), (a.get("State") or {}).get("Code"),
+                                     (a.get("Country") or {}).get("Name")) or loc.get("LocalizedDescription") or "")
+            page.append({"id": o.get("Id") or "", "title": o.get("Title") or "",
+                         "location": "; ".join(p for p in places if p),
+                         "url": f"{base}/OpportunityDetail?opportunityId={o.get('Id')}",
+                         "posted": _iso_epoch(o.get("PostedDate"))})
+        if _consume_page(out, page, seen, "UKG", limit):
+            break
+        skip += len(page)
+    return _finish_listing(out, "UKG", limit)
+
+
+def fetch_xml_feed(cfg):
+    """An employer's XML job feed in the Indeed format (<source><job>...), such as
+    careers.nutanix.com/en/jobs/xml/?rss=true. cfg: url."""
+    url = cfg["url"]
+    if urlsplit(url).scheme != "https":
+        raise ValueError("XML job feed must be an https URL")
+    r = requests.get(url, headers={"User-Agent": UA, "Accept": "application/xml"}, timeout=60)
+    r.raise_for_status()
+    root = ET.fromstring(r.content)
+    if root.tag != "source":
+        raise RuntimeError("XML job feed has no <source> root")
+    out, seen = SourceListing(complete=True), set()
+    for job in root.findall("job"):
+        text = {el.tag: (el.text or "").strip() for el in job}
+        jid = text.get("apijobid") or text.get("referencenumber") or text.get("requisitionid")
+        if not jid:
+            raise RuntimeError("XML job feed entry has no id")
+        if jid in seen:
+            continue
+        seen.add(jid)
+        out.append({"id": jid, "title": text.get("title", ""),
+                    "location": _place(text.get("city"), text.get("state"), text.get("country")),
+                    "url": text.get("url", ""), "posted": _iso_epoch(text.get("date")),
+                    "description": html_to_text(text.get("description", "")), "department": text.get("category", "")})
+    return out
+
+
+def fetch_kula(cfg):
+    """Kula career boards (careers.kula.ai/<account>). The board page's React server
+    data carries the postings. cfg: account."""
+    account = cfg["account"]
+    if not re.fullmatch(r"[a-z0-9-]+", account):
+        raise ValueError("Kula account must be the board's lowercase name")
+    r = requests.get(f"https://careers.kula.ai/{account}",
+                     headers={"User-Agent": UA, "RSC": "1", "Accept": "text/x-component"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    start = r.text.find('"jobs":[')
+    if start < 0:
+        raise RuntimeError("Kula board data has no jobs list")
+    jobs, _ = json.JSONDecoder().raw_decode(r.text, start + len('"jobs":'))
+    out = SourceListing(complete=True)
+    for j in jobs:
+        if not j.get("listed", True):
+            continue
+        offices = (j.get("ats_job") or {}).get("offices") or []
+        out.append({"id": str(j.get("id") or ""), "title": j.get("title") or "",
+                    "location": "; ".join(o.get("location") for o in offices if o.get("location")),
+                    "url": f"https://careers.kula.ai/{account}/{j.get('id')}", "posted": _iso_epoch(j.get("launch_at"))})
+    return out
+
+
+APPLE_BACKOFF = (5, 20)        # waits before asking again for a page Apple answered empty
+
+
+def fetch_apple(cfg):
+    """jobs.apple.com search, newest first. The search answers with the CSRF token and
+    session cookie its own page gets first. cfg: optional query, locations (default US and
+    Canada), max."""
+    page_url = "https://jobs.apple.com/en-us/search"
+    token = requests.get("https://jobs.apple.com/api/v1/CSRFToken", headers={"User-Agent": UA, "Referer": page_url},
+                         timeout=TIMEOUT)
+    token.raise_for_status()
+    headers = {"User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json",
+               "Origin": "https://jobs.apple.com", "Referer": page_url,
+               "X-Apple-CSRF-Token": token.headers.get("X-Apple-CSRF-Token", "")}
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        body = {"query": cfg.get("query", ""),
+                "filters": {"locations": cfg.get("locations", ["postLocation-USA", "postLocation-CANC"])},
+                "page": page_no, "locale": "en-us", "sort": "newest",
+                "format": {"longDate": "MMMM D, YYYY", "mediumDate": "MMM D, YYYY"}}
+        # Apple answers bursts with empty pages (totalRecords 0), so pages are spaced and an
+        # empty page short of the reported total is asked for again after a pause.
+        for wait in (*APPLE_BACKOFF, None):
+            time.sleep(1)
+            r = requests.post("https://jobs.apple.com/api/v1/search", json=body, headers=headers,
+                              cookies=token.cookies, timeout=TIMEOUT)
+            r.raise_for_status()
+            res = r.json().get("res") or {}
+            if res.get("searchResults") or (out.total is not None and len(out) >= out.total) or wait is None:
+                break
+            time.sleep(wait)
+        if out.total is None and res.get("searchResults") and isinstance(res.get("totalRecords"), int):
+            out.total = res["totalRecords"]          # an empty answer's 0 is not Apple's total
+        page = [{"id": str(j.get("positionId") or ""), "title": j.get("postingTitle") or "",
+                 # A place's name is its city ("Sunnyvale") unless it is a country (level 1).
+                 "location": "; ".join(_place(l.get("city") or (l.get("name") if l.get("level") != 1 else ""),
+                                              l.get("stateProvince"), l.get("countryName"))
+                                       for l in j.get("locations") or []),
+                 "url": f"https://jobs.apple.com/en-us/details/{j.get('positionId')}",
+                 "posted": _iso_epoch(j.get("postDateInGMT")),
+                 "description": (j.get("jobSummary") or "").strip(),
+                 "department": (j.get("team") or {}).get("teamName") or ""} for j in res.get("searchResults") or []]
+        if not page and not out:
+            raise RuntimeError("Apple search answered no postings")
+        if _consume_page(out, page, seen, "Apple", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Apple", limit)
+
+
+def fetch_google(cfg):
+    """Google careers results pages, which embed each page's postings (20) and the total.
+    cfg: locations (default United States and Canada), max."""
+    url = "https://www.google.com/about/careers/applications/jobs/results/"
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        params = [("location", loc) for loc in cfg.get("locations", ["United States", "Canada"])] + [("page", page_no)]
+        r = requests.get(url, params=params, headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        marker = re.search(r"AF_initDataCallback\(\{key: 'ds:1', hash: '\d+', data:", r.text)
+        if not marker:
+            raise RuntimeError("Google careers page has no results data")
+        data, _ = json.JSONDecoder().raw_decode(r.text, marker.end())
+        if out.total is None and len(data) > 2 and isinstance(data[2], int):
+            out.total = data[2]
+        page = []
+        for j in data[0] or []:
+            # [id, title, apply link, [_, responsibilities], [_, qualifications], _, _, company, _,
+            #  locations, [_, description], _, [created seconds, nanos], ...]
+            j = list(j) + [None] * (13 - len(j))
+            html_parts = [p[1] for p in (j[10], j[3], j[4]) if isinstance(p, list) and len(p) > 1 and p[1]]
+            page.append({"id": str(j[0] or ""), "title": j[1] or "", "company": j[7] or "Google",
+                         "location": "; ".join(l[0] for l in j[9] or [] if l and l[0]),
+                         "url": f"{url}{j[0]}", "posted": (j[12] or [None])[0],
+                         "description": "\n\n".join(html_to_text(t) for t in html_parts)})
+        if _consume_page(out, page, seen, "Google", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Google", limit)
+
+
+def fetch_uber(cfg):
+    """jobs.uber.com search JSON (10 per page). cfg: max."""
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get("https://jobs.uber.com/api/jobs/search", params={"page": page_no, "pageSize": 10},
+                         headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if out.total is None and isinstance(data.get("totalJobs"), int):
+            out.total = data["totalJobs"]
+        page = []
+        for j in data.get("jobs") or []:
+            link = next((u.get("Url") for u in j.get("Urls") or [] if u.get("IsDefault")), None) or f"/en/jobs/{j.get('Id')}/"
+            page.append({"id": str(j.get("Id") or ""), "title": j.get("Title") or "",
+                         "location": "; ".join(_place(l.get("City"), l.get("Region"), l.get("Country"))
+                                               for l in j.get("Locations") or []),
+                         "url": urljoin("https://jobs.uber.com", link), "posted": _iso_epoch(j.get("DisplayDate")),
+                         "description": html_to_text(j.get("Description") or ""),
+                         "department": " / ".join(j.get("Teams") or [])})
+        if _consume_page(out, page, seen, "Uber", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Uber", limit)
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -1304,6 +1685,15 @@ ADAPTERS = {
     "oleeo": fetch_oleeo,
     "radancy": fetch_radancy,
     "icims": fetch_icims,
+    "jibe": fetch_jibe,
+    "atlassian": fetch_atlassian,
+    "workable": fetch_workable,
+    "ukg": fetch_ukg,
+    "xml_feed": fetch_xml_feed,
+    "kula": fetch_kula,
+    "apple": fetch_apple,
+    "google": fetch_google,
+    "uber": fetch_uber,
 }
 
 
@@ -1339,6 +1729,9 @@ def detail_smartrecruiters(cfg, job_id):
 
 
 def detail_eightfold(cfg, job_id):
+    if cfg.get("api") == "pcsx":
+        data = _eightfold_pcsx_get(cfg, "position_details", {"position_id": job_id})
+        return html_to_text(data.get("jobDescription") or ""), data.get("department") or ""
     r = requests.get(f"https://{cfg['host']}/api/apply/v2/jobs/{job_id}",
                      params={"domain": cfg["domain"]},
                      headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
@@ -1391,7 +1784,29 @@ def detail_linkedin(cfg, job_id):
     return text, criteria.get("Job function", "")
 
 
+def detail_workable(cfg, job_id):
+    r = requests.get(f"https://apply.workable.com/api/v2/accounts/{cfg['account']}/jobs/{job_id}",
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    text = "\n\n".join(html_to_text(data.get(k) or "") for k in ("description", "requirements", "benefits"))
+    return text.strip(), " / ".join(data.get("department") or [])
+
+
+def detail_ukg(cfg, job_id):
+    r = requests.get(f"https://{cfg['host']}/{cfg['tenant']}/JobBoard/{cfg['board']}/OpportunityDetail",
+                     params={"opportunityId": job_id}, headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    marker = re.search(r"CandidateOpportunityDetail\(", r.text)
+    if not marker:
+        raise ValueError("the UKG posting page has no posting data")
+    data, _ = json.JSONDecoder().raw_decode(r.text, marker.end())
+    return html_to_text(data.get("Description") or ""), data.get("JobCategoryName") or ""
+
+
 DETAIL_FETCHERS = {
+    "workable": detail_workable,
+    "ukg": detail_ukg,
     "oracle_hcm": detail_oracle_hcm,
     "greenhouse": detail_greenhouse,
     "workday": detail_workday,
@@ -1402,7 +1817,8 @@ DETAIL_FETCHERS = {
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
 # Sources whose listings carry no description: each posting's own link is read
 # instead (community lists link to employers' ATS pages, often via a redirect).
-PAGE_DETAIL_ATS = {"bofa", "github_md", "avature", "radancy", "icims", "successfactors", "marqeta"}
+PAGE_DETAIL_ATS = {"bofa", "github_md", "avature", "radancy", "icims", "successfactors", "marqeta",
+                   "atlassian", "kula"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
 PAGE_MAX_BYTES = 5_000_000

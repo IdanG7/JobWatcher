@@ -1,7 +1,7 @@
 {
   "title": "Consumer tech and media",
   "verified": null,
-  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming big/established tech on Workday (Apple/Google/Meta have no public API — aggregators cover those)",
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. hot NYC/SF startups + mid-tier: fintech, consumer, health, gaming big/established tech on Workday (Apple, Google and Uber are read from their own career-site search; Meta refuses automated requests, so a LinkedIn search covers it on the tech boards) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): zillow. Added 2026-10-23 (each fetched successfully that day): sony, expedia_group, lowe_s, warner_bros_discovery, the_home_depot, walmart_finance, nike_finance.",
   "sections": {"startups_fintech_consumer": ["gopuff", "faire", "peloton", "seatgeek", "sweetgreen", "glossier"]},
   "boards": {
     "disney_early": {"ats": "workday", "host": "disney.wd5.myworkdayjobs.com", "tenant": "disney", "site": "disneycareer", "min_interval": 600, "facets": {"workerSubType": ["4f84d9e8a0970100aec0ae70150e0000"]}},
@@ -23,6 +23,14 @@
     "sweetgreen": {"ats": "greenhouse", "token": "sweetgreen"},
     "glossier": {"ats": "greenhouse", "token": "glossier"},
     "comcast": {"ats": "workday", "host": "comcast.wd115.myworkdayjobs.com", "tenant": "comcast", "site": "Comcast_Careers", "search": "", "min_interval": 1800},
-    "target": {"ats": "workday", "host": "target.wd5.myworkdayjobs.com", "tenant": "target", "site": "targetcareers", "search": "", "min_interval": 1800}
+    "target": {"ats": "workday", "host": "target.wd5.myworkdayjobs.com", "tenant": "target", "site": "targetcareers", "search": "", "min_interval": 1800},
+    "zillow": {"ats": "workday", "host": "zillow.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "Zillow_Group_External", "tenant": "zillow", "company_key": "zillow", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "sony": {"ats": "workday", "host": "sonyglobal.wd1.myworkdayjobs.com", "tenant": "sonyglobal", "site": "SonyGlobalCareers", "min_interval": 1800, "company_key": "sony", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "expedia_group": {"ats": "workday", "host": "expedia.wd108.myworkdayjobs.com", "tenant": "expedia", "site": "search", "min_interval": 1800, "company_key": "expedia_group", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "lowe_s": {"ats": "phenom", "host": "talent.lowes.com", "categories": ["Technology", "Corporate"], "min_interval": 1800, "company_key": "lowe_s", "group": "Consumer Tech", "priority": 2, "geography": "global", "label": "Lowe's technology and corporate roles"},
+    "warner_bros_discovery": {"ats": "phenom", "host": "careers.wbd.com", "min_interval": 1800, "company_key": "warner_bros_discovery", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "the_home_depot": {"ats": "workday", "host": "homedepot.wd5.myworkdayjobs.com", "tenant": "homedepot", "site": "CareerDepot", "min_interval": 1800, "company_key": "home_depot", "group": "Consumer Tech", "priority": 2, "geography": "global"},
+    "walmart_finance": {"ats": "workday", "host": "walmart.wd504.myworkdayjobs.com", "tenant": "walmart", "site": "WalmartExternal", "facets": {"jobFamilyGroup": ["e83ebdbd2a0a01eed84c8c8948e96ec6"]}, "min_interval": 1800, "company_key": "walmart", "group": "Consumer Tech", "priority": 2, "geography": "global", "label": "Walmart finance roles"},
+    "nike_finance": {"ats": "workday", "host": "nike.wd1.myworkdayjobs.com", "tenant": "nike", "site": "nke", "facets": {"jobFamilyGroup": ["cd128a2666561000bad38228ca2e0000"]}, "min_interval": 1800, "company_key": "nike", "group": "Consumer Tech", "priority": 2, "geography": "global", "label": "Nike finance roles"}
   }
 }

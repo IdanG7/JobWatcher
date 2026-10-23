@@ -1,7 +1,7 @@
 {
   "title": "Gaming",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "epic_games": {"ats": "greenhouse", "token": "epicgames", "min_interval": 1800, "company_key": "epic_games", "group": "Gaming", "priority": 2, "geography": "global"},
     "riot_games": {"ats": "greenhouse", "token": "riotgames", "min_interval": 1800, "company_key": "riot_games", "group": "Gaming", "priority": 2, "geography": "global"},
@@ -14,6 +14,12 @@
     "scopely": {"ats": "greenhouse", "token": "scopely", "min_interval": 1800, "company_key": "scopely", "group": "Gaming", "priority": 2, "geography": "global"},
     "bungie": {"ats": "greenhouse", "token": "bungie", "min_interval": 1800, "company_key": "bungie", "group": "Gaming", "priority": 2, "geography": "global"},
     "behaviour_interactive": {"ats": "lever", "token": "bhvr", "min_interval": 1800, "company_key": "behaviour_interactive", "group": "Gaming", "priority": 2, "geography": "global"},
-    "mistplay": {"ats": "lever", "token": "mistplay", "min_interval": 1800, "company_key": "mistplay", "group": "Gaming", "priority": 2, "geography": "global"}
+    "mistplay": {"ats": "lever", "token": "mistplay", "min_interval": 1800, "company_key": "mistplay", "group": "Gaming", "priority": 2, "geography": "global"},
+    "electronic_arts": {"ats": "avature", "url": "https://jobs.ea.com/en_US/careers/SearchJobs/", "min_interval": 1800, "company_key": "electronic_arts", "group": "Gaming", "priority": 2, "geography": "global"},
+    "kabam": {"ats": "lever", "token": "kabam", "min_interval": 1800, "company_key": "kabam", "group": "Gaming", "priority": 2, "geography": "global"},
+    "jam_city": {"ats": "lever", "token": "jamcity", "min_interval": 1800, "company_key": "jam_city", "group": "Gaming", "priority": 2, "geography": "global"},
+    "gearbox_software": {"ats": "greenhouse", "token": "gearbox", "min_interval": 1800, "company_key": "gearbox_software", "group": "Gaming", "priority": 2, "geography": "global"},
+    "digital_extremes": {"ats": "greenhouse", "token": "digitalextremes", "min_interval": 1800, "company_key": "digital_extremes", "group": "Gaming", "priority": 2, "geography": "global"},
+    "playstation": {"ats": "greenhouse", "token": "sonyinteractiveentertainmentglobal", "min_interval": 1800, "company_key": "playstation", "group": "Gaming", "priority": 2, "geography": "global"}
   }
 }

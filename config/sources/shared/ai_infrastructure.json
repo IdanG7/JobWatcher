@@ -1,7 +1,7 @@
 {
   "title": "AI infrastructure",
   "verified": null,
-  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "note": "dev tools, data & infra (fits distributed-systems background) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): coreweave, fireworks_ai.",
   "boards": {
     "scale_ai": {"ats": "greenhouse", "token": "scaleai"},
     "databricks": {"ats": "greenhouse", "token": "databricks"},
@@ -11,6 +11,8 @@
     "crusoe": {"ats": "ashby", "token": "crusoe"},
     "lambda_labs": {"ats": "ashby", "token": "lambda"},
     "runpod": {"ats": "ashby", "token": "runpod"},
-    "assemblyai": {"ats": "greenhouse", "token": "assemblyai"}
+    "assemblyai": {"ats": "greenhouse", "token": "assemblyai"},
+    "coreweave": {"ats": "greenhouse", "token": "coreweave", "min_interval": 1800, "company_key": "coreweave", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "fireworks_ai": {"ats": "ashby", "token": "fireworks", "min_interval": 1800, "company_key": "fireworks_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"}
   }
 }

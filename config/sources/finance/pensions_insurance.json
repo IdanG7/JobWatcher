@@ -3,12 +3,8 @@
   "verified": "2026-10-10",
   "note": "asset managers, hedge funds and private-markets firms. Verified 2026-10-10.",
   "boards": {
-    "cpp_investments": {"ats": "workday", "host": "cppib.wd10.myworkdayjobs.com", "tenant": "cppib", "site": "cppinvestments", "search": "", "min_interval": 1800, "company_key": "cpp_investments", "group": "Pension Funds", "priority": 1},
     "otpp": {"ats": "workday", "host": "otppb.wd3.myworkdayjobs.com", "tenant": "otppb", "site": "OntarioTeachers_Careers", "search": "", "min_interval": 1800, "company_key": "otpp", "group": "Pension Funds", "priority": 1},
     "cdpq": {"ats": "workday", "host": "cdpq.wd10.myworkdayjobs.com", "tenant": "cdpq", "site": "CDPQ", "search": "", "min_interval": 1800, "company_key": "cdpq", "group": "Pension Funds", "priority": 1},
-    "cdpq_students": {"ats": "workday", "host": "cdpq.wd10.myworkdayjobs.com", "tenant": "cdpq", "site": "CDPQ-recrutement-universitaire", "search": "", "min_interval": 1800, "company_key": "cdpq", "group": "Pension Funds", "priority": 1},
-    "manulife": {"ats": "workday", "host": "manulife.wd3.myworkdayjobs.com", "tenant": "manulife", "site": "MFCJH_Jobs", "search": "", "max": 5000, "min_interval": 3600, "company_key": "manulife", "group": "Insurance", "priority": 2},
-    "sun_life": {"ats": "workday", "host": "sunlife.wd3.myworkdayjobs.com", "tenant": "sunlife", "site": "Experienced-Jobs", "search": "", "max": 5000, "min_interval": 3600, "company_key": "sun_life", "group": "Insurance", "priority": 2},
-    "sun_life_students": {"ats": "workday", "host": "sunlife.wd3.myworkdayjobs.com", "tenant": "sunlife", "site": "Campus", "search": "", "min_interval": 1800, "company_key": "sun_life", "group": "Insurance", "priority": 1}
+    "cdpq_students": {"ats": "workday", "host": "cdpq.wd10.myworkdayjobs.com", "tenant": "cdpq", "site": "CDPQ-recrutement-universitaire", "search": "", "min_interval": 1800, "company_key": "cdpq", "group": "Pension Funds", "priority": 1}
   }
 }

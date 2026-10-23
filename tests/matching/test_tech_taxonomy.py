@@ -180,7 +180,7 @@ class TechFitTests(unittest.TestCase):
         self.assertTrue(set(tracks.values()) <= {"finance", "tech", "both"})
         self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == "both"})
         self.assertIn("ai_lab", {k for k, t in tracks.items() if t == "tech"})
-        self.assertEqual(17, sum(t == "tech" for t in tracks.values()))
+        self.assertEqual(20, sum(t == "tech" for t in tracks.values()))      # 3 since: climate, quantum, telecom
 
 
 class TechEmployerTests(unittest.TestCase):

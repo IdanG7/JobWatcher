@@ -1,0 +1,33 @@
+{
+  "title": "Sales & marketing software",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-23.",
+  "boards": {
+    "salesloft": {"ats": "greenhouse", "token": "salesloft", "min_interval": 1800, "company_key": "salesloft", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "6sense": {"ats": "greenhouse", "token": "6sense", "min_interval": 1800, "company_key": "6sense", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "zoominfo": {"ats": "greenhouse", "token": "zoominfo", "min_interval": 1800, "company_key": "zoominfo", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "intercom": {"ats": "greenhouse", "token": "intercom", "min_interval": 1800, "company_key": "intercom", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "outreach": {"ats": "lever", "token": "outreach", "min_interval": 1800, "company_key": "outreach", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "gong": {"ats": "greenhouse", "token": "gongio", "min_interval": 1800, "company_key": "gong", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "demandbase": {"ats": "ashby", "token": "demandbase", "min_interval": 1800, "company_key": "demandbase", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "apollo_io": {"ats": "greenhouse", "token": "apolloio", "min_interval": 1800, "company_key": "apollo_io", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "cresta": {"ats": "greenhouse", "token": "cresta", "min_interval": 1800, "company_key": "cresta", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "amplemarket": {"ats": "greenhouse", "token": "amplemarket", "min_interval": 1800, "company_key": "amplemarket", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "braze": {"ats": "greenhouse", "token": "braze", "min_interval": 1800, "company_key": "braze", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "klaviyo": {"ats": "greenhouse", "token": "klaviyo", "min_interval": 1800, "company_key": "klaviyo", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "qualtrics": {"ats": "greenhouse", "token": "qualtrics", "min_interval": 1800, "company_key": "qualtrics", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "pendo": {"ats": "greenhouse", "token": "pendo", "min_interval": 1800, "company_key": "pendo", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "salsify": {"ats": "greenhouse", "token": "salsify", "min_interval": 1800, "company_key": "salsify", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "sendbird": {"ats": "greenhouse", "token": "sendbird", "min_interval": 1800, "company_key": "sendbird", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "five9": {"ats": "greenhouse", "token": "five9", "min_interval": 1800, "company_key": "five9", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "dialpad": {"ats": "greenhouse", "token": "dialpad", "min_interval": 1800, "company_key": "dialpad", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "similarweb": {"ats": "greenhouse", "token": "similarweb", "min_interval": 1800, "company_key": "similarweb", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "walkme": {"ats": "lever", "token": "walkme", "min_interval": 1800, "company_key": "walkme", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "contentsquare": {"ats": "lever", "token": "contentsquare", "min_interval": 1800, "company_key": "contentsquare", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "aircall": {"ats": "lever", "token": "aircall", "min_interval": 1800, "company_key": "aircall", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "fullstory": {"ats": "ashby", "token": "fullstory", "min_interval": 1800, "company_key": "fullstory", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "freshworks": {"ats": "smartrecruiters", "token": "freshworks", "min_interval": 1800, "company_key": "freshworks", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "klue": {"ats": "ashby", "token": "klue", "min_interval": 1800, "company_key": "klue", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "loopio": {"ats": "ashby", "token": "loopio", "min_interval": 1800, "company_key": "loopio", "group": "Enterprise Software", "priority": 2, "geography": "global"}
+  }
+}

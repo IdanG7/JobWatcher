@@ -12,8 +12,6 @@
     "barclays": {"ats": "workday", "host": "barclays.wd3.myworkdayjobs.com", "tenant": "barclays", "site": "External_Career_Site_Barclays", "search": "", "min_interval": 900, "company_key": "barclays", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
     "wells_fargo": {"ats": "workday", "host": "wf.wd1.myworkdayjobs.com", "tenant": "wf", "site": "WellsFargoJobs", "search": "analyst", "min_interval": 1800, "company_key": "wells_fargo", "group": "U.S. Commercial Banks", "priority": 2, "geography": "us"},
     "goldman_sachs": {"ats": "oracle_hcm", "host": "hdpc.fa.us2.oraclecloud.com", "site": "LateralHiring", "url": "https://higher.gs.com/roles/{id}", "max": 5000, "min_interval": 1800, "company_key": "goldman_sachs", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
-    "bank_of_america_students": {"ats": "bofa", "servlet": "campusjobssearchservlet", "max": 2000, "min_interval": 1800, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
-    "bank_of_america": {"ats": "bofa", "servlet": "jobssearchservlet", "max": 5000, "min_interval": 3600, "company_key": "bank_of_america", "group": "Bulge Brackets", "priority": 1, "geography": "global"},
     "deutsche_bank": {"ats": "workday", "host": "db.wd3.myworkdayjobs.com", "tenant": "db", "site": "DBWebsite", "search": "", "max": 5000, "min_interval": 1800, "company_key": "deutsche_bank", "group": "Bulge Brackets", "priority": 1, "geography": "global"}
   }
 }

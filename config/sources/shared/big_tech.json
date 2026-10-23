@@ -1,7 +1,7 @@
 {
   "title": "Big tech",
   "verified": null,
-  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple/Google/Meta have no public API — aggregators cover those)",
+  "note": "Early-career facets supplement broad feeds; labels are employer-defined and do not guarantee all early-career roles. Workday paginates to the reported total, subject to max (default 5000, configurable to 20000). Repeated or prematurely empty pages fail safely. Find facet ids in the official CXS jobs response. big/established tech on Workday (Apple, Google and Uber are read from their own career-site search; Meta refuses automated requests, so a LinkedIn search covers it on the tech boards) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): intuit, thomson_reuters, sap, oracle, cisco, dell. Added 2026-10-23 (each fetched successfully that day): google, uber, amazon_finance, microsoft_finance, apple_finance. Microsoft's and Apple's finance roles come from a finance search of their career sites: their whole listings take minutes to read, so those poll on the tech boards only.",
   "boards": {
     "amazon": {"ats": "amazon_jobs", "query": "software engineer intern", "min_interval": 300},
     "amazon_newgrad": {"ats": "amazon_jobs", "query": "software development engineer", "min_interval": 900, "max": 2500},
@@ -16,6 +16,17 @@
     "autodesk": {"ats": "workday", "host": "autodesk.wd1.myworkdayjobs.com", "tenant": "autodesk", "site": "Ext", "search": "", "min_interval": 1800},
     "workday_hq": {"ats": "workday", "host": "workday.wd5.myworkdayjobs.com", "tenant": "workday", "site": "Workday", "search": "", "min_interval": 1800},
     "zoom": {"ats": "workday", "host": "zoom.wd5.myworkdayjobs.com", "tenant": "zoom", "site": "Zoom", "search": "", "min_interval": 1800},
-    "hp": {"ats": "workday", "host": "hp.wd5.myworkdayjobs.com", "tenant": "hp", "site": "ExternalCareerSite", "search": "", "min_interval": 1800}
+    "hp": {"ats": "workday", "host": "hp.wd5.myworkdayjobs.com", "tenant": "hp", "site": "ExternalCareerSite", "search": "", "min_interval": 1800},
+    "intuit": {"ats": "radancy", "host": "jobs.intuit.com", "min_interval": 1800, "company_key": "intuit", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "thomson_reuters": {"ats": "workday", "host": "thomsonreuters.wd5.myworkdayjobs.com", "min_interval": 1800, "search": "", "site": "External_Career_Site", "tenant": "thomsonreuters", "company_key": "thomson_reuters", "group": "Enterprise Software", "priority": 1, "geography": "global"},
+    "sap": {"ats": "smartrecruiters", "token": "SAPITBusinessSysteme", "min_interval": 1800, "company_key": "sap", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "oracle": {"ats": "oracle_hcm", "host": "eeho.fa.us2.oraclecloud.com", "site": "CX_45001", "min_interval": 3600, "company_key": "oracle", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "cisco": {"ats": "phenom", "host": "careers.cisco.com", "min_interval": 3600, "company_key": "cisco", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "dell": {"ats": "oracle_hcm", "host": "enterpriseplatform.dell.com", "site": "CX_1001", "min_interval": 1800, "company_key": "dell_technologies", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "google": {"ats": "google", "min_interval": 3600, "company_key": "google", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "uber": {"ats": "uber", "min_interval": 1800, "company_key": "uber", "group": "Big Tech", "priority": 1, "geography": "global"},
+    "amazon_finance": {"ats": "amazon_jobs", "query": "", "max": 5000, "categories": ["finance-accounting", "economics", "business-intelligence"], "min_interval": 1800, "company_key": "amazon", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Amazon finance, economics and BI roles"},
+    "microsoft_finance": {"ats": "eightfold", "host": "apply.careers.microsoft.com", "domain": "microsoft.com", "api": "pcsx", "query": "finance", "min_interval": 10800, "company_key": "microsoft", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Microsoft finance roles"},
+    "apple_finance": {"ats": "apple", "query": "finance", "min_interval": 3600, "company_key": "apple", "group": "Big Tech", "priority": 1, "geography": "global", "label": "Apple finance roles"}
   }
 }

@@ -1,7 +1,7 @@
 {
   "title": "Bank technology teams",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22. The finance bank sources' own feeds, narrowed to each bank's technology and data job families (Workday facets read from the bank's listing) or a keyword (Oracle, Phenom). The finance sources are unchanged; a posting both find is shown once.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23. The finance bank sources' own feeds, narrowed to each bank's technology and data job families (Workday facets read from the bank's listing) or a keyword (Oracle, Phenom). The finance sources are unchanged; a posting both find is shown once.",
   "boards": {
     "td_tech": {"ats": "workday", "host": "td.wd3.myworkdayjobs.com", "tenant": "td", "site": "TD_Bank_Careers", "facets": {"jobFamilyGroup": ["de769652963501f2001247b507040dac", "a744730d4e001001a147acd3cdc10000", "de76965296350195765906b50704e3ab"]}, "min_interval": 3600, "company_key": "td", "group": "Bank Technology", "priority": 1, "geography": "canada", "label": "TD Technology"},
     "bmo_tech": {"ats": "workday", "host": "bmo.wd3.myworkdayjobs.com", "tenant": "bmo", "site": "External", "facets": {"jobFamilyGroup": ["c3170091f3cd01a93a216b6ad000d820", "c3170091f3cd01924064646ad000c620"]}, "min_interval": 3600, "company_key": "bmo", "group": "Bank Technology", "priority": 1, "geography": "canada", "label": "BMO Technology"},
@@ -13,6 +13,7 @@
     "wells_fargo_tech": {"ats": "workday", "host": "wf.wd1.myworkdayjobs.com", "tenant": "wf", "site": "WellsFargoJobs", "facets": {"jobFamilyGroup": ["b5c3287c76c20100b318a19542940001", "b5c3287c76c20100b3189b6fdb430000"]}, "min_interval": 3600, "company_key": "wells_fargo", "group": "Bank Technology", "priority": 1, "geography": "us", "label": "Wells Fargo Technology"},
     "deutsche_bank_tech": {"ats": "workday", "host": "db.wd3.myworkdayjobs.com", "tenant": "db", "site": "DBWebsite", "facets": {"jobFamilyGroup": ["645e861bc53a0168c673f8fe073b20a8"]}, "min_interval": 3600, "company_key": "deutsche_bank", "group": "Bank Technology", "priority": 1, "geography": "global", "label": "Deutsche Bank Technology"},
     "jpmorgan_tech": {"ats": "oracle_hcm", "host": "jpmc.fa.oraclecloud.com", "site": "CX_1001", "query": "software engineer", "min_interval": 3600, "company_key": "jpmorgan", "group": "Bank Technology", "priority": 1, "geography": "global", "label": "JPMorgan Chase Technology"},
-    "goldman_sachs_tech": {"ats": "oracle_hcm", "host": "hdpc.fa.us2.oraclecloud.com", "site": "LateralHiring", "query": "engineering", "url": "https://higher.gs.com/roles/{id}", "min_interval": 3600, "company_key": "goldman_sachs", "group": "Bank Technology", "priority": 1, "geography": "global", "label": "Goldman Sachs Technology"}
+    "goldman_sachs_tech": {"ats": "oracle_hcm", "host": "hdpc.fa.us2.oraclecloud.com", "site": "LateralHiring", "query": "engineering", "url": "https://higher.gs.com/roles/{id}", "min_interval": 3600, "company_key": "goldman_sachs", "group": "Bank Technology", "priority": 1, "geography": "global", "label": "Goldman Sachs Technology"},
+    "scotiabank_tech": {"ats": "successfactors", "url": "https://jobs.scotiabank.com/go/IT-%26-Digital-Banking-Jobs/2298017/", "min_interval": 1800, "company_key": "scotiabank", "group": "Bank Technology", "priority": 1, "geography": "canada", "label": "Scotiabank IT & Digital Banking"}
   }
 }

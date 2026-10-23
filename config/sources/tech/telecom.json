@@ -1,0 +1,8 @@
+{
+  "title": "Telecom & networks",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-23.",
+  "boards": {
+    "at_t": {"ats": "workday", "host": "att.wd1.myworkdayjobs.com", "tenant": "att", "site": "ATTGeneral", "min_interval": 3600, "company_key": "at_t", "group": "Telecom & Networks", "priority": 2, "geography": "global"}
+  }
+}

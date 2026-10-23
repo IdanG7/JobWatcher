@@ -1,7 +1,7 @@
 {
   "title": "Databases and data platforms",
   "verified": null,
-  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "note": "dev tools, data & infra (fits distributed-systems background) Moved from tech/ in Phase 7, settings unchanged (each feed carries 10 or more finance postings): snowflake.",
   "boards": {
     "mongodb": {"ats": "greenhouse", "token": "mongodb"},
     "elastic": {"ats": "greenhouse", "token": "elastic"},
@@ -12,6 +12,7 @@
     "planetscale": {"ats": "greenhouse", "token": "planetscale"},
     "starburst": {"ats": "greenhouse", "token": "starburst"},
     "amplitude": {"ats": "ashby", "token": "amplitude"},
-    "mixpanel": {"ats": "greenhouse", "token": "mixpanel"}
+    "mixpanel": {"ats": "greenhouse", "token": "mixpanel"},
+    "snowflake": {"ats": "ashby", "token": "snowflake", "min_interval": 1800, "company_key": "snowflake", "group": "Data Infrastructure", "priority": 2, "geography": "global"}
   }
 }

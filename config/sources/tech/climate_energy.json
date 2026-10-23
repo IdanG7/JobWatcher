@@ -1,0 +1,20 @@
+{
+  "title": "Climate & energy",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-23.",
+  "boards": {
+    "commonwealth_fusion": {"ats": "lever", "token": "cfsenergy", "min_interval": 1800, "company_key": "commonwealth_fusion", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "helion_energy": {"ats": "ashby", "token": "helion", "min_interval": 1800, "company_key": "helion_energy", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "oklo": {"ats": "greenhouse", "token": "oklo", "min_interval": 1800, "company_key": "oklo", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "enovix": {"ats": "workday", "host": "enovix.wd12.myworkdayjobs.com", "tenant": "enovix", "site": "External", "min_interval": 1800, "company_key": "enovix", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "solid_power": {"ats": "greenhouse", "token": "solidpower", "min_interval": 1800, "company_key": "solid_power", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "form_energy": {"ats": "ashby", "token": "formenergy", "min_interval": 1800, "company_key": "form_energy", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "array_technologies": {"ats": "workday", "host": "arraytechinc.wd5.myworkdayjobs.com", "tenant": "arraytechinc", "site": "Array_Careers", "min_interval": 1800, "company_key": "array_technologies", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "twelve_carbon": {"ats": "ashby", "token": "twelve", "min_interval": 1800, "company_key": "twelve_carbon", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "chargepoint": {"ats": "greenhouse", "token": "chargepoint", "min_interval": 1800, "company_key": "chargepoint", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "kairos_power": {"ats": "greenhouse", "token": "kairospower", "min_interval": 1800, "company_key": "kairos_power", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "sila_nanotechnologies": {"ats": "greenhouse", "token": "silananotechnologies", "min_interval": 1800, "company_key": "sila_nanotechnologies", "group": "Climate & Energy", "priority": 2, "geography": "global"},
+    "ge_vernova": {"ats": "workday", "host": "gevernova.wd5.myworkdayjobs.com", "tenant": "gevernova", "site": "Vernova_ExternalSite", "facets": {"jobFamilyGroup": ["efb947d8be4310015d736c3065810000", "efb947d8be4310015d7e5284718f0000"]}, "min_interval": 1800, "company_key": "ge_vernova", "group": "Climate & Energy", "priority": 2, "geography": "global", "label": "GE Vernova engineering and digital roles"},
+    "first_solar": {"ats": "oracle_hcm", "host": "fa-esbv-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "first_solar", "group": "Climate & Energy", "priority": 2, "geography": "global"}
+  }
+}

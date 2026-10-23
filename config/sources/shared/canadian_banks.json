@@ -1,0 +1,8 @@
+{
+  "title": "Canadian banks without a separate technology feed",
+  "verified": null,
+  "note": "National Bank has no technology-filtered feed, so the tech boards read its whole listing (moved from finance/ in Phase 7; settings unchanged).",
+  "boards": {
+    "national_bank": {"ats": "avature", "url": "https://emplois.bnc.ca/en_CA/careers/searchjobs/", "max": 5000, "min_interval": 3600, "company_key": "national_bank", "group": "Canadian Banks", "priority": 1}
+  }
+}

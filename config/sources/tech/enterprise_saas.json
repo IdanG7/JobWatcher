@@ -1,7 +1,7 @@
 {
   "title": "Enterprise software",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "box": {"ats": "greenhouse", "token": "boxinc", "min_interval": 1800, "company_key": "box", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "miro": {"ats": "greenhouse", "token": "realtimeboardglobal", "min_interval": 1800, "company_key": "miro", "group": "Enterprise Software", "priority": 2, "geography": "global"},
@@ -9,6 +9,30 @@
     "hubspot": {"ats": "greenhouse", "token": "hubspotjobs", "min_interval": 1800, "company_key": "hubspot", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "zendesk": {"ats": "workday", "host": "zendesk.wd1.myworkdayjobs.com", "tenant": "zendesk", "site": "zendesk", "min_interval": 1800, "company_key": "zendesk", "group": "Enterprise Software", "priority": 2, "geography": "global"},
     "benchling": {"ats": "ashby", "token": "benchling", "min_interval": 1800, "company_key": "benchling", "group": "Enterprise Software", "priority": 2, "geography": "global"},
-    "canva": {"ats": "smartrecruiters", "token": "Canva", "min_interval": 1800, "company_key": "canva", "group": "Enterprise Software", "priority": 2, "geography": "global"}
+    "canva": {"ats": "smartrecruiters", "token": "Canva", "min_interval": 1800, "company_key": "canva", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "docusign": {"ats": "jibe", "host": "careers.docusign.com", "min_interval": 1800, "company_key": "docusign", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "atlassian": {"ats": "atlassian", "min_interval": 1800, "company_key": "atlassian", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "cdw": {"ats": "workday", "host": "cdw.wd5.myworkdayjobs.com", "tenant": "cdw", "site": "Careers", "min_interval": 1800, "company_key": "cdw", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "unisys": {"ats": "workday", "host": "unisys.wd5.myworkdayjobs.com", "tenant": "unisys", "site": "External", "min_interval": 1800, "company_key": "unisys", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "appian": {"ats": "greenhouse", "token": "appian", "min_interval": 1800, "company_key": "appian", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "celonis": {"ats": "greenhouse", "token": "celonis", "min_interval": 1800, "company_key": "celonis", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "workato": {"ats": "greenhouse", "token": "workato", "min_interval": 1800, "company_key": "workato", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "zuora": {"ats": "greenhouse", "token": "zuora", "min_interval": 1800, "company_key": "zuora", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "contentful": {"ats": "greenhouse", "token": "contentful", "min_interval": 1800, "company_key": "contentful", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "coupa_software": {"ats": "lever", "token": "coupa", "min_interval": 1800, "company_key": "coupa_software", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "snaplogic": {"ats": "lever", "token": "snaplogic", "min_interval": 1800, "company_key": "snaplogic", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "uipath": {"ats": "ashby", "token": "uipath", "min_interval": 1800, "company_key": "uipath", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "clickup": {"ats": "ashby", "token": "clickup", "min_interval": 1800, "company_key": "clickup", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "plane": {"ats": "ashby", "token": "plane", "min_interval": 1800, "company_key": "plane", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "ringcentral": {"ats": "workday", "host": "ringcentral.wd1.myworkdayjobs.com", "tenant": "ringcentral", "site": "RingCentral_Careers", "min_interval": 1800, "company_key": "ringcentral", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "procore_technologies": {"ats": "workday", "host": "procore.wd12.myworkdayjobs.com", "tenant": "procore", "site": "Procore_External_Careers", "min_interval": 1800, "company_key": "procore_technologies", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "monday_com": {"ats": "ashby", "token": "monday.com", "min_interval": 1800, "company_key": "monday_com", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "medallia": {"ats": "jibe", "host": "jobs.medallia.com", "min_interval": 1800, "company_key": "medallia", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "ironclad": {"ats": "ashby", "token": "ironcladhq", "min_interval": 1800, "company_key": "ironclad", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "automation_anywhere": {"ats": "workday", "host": "automationanywhere.wd5.myworkdayjobs.com", "tenant": "automationanywhere", "site": "AutomationAnywhereJobs", "min_interval": 1800, "company_key": "automation_anywhere", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "guidewire_software": {"ats": "workday", "host": "guidewire.wd5.myworkdayjobs.com", "tenant": "guidewire", "site": "external", "min_interval": 1800, "company_key": "guidewire_software", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "f5": {"ats": "workday", "host": "ffive.wd5.myworkdayjobs.com", "tenant": "ffive", "site": "f5jobs", "min_interval": 1800, "company_key": "f5", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "ncr_voyix": {"ats": "workday", "host": "ncr.wd1.myworkdayjobs.com", "tenant": "ncr", "site": "ext_us", "min_interval": 1800, "company_key": "ncr_voyix", "group": "Enterprise Software", "priority": 2, "geography": "global"},
+    "sabre": {"ats": "workday", "host": "sabre.wd1.myworkdayjobs.com", "tenant": "sabre", "site": "SabreJobs", "min_interval": 1800, "company_key": "sabre", "group": "Enterprise Software", "priority": 2, "geography": "global"}
   }
 }

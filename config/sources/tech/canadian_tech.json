@@ -1,7 +1,7 @@
 {
   "title": "Canadian tech",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "stackadapt": {"ats": "greenhouse", "token": "stackadapt", "min_interval": 1800, "company_key": "stackadapt", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
     "geotab": {"ats": "greenhouse", "token": "geotab", "min_interval": 1800, "company_key": "geotab", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
@@ -16,9 +16,23 @@
     "thinkific": {"ats": "ashby", "token": "thinkific", "min_interval": 1800, "company_key": "thinkific", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
     "d2l": {"ats": "greenhouse", "token": "d2l", "min_interval": 1800, "company_key": "d2l", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
     "kinaxis": {"ats": "icims", "host": "careers-kinaxis.icims.com", "min_interval": 1800, "company_key": "kinaxis", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
-    "opentext": {"ats": "phenom", "host": "careers.opentext.com", "min_interval": 1800, "company_key": "opentext", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
     "lightspeed_commerce": {"ats": "ashby", "token": "lightspeedhq", "min_interval": 1800, "company_key": "lightspeed_commerce", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
     "coveo": {"ats": "greenhouse", "token": "coveoen", "min_interval": 1800, "company_key": "coveo", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
-    "hopper": {"ats": "ashby", "token": "hopper", "min_interval": 1800, "company_key": "hopper", "group": "Canadian Tech", "priority": 2, "geography": "canada"}
+    "hopper": {"ats": "ashby", "token": "hopper", "min_interval": 1800, "company_key": "hopper", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "trulioo": {"ats": "ashby", "token": "trulioo", "min_interval": 1800, "company_key": "trulioo", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "miovision": {"ats": "ashby", "token": "miovision", "min_interval": 1800, "company_key": "miovision", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "alayacare": {"ats": "greenhouse", "token": "alayacare", "min_interval": 1800, "company_key": "alayacare", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "float": {"ats": "ashby", "token": "float", "min_interval": 1800, "company_key": "float", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "absorb_lms": {"ats": "ashby", "token": "absorblms", "min_interval": 1800, "company_key": "absorb_lms", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "jobber": {"ats": "ashby", "token": "jobber", "min_interval": 1800, "company_key": "jobber", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "clearco": {"ats": "ashby", "token": "clearco", "min_interval": 1800, "company_key": "clearco", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "visier": {"ats": "ashby", "token": "visier", "min_interval": 1800, "company_key": "visier", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "nuvei": {"ats": "workable", "account": "nuvei", "min_interval": 1800, "company_key": "nuvei", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "borrowell": {"ats": "workable", "account": "borrowell", "min_interval": 1800, "company_key": "borrowell", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "telus": {"ats": "successfactors", "url": "https://careers.telus.com/search/", "min_interval": 1800, "company_key": "telus", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "bell": {"ats": "phenom", "host": "jobs.bell.ca", "min_interval": 1800, "company_key": "bell_canada", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "blackberry": {"ats": "workday", "host": "bb.wd3.myworkdayjobs.com", "tenant": "bb", "site": "BlackBerry", "min_interval": 1800, "company_key": "blackberry", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "blackberry_qnx": {"ats": "workday", "host": "bb.wd3.myworkdayjobs.com", "tenant": "bb", "site": "QNX", "min_interval": 1800, "company_key": "blackberry", "group": "Canadian Tech", "priority": 2, "geography": "canada", "label": "BlackBerry QNX"},
+    "magna_international": {"ats": "workday", "host": "magna.wd3.myworkdayjobs.com", "tenant": "magna", "site": "Magna", "facets": {"jobFamilyGroup": ["5aaaed564f430127348455ca250345df", "5aaaed564f4301f4835048ca25033ddf", "5aaaed564f4301993ae046ca25033bdf"]}, "min_interval": 1800, "company_key": "magna", "group": "Canadian Tech", "priority": 2, "geography": "canada", "label": "Magna engineering and IT roles"}
   }
 }

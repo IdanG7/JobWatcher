@@ -1,16 +1,31 @@
 {
   "title": "AI infrastructure",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "coreweave": {"ats": "greenhouse", "token": "coreweave", "min_interval": 1800, "company_key": "coreweave", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "anyscale": {"ats": "ashby", "token": "anyscale", "min_interval": 1800, "company_key": "anyscale", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "pinecone": {"ats": "ashby", "token": "pinecone", "min_interval": 1800, "company_key": "pinecone", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
-    "fireworks_ai": {"ats": "ashby", "token": "fireworks", "min_interval": 1800, "company_key": "fireworks_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "snorkel": {"ats": "greenhouse", "token": "snorkelai", "min_interval": 1800, "company_key": "snorkel_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global", "label": "Snorkel AI Careers"},
     "labelbox": {"ats": "greenhouse", "token": "labelbox", "min_interval": 1800, "company_key": "labelbox", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "weights_and_biases": {"ats": "greenhouse", "token": "weights_and_biases", "min_interval": 1800, "company_key": "weights_biases", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
     "langchain": {"ats": "ashby", "token": "langchain", "min_interval": 1800, "company_key": "langchain", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
-    "deepgram": {"ats": "ashby", "token": "Deepgram", "min_interval": 1800, "company_key": "deepgram", "group": "AI Infrastructure", "priority": 2, "geography": "global"}
+    "deepgram": {"ats": "ashby", "token": "Deepgram", "min_interval": 1800, "company_key": "deepgram", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "hugging_face": {"ats": "workable", "account": "huggingface", "min_interval": 1800, "company_key": "hugging_face", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "lightning_ai": {"ats": "greenhouse", "token": "lightningai", "min_interval": 1800, "company_key": "lightning_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "arize_ai": {"ats": "greenhouse", "token": "arizeai", "min_interval": 1800, "company_key": "arize_ai", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "weaviate": {"ats": "ashby", "token": "weaviate", "min_interval": 1800, "company_key": "weaviate", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "e2b": {"ats": "ashby", "token": "e2b", "min_interval": 1800, "company_key": "e2b", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "encord": {"ats": "ashby", "token": "encord", "min_interval": 1800, "company_key": "encord", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "roboflow": {"ats": "ashby", "token": "roboflow", "min_interval": 1800, "company_key": "roboflow", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "llamaindex": {"ats": "ashby", "token": "llamaindex", "min_interval": 1800, "company_key": "llamaindex", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "voxel51": {"ats": "greenhouse", "token": "voxel51", "min_interval": 1800, "company_key": "voxel51", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "d_matrix": {"ats": "ashby", "token": "d-matrix", "min_interval": 1800, "company_key": "d_matrix", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "graphcore": {"ats": "greenhouse", "token": "graphcore", "min_interval": 1800, "company_key": "graphcore", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "nebius": {"ats": "greenhouse", "token": "nebius", "min_interval": 1800, "company_key": "nebius", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "zilliz": {"ats": "lever", "token": "zilliz", "min_interval": 1800, "company_key": "zilliz", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "unstructured_io": {"ats": "ashby", "token": "unstructured", "min_interval": 1800, "company_key": "unstructured_io", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "twelve_labs": {"ats": "ashby", "token": "twelve-labs", "min_interval": 1800, "company_key": "twelve_labs", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "prefect": {"ats": "ashby", "token": "prefect", "min_interval": 1800, "company_key": "prefect", "group": "AI Infrastructure", "priority": 2, "geography": "global"},
+    "letta": {"ats": "ashby", "token": "letta", "min_interval": 1800, "company_key": "letta", "group": "AI Infrastructure", "priority": 2, "geography": "global"}
   }
 }

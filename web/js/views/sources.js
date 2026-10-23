@@ -10,10 +10,12 @@ import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toa
 const KNOWN_GAPS = [
   ['UBS', 'Job search is behind bot protection'],
   ['Centerview', 'No public job board; recruits through campuses and directly'],
-  ['Google, Apple, Meta', 'Own career sites with no public job feed'],
-  ['Shopify, Uber', 'Own career sites with no public job feed'],
-  ['Qualcomm, Lam Research', 'Job search refuses automated requests'],
-  ['Atlassian, AMD, EA', 'Career sites Foothold cannot read yet'],
+  ['Meta, Tesla, IBM, Shopify', 'Career sites refuse automated requests; their roles come from a LinkedIn search for these employers'],
+  ['Groq, Etsy, Questrade', 'Job boards need a CAPTCHA or a sign-in; their roles come from the same LinkedIn search'],
+  ['T-Mobile, SAIC, Arista, CGI', 'Career sites answer automated requests with a bot check'],
+  ['Epic Systems, Verizon, ADP, Wayfair', 'Career sites with no public job feed'],
+  ['Lenovo, Siemens', 'Search pages Foothold cannot read yet'],
+  ['FreshBooks, Exabeam', 'Job boards on Gem and Jobvite, which Foothold does not read yet'],
 ];
 
 // Sources whose employer is a recognised finance type (not a generic corporate or an aggregator).
@@ -103,7 +105,7 @@ export async function render(root, ctx) {
           <div class="panel-body gaps">
             <p>These employers have no public job feed Foothold can read, so it doesn't scrape them. Their roles still arrive through GitHub listings and LinkedIn guest search when cross-posted.</p>
             <dl class="gap-list">${KNOWN_GAPS.map(([name, why]) => `<div><dt>${esc(name)}</dt><dd>${esc(why)}</dd></div>`).join('')}</dl>
-            <p class="fine">Found an official Greenhouse, Lever, Ashby, Workday, Oracle, SmartRecruiters, iCIMS, Radancy or Oleeo feed? Add it to <code>boards</code> in <code>config.json</code>.</p>
+            <p class="fine">Found an official Greenhouse, Lever, Ashby, Workday, Oracle, SmartRecruiters, Eightfold, Workable, iCIMS, Jibe, Radancy, UKG or Oleeo feed? Add it to <code>boards</code> in <code>config.json</code>.</p>
           </div></section>
       </div>
       <section class="panel"><div class="panel-head"><h2>All sources <span class="count">${list.length}</span></h2>${packs.size ? `<span class="panel-note">Dimmed: not polled for your boards${everyPack.length ? ` · ${esc(everyPack.join(', '))} poll every source` : ''}</span>` : ''}</div>

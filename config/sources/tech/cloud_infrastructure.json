@@ -1,11 +1,12 @@
 {
   "title": "Cloud and networking",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "pure_storage": {"ats": "greenhouse", "token": "purestorage", "min_interval": 1800, "company_key": "pure_storage", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "rubrik": {"ats": "greenhouse", "token": "rubrik", "min_interval": 1800, "company_key": "rubrik", "group": "Cybersecurity", "priority": 2, "geography": "global"},
-    "hpe": {"ats": "workday", "host": "hpe.wd5.myworkdayjobs.com", "min_interval": 3600, "search": "", "site": "Jobsathpe", "tenant": "hpe", "company_key": "hewlett_packard_enterprise", "group": "Big Tech", "priority": 2, "geography": "global", "label": "Hewlett Packard Enterprise Careers"},
-    "digitalocean": {"ats": "greenhouse", "token": "digitalocean98", "min_interval": 1800, "company_key": "digitalocean", "group": "Developer Tools", "priority": 2, "geography": "global"}
+    "akamai": {"ats": "oracle_hcm", "host": "fa-extu-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "akamai", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "netapp": {"ats": "radancy", "host": "careers.netapp.com", "min_interval": 1800, "company_key": "netapp", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "nutanix": {"ats": "xml_feed", "url": "https://careers.nutanix.com/en/jobs/xml/?rss=true", "min_interval": 1800, "company_key": "nutanix", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "railway": {"ats": "ashby", "token": "railway", "min_interval": 1800, "company_key": "railway", "group": "Data Infrastructure", "priority": 2, "geography": "global"}
   }
 }

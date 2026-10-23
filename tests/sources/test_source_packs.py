@@ -1,6 +1,6 @@
 """Sources live in packs (config/sources/<folder>/<group>.json) and each profile
-polls only the packs of its boards.  The Finance board must keep exactly the
-sources it polled in 0.3.7, whatever tech sources are added."""
+polls only the packs of its boards.  The Finance board must keep every source it
+polled in 0.3.7 with the same settings; it gains only the employers in shared/."""
 import json
 import shutil
 import tempfile
@@ -31,6 +31,12 @@ def v0_3_7() -> dict:
 
 def in_folder(packs: Packs, folder: str) -> set[str]:
     return {name for name, key in packs.source_pack.items() if packs.packs[key].folder == folder}
+
+
+def finance_board(packs: Packs) -> dict:
+    """The sources a Finance profile reads: the finance and shared packs."""
+    return {name: cfg for pack in packs.packs.values() if pack.folder in ("finance", "shared")
+            for name, cfg in pack.sources.items()}
 
 
 def with_tech_pack(root: Path) -> Packs:
@@ -80,36 +86,44 @@ class PackTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "at most 50"):
             Packs(manifest | {"fields": {}}, too_many)
 
-    def test_tech_sources_carry_their_employer_metadata_and_a_verified_date(self):
-        packs, kn = load_packs(), load_knowledge()
-        tech = {key: pack for key, pack in packs.packs.items() if pack.folder == "tech"}
-        self.assertGreater(sum(len(pack.sources) for pack in tech.values()), 150)
-        for key, pack in tech.items():
-            with self.subTest(pack=key):
-                self.assertRegex(pack.verified or "", r"^\d{4}-\d{2}-\d{2}$")      # fetched before shipping
-                for name, cfg in pack.sources.items():
-                    self.assertLessEqual({"group", "priority", "geography", "min_interval"}, set(cfg), name)
-                    if cfg["ats"] != "linkedin":
-                        self.assertIn(cfg.get("company_key"), kn.companies, name)
+    def test_sources_added_since_0_3_7_carry_their_employer_metadata(self):
+        packs, kn, old = load_packs(), load_knowledge(), v0_3_7()
+        added = {name: cfg for pack in packs.packs.values() for name, cfg in pack.sources.items() if name not in old}
+        self.assertGreater(len(added), 400)
+        for name, cfg in added.items():
+            with self.subTest(source=name):
+                self.assertLessEqual({"group", "priority", "geography", "min_interval"}, set(cfg))
+                if cfg["ats"] != "linkedin":
+                    self.assertIn(cfg.get("company_key"), kn.companies)
+        for key, pack in packs.packs.items():
+            if pack.folder == "tech":
+                self.assertRegex(pack.verified or "", r"^\d{4}-\d{2}-\d{2}$", key)      # fetched before shipping
+
+    def test_the_build_ships_every_setting_a_source_uses(self):
+        from tools.build_windows import BOARD_FIELDS
+        for key, pack in load_packs().packs.items():
+            for name, cfg in pack.sources.items():
+                with self.subTest(source=name):
+                    self.assertLessEqual({k for k in cfg if not k.startswith("_")}, BOARD_FIELDS)
 
     def test_the_repository_config_lists_no_sources_of_its_own(self):
         self.assertNotIn("boards", json.loads((ROOT / "config.json").read_text(encoding="utf-8")))
 
 
 class FinanceBoardTests(unittest.TestCase):
-    def test_finance_and_shared_packs_hold_exactly_the_0_3_7_sources(self):
+    def test_finance_and_shared_packs_keep_every_0_3_7_source_unchanged(self):
         old = v0_3_7()
         self.assertEqual(256, len(old))
         self.assertEqual(SHIPPED_0_3_7, boards_hash(clean_config({"boards": old})["boards"]))
         packs = load_packs()
-        finance_board = {name: cfg for key, pack in packs.packs.items()
-                         if pack.folder in ("finance", "shared") for name, cfg in pack.sources.items()}
-        self.assertEqual(old, finance_board)            # same sources, same settings
+        board = finance_board(packs)
+        self.assertEqual(old, {name: board.get(name) for name in old})      # same sources, same settings
+        self.assertLessEqual(in_folder(packs, "finance"), set(old))         # additions go to shared/ only
         assembled = load_config(ROOT / "config.json")["boards"]
-        self.assertEqual(old, {k: v for k, v in assembled.items() if k in finance_board})
-        self.assertEqual(set(assembled) - set(old) - {k for k in assembled if k.startswith("_")}, in_folder(packs, "tech"))
+        self.assertEqual(old, {k: v for k, v in assembled.items() if k in old})
+        self.assertEqual(set(assembled) - {k for k in assembled if k.startswith("_")}, set(packs.source_pack))
         shipped = clean_config(load_config(ROOT / "config.json"))["boards"]
-        self.assertEqual(SHIPPED_0_3_7, boards_hash({k: v for k, v in shipped.items() if k in finance_board}))
+        self.assertEqual(SHIPPED_0_3_7, boards_hash({k: v for k, v in shipped.items() if k in old}))
 
     def test_every_source_keeps_the_company_type_its_old_heading_implied(self):
         # A heading's name types employers missing from companies.json (intel/companies.py).
@@ -126,10 +140,13 @@ class FinanceBoardTests(unittest.TestCase):
         config, kn = load_config(ROOT / "config.json"), load_knowledge()
         expected = enabled_sources({"boards": v0_3_7()})
         self.assertEqual(246, len(expected))
+        board = enabled_sources({"boards": finance_board(load_packs())})
         for profile in ({}, {"fields": ["finance"]}, {"target_roles": ["investment_banking"]},
                         {"fields": ["finance"], "target_roles": ["quant", "markets"]}):
             with self.subTest(profile=profile):
-                self.assertEqual(expected, polled_sources(config, profile, kn))
+                polled = polled_sources(config, profile, kn)
+                self.assertEqual(expected, {name: polled.get(name) for name in expected})
+                self.assertEqual(board, polled)
 
     def test_tech_sources_never_reach_the_finance_board(self):
         kn = load_knowledge()
@@ -139,7 +156,7 @@ class FinanceBoardTests(unittest.TestCase):
             finance = polled_sources(config, {"fields": ["finance"]}, kn, packs)
             software = polled_sources(config, {"fields": ["software"]}, kn, packs)
             both = polled_sources(config, {"fields": ["finance", "software"]}, kn, packs)
-        self.assertEqual(enabled_sources({"boards": v0_3_7()}), finance)
+        self.assertEqual(enabled_sources({"boards": finance_board(packs)}), finance)
         self.assertFalse(set(finance) & in_folder(packs, "tech"))
         self.assertIn("acme_tech", software)
         self.assertFalse(set(software) & in_folder(packs, "finance"))

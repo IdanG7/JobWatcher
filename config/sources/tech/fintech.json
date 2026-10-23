@@ -1,13 +1,26 @@
 {
   "title": "Fintech",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "koho": {"ats": "ashby", "token": "koho", "min_interval": 1800, "company_key": "koho", "group": "FinTech", "priority": 2, "geography": "global"},
     "neo_financial": {"ats": "ashby", "token": "neofinancial", "min_interval": 1800, "company_key": "neo_financial", "group": "FinTech", "priority": 2, "geography": "global"},
-    "toast": {"ats": "greenhouse", "token": "toast", "min_interval": 1800, "company_key": "toast", "group": "FinTech", "priority": 2, "geography": "global"},
     "wealthfront": {"ats": "lever", "token": "wealthfront", "min_interval": 1800, "company_key": "wealthfront", "group": "FinTech", "priority": 2, "geography": "global"},
-    "carta": {"ats": "greenhouse", "token": "carta", "min_interval": 1800, "company_key": "carta", "group": "FinTech", "priority": 2, "geography": "global"},
-    "addepar": {"ats": "greenhouse", "token": "addepar1", "min_interval": 1800, "company_key": "addepar", "group": "FinTech", "priority": 2, "geography": "global"}
+    "addepar": {"ats": "greenhouse", "token": "addepar1", "min_interval": 1800, "company_key": "addepar", "group": "FinTech", "priority": 2, "geography": "global"},
+    "blend": {"ats": "greenhouse", "token": "blend", "min_interval": 1800, "company_key": "blend", "group": "FinTech", "priority": 2, "geography": "global"},
+    "lemonade": {"ats": "ashby", "token": "lemonade", "min_interval": 1800, "company_key": "lemonade", "group": "FinTech", "priority": 2, "geography": "global"},
+    "socure": {"ats": "ashby", "token": "socure", "min_interval": 1800, "company_key": "socure", "group": "FinTech", "priority": 2, "geography": "global"},
+    "dave": {"ats": "ashby", "token": "dave", "min_interval": 1800, "company_key": "dave", "group": "FinTech", "priority": 2, "geography": "global"},
+    "paxos": {"ats": "ashby", "token": "Paxos", "min_interval": 1800, "company_key": "paxos", "group": "FinTech", "priority": 2, "geography": "global"},
+    "bitgo": {"ats": "greenhouse", "token": "bitgo", "min_interval": 1800, "company_key": "bitgo", "group": "FinTech", "priority": 2, "geography": "global"},
+    "public_com": {"ats": "greenhouse", "token": "public", "min_interval": 1800, "company_key": "public_com", "group": "FinTech", "priority": 2, "geography": "global"},
+    "acorns": {"ats": "ashby", "token": "acorns", "min_interval": 1800, "company_key": "acorns", "group": "FinTech", "priority": 2, "geography": "global"},
+    "nerdwallet": {"ats": "ashby", "token": "nerdwallet", "min_interval": 1800, "company_key": "nerdwallet", "group": "FinTech", "priority": 2, "geography": "global"},
+    "collective": {"ats": "ashby", "token": "collective", "min_interval": 1800, "company_key": "collective", "group": "FinTech", "priority": 2, "geography": "global"},
+    "anchorage_digital": {"ats": "lever", "token": "anchorage", "min_interval": 1800, "company_key": "anchorage_digital", "group": "FinTech", "priority": 2, "geography": "global"},
+    "moonpay": {"ats": "lever", "token": "moonpay", "min_interval": 1800, "company_key": "moonpay", "group": "FinTech", "priority": 2, "geography": "global"},
+    "apex_fintech_solutions": {"ats": "workday", "host": "peak6group.wd1.myworkdayjobs.com", "tenant": "peak6group", "site": "apexfintechsolutions", "min_interval": 1800, "company_key": "apex_fintech_solutions", "group": "FinTech", "priority": 2, "geography": "global"},
+    "worldpay": {"ats": "workday", "host": "worldpay.wd5.myworkdayjobs.com", "tenant": "worldpay", "site": "Worldpay_External_Careers_Site", "min_interval": 1800, "company_key": "worldpay", "group": "FinTech", "priority": 2, "geography": "global"},
+    "chainalysis": {"ats": "ashby", "token": "chainalysis-careers", "min_interval": 1800, "company_key": "chainalysis", "group": "FinTech", "priority": 2, "geography": "global"}
   }
 }

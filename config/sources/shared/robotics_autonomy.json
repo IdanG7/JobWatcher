@@ -1,12 +1,15 @@
 {
   "title": "Robotics and autonomy",
   "verified": null,
-  "note": "dev tools, data & infra (fits distributed-systems background)",
+  "note": "dev tools, data & infra (fits distributed-systems background) Added 2026-10-23 (each fetched successfully that day): rivian, ford_motor_company, aptiv.",
   "boards": {
     "waymo": {"ats": "greenhouse", "token": "waymo"},
     "nuro": {"ats": "greenhouse", "token": "nuro"},
     "aurora": {"ats": "ashby", "token": "aurora-operations-inc"},
     "zoox": {"ats": "lever", "token": "zoox"},
-    "waabi": {"ats": "lever", "token": "waabi"}
+    "waabi": {"ats": "lever", "token": "waabi"},
+    "rivian": {"ats": "jibe", "host": "careers.rivian.com", "min_interval": 1800, "company_key": "rivian", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "ford_motor_company": {"ats": "radancy", "host": "www.careers.ford.com", "min_interval": 1800, "company_key": "ford_motor_company", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "aptiv": {"ats": "workday", "host": "aptiv.wd5.myworkdayjobs.com", "tenant": "aptiv", "site": "APTIV_CAREERS", "min_interval": 1800, "company_key": "aptiv", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"}
   }
 }

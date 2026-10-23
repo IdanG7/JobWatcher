@@ -1,7 +1,7 @@
 {
   "title": "Robotics and autonomy",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
     "applied_intuition": {"ats": "ashby", "token": "applied", "min_interval": 1800, "company_key": "applied_intuition", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
     "kodiak": {"ats": "greenhouse", "token": "kodiak", "min_interval": 1800, "company_key": "kodiak", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
@@ -12,6 +12,17 @@
     "zipline": {"ats": "greenhouse", "token": "flyzipline", "min_interval": 1800, "company_key": "zipline", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
     "physical_intelligence": {"ats": "ashby", "token": "physicalintelligence", "min_interval": 1800, "company_key": "physical_intelligence", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
     "boston_dynamics": {"ats": "workday", "host": "bostondynamics.wd1.myworkdayjobs.com", "tenant": "bostondynamics", "site": "Boston_Dynamics", "min_interval": 1800, "company_key": "boston_dynamics", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
-    "niantic_spatial": {"ats": "ashby", "token": "niantic-spatial", "min_interval": 1800, "company_key": "niantic_spatial", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"}
+    "niantic_spatial": {"ats": "ashby", "token": "niantic-spatial", "min_interval": 1800, "company_key": "niantic_spatial", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "sanctuary_ai": {"ats": "kula", "account": "sanctuary-ai", "min_interval": 1800, "company_key": "sanctuary_ai", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "agility_robotics": {"ats": "greenhouse", "token": "agilityrobotics", "min_interval": 1800, "company_key": "agility_robotics", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "locus_robotics": {"ats": "greenhouse", "token": "locusrobotics", "min_interval": 1800, "company_key": "locus_robotics", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "stack_av": {"ats": "greenhouse", "token": "stackav", "min_interval": 1800, "company_key": "stack_av", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "1x_technologies": {"ats": "ashby", "token": "1x", "min_interval": 1800, "company_key": "1x_technologies", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "apptronik": {"ats": "greenhouse", "token": "apptronik", "min_interval": 1800, "company_key": "apptronik", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "viam": {"ats": "greenhouse", "token": "viamrobotics", "min_interval": 1800, "company_key": "viam", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "robust_ai": {"ats": "lever", "token": "robust-ai", "min_interval": 1800, "company_key": "robust_ai", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "serve_robotics": {"ats": "ashby", "token": "serverobotics", "min_interval": 1800, "company_key": "serve_robotics", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "general_motors": {"ats": "workday", "host": "generalmotors.wd5.myworkdayjobs.com", "tenant": "generalmotors", "site": "Careers_GM", "min_interval": 1800, "company_key": "general_motors", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"},
+    "cognex": {"ats": "workday", "host": "cognex.wd1.myworkdayjobs.com", "tenant": "cognex", "site": "External_Career_Site", "min_interval": 1800, "company_key": "cognex", "group": "Robotics & Autonomy", "priority": 2, "geography": "global"}
   }
 }

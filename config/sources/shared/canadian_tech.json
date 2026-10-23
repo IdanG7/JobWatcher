@@ -1,0 +1,11 @@
+{
+  "title": "Canadian tech with finance teams",
+  "verified": null,
+  "note": "Canadian tech employers with 10 or more finance postings (moved from tech/ in Phase 7; settings unchanged). Added 2026-10-23 (each fetched successfully that day): rogers_communications, canadian_tire, magna_finance.",
+  "boards": {
+    "opentext": {"ats": "phenom", "host": "careers.opentext.com", "min_interval": 1800, "company_key": "opentext", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "rogers_communications": {"ats": "successfactors", "url": "https://jobs.rogers.com/search/", "min_interval": 1800, "company_key": "rogers_communications", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "canadian_tire": {"ats": "workday", "host": "canadiantirecorporation.wd3.myworkdayjobs.com", "tenant": "canadiantirecorporation", "site": "Enterprise_External_Careers_Site", "min_interval": 1800, "company_key": "canadian_tire", "group": "Canadian Tech", "priority": 2, "geography": "canada"},
+    "magna_finance": {"ats": "workday", "host": "magna.wd3.myworkdayjobs.com", "tenant": "magna", "site": "Magna", "facets": {"jobFamilyGroup": ["5aaaed564f43015d2adc43ca250337df"]}, "min_interval": 1800, "company_key": "magna", "group": "Canadian Tech", "priority": 2, "geography": "canada", "label": "Magna International finance roles"}
+  }
+}

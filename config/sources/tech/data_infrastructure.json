@@ -1,13 +1,26 @@
 {
   "title": "Databases and data platforms",
-  "verified": "2026-10-22",
-  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22.",
+  "verified": "2026-10-23",
+  "note": "Tech boards only. Each feed was fetched successfully on 2026-10-22 or 2026-10-23.",
   "boards": {
-    "snowflake": {"ats": "ashby", "token": "snowflake", "min_interval": 1800, "company_key": "snowflake", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "dataiku": {"ats": "greenhouse", "token": "dataiku", "min_interval": 1800, "company_key": "dataiku", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "singlestore": {"ats": "greenhouse", "token": "singlestore", "min_interval": 1800, "company_key": "singlestore", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "sigma_computing": {"ats": "greenhouse", "token": "sigmacomputing", "min_interval": 1800, "company_key": "sigma_computing", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
     "hex": {"ats": "ashby", "token": "hex", "min_interval": 1800, "company_key": "hex", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
-    "airbyte": {"ats": "ashby", "token": "airbyte", "min_interval": 1800, "company_key": "airbyte", "group": "Data Infrastructure", "priority": 2, "geography": "global"}
+    "airbyte": {"ats": "ashby", "token": "airbyte", "min_interval": 1800, "company_key": "airbyte", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "redis": {"ats": "ashby", "token": "redis", "min_interval": 1800, "company_key": "redis", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "yipitdata": {"ats": "greenhouse", "token": "yipitdata", "min_interval": 1800, "company_key": "yipitdata", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "neo4j": {"ats": "greenhouse", "token": "neo4j", "min_interval": 1800, "company_key": "neo4j", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "collibra": {"ats": "greenhouse", "token": "collibra", "min_interval": 1800, "company_key": "collibra", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "dremio": {"ats": "greenhouse", "token": "dremio", "min_interval": 1800, "company_key": "dremio", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "imply": {"ats": "greenhouse", "token": "imply", "min_interval": 1800, "company_key": "imply", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "yugabytedb": {"ats": "greenhouse", "token": "yugabyte", "min_interval": 1800, "company_key": "yugabytedb", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "datahub": {"ats": "greenhouse", "token": "acryldata", "min_interval": 1800, "company_key": "datahub", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "commvault": {"ats": "greenhouse", "token": "commvault", "min_interval": 1800, "company_key": "commvault", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "materialize": {"ats": "ashby", "token": "materialize", "min_interval": 1800, "company_key": "materialize", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "atlan": {"ats": "ashby", "token": "atlan", "min_interval": 1800, "company_key": "atlan", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "motherduck": {"ats": "ashby", "token": "motherduck", "min_interval": 1800, "company_key": "motherduck", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "alteryx": {"ats": "workday", "host": "alteryx.wd108.myworkdayjobs.com", "tenant": "alteryx", "site": "AlteryxCareers", "min_interval": 1800, "company_key": "alteryx", "group": "Data Infrastructure", "priority": 2, "geography": "global"},
+    "qlik": {"ats": "eightfold", "host": "careerhub.qlik.com", "domain": "qlik.com", "api": "pcsx", "min_interval": 1800, "company_key": "qlik", "group": "Data Infrastructure", "priority": 2, "geography": "global"}
   }
 }
