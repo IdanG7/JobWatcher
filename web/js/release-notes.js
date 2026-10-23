@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.8', date: '2026-10-23', items: [
+    {icon: 'code', title: 'Sources for tech boards', link: '#/sources',
+      text: 'Software, AI & Data and Hardware now read 485 tech employers’ own job sites.'},
+    {icon: 'filter', title: 'Narrow a tech board by specialty', link: '#/settings?tab=roles',
+      text: 'Backend, ML, embedded and more, each polling the employers that hire for it.'},
+    {icon: 'check', title: 'Finance board: nothing removed',
+      text: 'It keeps every source it had, plus firms that hire for both finance and tech.'},
+  ]},
   {version: '0.3.7', date: '2026-10-19', items: [
     {icon: 'spark', title: 'Pages load up to 8× faster',
       text: 'Today, Opportunities and Analytics are kept ready, so moving between them is instant.'},
