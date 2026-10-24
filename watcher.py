@@ -3304,9 +3304,10 @@ def repair_workday_posted(con, config):
     return cleared
 
 
-def cycle(config, con, progress=None, sources=None):
+def cycle(config, con, progress=None, sources=None, ranking=None):
     """One poll.  ``sources`` defaults to those the saved profile's boards poll
-    (intel/sources.py), read afresh each time so a Settings change applies next poll."""
+    (intel/sources.py), read afresh each time so a Settings change applies next poll.
+    ``ranking()`` says whether another pass (the dashboard's re-rank) is ranking the backlog."""
     t0 = time.time()
     started_at = now()
     all_boards = (polled_sources(config, load_profile(con, config), load_knowledge())
@@ -3457,10 +3458,14 @@ def cycle(config, con, progress=None, sources=None):
     con.commit()
     store = None
     report_progress(progress, "phase", phase="indexing")
+    # Mid re-rank, a poll ranks only what it found and leaves the backlog to the re-rank:
+    # a second pass over the same backlog doubles the work (a poll took 16 minutes after an update).
+    reranking = lambda: ranking and ranking()  # noqa: E731
     try:
         store = IntelStore(con, config)
-        store.facts_pass(keys=[(b, j["id"]) for b, js in new_by_board.items() for j in js])
-        store.score_pass(commit_batches=True)
+        found = [(b, j["id"]) for b, js in new_by_board.items() for j in js]
+        store.facts_pass(keys=found)
+        store.score_pass(keys=found if reranking() else None, commit_batches=True)
         con.commit()
     except Exception as e:      # intelligence must never stop collection or alerts
         log(f"! intel refresh failed: {type(e).__name__}: {e}")
@@ -3537,7 +3542,7 @@ def cycle(config, con, progress=None, sources=None):
     # unindexed postings are processed after alerts instead of delaying them.
     # The backlog only feeds the local dashboard; on an ephemeral Actions
     # runner it would be rebuilt every run and slow every cycle.
-    if store and not EPHEMERAL:
+    if store and not EPHEMERAL and not reranking():
         report_progress(progress, "phase", phase="indexing")
         try:
             store.facts_pass(config.get("facts_per_cycle", 5000))
@@ -3560,7 +3565,7 @@ def cycle(config, con, progress=None, sources=None):
                 # only the enriched rows: an unbounded pass would chew through
                 # the whole backlog (every row on a fresh Actions runner)
                 store.facts_pass(keys=fetched)
-                store.score_pass(commit_batches=True)
+                store.score_pass(keys=fetched if reranking() else None, commit_batches=True)
             notify_saved_searches(config, con, subs, store)
             con.commit()
         except Exception as e:

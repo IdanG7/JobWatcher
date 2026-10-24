@@ -243,10 +243,14 @@ class DashboardServiceTests(ServiceFixture):
         self.assertEqual(["Software"], packs["tech/gaming"]["boards"])
         self.assertEqual(["Finance", "Software", "AI & Data"], packs["shared/ai_labs"]["boards"])
         self.assertIn("Sales & Growth", result["every_pack"])
+        # Open roles count for the profile's boards, not always for finance.
+        self.assertEqual((["Finance"], 1), (result["boards"], rows["rbc"]["board_jobs"]))
         with self.service.db() as con:
             save_profile(con, {"fields": ["software"], "target_roles": ["software"]})
-        rows = {s["name"]: s for s in self.service.sources()["sources"]}
+        result = self.service.sources()
+        rows = {s["name"]: s for s in result["sources"]}
         self.assertEqual((False, True), (rows["rbc"]["polled"], rows["demo_quant"]["polled"]))
+        self.assertEqual((["Software"], 0), (result["boards"], rows["rbc"]["board_jobs"]))
 
     def test_analytics_activity_sources(self):
         evidence = {"fetched": 1, "reported_total": 300, "complete": False,

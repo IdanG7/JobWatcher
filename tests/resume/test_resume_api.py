@@ -56,7 +56,9 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         with self.service.db() as old_con:
             old_store = IntelStore(old_con, self.service.config)
             self._change_targets_and_check()
-            self.assertEqual(0, old_store.score_pass(force=True))
+            old_store.score_pass(force=True)
+            # A store built before the edit scores with the saved profile, never its own stale copy.
+            self.assertEqual(old_con.execute("SELECT version FROM candidate_resume").fetchone()[0], old_store.version)
         self.service.refresh_now()
         self.assertEqual(0, self.service.jobs({})["total"])
         self.assertEqual(0, self.service.get_resume()["pending"])

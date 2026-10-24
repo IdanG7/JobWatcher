@@ -5,8 +5,8 @@ import {age, esc, toEpochMs} from '../lib.js';
 import {hBars} from '../charts.js';
 import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toast} from '../ui.js';
 
-// Sources whose employer is a recognised finance type (not a generic corporate or an aggregator).
-const financeEmployer = s => s.company_type && !['corporate', 'unknown'].includes(s.company_type);
+// "Software and Hardware": the profile's boards in a sentence.
+const boardText = (names = []) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || 'your boards');
 
 function health(s, progress) {
   if (s.disabled) return {cls: 'st-archived', label: 'Disabled'};
@@ -38,13 +38,14 @@ function boardsCell(s, packs, isPolled) {
 }
 
 export async function render(root, ctx) {
-  const state = {q: '', filter: ctx.route.params.filter || 'all', data: null};
+  // 'finance' is the filter's old name, from before boards chose their sources.
+  const state = {q: '', filter: ctx.route.params.filter === 'finance' ? 'boards' : ctx.route.params.filter || 'all', data: null};
   let liveStatus = ctx.status;
   let lastProgress = '';
   root.innerHTML = `<div class="page-head"><div><h1>Sources</h1><p class="sub" data-summary>Official ATS feeds and aggregators Foothold polls.</p></div>
     <div class="page-actions"><button type="button" class="btn primary" data-act="poll">${icon('refresh')} Check all now</button></div></div>
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Show"><button type="button" data-filter="all">All <span class="seg-n" data-n="all"></span></button><button type="button" data-filter="failing">Issues <span class="seg-n" data-n="failing"></span></button><button type="button" data-filter="finance">Finance employers <span class="seg-n" data-n="finance"></span></button></div>
+      <div class="segmented" role="group" aria-label="Show"><button type="button" data-filter="all">All <span class="seg-n" data-n="all"></span></button><button type="button" data-filter="failing">Issues <span class="seg-n" data-n="failing"></span></button><button type="button" data-filter="boards">Your boards <span class="seg-n" data-n="boards"></span></button></div>
       <label class="search toolbar-search"><span class="sr-only">Search sources</span>${icon('search')}<input class="input" data-search type="search" placeholder="Search sources" autocomplete="off"><kbd>/</kbd></label>
     </div>
     <div data-body>${skeletonRows(10)}</div>`;
@@ -68,33 +69,33 @@ export async function render(root, ctx) {
     const enabled = all.filter(polled);
     const failing = enabled.filter(s => s.failures);
     const run = state.data.last_run;
-    const counts = {all: all.length, failing: all.filter(isIssue).length,
-      finance: all.filter(financeEmployer).length};
+    const counts = {all: all.length, failing: all.filter(isIssue).length, boards: enabled.length};
+    const yours = boardText(state.data.boards);
     root.querySelectorAll('[data-n]').forEach(n => { n.textContent = counts[n.dataset.n]; });
     root.querySelector('[data-summary]').innerHTML = `${enabled.length} polled · ${enabled.filter(s => s.seeded && !s.failures).length} healthy · ${failing.length ? `<span class="neg">${failing.length} with errors</span>` : 'no errors'}${run ? ` · last check ${age(toEpochMs(run.finished_at))} ago (${run.ok_count} ok, ${run.fail_count} failed, ${Math.round(run.duration || 0)}s)` : ''}`;
     const q = state.q.toLowerCase();
     const packs = new Map((state.data.packs || []).map(p => [p.key, p]));
     let list = all.filter(s => !q || `${s.label} ${s.name} ${s.adapter} ${s.company} ${s.group} ${packs.get(s.pack)?.title || ''}`.toLowerCase().includes(q));
     if (state.filter === 'failing') list = list.filter(isIssue);
-    if (state.filter === 'finance') list = list.filter(financeEmployer);
+    if (state.filter === 'boards') list = list.filter(polled);
     // Rows under their pack, packs in manifest order; sources in no pack (your own) last.
     const order = [...packs.keys(), ''];
     const byPack = order.map(key => [key, list.filter(s => (packs.has(s.pack) ? s.pack : '') === key)]).filter(([, rows]) => rows.length);
     const everyPack = state.data.every_pack || [];
     const groups = {};
-    for (const s of enabled) { const g = s.group || 'Other'; groups[g] = groups[g] || {n: 0, jobs: 0, fit: 0}; groups[g].n += 1; groups[g].jobs += s.jobs; groups[g].fit += s.finance_jobs; }
+    for (const s of enabled) { const g = s.group || 'Other'; groups[g] = groups[g] || {n: 0, jobs: 0, fit: 0}; groups[g].n += 1; groups[g].jobs += s.jobs; groups[g].fit += s.board_jobs ?? 0; }
     body.innerHTML = `
     <div class="ledger sources">
-      <section class="panel"><div class="panel-head"><h2>Coverage by employer group</h2><span class="panel-note">finance roles open now</span></div>
-        <div class="panel-body">${hBars(Object.entries(groups).sort((a, b) => b[1].fit - a[1].fit).slice(0, 12).map(([g, v]) => ({label: prettyKey(g), value: v.fit, tip: `<b>${esc(prettyKey(g))}</b> · ${v.n} sources · ${v.fit} finance of ${v.jobs} open roles`})))}</div></section>
+      <section class="panel"><div class="panel-head"><h2>Coverage by employer group</h2><span class="panel-note">${esc(yours)} roles open now</span></div>
+        <div class="panel-body">${hBars(Object.entries(groups).sort((a, b) => b[1].fit - a[1].fit).slice(0, 12).map(([g, v]) => ({label: prettyKey(g), value: v.fit, tip: `<b>${esc(prettyKey(g))}</b> · ${v.n} sources · ${v.fit} in ${esc(yours)} of ${v.jobs} open roles`})))}</div></section>
       <section class="panel"><div class="panel-head"><h2>All sources <span class="count">${list.length}</span></h2>${packs.size ? `<span class="panel-note">Dimmed: not polled for your boards${everyPack.length ? ` · ${esc(everyPack.join(', '))} poll every source` : ''}</span>` : ''}</div>
-        ${list.length ? `<div class="table-wrap"><table class="data tidy sources-table"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>${packs.size ? 'Boards' : 'Group'}</th><th class="num">Open</th><th class="num">Finance</th><th class="num">High fit</th><th class="num">Last success</th><th>Coverage</th></tr></thead>
+        ${list.length ? `<div class="table-wrap"><table class="data tidy sources-table"><thead><tr><th>Source</th><th>Health</th><th>Adapter</th><th>${packs.size ? 'Boards' : 'Group'}</th><th class="num">Open</th><th class="num" title="${esc(`Open roles in ${yours}`)}">In your boards</th><th class="num">High fit</th><th class="num">Last success</th><th>Coverage</th></tr></thead>
         <tbody>${byPack.map(([key, rows]) => `${packs.size ? `<tr class="static pack-row"><td colspan="9"><b>${esc(key ? packs.get(key).title : 'Your sources')}</b><span class="count">${rows.length}</span></td></tr>` : ''}${rows.map(s => { const h = health(s, liveStatus?.progress); const detail = [s.name, s.geography, s.note].filter(Boolean).join(' · '); return `<tr class="static${polled(s) ? '' : ' off'}">
           <td class="c-source"><b>${esc(s.label)}</b><small title="${esc(detail)}">${esc(detail)}</small></td>
           <td class="c-health"><span class="status-pill ${h.cls}"><i></i>${esc(h.label)}</span>${h.error ? `<div class="source-error">${esc(h.error)}</div>` : ''}${h.note ? `<small>${esc(h.note)}</small>` : ''}</td>
           <td class="c-adapter">${esc(s.adapter || '')}</td>
           <td class="c-group dim nowrap">${packs.size ? boardsCell(s, packs, polled(s)) : esc(prettyKey(s.group || s.section || ''))}</td>
-          <td class="num">${s.jobs}</td><td class="num">${s.finance_jobs}</td>
+          <td class="num">${s.jobs}</td><td class="num">${s.board_jobs ?? 0}</td>
           <td class="num">${s.high_fit ? `<span class="hl">${s.high_fit}</span>` : '<span class="muted">0</span>'}</td>
           <td class="num muted">${s.last_ok ? `${age(toEpochMs(s.last_ok))} ago` : '—'}</td>
           <td class="c-coverage">${coverage(s)}</td></tr>`; }).join('')}`).join('')}</tbody></table></div>`

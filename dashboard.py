@@ -38,7 +38,7 @@ from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
-from intel.sources import load_config, load_packs, pack_boards, polled_sources
+from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
@@ -1525,12 +1525,16 @@ class JobwatchService:
         with self.db() as con:
             rows = {r["board"]: dict(r) for r in con.execute(
                 "SELECT board, seeded, last_ok, failures, last_poll FROM boards")}
-            counts = {r[0]: (r[1], r[2], r[3]) for r in con.execute(
-                """SELECT i.board, COUNT(*), SUM(i.is_finance), SUM(i.fit >= 75) FROM job_intel i
-                   LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
-                   WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""")}
-            last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
             profile = self.profile(con)
+            # Open roles in this profile's boards, as Opportunities counts them ('finance' = any finance category).
+            fields = profile_fields(profile, self.kn)
+            yours = " OR ".join("i.is_finance=1" if f == "finance" else "i.family=?" for f in fields)
+            counts = {r[0]: (r[1], r[2], r[3]) for r in con.execute(
+                f"""SELECT i.board, COUNT(*), SUM({yours}), SUM(i.fit >= 75) FROM job_intel i
+                   LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
+                   WHERE COALESCE(s.status,'active')!='closed' GROUP BY i.board""",
+                [f for f in fields if f != "finance"])}
+            last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
             coverage = {}
             for r in con.execute("SELECT k,v FROM kv WHERE k LIKE 'source_coverage:%'"):
                 try:
@@ -1550,7 +1554,7 @@ class JobwatchService:
                 None if cfg.get("ats") in ("linkedin", "github_listings", "github_md")
                 else self.kn.match_company(name.replace("_", " ")))
             ctype = cfg.get("company_type") or (company.type if company else "")
-            jobs, finance, high = counts.get(name, (0, 0, 0))
+            jobs, yours, high = counts.get(name, (0, 0, 0))
             sources.append({
                 "name": name, "label": self.source_label(name), "adapter": cfg.get("ats"),
                 "disabled": bool(cfg.get("disabled")), "note": cfg.get("_note", ""),
@@ -1561,7 +1565,7 @@ class JobwatchService:
                 "complete_listing": cfg.get("complete_listing", cfg.get("ats") in watcher.COMPLETE_LISTING_ATS),
                 "seeded": bool(state.get("seeded")), "last_ok": state.get("last_ok"),
                 "failures": state.get("failures", 0), "last_poll": state.get("last_poll", 0),
-                "jobs": jobs or 0, "finance_jobs": finance or 0, "high_fit": high or 0,
+                "jobs": jobs or 0, "board_jobs": yours or 0, "high_fit": high or 0,
                 "coverage": coverage.get(name),
                 "pack": packs.source_pack.get(name, ""), "polled": name in polled,
             })
@@ -1569,6 +1573,7 @@ class JobwatchService:
         labels = {"finance": "Finance", **{f["key"]: f["label"] for f in self.kn.family_tree()}}
         boards, everywhere = pack_boards(self.kn, packs)
         return {"sources": sources, "last_run": dict(last_run) if last_run else None,
+                "boards": [labels.get(f, f) for f in fields],
                 "packs": [{"key": key, "title": pack.title, "verified": pack.verified,
                            "boards": [labels.get(f, f) for f in boards[key]]} for key, pack in packs.packs.items()],
                 "every_pack": [labels.get(f, f) for f in everywhere]}
@@ -2460,7 +2465,8 @@ class JobwatchService:
             try:
                 con = watcher.db_open(self.db_path)
                 try:
-                    watcher.cycle(self.config, con, progress=self._poll_progress)
+                    watcher.cycle(self.config, con, progress=self._poll_progress,
+                                  ranking=lambda: self.status["indexing"])
                 finally:
                     con.close()
                 with self._status_lock:

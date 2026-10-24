@@ -80,6 +80,33 @@ export function apiParams(params, defaultInterests = []) {
   return p;
 }
 
+/** Time left to rank, from [{t (ms), pending}] samples taken as the list refreshes; null until progress shows. */
+export function rankingTimeLeft(samples) {
+  const recent = samples.filter(s => s.t >= samples.at(-1).t - 180000);    // the last 3 minutes say most about the pace
+  const first = recent[0], last = recent.at(-1);
+  if (!first || last.t - first.t < 15000) return null;
+  // Only drops count toward the pace: a poll adding postings, or rebuilt details sending
+  // some back, is more work left (last.pending), not slower ranking.
+  const ranked = recent.slice(0, -1).reduce((sum, s, i) => sum + Math.max(0, s.pending - recent[i + 1].pending), 0);
+  if (!ranked) return null;
+  const minutes = Math.ceil(last.pending / (ranked / (last.t - first.t)) / 60000);
+  if (minutes <= 1) return 'Less than a minute left';
+  if (minutes < 60) return `About ${minutes} minutes left`;
+  const hours = Math.floor(minutes / 60), rest = Math.round((minutes % 60) / 5) * 5;
+  return `About ${hours} h${rest ? ` ${rest} min` : ''} left`;
+}
+
+/** The results panel while nothing is ranked yet for these filters: how far along it is, not "no roles". */
+export function rankingState(rm, samples = []) {
+  const total = rm.unfiltered_total || 0;
+  const checked = Math.max(0, total - (rm.pending_filtered || 0));
+  const left = samples.length ? rankingTimeLeft(samples) : null;
+  return `<div class="empty ranking" role="status" aria-live="polite"><strong>Ranking roles for your profile</strong>
+    <p>Foothold is checking each posting against your resume and targets. Roles show up here as they’re ranked, and it keeps going if you leave this page.</p>
+    <div class="rank-progress"><progress max="${total}" value="${checked}" aria-label="Postings checked"></progress>
+      <div class="rank-figures"><span><span class="figure">${checked.toLocaleString()}</span> of <span class="figure">${total.toLocaleString()}</span> checked</span><span>${esc(left || 'Estimating time left…')}</span></div></div></div>`;
+}
+
 export async function render(root, ctx) {
   const [meta] = await Promise.all([ctx.loadMeta(), ctx.profile ? null : ctx.loadProfile().catch(() => null)]);
   const financeKeys = (meta.taxonomy || []).map(c => c.key);
@@ -87,7 +114,7 @@ export async function render(root, ctx) {
   const familyLabel = Object.fromEntries(families.map(f => [f.key, f.label]));
   const profileInterests = () => interestsFromTargets(ctx.profile?.target_roles || [], financeKeys);
 
-  const state = {params: {...ctx.route.params}, data: null, cursor: -1, controller: null, timer: null, expanded: new Set(),
+  const state = {params: {...ctx.route.params}, data: null, cursor: -1, controller: null, timer: null, expanded: new Set(), ranking: [],
     filtersHidden: ctx.store.get('jw-filters') === 'hidden', filtersOpen: false, visitedSaved: null,
     open: new Set(JSON.parse(ctx.store.get('jw-filter-groups') || '["role","where","timing"]'))};
 
@@ -161,6 +188,12 @@ export async function render(root, ctx) {
       const data = await get('/api/jobs', params, controller.signal);
       if (controller.signal.aborted) return;
       state.data = data;
+      // Pending counts over time give ranking's pace. Other filters rank other postings, so they start over;
+      // a poll adding postings does not.
+      const rm = data.resume_matching;
+      const filters = JSON.stringify({...params, page: undefined});
+      if (!rm?.active || !rm.pending_filtered || state.ranking[0]?.filters !== filters) state.ranking = [];
+      if (rm?.active && rm.pending_filtered) state.ranking.push({t: Date.now(), pending: rm.pending_filtered, filters});
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
       drawAll();
       if (data.resume_matching?.active && data.resume_matching.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
@@ -500,6 +533,10 @@ export async function render(root, ctx) {
     const sort = state.params.sort || 'fit';
     const dir = state.params.dir;
     const wrap = $('[data-table]');
+    if (!d.jobs.length && d.resume_matching?.active && d.resume_matching.pending_filtered) {
+      wrap.innerHTML = rankingState(d.resume_matching, state.ranking);
+      return;
+    }
     if (!d.jobs.length) {
       const narrow = interests().length && !state.params.q
         ? '<button type="button" class="btn sm" data-interest-all>Show every job family</button>' : '';

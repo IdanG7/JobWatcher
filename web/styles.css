@@ -2326,6 +2326,15 @@ table.data.opp-table .actions .btn { border-color: transparent; background: tran
 @media (hover: hover) and (pointer: fine) { table.data.opp-table .actions .btn:hover { background: var(--surface-3); border-color: transparent; color: var(--text); } }
 .opp-page .table-wrap.loading { opacity: .55; transition: opacity 160ms; }
 .opp-page .results .empty { padding: 64px 20px; }
+/* Ranking in progress: how far along, in place of an empty list. */
+.empty.ranking p { max-width: 52ch; }
+.rank-progress { width: min(420px, 100%); margin: 22px auto 0; }
+.rank-progress progress { display: block; width: 100%; height: 4px; border: 0; border-radius: 2px; overflow: hidden; background: var(--surface-3); accent-color: var(--accent); }
+.rank-progress progress::-webkit-progress-bar { background: var(--surface-3); border-radius: 2px; }
+.rank-progress progress::-webkit-progress-value { background: var(--accent); border-radius: 2px; transition: width 400ms ease-out; }
+.rank-progress progress::-moz-progress-bar { background: var(--accent); }
+.rank-figures { display: flex; justify-content: space-between; gap: 12px; margin-top: 9px; font-size: 12px; color: var(--text-3); }
+.rank-figures .figure { color: var(--text-2); }
 .opp-page .results .skel-rows { padding: 18px 16px; gap: 20px; }
 
 /* Narrow results (small windows, or a posting docked beside them): keep the table inside its panel. */

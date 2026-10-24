@@ -126,8 +126,14 @@ class CsResumeTests(unittest.TestCase):
         keys = [i["key"] for i in self.parsed["role_interests"]]
         self.assertEqual("hardware.embedded_firmware", keys[0])
         self.assertIn("hardware.robotics_autonomy", keys)
-        self.assertTrue(any(k.startswith("software") for k in keys))
         self.assertTrue(all(field_of(k) in TECH for k in keys), keys)
+
+    def test_generic_software_job_titles_target_software(self):
+        # "Junior Software Developer" and "Software Co-op Student" name no specialty; a stronger
+        # specialty (Infrastructure) must not make them count for nothing.
+        interest = {i["key"]: i for i in self.parsed["role_interests"]}
+        self.assertIn("software", interest)
+        self.assertIn("title: Junior Software Developer", interest["software"]["evidence"])
 
     def test_tech_skills(self):
         skills = {s["key"] for s in self.parsed["skills"]}
@@ -154,11 +160,15 @@ class CsResumeTests(unittest.TestCase):
         self.assertEqual((2027, 4), (profile["graduation_year"], profile["graduation_month"]))
 
     def test_chosen_tech_fields_stay_as_they_are(self):
-        before = merge_profile({"fields": ["software", "hardware"],
+        before = merge_profile({"fields": ["software", "hardware"], "role_weights": {"software.backend": 0.5},
                                 "target_roles": ["software.backend", "hardware.embedded_firmware"]})
         profile = profile_from_resume(self.parsed, before, KN)
         self.assertEqual(["software", "hardware"], profile["fields"])
         self.assertTrue(all(field_of(r) in {"hardware", "software"} for r in profile["target_roles"]))
+        # Targets picked in a chosen board stay, with the priority given them.
+        self.assertIn("software.backend", profile["target_roles"])
+        self.assertEqual(0.5, profile["role_weights"]["software.backend"])
+        self.assertEqual(len(profile["target_roles"]), len(set(profile["target_roles"])))
 
 
 class TechMatchTests(unittest.TestCase):
@@ -178,9 +188,13 @@ class TechMatchTests(unittest.TestCase):
 
     def test_tech_roles_in_its_fields_stay(self):
         self.assertTrue(self.match("Firmware Engineer Intern")["matched"])
+        # Generic software jobs target all of Software, so a frontend role is within the targets.
         frontend = self.match("Frontend Software Engineer Intern")
         self.assertTrue(frontend["matched"])
-        self.assertTrue(any("outside your specialties" in r for r in frontend["reasons"]))
+        self.assertFalse(any("outside your specialties" in r for r in frontend["reasons"]))
+        chip = self.match("ASIC Design Verification Engineer Intern")
+        self.assertTrue(chip["matched"])
+        self.assertTrue(any("outside your specialties" in r for r in chip["reasons"]))
 
     def test_finance_only_profile_keeps_its_messages(self):
         finance = profile_from_resume(parse_resume(FINANCE_RESUME, KN), merge_profile(), KN)

@@ -157,6 +157,24 @@ class IndexingConcurrencyTests(ServiceFixture):
             self.assertNotEqual(old_version, con.execute('SELECT version FROM candidate_resume').fetchone()[0])
             self.assertEqual(0, con.execute('SELECT COUNT(*) FROM job_intel WHERE profile_version=?', (old_version,)).fetchone()[0])
 
+    def test_a_store_built_before_a_profile_edit_scores_with_the_saved_profile(self):
+        # A re-rank after an update runs for hours; a resume applied meanwhile must not leave
+        # every posting unscored until it ends.
+        self.enable_resume()
+        with closing(self.service.connect()) as con:
+            store = intel_store.IntelStore(con, self.service.config)
+            con.commit()
+            profile = self.service.get_profile()['profile']
+            profile['target_countries'] = ['US']
+            self.service.put_profile({'profile': profile})
+            with self.service.db() as other:
+                other.execute('UPDATE job_intel SET profile_version=NULL')
+            self.assertGreater(store.score_pass(commit_batches=True), 0)
+            saved = con.execute('SELECT version FROM candidate_resume').fetchone()[0]
+            self.assertEqual(saved, store.version)
+            self.assertEqual(0, con.execute('SELECT COUNT(*) FROM job_intel WHERE profile_version IS NOT ?',
+                                            (saved,)).fetchone()[0])
+
     def test_profile_edit_during_version_repair_wins(self):
         self.enable_resume()
         with self.service.db() as con:

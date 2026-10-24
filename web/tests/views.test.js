@@ -3,7 +3,24 @@ import {test} from 'node:test';
 
 import {funnel, hBars, heatmap} from '../js/charts.js';
 import {badge, fitMeter, options} from '../js/ui.js';
-import {COUNTRY_FILTERS, apiParams, interestsFromTargets, resumeCategories} from '../js/views/opportunities.js';
+import {COUNTRY_FILTERS, apiParams, interestsFromTargets, rankingState, rankingTimeLeft, resumeCategories} from '../js/views/opportunities.js';
+
+test('an empty list while ranking shows progress and time left, not "no roles"', () => {
+  const minute = 60000;
+  assert.equal(rankingTimeLeft([{t: 0, pending: 1000}]), null);                          // one sample: no pace yet
+  assert.equal(rankingTimeLeft([{t: 0, pending: 1000}, {t: minute, pending: 1000}]), null); // no progress yet
+  assert.equal(rankingTimeLeft([{t: 0, pending: 1000}, {t: minute, pending: 900}]), 'About 9 minutes left');
+  assert.equal(rankingTimeLeft([{t: 0, pending: 200000}, {t: minute, pending: 198000}]), 'About 1 h 40 min left');
+  assert.equal(rankingTimeLeft([{t: 0, pending: 100}, {t: minute, pending: 50}]), 'Less than a minute left');
+  // A poll adding postings (900 -> 1000) is more work left, not a reset or a slower pace: 200 ranked in 2 minutes.
+  assert.equal(rankingTimeLeft([{t: 0, pending: 1000}, {t: minute, pending: 900}, {t: 1.5 * minute, pending: 1000},
+    {t: 2 * minute, pending: 900}]), 'About 9 minutes left');
+  const html = rankingState({unfiltered_total: 202948, pending_filtered: 148895}, []);
+  assert.match(html, /<progress max="202948" value="54053"/);
+  assert.match(html, /54,053<\/span> of <span class="figure">202,948<\/span> checked/);
+  assert.match(html, /Estimating time left/);
+  assert.doesNotMatch(html, /No roles match/);
+});
 
 test('resume match picks each parent category with its groups', () => {
   assert.equal(resumeCategories(['public_markets.asset_management', 'corporate_finance.fpa', 'corporate_finance.treasury', 'quant']),

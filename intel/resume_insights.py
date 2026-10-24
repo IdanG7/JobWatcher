@@ -285,12 +285,14 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech
             scores[key] *= factor
     valid = {f"{s.parent}.{s.key}" for s in kn.subcategories.values()}
     if tech:
-        # A generic title targets the whole family, unless the work shows specialties at
-        # least as strongly: then those are the targets instead.
+        # A generic title targets the whole family. Work that shows specialties at least as
+        # strongly adds them, and the family stays when a job title named it ("Software
+        # Developer"); a weaker specialty gives way to the family.
         for family in [k for k in scores if k in TECH_FIELDS]:
             specialties = [k for k in scores if k.startswith(f"{family}.")]
             if specialties and max(scores[k] for k in specialties) >= scores[family]:
-                del scores[family]
+                if family not in titled:
+                    del scores[family]
             else:
                 for key in specialties:
                     del scores[key]

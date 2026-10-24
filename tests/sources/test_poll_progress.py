@@ -16,7 +16,7 @@ class PollProgressTests(ServiceFixture):
     def test_live_progress_failure_and_duplicate_poll(self):
         entered, release = threading.Event(), threading.Event()
 
-        def cycle(config, con, progress=None):
+        def cycle(config, con, progress=None, ranking=None):
             progress("start", sources=["rbc", "demo_quant"], skipped=1)
             progress("source_started", board="rbc")
             progress("source_finished", board="rbc", outcome="ok", jobs=12, new=4)

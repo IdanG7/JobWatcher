@@ -171,6 +171,30 @@ class CycleIntegrationTests(unittest.TestCase):
                 self.assertEqual("montreal", con.execute(
                     "SELECT city FROM job_intel WHERE job_id='1'").fetchone()[0])
 
+    def test_a_poll_during_a_re_rank_scores_only_what_it_found(self):
+        config = {"boards": {"rbc": {"ats": "fake"}}, "filters": {}, "profile": {}}
+        listing = [{"id": "1", "title": "Investment Banking Summer Analyst", "location": "Toronto, ON",
+                    "url": "https://x/1", "company": "RBC"}]
+        adapter = Mock(side_effect=lambda cfg: [dict(j) for j in listing])
+        unscored = lambda con: [r[0] for r in con.execute(  # noqa: E731
+            "SELECT job_id FROM job_intel WHERE profile_version IS NULL ORDER BY job_id")]
+        with tempfile.TemporaryDirectory() as tmp:
+            subs = Path(tmp) / "subs.json"
+            subs.write_text("{}")
+            with patch.object(watcher, "SUBSCRIBERS", subs), \
+                    patch.dict(watcher.ADAPTERS, {"fake": adapter}), \
+                    patch.object(watcher, "EPHEMERAL", False), \
+                    patch("watcher.enrich_descriptions", return_value=0):
+                con = watcher.db_open(":memory:")
+                watcher.cycle(config, con)
+                con.execute("UPDATE job_intel SET profile_version=NULL")    # the backlog a re-rank is working through
+                listing.append({"id": "2", "title": "Equity Research Associate", "location": "Toronto, ON",
+                                "url": "https://x/2", "company": "RBC"})
+                watcher.cycle(config, con, ranking=lambda: True)
+                self.assertEqual(["1"], unscored(con))                      # the new posting is ranked, the backlog left
+                watcher.cycle(config, con, ranking=lambda: False)
+                self.assertEqual([], unscored(con))                         # no re-rank running: the poll ranks it
+
     def test_ephemeral_runner_skips_backlog_and_enrichment(self):
         """Actions rebuilds its DB each run: only new postings get classified."""
         config = {"boards": {"rbc": {"ats": "fake"}}, "filters": {}, "profile": {}}

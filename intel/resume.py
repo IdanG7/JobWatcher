@@ -513,9 +513,13 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | (TECH_FIELDS & set(kn.families))
     interests = [i for i in parsed.get("role_interests") or [] if i["key"] in valid]
     if interests:
-        # The resume decides the targets; weights grade them (strongest = 1.0).
-        result["target_roles"] = [i["key"] for i in interests]
-        result["role_weights"] = {i["key"]: round(0.6 + 0.4 * i["strength"], 2) for i in interests}
+        # The resume adds graded targets (strongest = 1.0). Targets picked in a chosen board stay
+        # with their own weights; Finance targets the default profile only implied give way.
+        boards = [f for f in profile.get("fields") or [] if isinstance(f, str)]
+        picked = [r for r in profile.get("target_roles") or [] if role_field(r, kn) in boards]
+        weights = {i["key"]: round(0.6 + 0.4 * i["strength"], 2) for i in interests}
+        result["target_roles"] = list(dict.fromkeys([*weights, *picked]))
+        result["role_weights"] = {**weights, **{k: w for k, w in (profile.get("role_weights") or {}).items() if k in picked}}
     else:
         roles = [r for r in parsed.get("role_categories", []) if r in valid]
         result["target_roles"] = list(dict.fromkeys([*(profile.get("target_roles") or []), *roles]))

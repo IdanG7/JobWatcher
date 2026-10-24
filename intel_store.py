@@ -443,23 +443,28 @@ class IntelStore:
         # If a profile edit races with this pass, old results stay invisible
         # because queries join against that authoritative version.
         if resume and resume[0] != self.version:
-            # Either this store is stale (the profile changed after it was built:
-            # skip, the next pass scores) or the saved version drifted because the
-            # version's inputs changed (e.g. a new profile default in an update).
-            # The second would stop scoring for good, so re-sync it.
-            current = profile_version(load_profile(self.con, self.config), sorted(watched_companies(self.con)))
-            if not self._stored_profile or current != self.version:
+            # Either this store is stale (the profile changed after it was built) or the
+            # saved version drifted because the version's inputs changed (e.g. a new
+            # profile default in an update). The second would stop scoring for good, so re-sync it.
+            stored, watched = load_profile(self.con, self.config), set(watched_companies(self.con))
+            current = profile_version(stored, sorted(watched))
+            if self._stored_profile and current == resume[0]:
+                # Stale: a re-rank that outlives a profile edit (hours after an update) scores
+                # with the saved profile, rather than leaving every posting unscored until it ends.
+                self.profile, self.watched, self.version = stored, watched, current
+            elif not self._stored_profile or current != self.version:
                 return 0
-            repaired = self.con.execute("UPDATE candidate_resume SET version=? WHERE id=1 AND version=?",
-                                        (self.version, resume[0])).rowcount
-            if not repaired:
-                # A profile edit won the race after validation. Keep its version
-                # authoritative and leave scoring to a store with that profile.
-                if commit_batches:
-                    self.con.commit()
-                return 0
-            self.con.execute("UPDATE job_intel SET profile_version=NULL WHERE profile_version IS NOT NULL "
-                             "AND profile_version != ?", (self.version,))
+            else:
+                repaired = self.con.execute("UPDATE candidate_resume SET version=? WHERE id=1 AND version=?",
+                                            (self.version, resume[0])).rowcount
+                if not repaired:
+                    # A profile edit won the race after validation. Keep its version
+                    # authoritative and leave scoring to a store with that profile.
+                    if commit_batches:
+                        self.con.commit()
+                    return 0
+                self.con.execute("UPDATE job_intel SET profile_version=NULL WHERE profile_version IS NOT NULL "
+                                 "AND profile_version != ?", (self.version,))
         if commit_batches:
             self.con.commit()  # version repair must not lock collection while scores are computed
         now = time.time()
