@@ -509,9 +509,15 @@ class IntelStore:
             (since,))}
         updates = []
         matches = []
+        damaged = []
         for (board, job_id, facts_json, posted, first_seen, discovered, status, override, ckey,
              sampled_hash, facts_version, kb_version, scored_version, scored_at) in rows:
-            facts = json.loads(facts_json)
+            try:
+                facts = json.loads(facts_json)
+            except ValueError:
+                # A damaged byte on disk: rebuild this posting's facts rather than stop scoring for everything.
+                damaged.append((board, job_id, facts_json))
+                continue
             dyn = {"posted": float(posted) if posted else None, "first_seen": iso_epoch(first_seen),
                    "discovered": bool(discovered), "status": status, "deadline_override": override,
                    "watched": ckey in self.watched, "recent_change": (board, job_id) in changed}
@@ -526,6 +532,8 @@ class IntelStore:
                             result["deadline"], dyn["posted"] or (dyn["first_seen"] if discovered else None),
                             self.version, now, board, job_id, sampled_hash, facts_version, kb_version,
                             facts_json, scored_version, scored_at, int(bool(resume)), self.version))
+        # A missing input hash sends the posting back to facts_pass; the facts guard skips one already rebuilt.
+        self.con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=? AND facts IS ?", damaged)
         applied = 0
         for start in range(0, len(updates), 500):
             accepted_matches = []
