@@ -38,6 +38,10 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
     elif not relevant and family not in (None, "unknown", "other"):
         exclusions.append("Role is outside finance and your selected career targets" if fields == {"finance"} else
                           f"{'Finance' if cls.get('is_finance') else label} role is outside the fields you recruit in")
+    elif not relevant and "finance" not in fields:
+        # Nothing places the role in a field. Finance titles are often that vague, so a finance
+        # profile reviews them; for tech boards it is noise ("Illustrator, Intern").
+        exclusions.append("Role doesn't name a field you recruit in")
     elif not relevant:
         review.append("Role relevance needs review")
     elif cls.get("prior_only"):

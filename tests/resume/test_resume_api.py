@@ -171,6 +171,28 @@ class ResumeServiceTests(fixtures.ServiceFixture):
                     self.assertEqual(expected, count)
                     self.assertTrue(send.called)
 
+    def test_calendar_deadlines_follow_resume_matches(self):
+        self.apply()
+        with self.service.db() as con:     # a high-fit posting the resume rules out (quant)
+            con.execute("UPDATE job_intel SET eff_deadline='2026-12-05', fit=90 WHERE job_id='two'")
+
+        def deadlines():
+            items = self.service.calendar({"start": ["2026-11-01"], "end": ["2026-12-31"]})["items"]
+            return sorted(i["job_key"] for i in items if i["kind"] == "deadline")
+
+        self.assertEqual(["rbc:one"], deadlines())
+        with self.service.db() as con:     # a posting the resume hasn't read yet keeps the fit rule
+            con.execute("UPDATE candidate_resume SET version='stale'")
+        self.assertIn("demo_quant:two", deadlines())
+        with self.service.db() as con:
+            self.service._update_resume_version(con)
+        self.service.save_application({"key": "demo_quant:two", "status": "applied"})
+        self.assertEqual(["demo_quant:two", "rbc:one"], deadlines())     # applied: always shown
+        self.service.delete_application("demo_quant:two")
+        with patch.object(self.service, "kick"):
+            self.service.set_resume_enabled({"enabled": False})
+        self.assertIn("demo_quant:two", deadlines())     # no resume: fit decides
+
 
 class ResumeHttpTests(fixtures.ServiceFixture):
     def setUp(self):

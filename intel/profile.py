@@ -138,7 +138,10 @@ def prune_profile(profile: dict, kn) -> dict:
     return out
 
 
+RULES_VERSION = 2      # raise when scoring or resume-match rules change, so installs rescore once
+
+
 def profile_version(profile: dict, watched: list[str] | tuple[str, ...] = ()) -> str:
     """Stable hash of everything that affects fit scores."""
-    payload = json.dumps({"p": profile, "w": sorted(watched)}, sort_keys=True, default=str)
+    payload = json.dumps({"p": profile, "w": sorted(watched), "r": RULES_VERSION}, sort_keys=True, default=str)
     return hashlib.sha1(payload.encode()).hexdigest()[:12]

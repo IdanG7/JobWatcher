@@ -186,6 +186,21 @@ class TechMatchTests(unittest.TestCase):
         self.assertIn("Finance role is outside the fields you recruit in", result["exclusions"])
         self.assertFalse(self.match("Data Scientist Intern")["matched"])
 
+    def test_roles_nothing_places_in_a_field_are_not_matches(self):
+        # "Illustrator, Intern" and "Revenue Management" internships matched a CS resume on a real install.
+        for title in ("Illustrator, Intern", "2027 Summer Internship - Business Technology"):
+            with self.subTest(title=title):
+                result = self.match(title)
+                self.assertFalse(result["matched"])
+                self.assertIn("Role doesn't name a field you recruit in", result["exclusions"])
+        # A finance profile still reviews them: vague titles are common in finance.
+        finance = profile_from_resume(parse_resume(FINANCE_RESUME, KN), merge_profile(), KN)
+        facts = build_facts({"title": "2027 Summer Internship - Business Technology", "location": "Toronto, ON",
+                             "posted": time.time()}, KN)
+        result = match_resume(facts, finance, score_job(facts, finance, KN), KN)
+        self.assertNotIn("Role doesn't name a field you recruit in", result["exclusions"])
+        self.assertIn("Role relevance needs review", result["review"])
+
     def test_tech_roles_in_its_fields_stay(self):
         self.assertTrue(self.match("Firmware Engineer Intern")["matched"])
         # Generic software jobs target all of Software, so a frontend role is within the targets.
