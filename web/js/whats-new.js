@@ -47,6 +47,12 @@ export function recentReleases(current, notes = RELEASE_NOTES) {
   return releasesUpTo(current, notes).slice(0, MAX_RELEASES);
 }
 
+/** "All updates": every release older than the ones the card shows (`shown`), newest first. */
+export function earlierReleases(current, shown, notes = RELEASE_NOTES) {
+  const oldest = shown.at(-1)?.version ?? current;
+  return releasesUpTo(current, notes).filter(r => compareVersions(r.version, oldest) < 0);
+}
+
 /** What the card shows for GET /api/whats-new, or null: nothing new, or first-run setup is on screen. */
 export function cardToShow(info, routeName = '', notes = RELEASE_NOTES) {
   if (!info?.version || routeName === 'welcome') return null;
@@ -92,14 +98,33 @@ function itemMarkup(item, i) {
     : `<div class="wn-item">${body}</div>`}</li>`;
 }
 
-/** The card. `manual`: opened again from Settings or the palette, so nothing rolls and no hint. */
-export function cardMarkup({current, seen = null, releases, manual = false}) {
+function releasesMarkup(releases, labelled) {
+  let n = 0;      // across releases, so each item rises a beat after the one before
+  return releases.map(r => {
+    const date = labelled ? releasedOn(r.date) : '';
+    const head = labelled ? `<h3 class="wn-release-v">${esc(r.version)}${date ? ` <time datetime="${esc(r.date)}">${esc(date)}</time>` : ''}</h3>` : '';
+    return `<section class="wn-release">${head}
+      <ul class="wn-items">${r.items.map(item => itemMarkup(item, n++)).join('')}</ul></section>`;
+  }).join('');
+}
+
+// Folded (inert: out of the tab order and screen readers) until the row's button opens it.
+function earlierMarkup(earlier) {
+  if (!earlier.length) return '';
+  return `<div class="wn-all"><button type="button" class="wn-more" data-wn-more aria-expanded="false" aria-controls="wn-earlier">
+      <span>All updates</span><span class="wn-more-n">${earlier.length} earlier</span>${icon('chevronDown', 14)}</button></div>
+    <div class="wn-earlier" id="wn-earlier" inert><div>${releasesMarkup(earlier, true)}</div></div>`;
+}
+
+/**
+ * The card. `manual`: opened again from Settings or the palette, so nothing rolls and no hint.
+ * `earlier`: the releases before these, behind "All updates".
+ */
+export function cardMarkup({current, seen = null, releases, earlier = [], manual = false}) {
   const labelled = releases.length > 1 || releases[0]?.version !== current;
   const date = releases[0]?.version === current ? releasedOn(releases[0].date) : '';
   const sub = !manual && seen ? `New since ${esc(seen)}` : date ? `Released ${esc(date)}` : '';
-  let n = 0;
-  const body = releases.map(r => `<section class="wn-release">${labelled ? `<h3 class="wn-release-v">${esc(r.version)}</h3>` : ''}
-      <ul class="wn-items">${r.items.map(item => itemMarkup(item, n++)).join('')}</ul></section>`).join('');
+  const body = releasesMarkup(releases, labelled) + earlierMarkup(earlier);
   return `<aside class="wn" id="whats-new" role="dialog" aria-modal="false" aria-labelledby="wn-title" tabindex="-1">
     <div class="wn-head">
       <p class="wn-eyebrow" aria-hidden="true">${MARK}What’s new</p>
@@ -118,12 +143,47 @@ let card = null;      // {el, current, opener, recheck}
 
 export function whatsNewOpen() { return card !== null; }
 
+// "All updates" opens or folds the earlier releases. Opened, the list scrolls so the row sits at
+// its top with them under it, when they don't all fit already.
+function toggleEarlier(button) {
+  const body = button.closest('.wn-body');
+  const row = button.parentElement;
+  const list = document.getElementById(button.getAttribute('aria-controls'));
+  const open = button.getAttribute('aria-expanded') !== 'true';
+  // Already as tall as the window allows: no height to grow into, so it opens at once and scrolls.
+  const full = open && body.scrollHeight > body.clientHeight;
+  list.classList.toggle('wn-snap', full);
+  list.inert = !open;
+  button.setAttribute('aria-expanded', String(open));
+  if (!open) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reveal = () => {
+    if (button.getAttribute('aria-expanded') !== 'true') return;
+    const view = body.getBoundingClientRect();
+    const rect = list.getBoundingClientRect();
+    if (rect.bottom <= view.bottom) return;
+    // From the list, not the row: the row may be stuck to the bottom edge, away from its place.
+    const top = body.scrollTop + rect.top - view.top - body.clientTop - row.offsetHeight;
+    body.scrollTo({top, behavior: reduced ? 'auto' : 'smooth'});
+  };
+  if (full || reduced) { reveal(); return; }
+  list.addEventListener('transitionend', function grown(e) {
+    if (e.target !== list || e.propertyName !== 'grid-template-rows') return;      // not an item's hover
+    list.removeEventListener('transitionend', grown);
+    reveal();
+  });
+}
+
 function mount({current, seen, releases, manual}) {
   const holder = document.createElement('div');
-  holder.innerHTML = cardMarkup({current, seen, releases, manual});
+  holder.innerHTML = cardMarkup({current, seen, releases, earlier: earlierReleases(current, releases), manual});
   const el = holder.firstElementChild;
   card = {el, current, opener: manual ? document.activeElement : null, recheck: null};
-  el.addEventListener('click', e => { if (e.target.closest('[data-wn-close]')) closeWhatsNew(); });
+  el.addEventListener('click', e => {
+    if (e.target.closest('[data-wn-close]')) closeWhatsNew();
+    const more = e.target.closest('[data-wn-more]');
+    if (more) toggleEarlier(more);
+  });
   el.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     e.preventDefault();

@@ -4,7 +4,7 @@ import {test} from 'node:test';
 
 import {RELEASE_NOTES} from '../js/release-notes.js';
 import {icon} from '../js/ui.js';
-import {cardMarkup, cardToShow, compareVersions, pendingReleases, recentReleases, rollSegments} from '../js/whats-new.js';
+import {cardMarkup, cardToShow, compareVersions, earlierReleases, pendingReleases, recentReleases, rollSegments} from '../js/whats-new.js';
 
 const release = (version, n = 2) => ({version, date: '2026-10-01', items: Array.from({length: n}, (_, i) => ({icon: 'spark', title: `${version} change ${i + 1}`, text: 'One line.'}))});
 // Out of order on purpose: the card sorts newest first itself.
@@ -44,6 +44,15 @@ test('a version without notes still shows the releases it skipped; at most three
 test('reopening shows this version and the ones before it, never a newer one', () => {
   assert.deepEqual(versions(recentReleases('0.3.5', NOTES)), ['0.3.5', '0.3.4', '0.3.3']);
   assert.deepEqual(versions(recentReleases('0.3.3', NOTES)), ['0.3.3']);
+});
+
+test('“All updates” holds every release before the ones on the card, newest first, never a newer one', () => {
+  assert.deepEqual(versions(earlierReleases('0.3.6', pendingReleases('0.3.6', null, NOTES), NOTES)), ['0.3.5', '0.3.4', '0.3.3']);
+  assert.deepEqual(versions(earlierReleases('0.3.4', pendingReleases('0.3.4', '0.3.3', NOTES), NOTES)), ['0.3.3']);
+  assert.deepEqual(versions(earlierReleases('0.3.7', pendingReleases('0.3.7', '0.3.4', NOTES), NOTES)), ['0.3.4', '0.3.3']);
+  // More than three skipped: the ones the card leaves out are still there.
+  assert.deepEqual(versions(earlierReleases('0.3.6', pendingReleases('0.3.6', '0.1.0', NOTES), NOTES)), ['0.3.3']);
+  assert.deepEqual(earlierReleases('0.3.5', recentReleases('0.3.5', NOTES), NOTES), []);       // the card has them all
 });
 
 test('the card shows once: closing it marks the version, and the next update shows only what is new', () => {
@@ -99,6 +108,26 @@ test('reopened on purpose: no roll, no hint, one release unlabelled with its dat
   assert.doesNotMatch(html, /Find it again/);
   assert.doesNotMatch(html, /wn-release-v/);
   assert.match(html, /Released /);
+});
+
+test('“All updates” is a button after this release that unfolds the earlier ones, each with its version and date', () => {
+  const earlier = [release('0.3.5'), {...release('0.3.4'), date: '2026-09-28'}];
+  const html = cardMarkup({current: '0.3.6', seen: '0.3.6', releases: [release('0.3.6')], earlier, manual: true});
+  const button = html.match(/<button([^>]*data-wn-more[^>]*)>(.*?)<\/button>/s);
+  assert.ok(button, 'a real button');
+  assert.match(button[1], /type="button"/);
+  assert.match(button[1], /aria-expanded="false" aria-controls="wn-earlier"/);
+  assert.match(button[2], /All updates/);
+  assert.match(button[2], />2 earlier</);
+  const region = html.slice(html.indexOf('id="wn-earlier"'));
+  assert.ok(html.indexOf('data-wn-more') < html.indexOf('id="wn-earlier"'), 'the list follows its button');
+  assert.match(region, /^id="wn-earlier" inert>/);       // folded: out of the tab order and screen readers
+  assert.doesNotMatch(region, /0\.3\.6 change/);
+  assert.match(region, /0\.3\.5 change 1.*0\.3\.4 change 1/s);
+  assert.match(region, /<h3 class="wn-release-v">0\.3\.4 <time datetime="2026-09-28">/);
+  assert.equal((html.match(/class="wn-release-v"/g) || []).length, 2);      // this release is the title
+  // Nothing earlier, nothing to unfold.
+  assert.doesNotMatch(cardMarkup({current: '0.3.6', releases: [release('0.3.6')]}), /data-wn-more|wn-earlier/);
 });
 
 test('release notes follow the rules for the card', () => {
