@@ -57,6 +57,10 @@ STATUS_LABELS = {
 FUNNEL = [("saved", "Saved"), ("applied", "Applied"), ("interview", "Interview"),
           ("final_round", "Final round"), ("offer", "Offer")]
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# A posting's resume verdict, with FACTS_VERSION as its parameter: matched (1), ruled out (0) or not yet read (NULL).
+RESUME_VERDICT = """CASE WHEN i.facts_version=? THEN (SELECT rm.matched FROM resume_matches rm
+    JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
+    AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version) END"""
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 STATIC_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
                 ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon",
@@ -567,9 +571,7 @@ class JobwatchService:
             # The list's count, the resume totals and every facet then come from those rows.
             if resume["active"]:
                 scan_where, scan_args = build_where({**params, "resume_match": "0"}, store_fts, self.watched(con))
-                verdict = """CASE WHEN i.facts_version=? THEN (SELECT rm.matched FROM resume_matches rm
-                    JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
-                    AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version) END"""
+                verdict = RESUME_VERDICT
                 scan_args = [FACTS_VERSION, *scan_args]
             else:
                 scan_where, verdict, scan_args = where, "1", args
@@ -1316,12 +1318,21 @@ class JobwatchService:
             seen = {(i["job_key"], i["date"]) for i in items if i["kind"] == "deadline"}
             profile = load_profile(con, self.config)
             digest = (profile.get("alerts") or {}).get("digest_fit", 55)
+            keep, keep_args = "i.fit >= ?", [digest]
+            resume = con.execute("SELECT enabled FROM candidate_resume WHERE id=1").fetchone()
+            if resume and resume["enabled"]:
+                # With a resume on, deadlines are its matches in your boards; a posting it hasn't read
+                # yet (a rescore after an update) keeps the fit rule until it has.
+                fields = profile_fields(profile, self.kn)
+                boards = " OR ".join("i.is_finance=1" if f == "finance" else "i.family=?" for f in fields)
+                keep = f"({boards}) AND COALESCE({RESUME_VERDICT}, i.fit >= ?)"
+                keep_args = [f for f in fields if f != "finance"] + [FACTS_VERSION, digest]
             for r in con.execute(
                     f"""SELECT i.board, i.job_id, i.eff_deadline, i.company_name, j.title, i.fit, i.deadline_confidence,
                                j.url, a.status
                         {FROM_CLAUSE} WHERE i.eff_deadline BETWEEN ? AND ? AND i.is_canonical=1
-                        AND COALESCE(s.status,'active')!='closed' AND (i.fit >= ? OR a.status IS NOT NULL)
-                        ORDER BY i.eff_deadline LIMIT 300""", (start, end, digest)):
+                        AND COALESCE(s.status,'active')!='closed' AND (a.status IS NOT NULL OR ({keep}))
+                        ORDER BY i.eff_deadline LIMIT 300""", (start, end, *keep_args)):
                 key = f"{r['board']}:{r['job_id']}"
                 if (key, r["eff_deadline"]) in seen:
                     continue
