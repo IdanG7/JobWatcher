@@ -1033,9 +1033,15 @@ class CoverLetterServiceTests(unittest.TestCase):
             self.assertIn("Letter body.", letter["body"])
             shown = "October 11, 2026\n\nDear Hiring Manager,\n\nMy unsaved words.\n\nSincerely,\nJordan Lee"
             answer = json.dumps({"changes": [{"part": "1", "text": "Shorter."}]})
-            with mock.patch("requests.post", return_value=chat(answer)):
+            revised = threading.Event()
+
+            def post(*args, **kwargs):      # held, so the change is still being made when it is shown
+                revised.wait(5)
+                return chat(answer)
+            with mock.patch("requests.post", side_effect=post):
                 changing = self.service.start_revision("rbc:1", {"request": "shorten it", "body": shown})
                 self.assertEqual(("revise", ["Making the change"]), (changing["writing"]["kind"], changing["writing"]["steps"]))
+                revised.set()
                 self.assertIsNone(self.wait_for_letter())
             self.assertIn("Shorter.", self.service.get_cover_letter("rbc:1")["letter"]["body"])
 
