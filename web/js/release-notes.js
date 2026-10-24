@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.11', date: '2026-10-24', items: [
+    {icon: 'calendar', title: 'Calendar follows your resume', link: '#/calendar',
+      text: 'Deadlines for your resume matches in your boards, plus anything you’ve applied to.'},
+    {icon: 'filter', title: 'Cleaner matches for tech boards', link: '#/opportunities',
+      text: 'Roles that don’t name a field, like “Illustrator, Intern”, no longer match your resume.'},
+    {icon: 'list', title: 'Every past update in What’s new',
+      text: 'Open “All updates” on this card to see what changed in earlier versions.'},
+  ]},
   {version: '0.3.10', date: '2026-10-24', items: [
     {icon: 'clock', title: 'See how ranking is going', link: '#/opportunities',
       text: 'While Foothold ranks roles for you, Opportunities shows how far along it is and time left.'},
