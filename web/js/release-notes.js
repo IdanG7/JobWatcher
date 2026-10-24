@@ -10,6 +10,16 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.10', date: '2026-10-24', items: [
+    {icon: 'clock', title: 'See how ranking is going', link: '#/opportunities',
+      text: 'While Foothold ranks roles for you, Opportunities shows how far along it is and time left.'},
+    {icon: 'file', title: 'Your picked targets stay', link: '#/settings?tab=roles',
+      text: 'A resume adds its targets and keeps yours; plain software jobs now count for Software.'},
+    {icon: 'chart', title: 'Sources follow your boards', link: '#/sources',
+      text: 'The Sources page counts roles and employers in your boards, not only finance.'},
+    {icon: 'refresh', title: 'Quicker checks after an update',
+      text: 'A check during a long re-rank ranks only its new jobs, so it finishes in minutes.'},
+  ]},
   {version: '0.3.9', date: '2026-10-24', items: [
     {icon: 'file', title: 'Resumes for tech roles', link: '#/settings?tab=resume',
       text: 'A CS resume now sets Software, AI & Data or Hardware targets, skills and employers.'},
