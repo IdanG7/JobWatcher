@@ -172,6 +172,18 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(3, stats["scored"])
         self.assertGreater(self.intel("rbc", "2", "fit"), before)
 
+    def test_damaged_facts_are_rebuilt_without_stopping_scoring(self):
+        self.store.refresh()
+        # One flipped bit turned a quote into '#' on a real install, and every score pass stopped there.
+        damaged = self.intel("rbc", "2", "facts").replace('"', "#", 1)
+        self.con.execute("UPDATE job_intel SET facts=? WHERE board='rbc' AND job_id='2'", (damaged,))
+        self.con.execute("UPDATE job_intel SET profile_version=NULL")
+        self.assertEqual(2, self.store.score_pass())
+        self.assertIsNone(self.intel("rbc", "2", "input_hash"))
+        again = self.store.refresh()
+        self.assertEqual((1, 1), (again["facts"], again["scored"]))
+        self.assertIn("classification", json.loads(self.intel("rbc", "2", "facts")))
+
     def test_targeted_facts_for_new_jobs(self):
         n = self.store.facts_pass(keys=[("rbc", "1")])
         self.assertEqual(1, n)
