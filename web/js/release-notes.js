@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.9', date: '2026-10-24', items: [
+    {icon: 'file', title: 'Resumes for tech roles', link: '#/settings?tab=resume',
+      text: 'A CS resume now sets Software, AI & Data or Hardware targets, skills and employers.'},
+    {icon: 'filter', title: 'Matches follow your fields',
+      text: 'With only tech fields chosen, finance roles no longer count as resume matches.'},
+    {icon: 'refresh', title: 'Matches update again',
+      text: 'One damaged posting no longer stops Foothold from rescoring your matches.'},
+  ]},
   {version: '0.3.8', date: '2026-10-23', items: [
     {icon: 'code', title: 'Sources for tech boards', link: '#/sources',
       text: 'Software, AI & Data and Hardware now read 485 tech employers’ own job sites.'},
