@@ -1,0 +1,9 @@
+{
+  "title": "LinkedIn healthcare searches",
+  "verified": "2026-10-27",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. LinkedIn public guest search: a partial keyword and date window. Student searches for nursing, pharmacy, clinical research, lab research, regulatory affairs and public health (Canada: co-op terms and biomedical engineering).",
+  "boards": {
+    "linkedin_us_health": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["nursing student", "pharmacy intern", "clinical research coordinator", "research assistant biology", "regulatory affairs intern", "public health intern"], "group": "LinkedIn", "priority": 1, "geography": "us", "label": "LinkedIn \u00b7 United States \u00b7 Healthcare"},
+    "linkedin_canada_health": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["nursing co-op", "pharmacy student", "clinical research coordinator", "research assistant", "regulatory affairs co-op", "biomedical engineering co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada", "label": "LinkedIn \u00b7 Canada \u00b7 Healthcare"}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "title": "Pharmacy and consumer health",
+  "verified": "2026-10-27",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. CVS Health is also polled for tech and finance (tech/ and shared/ health_tech); this source reads its Pharmacy Services, Clinical Pharmacists and Clinical Services job families. Not added: Walgreens (22,585 postings, mostly store roles, and its Radancy site can't be narrowed); CVS Health's internships (about 4,000 store-level pharmacy intern postings, beyond the 2,000 Workday serves); Kroger (its Oracle feed repeats a page); Shoppers Drug Mart/Loblaw, Rexall and Kenvue (Paradox); London Drugs (CareerPlug); Jean Coutu (a custom portal); Sobeys (old SuccessFactors portal); Haleon (unconfirmed, blocked); Rite Aid (not hiring).",
+  "boards": {
+    "cvs_health_clinical": {"ats": "workday", "host": "cvshealth.wd1.myworkdayjobs.com", "tenant": "cvshealth", "site": "CVS_Health_Careers", "facets": {"jobFamilyGroup": ["e65dbadf6a50100168ed8361150c0000", "e65dbadf6a50100168ed7df44fa00000", "e65dbadf6a50100168ed7d5902dc0001"]}, "min_interval": 3600, "company_key": "cvs_health", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "us", "label": "CVS Health pharmacy and clinical roles"}
+  }
+}

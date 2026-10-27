@@ -158,7 +158,7 @@ class PortableTests(unittest.TestCase):
                     keys = lambda table: sorted(r[0] for r in con.execute(f"SELECT board || ':' || job_id FROM {table}"))
                     jobs, intel, fts = keys("jobs"), keys("job_intel"), con.execute("SELECT COUNT(*) FROM job_fts").fetchone()[0]
                     seeded = [r[0] for r in con.execute("SELECT board FROM boards")]
-                self.assertEqual(10, config["sources_version"])
+                self.assertEqual(bundled["sources_version"], config["sources_version"])
                 self.assertEqual(set(bundled["boards"]), set(config["boards"]))
                 self.assertEqual(["geotab:1", "jpmorgan:4", "linkedin_canada_tech:6", "micron:2", "okta:3"], jobs)
                 self.assertEqual(jobs, intel)                                       # an application keeps its posting
@@ -170,8 +170,8 @@ class PortableTests(unittest.TestCase):
                 self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], config["boards"]["linkedin_us"]["queries"])
 
     def test_upgrading_a_0_3_7_install_keeps_every_source_and_posting_and_adds_tech_ones(self):
-        # The sources moved from config.json into config/sources packs, and the next release
-        # (sources_version 10) adds tech/ and shared/ sources: a 0.3.7 install keeps its sources,
+        # The sources moved from config.json into config/sources packs, and later releases add
+        # tech/ and shared/ sources (sources_version 10) and health/ ones (11): a 0.3.7 install keeps its sources,
         # settings and postings, and its Finance board polls what it did plus the shared/ additions.
         root = Path(__file__).resolve().parents[2]
         bundled = clean_config(load_config(root / "config.json"))
@@ -204,10 +204,10 @@ class PortableTests(unittest.TestCase):
         folder = lambda name: packs.packs[packs.source_pack[name]].folder
         added = set(packs.source_pack) - set(old)
         shared = {name for name in added if folder(name) == "shared"}
-        self.assertEqual(10, config["sources_version"])
+        self.assertEqual(bundled["sources_version"], config["sources_version"])
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual({"tech", "shared"}, {folder(name) for name in added})
+        self.assertEqual({"tech", "shared", "health"}, {folder(name) for name in added})
         self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= added)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)

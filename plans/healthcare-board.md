@@ -788,12 +788,24 @@ track's boards, skill groups and types resolve.
        words no longer count as life-science evidence. The same change keeps five medtech and pharma postings
        with no employer type yet (Baxter, BD, Danaher, Zoetis, J&J) off the board until Phase 4 types their
        employers.
+     - **Approved** on 2026-10-27: the 34 open moves the gate listed (Finance 18, Operations 10, Software 5,
+       Sales 1).
      - **Tests:** three existing ones changed for the new track or the gate's output:
        - the tech type count in `test_tech_taxonomy.py`;
        - the field tracks in `fields.test.js`;
        - the move listing in `test_board_gate.py`.
 4. **Sources, one filter at a time.** Research, verify, write packs, commit; the gate again. Then the
    per-profile poll time, before and after, including the alert runner.
+   - **Clinical Care** (2026-10-27): 45 sources, each fetched once with the app's adapter, and 38 employers.
+     - `health_core`: the two LinkedIn searches.
+     - `hospitals_canada`: 16 sources (Ontario, BC, Nova Scotia).
+     - `hospitals_us`: 16. The giants read only their clinical and research job families.
+     - `payers`: 10, among them the clinical families of Humana, Elevance Health and Cigna.
+     - `pharmacy_consumer`: 1, CVS Health's pharmacy and clinical families.
+     - Each pack's note lists what wasn't added and why: Taleo, PeopleSoft, Dayforce, Njoyn or Paradox,
+       feeds the adapters can't read, and Walgreens's 22,585 mostly store postings.
+     - `sources_version` 11, history recorded. The manifest names all nine filters; groups that don't exist
+       yet are added with their packs.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).

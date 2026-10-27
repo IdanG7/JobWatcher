@@ -96,7 +96,7 @@ class PackTests(unittest.TestCase):
                 if cfg["ats"] != "linkedin":
                     self.assertIn(cfg.get("company_key"), kn.companies)
         for key, pack in packs.packs.items():
-            if pack.folder == "tech":
+            if pack.folder in ("tech", "health"):
                 self.assertRegex(pack.verified or "", r"^\d{4}-\d{2}-\d{2}$", key)      # fetched before shipping
 
     def test_the_build_ships_every_setting_a_source_uses(self):

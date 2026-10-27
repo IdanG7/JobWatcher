@@ -69,7 +69,18 @@
       "everything": true
     },
     "healthcare": {
-      "core": ["lists", "health_tech"]
+      "core": ["lists", "health_tech", "health_core"],
+      "filters": {
+        "clinical_care": ["hospitals_canada", "hospitals_us", "pharmacy_consumer", "payers"],
+        "clinical_research": ["hospitals_canada", "hospitals_us"],
+        "lab_research": [],
+        "bioinformatics": [],
+        "regulatory_quality": [],
+        "medical_devices": [],
+        "public_health": ["hospitals_canada"],
+        "health_admin": ["hospitals_canada", "hospitals_us", "payers", "pharmacy_consumer"],
+        "medical_affairs": []
+      }
     }
   }
 }

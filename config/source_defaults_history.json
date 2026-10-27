@@ -77,7 +77,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "99184ec16a625ce7",
+  "hash": "c942f27f5c46897e",
   "names": [
    "1password",
    "1x_technologies",
@@ -103,6 +103,7 @@
    "akuna",
    "alayacare",
    "aleph_alpha",
+   "alignment_health",
    "allegro_microsystems",
    "alloy",
    "alltrails",
@@ -146,6 +147,7 @@
    "astranis",
    "at_t",
    "atlan",
+   "atlantic_health_system",
    "atlassian",
    "atom_computing",
    "attio",
@@ -164,6 +166,7 @@
    "benchling",
    "benevity",
    "best_buy_canada",
+   "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
    "bitgo",
@@ -177,7 +180,9 @@
    "blend",
    "block",
    "bloomberg",
+   "blue_cross_blue_shield_of_massachusetts",
    "blue_origin",
+   "blue_shield_of_california",
    "bmo",
    "bmo_students",
    "bmo_tech",
@@ -199,6 +204,7 @@
    "caci_international",
    "cadence",
    "calendly",
+   "camh",
    "canada_intern26",
    "canadian_tire",
    "canva",
@@ -212,6 +218,7 @@
    "cdpq_students",
    "cdw",
    "celonis",
+   "centene",
    "cerebras",
    "chainalysis",
    "chainguard",
@@ -219,13 +226,16 @@
    "chargepoint",
    "check_point_software",
    "checkr",
+   "cheo",
    "chewy",
+   "children_s_hospital_of_philadelphia",
    "chime",
    "cibc",
    "cibc_students",
    "cibc_tech",
    "ciena",
    "cigna",
+   "cigna_clinical",
    "cigna_finance",
    "circleci",
    "cisco",
@@ -239,6 +249,7 @@
    "clickup",
    "clio",
    "cloudflare",
+   "clover_health",
    "cockroach_labs",
    "coder",
    "cognex",
@@ -271,9 +282,11 @@
    "curtiss_wright",
    "cvrve_newgrad",
    "cvs_health",
+   "cvs_health_clinical",
    "cvs_health_finance",
    "d2l",
    "d_matrix",
+   "dana_farber_cancer_institute",
    "darktrace",
    "databricks",
    "datadog",
@@ -307,12 +320,14 @@
    "dremio",
    "dropbox",
    "drw",
+   "duke_health",
    "duolingo",
    "e2b",
    "ebay",
    "elastic",
    "electronic_arts",
    "elevance_health",
+   "elevance_health_clinical",
    "elevenlabs",
    "encord",
    "enovix",
@@ -347,10 +362,12 @@
    "flex",
    "flexport",
    "float",
+   "florida_blue",
    "flow_traders",
    "ford_motor_company",
    "form_energy",
    "fortinet",
+   "fraser_health",
    "freshbooks",
    "freshworks",
    "fullstory",
@@ -384,7 +401,9 @@
    "gts",
    "guidewire_software",
    "gusto",
+   "hackensack_meridian_health",
    "hackerone",
+   "halton_healthcare",
    "harness",
    "harvey",
    "headway",
@@ -405,6 +424,8 @@
    "hubspot",
    "hugging_face",
    "humana",
+   "humana_clinical",
+   "humber_river_health",
    "ideogram",
    "illumio",
    "imbue",
@@ -468,12 +489,14 @@
    "linkedin_canada_data",
    "linkedin_canada_hard_to_reach",
    "linkedin_canada_hardware",
+   "linkedin_canada_health",
    "linkedin_canada_software",
    "linkedin_quant",
    "linkedin_us",
    "linkedin_us_data",
    "linkedin_us_hard_to_reach",
    "linkedin_us_hardware",
+   "linkedin_us_health",
    "linkedin_us_software",
    "liquid_ai",
    "lithic",
@@ -488,6 +511,7 @@
    "luma_ai",
    "lumentum",
    "lyft",
+   "mackenzie_health",
    "magic",
    "magna_finance",
    "magna_international",
@@ -495,13 +519,17 @@
    "manulife",
    "marqeta",
    "marvell",
+   "mass_general_brigham",
+   "mass_general_brigham_students",
    "mastercard",
    "mastercard_early",
    "match_group",
    "material_security",
    "materialize",
+   "mayo_clinic",
    "mda_space",
    "medallia",
+   "medavie_health_services",
    "mercor",
    "mercury",
    "microchip",
@@ -520,6 +548,7 @@
    "modal",
    "modern_health",
    "moelis",
+   "molina_healthcare",
    "monday_com",
    "mongodb",
    "monolithic_power_systems",
@@ -531,6 +560,7 @@
    "motherduck",
    "motional",
    "motorola_solutions",
+   "mount_sinai_health_system",
    "mozilla",
    "msci",
    "msci_us",
@@ -549,6 +579,7 @@
    "netskope",
    "neuralink",
    "new_relic",
+   "newyork_presbyterian",
    "nextdoor",
    "nextracker",
    "niantic_spatial",
@@ -558,6 +589,7 @@
    "northrop_grumman",
    "northrop_grumman_finance",
    "notion",
+   "nova_scotia_health",
    "nozomi_networks",
    "nuro",
    "nutanix",
@@ -570,6 +602,7 @@
    "okta",
    "old_mission",
    "omada_health",
+   "ontario_health",
    "onto_innovation",
    "openai",
    "openevidence",
@@ -615,6 +648,8 @@
    "priceline",
    "procore_technologies",
    "proofpoint",
+   "providence",
+   "providence_health_care",
    "psiquantum",
    "ptc",
    "public_com",
@@ -628,6 +663,7 @@
    "qube_rt",
    "quera_computing",
    "quora",
+   "rady_children_s_hospital",
    "railway",
    "ramp",
    "rapid7",
@@ -679,11 +715,13 @@
    "sap",
    "saronic",
    "scale_ai",
+   "scarborough_health_network",
    "schonfeld",
    "scopely",
    "scotiabank_students",
    "scotiabank_tech",
    "seatgeek",
+   "seattle_children_s",
    "securityscorecard",
    "semgrep",
    "semtech",
@@ -723,6 +761,7 @@
    "sony",
    "sophos",
    "sourcegraph",
+   "southlake_health",
    "sp_global",
    "spacex",
    "speechify",
@@ -734,9 +773,12 @@
    "squarepoint",
    "squarespace",
    "ss_c_technologies",
+   "st_joseph_s_healthcare_hamilton",
    "stability_ai",
    "stack_av",
    "stackadapt",
+   "stanford_children_s_health",
+   "stanford_health_care",
    "starburst",
    "stepstone",
    "stockx",
@@ -785,6 +827,7 @@
    "tower_research",
    "tractable",
    "transunion",
+   "trillium_health_partners",
    "trimble",
    "tripadvisor",
    "trulioo",
@@ -804,6 +847,7 @@
    "unity",
    "unstructured_io",
    "upstart",
+   "vancouver_coastal_health",
    "vanguard",
    "vansh_intern26",
    "vansh_intern27",
@@ -843,6 +887,7 @@
    "western_digital",
    "whoop",
    "william_blair",
+   "william_osler_health_system",
    "wiz",
    "workato",
    "workday_hq",
@@ -875,7 +920,7 @@
    "zscaler",
    "zuora"
   ],
-  "version": 10
+  "version": 11
  },
  "__since__": {
   "1password": 1,
@@ -902,6 +947,7 @@
   "akuna": 1,
   "alayacare": 10,
   "aleph_alpha": 10,
+  "alignment_health": 11,
   "allegro_microsystems": 10,
   "alloy": 1,
   "alltrails": 10,
@@ -945,6 +991,7 @@
   "astranis": 10,
   "at_t": 10,
   "atlan": 10,
+  "atlantic_health_system": 11,
   "atlassian": 10,
   "atom_computing": 10,
   "attio": 1,
@@ -963,6 +1010,7 @@
   "benchling": 10,
   "benevity": 10,
   "best_buy_canada": 10,
+  "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
   "bitgo": 10,
@@ -976,7 +1024,9 @@
   "blend": 10,
   "block": 1,
   "bloomberg": 10,
+  "blue_cross_blue_shield_of_massachusetts": 11,
   "blue_origin": 10,
+  "blue_shield_of_california": 11,
   "bmo": 1,
   "bmo_students": 2,
   "bmo_tech": 10,
@@ -998,6 +1048,7 @@
   "caci_international": 10,
   "cadence": 10,
   "calendly": 1,
+  "camh": 11,
   "canada_intern26": 1,
   "canadian_tire": 10,
   "canva": 10,
@@ -1011,6 +1062,7 @@
   "cdpq_students": 6,
   "cdw": 10,
   "celonis": 10,
+  "centene": 11,
   "cerebras": 10,
   "chainalysis": 10,
   "chainguard": 10,
@@ -1018,13 +1070,16 @@
   "chargepoint": 10,
   "check_point_software": 10,
   "checkr": 1,
+  "cheo": 11,
   "chewy": 10,
+  "children_s_hospital_of_philadelphia": 11,
   "chime": 1,
   "cibc": 1,
   "cibc_students": 2,
   "cibc_tech": 10,
   "ciena": 10,
   "cigna": 10,
+  "cigna_clinical": 11,
   "cigna_finance": 10,
   "circleci": 10,
   "cisco": 10,
@@ -1038,6 +1093,7 @@
   "clickup": 10,
   "clio": 10,
   "cloudflare": 1,
+  "clover_health": 11,
   "cockroach_labs": 1,
   "coder": 10,
   "cognex": 10,
@@ -1070,9 +1126,11 @@
   "curtiss_wright": 10,
   "cvrve_newgrad": 1,
   "cvs_health": 10,
+  "cvs_health_clinical": 11,
   "cvs_health_finance": 10,
   "d2l": 10,
   "d_matrix": 10,
+  "dana_farber_cancer_institute": 11,
   "darktrace": 10,
   "databricks": 1,
   "datadog": 1,
@@ -1106,12 +1164,14 @@
   "dremio": 10,
   "dropbox": 1,
   "drw": 1,
+  "duke_health": 11,
   "duolingo": 1,
   "e2b": 10,
   "ebay": 1,
   "elastic": 1,
   "electronic_arts": 10,
   "elevance_health": 10,
+  "elevance_health_clinical": 11,
   "elevenlabs": 1,
   "encord": 10,
   "enovix": 10,
@@ -1146,10 +1206,12 @@
   "flex": 10,
   "flexport": 1,
   "float": 10,
+  "florida_blue": 11,
   "flow_traders": 1,
   "ford_motor_company": 10,
   "form_energy": 10,
   "fortinet": 10,
+  "fraser_health": 11,
   "freshbooks": 10,
   "freshworks": 10,
   "fullstory": 10,
@@ -1183,7 +1245,9 @@
   "gts": 1,
   "guidewire_software": 10,
   "gusto": 1,
+  "hackensack_meridian_health": 11,
   "hackerone": 10,
+  "halton_healthcare": 11,
   "harness": 10,
   "harvey": 1,
   "headway": 10,
@@ -1204,6 +1268,8 @@
   "hubspot": 10,
   "hugging_face": 10,
   "humana": 10,
+  "humana_clinical": 11,
+  "humber_river_health": 11,
   "ideogram": 10,
   "illumio": 10,
   "imbue": 1,
@@ -1267,6 +1333,7 @@
   "linkedin_canada_data": 10,
   "linkedin_canada_hard_to_reach": 10,
   "linkedin_canada_hardware": 10,
+  "linkedin_canada_health": 11,
   "linkedin_canada_software": 10,
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
@@ -1274,6 +1341,7 @@
   "linkedin_us_data": 10,
   "linkedin_us_hard_to_reach": 10,
   "linkedin_us_hardware": 10,
+  "linkedin_us_health": 11,
   "linkedin_us_software": 10,
   "linkedin_us_tech": 7,
   "liquid_ai": 10,
@@ -1289,6 +1357,7 @@
   "luma_ai": 10,
   "lumentum": 10,
   "lyft": 1,
+  "mackenzie_health": 11,
   "magic": 10,
   "magna_finance": 10,
   "magna_international": 10,
@@ -1296,13 +1365,17 @@
   "manulife": 6,
   "marqeta": 1,
   "marvell": 10,
+  "mass_general_brigham": 11,
+  "mass_general_brigham_students": 11,
   "mastercard": 1,
   "mastercard_early": 1,
   "match_group": 10,
   "material_security": 10,
   "materialize": 10,
+  "mayo_clinic": 11,
   "mda_space": 10,
   "medallia": 10,
+  "medavie_health_services": 11,
   "mercor": 1,
   "mercury": 1,
   "microchip": 10,
@@ -1321,6 +1394,7 @@
   "modal": 1,
   "modern_health": 10,
   "moelis": 1,
+  "molina_healthcare": 11,
   "monday_com": 10,
   "mongodb": 1,
   "monolithic_power_systems": 10,
@@ -1332,6 +1406,7 @@
   "motherduck": 10,
   "motional": 10,
   "motorola_solutions": 10,
+  "mount_sinai_health_system": 11,
   "mozilla": 10,
   "msci": 6,
   "msci_us": 6,
@@ -1350,6 +1425,7 @@
   "netskope": 10,
   "neuralink": 1,
   "new_relic": 10,
+  "newyork_presbyterian": 11,
   "nextdoor": 10,
   "nextracker": 10,
   "niantic_spatial": 10,
@@ -1359,6 +1435,7 @@
   "northrop_grumman": 10,
   "northrop_grumman_finance": 10,
   "notion": 1,
+  "nova_scotia_health": 11,
   "nozomi_networks": 10,
   "nuro": 1,
   "nutanix": 10,
@@ -1371,6 +1448,7 @@
   "okta": 10,
   "old_mission": 1,
   "omada_health": 10,
+  "ontario_health": 11,
   "onto_innovation": 10,
   "openai": 1,
   "openevidence": 1,
@@ -1416,6 +1494,8 @@
   "priceline": 10,
   "procore_technologies": 10,
   "proofpoint": 10,
+  "providence": 11,
+  "providence_health_care": 11,
   "psiquantum": 10,
   "ptc": 10,
   "public_com": 10,
@@ -1429,6 +1509,7 @@
   "qube_rt": 1,
   "quera_computing": 10,
   "quora": 10,
+  "rady_children_s_hospital": 11,
   "railway": 10,
   "ramp": 1,
   "rapid7": 10,
@@ -1480,11 +1561,13 @@
   "sap": 10,
   "saronic": 10,
   "scale_ai": 1,
+  "scarborough_health_network": 11,
   "schonfeld": 1,
   "scopely": 10,
   "scotiabank_students": 2,
   "scotiabank_tech": 10,
   "seatgeek": 1,
+  "seattle_children_s": 11,
   "securityscorecard": 10,
   "semgrep": 10,
   "semtech": 10,
@@ -1524,6 +1607,7 @@
   "sony": 10,
   "sophos": 10,
   "sourcegraph": 10,
+  "southlake_health": 11,
   "sp_global": 6,
   "spacex": 1,
   "speechify": 10,
@@ -1535,9 +1619,12 @@
   "squarepoint": 1,
   "squarespace": 1,
   "ss_c_technologies": 10,
+  "st_joseph_s_healthcare_hamilton": 11,
   "stability_ai": 10,
   "stack_av": 10,
   "stackadapt": 10,
+  "stanford_children_s_health": 11,
+  "stanford_health_care": 11,
   "starburst": 1,
   "stepstone": 1,
   "stockx": 10,
@@ -1586,6 +1673,7 @@
   "tower_research": 1,
   "tractable": 10,
   "transunion": 10,
+  "trillium_health_partners": 11,
   "trimble": 10,
   "tripadvisor": 10,
   "trulioo": 10,
@@ -1605,6 +1693,7 @@
   "unity": 10,
   "unstructured_io": 10,
   "upstart": 1,
+  "vancouver_coastal_health": 11,
   "vanguard": 6,
   "vansh_intern26": 1,
   "vansh_intern27": 1,
@@ -1644,6 +1733,7 @@
   "western_digital": 10,
   "whoop": 10,
   "william_blair": 1,
+  "william_osler_health_system": 11,
   "wiz": 10,
   "workato": 10,
   "workday_hq": 1,
@@ -2057,6 +2147,35 @@
   ],
   "token": [
    "alephalpha"
+  ]
+ },
+ "alignment_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "alignment_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "alignmenthealthcare.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ahc_external"
+  ],
+  "tenant": [
+   "alignmenthealthcare"
   ]
  },
  "allegro_microsystems": {
@@ -3064,6 +3183,32 @@
    "atlan"
   ]
  },
+ "atlantic_health_system": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "atlantic_health_system"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "erqh.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
  "atlassian": {
   "ats": [
    "atlassian"
@@ -3480,6 +3625,49 @@
    "bestbuycanada"
   ]
  },
+ "beth_israel_lahey_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "beth_israel_lahey_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e1b310fe489e100e602849cc3ef00000",
+     "e1b310fe489e100e602474455a270000",
+     "e1b310fe489e100e6026855b26970000",
+     "e1b310fe489e100e6026e48cb68c0000",
+     "e1b310fe489e100e6022c2898a0f0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "bilh.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Beth Israel Lahey Health clinical and research roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "bilh"
+  ]
+ },
  "betterment": {
   "ats": [
    "greenhouse"
@@ -3797,6 +3985,35 @@
    "https://bloomberg.avature.net/careers/SearchJobs/"
   ]
  },
+ "blue_cross_blue_shield_of_massachusetts": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "blue_cross_blue_shield_of_massachusetts"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "bcbsma.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BCBSMA"
+  ],
+  "tenant": [
+   "bcbsma"
+  ]
+ },
  "blue_origin": {
   "ats": [
    "workday"
@@ -3824,6 +4041,32 @@
   ],
   "tenant": [
    "blueorigin"
+  ]
+ },
+ "blue_shield_of_california": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "blue_shield_of_california"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "ecge.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1003"
   ]
  },
  "bmo": {
@@ -4366,6 +4609,32 @@
    "calendly"
   ]
  },
+ "camh": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "camh"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "iaemup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CAMH"
+  ]
+ },
  "canada_intern26": {
   "ats": [
    "github_md"
@@ -4689,6 +4958,35 @@
    "celonis"
   ]
  },
+ "centene": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "centene"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "centene.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "centene_external"
+  ],
+  "tenant": [
+   "centene"
+  ]
+ },
  "cerebras": {
   "ats": [
    "ashby"
@@ -4820,6 +5118,35 @@
    "checkr"
   ]
  },
+ "cheo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cheo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "cheo.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External_Site"
+  ],
+  "tenant": [
+   "cheo"
+  ]
+ },
  "chewy": {
   "ats": [
    "phenom"
@@ -4841,6 +5168,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "children_s_hospital_of_philadelphia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "children_s_hospital_of_philadelphia"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "chop.wd108.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CHOPExternalCareers"
+  ],
+  "tenant": [
+   "chop"
   ]
  },
  "chime": {
@@ -5028,6 +5384,47 @@
   ],
   "label": [
    "Cigna and Evernorth technology roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "cignacareers"
+  ],
+  "tenant": [
+   "cigna"
+  ]
+ },
+ "cigna_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cigna"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "b7947bbbfff201ef25630616390c8716",
+     "b7947bbbfff2013bd2441e16390c9516",
+     "b7947bbbfff201aa2a7e2916390c9916"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "cigna.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Cigna clinical roles"
   ],
   "min_interval": [
    1800
@@ -5349,6 +5746,29 @@
   ],
   "token": [
    "cloudflare"
+  ]
+ },
+ "clover_health": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "clover_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "cloverhealth"
   ]
  },
  "cockroach_labs": {
@@ -6056,6 +6476,47 @@
    "cvshealth"
   ]
  },
+ "cvs_health_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cvs_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e65dbadf6a50100168ed8361150c0000",
+     "e65dbadf6a50100168ed7df44fa00000",
+     "e65dbadf6a50100168ed7d5902dc0001"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "cvshealth.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "CVS Health pharmacy and clinical roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CVS_Health_Careers"
+  ],
+  "tenant": [
+   "cvshealth"
+  ]
+ },
  "cvs_health_finance": {
   "ats": [
    "workday"
@@ -6139,6 +6600,35 @@
   ],
   "token": [
    "d-matrix"
+  ]
+ },
+ "dana_farber_cancer_institute": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "dana_farber_cancer_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "danafarber.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "dana-farber"
+  ],
+  "tenant": [
+   "danafarber"
   ]
  },
  "darktrace": {
@@ -6824,6 +7314,32 @@
    "drweng"
   ]
  },
+ "duke_health": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "duke_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.dukehealth.org"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.dukehealth.org/us/en/job/{id}"
+  ]
+ },
  "duolingo": {
   "ats": [
    "greenhouse"
@@ -6932,6 +7448,45 @@
   ],
   "label": [
    "Elevance Health technology roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ANT"
+  ],
+  "tenant": [
+   "elevancehealth"
+  ]
+ },
+ "elevance_health_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "elevance_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "f42bff05a414010057202352de780000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "elevancehealth.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Elevance Health medical roles"
   ],
   "min_interval": [
    1800
@@ -7680,6 +8235,32 @@
    "float"
   ]
  },
+ "florida_blue": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "florida_blue"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "fa-etum-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
  "flow_traders": {
   "ats": [
    "greenhouse"
@@ -7758,6 +8339,29 @@
   ],
   "site": [
    "CX_2001"
+  ]
+ },
+ "fraser_health": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "fraser_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.fraserhealth.ca"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "freshbooks": {
@@ -8535,6 +9139,29 @@
    "gusto"
   ]
  },
+ "hackensack_meridian_health": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "hackensack_meridian_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.hackensackmeridianhealth.org"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "hackerone": {
   "ats": [
    "ashby"
@@ -8556,6 +9183,29 @@
   ],
   "token": [
    "hackerone"
+  ]
+ },
+ "halton_healthcare": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "halton_healthcare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "HaltonHealthcare1"
   ]
  },
  "harness": {
@@ -9013,6 +9663,76 @@
   ],
   "tenant": [
    "humana"
+  ]
+ },
+ "humana_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "humana"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "fbb60995c99901824e53604715c50cc6",
+     "fbb60995c999018c18a3114915c560c6",
+     "fbb60995c99901cf7326824815c544c6",
+     "fbb60995c99901b8664ca14815c54ac6",
+     "fbb60995c99901c52b0c6e4815c540c6",
+     "fbb60995c99901fcbf27214a15c594c6",
+     "fbb60995c99901c3e10c5b4915c56ec6",
+     "fbb60995c999018598bab34715c51cc6",
+     "a0509a3e91730101b6c5e991a3950000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "humana.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Humana clinical and care roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Humana_External_Career_Site"
+  ],
+  "tenant": [
+   "humana"
+  ]
+ },
+ "humber_river_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "humber_river_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careersen-hrrh.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "ideogram": {
@@ -10535,6 +11255,51 @@
    "r7776000"
   ]
  },
+ "linkedin_canada_health": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Healthcare"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "nursing co-op",
+    "pharmacy student",
+    "clinical research coordinator",
+    "research assistant",
+    "regulatory affairs co-op",
+    "biomedical engineering co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_canada_software": {
   "ats": [
    "linkedin"
@@ -10827,6 +11592,51 @@
     "embedded software intern",
     "electrical engineering intern",
     "firmware engineer new grad"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_us_health": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Healthcare"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "nursing student",
+    "pharmacy intern",
+    "clinical research coordinator",
+    "research assistant biology",
+    "regulatory affairs intern",
+    "public health intern"
    ]
   ],
   "recency": [
@@ -11234,6 +12044,29 @@
    "lyft"
   ]
  },
+ "mackenzie_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "mackenzie_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "employment-mackenziehealth.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "magic": {
   "ats": [
    "ashby"
@@ -11437,6 +12270,85 @@
    "marvell"
   ]
  },
+ "mass_general_brigham": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mass_general_brigham"
+  ],
+  "facets": [
+   {
+    "jobFamily": [
+     "1856eb1940d51000cc9eca3589210002",
+     "1856eb1940d51000cc9eefa186960001",
+     "1856eb1940d51000cc9ed811a7df0000",
+     "1856eb1940d51000cc9ee68cab150000",
+     "1856eb1940d51000cc9edf4bccc10000",
+     "1856eb1940d51000cc9ee7bfd83d0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "massgeneralbrigham.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mass General Brigham nursing, rehab and research roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MGBExternal"
+  ],
+  "tenant": [
+   "massgeneralbrigham"
+  ]
+ },
+ "mass_general_brigham_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mass_general_brigham"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "massgeneralbrigham.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mass General Brigham student roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "student"
+  ],
+  "site": [
+   "MGBExternal"
+  ],
+  "tenant": [
+   "massgeneralbrigham"
+  ]
+ },
  "mastercard": {
   "ats": [
    "workday"
@@ -11550,6 +12462,32 @@
    "materialize"
   ]
  },
+ "mayo_clinic": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "mayo_clinic"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "fa-euwp-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "mda_space": {
   "ats": [
    "ukg"
@@ -11600,6 +12538,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "medavie_health_services": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "medavie_health_services"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "medaviehs.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Medavie_External"
+  ],
+  "tenant": [
+   "medaviehs"
   ]
  },
  "mercor": {
@@ -12003,6 +12970,32 @@
    "moelis"
   ]
  },
+ "molina_healthcare": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "molina_healthcare"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "hckd.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "monday_com": {
   "ats": [
    "ashby"
@@ -12309,6 +13302,32 @@
   ],
   "tenant": [
    "motorolasolutions"
+  ]
+ },
+ "mount_sinai_health_system": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "mount_sinai_health_system"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "ejis.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
   ]
  },
  "mozilla": {
@@ -12737,6 +13756,32 @@
    "newrelic"
   ]
  },
+ "newyork_presbyterian": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "newyork_presbyterian"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.nyp.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.nyp.org/us/en/job/{id}"
+  ]
+ },
  "nextdoor": {
   "ats": [
    "greenhouse"
@@ -12996,6 +14041,29 @@
   ],
   "token": [
    "notion"
+  ]
+ },
+ "nova_scotia_health": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "nova_scotia_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.nshealth.ca/search/"
   ]
  },
  "nozomi_networks": {
@@ -13260,6 +14328,35 @@
   ],
   "token": [
    "omadahealth"
+  ]
+ },
+ "ontario_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ontario_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "oh.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "OH"
+  ],
+  "tenant": [
+   "oh"
   ]
  },
  "onto_innovation": {
@@ -14191,6 +15288,55 @@
    "proofpoint"
   ]
  },
+ "providence": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "providence"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "evac.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
+ "providence_health_care": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "providence_health_care"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers-phc.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "psiquantum": {
   "ats": [
    "greenhouse"
@@ -14528,6 +15674,29 @@
   ],
   "token": [
    "quora"
+  ]
+ },
+ "rady_children_s_hospital": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "rady_children_s_hospital"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.rchsd.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "railway": {
@@ -15698,6 +16867,35 @@
    "scaleai"
   ]
  },
+ "scarborough_health_network": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "scarborough_health_network"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "shn.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SHN_External_Career_Site"
+  ],
+  "tenant": [
+   "shn"
+  ]
+ },
  "schonfeld": {
   "ats": [
    "greenhouse"
@@ -15788,6 +16986,32 @@
   ],
   "token": [
    "seatgeek"
+  ]
+ },
+ "seattle_children_s": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "seattle_children_s"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.seattlechildrens.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.seattlechildrens.org/us/en/job/{id}"
   ]
  },
  "securityscorecard": {
@@ -16672,6 +17896,35 @@
    "sourcegraph91"
   ]
  },
+ "southlake_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "southlake_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "southlake.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Southlake"
+  ],
+  "tenant": [
+   "southlake"
+  ]
+ },
  "sp_global": {
   "ats": [
    "workday"
@@ -16885,6 +18138,35 @@
    "ssctech"
   ]
  },
+ "st_joseph_s_healthcare_hamilton": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "st_joseph_s_healthcare_hamilton"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "stjoes.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "STJOESHAM"
+  ],
+  "tenant": [
+   "stjoes"
+  ]
+ },
  "stability_ai": {
   "ats": [
    "greenhouse"
@@ -16961,6 +18243,55 @@
   ],
   "token": [
    "stackadapt"
+  ]
+ },
+ "stanford_children_s_health": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "stanford_children_s_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.stanfordchildrens.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "stanford_health_care": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "stanford_health_care"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.stanfordhealthcare.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.stanfordhealthcare.org/us/en/job/{id}"
   ]
  },
  "starburst": {
@@ -18076,6 +19407,32 @@
    "transunion"
   ]
  },
+ "trillium_health_partners": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "trillium_health_partners"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "iadyup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "trimble": {
   "ats": [
    "workday"
@@ -18487,6 +19844,29 @@
   ],
   "token": [
    "upstart"
+  ]
+ },
+ "vancouver_coastal_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "vancouver_coastal_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers-vch.icims.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "vanguard": {
@@ -19285,6 +20665,29 @@
   ],
   "token": [
    "williamblair"
+  ]
+ },
+ "william_osler_health_system": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "william_osler_health_system"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "WilliamOslerHealthSystem1"
   ]
  },
  "wiz": {
