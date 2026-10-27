@@ -247,7 +247,7 @@ def _run(*args) -> None:
     subprocess.run([sys.executable, "-I", str(Path(__file__).resolve()), *map(str, args)], check=True)
 
 
-def snapshot(code, db, config, epoch, out, work=None, workers=10, log=print) -> None:
+def snapshot(code, db, config, epoch, out, work=None, workers=10, log=lambda line: print(line, flush=True)) -> None:
     code, out = Path(code).resolve(), Path(out).resolve()
     work = Path(work).resolve() if work else out.with_name(out.stem + ".work.db")
     if work.exists():
