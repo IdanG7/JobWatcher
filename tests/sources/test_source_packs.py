@@ -203,7 +203,7 @@ class SelectionTests(unittest.TestCase):
 
     def test_boards_without_packs_of_their_own_poll_every_source(self):
         every = set(enabled_sources(self.config))
-        for profile in ({"fields": ["sales"]}, {"fields": ["software", "healthcare"]}, {"fields": ["astronomy"]}):
+        for profile in ({"fields": ["sales"]}, {"fields": ["software", "sales"]}, {"fields": ["astronomy"]}):
             with self.subTest(profile=profile):
                 self.assertEqual(every, self.polled(profile))
 

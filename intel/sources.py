@@ -3,10 +3,10 @@
 Sources (the feeds Foothold polls; ``config["boards"]`` in the code) live in
 packs under ``config/sources/<folder>/<group>.json``.  The folder decides
 which boards (the fields picked in onboarding: Finance, Software…) may poll a
-pack: ``finance/`` only the Finance board, ``tech/`` only the tech boards and
-``shared/`` both.  ``config/sources/manifest.json`` gives each board the groups
-it polls and, for boards split into filters (Software → Backend…), the groups
-each filter adds.
+pack: ``finance/`` only the Finance board, ``tech/`` the tech boards and
+Healthcare, ``shared/`` all of them and ``health/`` only Healthcare.
+``config/sources/manifest.json`` gives each board the groups it polls and, for
+boards split into filters (Software → Backend…), the groups each filter adds.
 
 The Finance board polls every ``finance/`` and ``shared/`` pack: exactly the
 sources it polled in 0.3.7, so new tech sources (always in ``tech/``) never
@@ -28,7 +28,6 @@ from .knowledge import CONFIG_DIR
 SOURCES_DIR = CONFIG_DIR / "sources"
 MAX_PACK = 50
 EVERYTHING = "everything"
-TECH_FIELDS = frozenset({"software", "data_ml", "hardware", "product", "design"})     # the tech boards
 
 _LOCK = threading.Lock()
 _CACHE: dict[str, tuple[tuple, "Packs"]] = {}
