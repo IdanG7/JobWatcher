@@ -5,7 +5,7 @@ import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {esc} from '../lib.js';
 import {bindMenu, confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
-import {FIELD_INFO, TECH_FIELDS, countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
+import {FIELD_INFO, countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
 
 const STAGES = [
   ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
@@ -307,9 +307,9 @@ export async function render(root, ctx) {
       + '<p class="set-more" data-skill-more hidden><button type="button" class="set-link" data-act="all-skills">Show skill groups for other fields</button></p>'
       + '<p class="set-empty" data-filter-empty hidden>No skills match that filter.</p>');
 
-    // Finance employer types under Finance, tech employer types under the tech boards.
+    // Finance employer types under Finance, each track's (tech) under its boards.
     const types = new Map(meta.company_types.map(t => [t.key, t]));
-    const sections = employerSections(meta.company_types);
+    const sections = employerSections(meta.company_types, meta.tracks);
     const employerBlocks = list => list.map(([name, keys]) => `<div class="set-block" data-pick-scope><p class="set-mini" data-scope-label>${esc(name)}</p>${picks('ctype', keys.map(k => [k, types.get(k).label]), profile.target_company_types || [])}</div>`).join('');
     const fieldChip = (name, key, text, on) => `<label class="pick field-pick"><input type="checkbox" name="${name}" value="${esc(key)}"${on ? ' checked' : ''}>${icon(FIELD_INFO[key]?.icon || 'list', 14)}<span>${esc(text)}</span></label>`;
     // Finance and families with specialties are fields with options below; any other family is itself a target role.
@@ -327,7 +327,7 @@ export async function render(root, ctx) {
           <label class="set-row">${label(`<span data-scope-label>All of ${esc(f.label)}</span>`, 'Every specialty, ranked the same')}<span class="set-control"><input type="checkbox" class="switch" name="role" value="${esc(f.key)}" data-role-all${roles.includes(f.key) ? ' checked' : ''}></span></label>
           ${block(picks('role', f.subcategories.map(s => [`${f.key}.${s.key}`, s.label]), roles))}</div>`, {attrs: ` data-field-section="${esc(f.key)}"`})).join('')
       + group('Employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections.finance), {attrs: ' data-field-section="finance"'})
-      + (sections.tech.length ? group('Tech employer types', 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(sections.tech), {attrs: ` data-field-section="${TECH_FIELDS.join(' ')}"`}) : '')
+      + sections.tracks.map(track => group(esc(track.employer_heading), 'Companies of these types score higher. Companies on your watchlist get a boost too.', employerBlocks(track.sections), {attrs: ` data-field-section="${esc(track.boards.join(' '))}"`})).join('')
       + '<p class="set-empty" data-filter-empty hidden>Nothing matches that filter.</p>');
 
     // Cycles: every season for this year and the next three, a dot where postings exist now.
@@ -501,7 +501,7 @@ export async function render(root, ctx) {
     root.querySelectorAll('[data-field-section]').forEach(el => {
       el.hidden = !el.dataset.fieldSection.split(' ').some(f => fields.includes(f));
     });
-    const groups = skillGroupsFor(fields);
+    const groups = skillGroupsFor(fields, meta);
     let tucked = 0;
     root.querySelectorAll('[data-skill-group]').forEach(el => {
       const off = Boolean(groups) && !groups.has(el.dataset.skillGroup) && !el.querySelector('input:checked');

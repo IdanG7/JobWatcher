@@ -17,7 +17,7 @@ from datetime import date, datetime, timezone
 
 from .cycle import window_status
 from .knowledge import Knowledge
-from .sources import TECH_FIELDS, profile_fields
+from .sources import profile_fields
 
 FINANCE_TYPES = {"bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank", "canadian_bank",
                  "commercial_bank", "private_equity", "venture_capital", "hedge_fund", "quant_firm",
@@ -190,10 +190,13 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{company['type_label']} priority")
     elif company["type"] in FINANCE_TYPES:
         pts, detail = 7, f"{company['type_label']} — recognized finance employer"
-    elif kn.company_types.get(company["type"], {}).get("track") == "tech":
-        # Only a tech board makes a tech employer count: Finance-only profiles score them as before.
-        if TECH_FIELDS.intersection(profile_fields(profile, kn)):
-            pts, detail = 7, f"{company['type_label']} — recognized tech employer"
+    elif tracks := [t for t in kn.type_tracks(company["type"]) if t != "finance"]:
+        # Only a board on the employer's track makes it count: Finance-only profiles score tech
+        # employers as before.
+        boards = {kn.board_track.get(field) for field in profile_fields(profile, kn)}
+        shared = next((t for t in tracks if t in boards), None)
+        if shared:
+            pts, detail = 7, f"{company['type_label']} — {kn.tracks[shared].employer_noun}"
         else:
             pts, detail = 4, f"{company['type_label']} — outside finance"
     elif company["type"] in ("consulting", "accounting_advisory"):

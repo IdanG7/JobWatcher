@@ -22,7 +22,7 @@ from xml.etree import ElementTree
 from .knowledge import Knowledge
 from .locations import parse_location
 from .skills import extract_skills
-from .sources import TECH_FIELDS, profile_fields, role_field
+from .sources import profile_fields, role_field
 from .taxonomy import classify
 from . import resume_insights as insights
 
@@ -330,9 +330,10 @@ def _education(edu_lines: list[str], full: str) -> dict:
             "graduation_text": grad_text}
 
 
-def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[list[dict], list[str]]:
+def _experience(lines: list[str], kn: Knowledge,
+                tracks: frozenset[str] = frozenset()) -> tuple[list[dict], list[str]]:
     """Role-like lines (classified with the job taxonomy) and achievement bullets.
-    Finance roles, and with ``tech`` also Software, AI & Data, Hardware, Product and Design ones."""
+    Finance roles, and those on the boards of ``tracks`` (tech: Software, AI & Data, Hardware…)."""
     roles, bullets = [], []
     for raw in lines:
         line = raw.strip()
@@ -360,7 +361,7 @@ def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[li
                 # inference from "capital markets" or the employer's name.
                 if re.search(r"\btreasury\b", seg, re.I):
                     cls = classify("Treasury Analyst", kn)
-                if ((cls["is_finance"] or (tech and cls.get("family") in TECH_FIELDS))
+                if ((cls["is_finance"] or kn.board_track.get(cls.get("family")) in tracks)
                         and (best is None or cls["confidence"] > best[1]["confidence"])):
                     best = (seg, cls)
             if best and best[1]["confidence"] >= 0.45:
@@ -398,13 +399,13 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
     entries = insights.experience_entries(sections)
-    # A resume with no tech title or degree is read with the finance vocabulary alone.
-    tech = insights.tech_resume(entries, education, kn)
-    roles, bullets = _experience(exp_lines or lines, kn, tech)
+    # A resume that opens no track (no tech title or degree) is read with the finance vocabulary alone.
+    tracks = insights.resume_tracks(entries, education, kn)
+    roles, bullets = _experience(exp_lines or lines, kn, tracks)
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
-    interests = insights.role_interests(entries, edu_text, kn, tech)
+    interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))
-    skills = extract_skills(text, kn, limit=60, tech=tech)
+    skills = extract_skills(text, kn, limit=60, tracks=tracks)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference
     for line in top[:6] + exp_lines:
@@ -431,7 +432,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "role_categories": [i["key"] for i in interests],
         "role_interests": interests,
         "career": career,
-        "company_types": insights.company_types(interests),
+        "company_types": insights.company_types(interests, kn),
         "entries": [{k: e[k] for k in ("block", "company", "title", "end")} for e in entries],
         "cities": [c for c, _ in cities.most_common(6)],
         "languages": _languages(text),
@@ -509,8 +510,10 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
         before = {**before, "program": "", "gpa": None}
     result["education"] = {**before, **found}
     result["skills"] = [s["key"] for s in parsed.get("skills", []) if s["key"] in kn.skill_by_key]
-    # Specialties and finance subcategories, or a whole tech family ("Software Engineer").
-    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | (TECH_FIELDS & set(kn.families))
+    # Specialties and finance subcategories, or a whole family on a resume track ("Software Engineer").
+    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | {
+        board for key, track in kn.tracks.items() if track.resume
+        for board in kn.track_boards.get(key, []) if board in kn.families}
     interests = [i for i in parsed.get("role_interests") or [] if i["key"] in valid]
     if interests:
         # The resume adds graded targets (strongest = 1.0). Targets picked in a chosen board stay

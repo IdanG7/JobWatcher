@@ -91,8 +91,9 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     comp = parse_compensation(job.get("salary") or "", country)
     if not comp or comp.get("unparsed"):
         comp = comp_from_description(description, country) or comp
-    # Tech skills only outside finance, so Finance board postings keep their skills and fit.
-    skills = extract_skills(f"{title}\n{description}", kn, tech=not classification["is_finance"])
+    # A track's skills only on the boards that read them, so Finance board postings keep their skills and fit.
+    board = "finance" if classification["is_finance"] else classification["family"]
+    skills = extract_skills(f"{title}\n{description}", kn, tracks=kn.skill_tracks(board))
 
     title_norm = normalize_title(title)
     cluster_key = "|".join([company["key"], title_norm, geo_key(location, job.get("location") or "", kn)])

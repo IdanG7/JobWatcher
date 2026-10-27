@@ -176,17 +176,17 @@ class TechFitTests(unittest.TestCase):
         self.assertEqual(7, company(self.PROFILE, bank)["points"])
 
     def test_every_employer_type_has_a_track_and_finance_ones_are_unchanged(self):
-        tracks = {key: t.get("track") for key, t in KN.company_types.items() if key != "unknown"}
-        self.assertTrue(set(tracks.values()) <= {"finance", "tech", "both"})
-        self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == "both"})
-        self.assertIn("ai_lab", {k for k, t in tracks.items() if t == "tech"})
-        self.assertEqual(20, sum(t == "tech" for t in tracks.values()))      # 3 since: climate, quantum, telecom
+        tracks = {key: tuple(KN.type_tracks(key)) for key in KN.company_types if key != "unknown"}
+        self.assertTrue(set(tracks.values()) <= {("finance",), ("tech",), ("finance", "tech")})
+        self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == ("finance", "tech")})
+        self.assertIn("ai_lab", {k for k, t in tracks.items() if t == ("tech",)})
+        self.assertEqual(20, sum(t == ("tech",) for t in tracks.values()))      # 3 since: climate, quantum, telecom
 
 
 class TechEmployerTests(unittest.TestCase):
     def test_a_tech_employers_key_is_the_one_its_postings_had_before_it_was_known(self):
         # Unknown employers key on the slug of their name, and cluster keys start with it.
-        tech = [c for c in KN.companies.values() if KN.company_types[c.type].get("track") == "tech"]
+        tech = [c for c in KN.companies.values() if KN.type_tracks(c.type) == ["tech"]]
         self.assertGreater(len(tech), 100)
         for company in tech:
             self.assertEqual(slug(company.name), company.key, company.name)

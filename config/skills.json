@@ -1,5 +1,5 @@
 {
-  "_readme": "Skill dictionary (finance and tech) used by intel/skills.py. Skills marked \"track\": \"tech\" are read only from postings outside finance and from resumes that read as tech, so the Finance board's skills and fit stay as they were. Each canonical skill lists synonyms written as regex fragments (same conventions as taxonomy.json: word boundaries are added automatically, ' ' matches any separator, ' ?' an optional one). Every synonym normalizes to the canonical name, so 'discounted cash flow analysis' and 'DCF' both become DCF. 'key' values are what candidate profiles reference.",
+  "_readme": "Skill dictionary (finance and tech) used by intel/skills.py. A skill with a \"track\" (see tracks in taxonomy.json) is read only from postings on the boards that track's skills_from names and from resumes that open the track, so the Finance board's skills and fit stay as they were. Skills without one are read everywhere. Each canonical skill lists synonyms written as regex fragments (same conventions as taxonomy.json: word boundaries are added automatically, ' ' matches any separator, ' ?' an optional one). Every synonym normalizes to the canonical name, so 'discounted cash flow analysis' and 'DCF' both become DCF. 'key' values are what candidate profiles reference.",
   "version": 1,
   "groups": {
     "modeling": "Modeling & Valuation",

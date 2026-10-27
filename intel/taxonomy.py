@@ -244,8 +244,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     # Domain words and employer priors must not replace the actual occupation.
     # Financial quantitative research remains finance, while software and
     # trading systems development stays technical even at a trading firm.
-    technical_occupation = family in {"software", "hardware", "data_ml", "product", "design", "healthcare"} and bool(
-        _TECH_OCCUPATION.search(title))
+    technical_occupation = family in kn.occupation_families and bool(_TECH_OCCUPATION.search(title))
     if cs_occupation or support_occupation:
         finance_title_hit = False
     elif technical_occupation:

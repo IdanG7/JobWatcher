@@ -45,7 +45,7 @@ export function setupAnswers(profile, {firstRun = false, financeKeys = [], thisY
 }
 
 /** The profile to save from setup answers; whatever setup doesn't ask about is kept as it was. */
-export function setupProfile(profile, answers, {firstRun = false, families = [], cities = [], skills = []} = {}) {
+export function setupProfile(profile, answers, {firstRun = false, families = [], cities = [], skills = [], meta = {}} = {}) {
   const targets = firstRun ? [] : profile.target_roles || [];
   const familyKeys = new Set(families);
   // Finance targets: keep any narrower groups already picked inside a chosen area.
@@ -66,7 +66,7 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
   const before = new Set(firstRun ? [] : profile.target_countries || []);
   // On first run the profile is the finance default: without finance, drop its bank employer
   // types and the skills outside the chosen fields' groups (Python stays for Software).
-  const groups = skillGroupsFor([...answers.fields]);
+  const groups = skillGroupsFor([...answers.fields], meta);
   const groupOf = new Map(skills.map(s => [s.key, s.group]));
   const notFinance = firstRun && !answers.fields.has('finance') ? {
     target_company_types: [],
@@ -231,7 +231,7 @@ export async function render(root, ctx) {
     if (hint) hint.textContent = view.ready ? '' : view.hint;
   }
 
-  const profileOut = () => setupProfile(profile, state, {firstRun, families, cities: meta.cities || [], skills: meta.skills || []});
+  const profileOut = () => setupProfile(profile, state, {firstRun, families, cities: meta.cities || [], skills: meta.skills || [], meta});
 
   async function save(btn) {
     root.querySelectorAll('[data-act=save]').forEach(b => { b.disabled = true; });

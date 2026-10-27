@@ -2307,6 +2307,10 @@ class JobwatchService:
         return {
             "taxonomy": self.kn.taxonomy_tree(),
             "families": self.kn.family_tree(),
+            "finance": {"skill_groups": self.kn.finance_skill_groups},
+            # Each track's employer types are shown to its boards in Settings.
+            "tracks": [{"key": t.key, "label": t.label, "employer_heading": t.employer_heading,
+                        "boards": self.kn.track_boards.get(t.key, [])} for t in self.kn.tracks.values()],
             "company_types": [{"key": k, **v} for k, v in self.kn.company_types.items()],
             "cities": [{"key": c["key"], "label": c["label"], "country": c["country"], "target": bool(c.get("target"))}
                        for c in self.kn.cities],

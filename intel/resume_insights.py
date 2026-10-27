@@ -16,7 +16,6 @@ import re
 from datetime import date
 
 from .knowledge import Knowledge
-from .sources import TECH_FIELDS
 from .taxonomy import classify
 
 # (target role, weight, evidence pattern). Each distinct phrase counts once
@@ -52,57 +51,15 @@ SIGNALS: list[tuple[str, float, re.Pattern]] = [(key, weight, re.compile(pattern
     ("quant.quant_research", 1.5, r"\bpython\b|stochastic|machine learning|statistical model\w*|\bc\+\+|backtest\w*"),
     ("wealth.wealth_management", 1.5, r"wealth|financial advis\w+|client portfolios|private client"),
 ]]
-# A tech resume (see tech_resume) is also read for the Software, AI & Data and
-# Hardware specialties. There Python, C++ and machine learning are everyday
-# software work, so only quantitative-finance terms point at quant research.
-# A finance resume is read with SIGNALS above, unchanged.
+# A resume that opens a track (see resume_tracks) is also read for that track's
+# specialties, with the signals its tracks entry in taxonomy.json lists. There
+# Python, C++ and machine learning are everyday work, so only
+# quantitative-finance terms point at quant research. A finance resume is read
+# with SIGNALS above, unchanged.
 _QUANT_TERMS = re.compile(r"stochastic|backtest\w*|quantitative (?:finance|research|trading)|alpha (?:research|signals?)|"
                           r"statistical arbitrage|market microstructure", re.I)
-TECH_FINANCE_SIGNALS = [(key, weight, _QUANT_TERMS if key == "quant.quant_research" else pattern)
-                        for key, weight, pattern in SIGNALS]
-# What the work says it built, by specialty.
-TECH_SIGNALS: list[tuple[str, float, re.Pattern]] = [(key, weight, re.compile(pattern, re.I)) for key, weight, pattern in [
-    ("software.frontend", 1.5, r"\breact\b|angular|\bvue\b|front-?end|\bcss\b|\bhtml\b|user interfaces?|next\.js|typescript|"
-                               r"web (?:apps?|ui|pages?)"),
-    ("software.backend", 1.5, r"back-?end|\b(?:rest(?:ful)?|graphql|grpc) apis?\b|\bapis?\b|microservices?|server-?side|"
-                              r"database schemas?|postgres\w*|mysql|redis|django|flask|fastapi|spring boot|node\.js|express\.js"),
-    ("software.full_stack", 1.5, r"full-?stack|\bmern\b|end-to-end web"),
-    ("software.mobile", 1.5, r"\bios\b|android|swift(?:ui)?\b|kotlin|react native|flutter|mobile apps?"),
-    ("software.infrastructure", 1.5, r"kubernetes|\bk8s\b|\bdocker\b|terraform|\baws\b|\bgcp\b|\bazure\b|ci/cd|\bci\b|devops|"
-                                     r"\bsre\b|site reliability|cloud infrastructure|observability|opentelemetry|"
-                                     r"deployment pipelines?|github actions|jenkins"),
-    ("software.systems", 1.5, r"distributed (?:systems?|platforms?)|operating systems?|\bkernel\b|compilers?|concurren\w+|"
-                              r"multi-?thread\w*|systems programming|high-performance"),
-    ("software.security", 1.5, r"cyber ?security|(?:application|network|cloud) security|security (?:engineering|research|audits?)|"
-                               r"penetration test\w*|vulnerabilit\w+|cryptograph\w+|\bctf\b|threat model\w*|malware|"
-                               r"reverse engineering"),
-    ("software.game_dev", 1.5, r"game (?:engines?|dev\w*)|\bunity\b|unreal|gameplay|graphics programming|opengl|vulkan|"
-                               r"directx|shaders?"),
-    ("software.quant_dev", 1.5, r"low-?latency trading|trading (?:systems?|engines?|infrastructure)|order (?:books?|matching)|"
-                                r"market data (?:feeds?|handlers?)|\bfix protocol\b"),
-    ("software.qa_test", 1.2, r"test automation|selenium|cypress|quality assurance|\bqa\b|test (?:cases|plans|suites|frameworks?)"),
-    ("data_ml.ml_engineering", 1.5, r"machine learning|deep learning|pytorch|tensorflow|\bllms?\b|\bnlp\b|computer vision|"
-                                    r"neural networks?|mlops|model (?:training|deployment|serving|inference)|fine-?tun\w+|"
-                                    r"\brag\b|reinforcement learning"),
-    ("data_ml.ai_research", 1.5, r"publications?|published (?:at|in)|arxiv|neurips|\bicml\b|\biclr\b|\bcvpr\b|"
-                                 r"research (?:paper|assistant)|co-?authored"),
-    ("data_ml.data_science", 1.5, r"data science|predictive models?|regression models?|a/b test\w*|hypothesis test\w*|"
-                                  r"scikit-learn|statistical model\w*|experimentation|feature engineering"),
-    ("data_ml.data_engineering", 1.5, r"\betl\b|data pipelines?|\bspark\b|airflow|kafka|data warehouse\w*|snowflake|\bdbt\b|"
-                                      r"bigquery|hadoop|data lakes?"),
-    # Finance students build budgets in Excel and Power BI too; these name analytics work itself.
-    ("data_ml.analytics", 1.2, r"tableau|looker|business intelligence|(?:data|product|marketing) analytics|analytics dashboards?"),
-    ("hardware.embedded_firmware", 1.5, r"embedded|firmware|micro-?controllers?|\bmcus?\b|\brtos\b|bare-?metal|device drivers?|"
-                                        r"stm32|arduino|esp32|\buart\b|\bi2c\b|\bspi\b|can bus|bootloaders?"),
-    ("hardware.chip_design", 1.5, r"\bfpgas?\b|\basics?\b|\brtl\b|verilog|\bvhdl\b|\buvm\b|design verification|tape-?out|"
-                                  r"physical design"),
-    ("hardware.electrical", 1.5, r"circuit (?:design|boards?|analysis)|\bpcbs?\b|schematics?|altium|kicad|\bspice\b|analog|"
-                                 r"power electronics|oscilloscopes?|soldering|signal integrity"),
-    ("hardware.robotics_autonomy", 1.5, r"robot\w*|\bros2?\b|motion planning|\bslam\b|perception|autonomous|sensor fusion|"
-                                        r"kalman|\bpid\b|control loops?|mujoco|gazebo|kinematics|actuators?"),
-]]
-_TECH_DEGREE = re.compile(r"computer science|computing|software|computer engineering|electrical|data science|"
-                          r"artificial intelligence|machine learning|mechatronics|robotics|information technology", re.I)
+TRACK_FINANCE_SIGNALS = [(key, weight, _QUANT_TERMS if key == "quant.quant_research" else pattern)
+                         for key, weight, pattern in SIGNALS]
 # Book-keeping tasks appear in almost every finance student's resume, so they
 # count for less unless the candidate actually held an accounting title.
 TASK_DISCOUNT = {"corporate_finance.accounting": 0.4}
@@ -120,21 +77,7 @@ COMPANY_TYPES = {
     "quant": ["quant_firm", "hedge_fund"],
     "wealth": ["canadian_bank", "asset_manager"],
     "risk": ["canadian_bank", "global_bank"],
-    # Tech targets: a specialty's own employers first, else its family's.
-    "software": ["big_tech", "high_growth_startup", "enterprise_saas", "developer_tools", "consumer_tech"],
-    "software.infrastructure": ["developer_tools", "data_infrastructure", "big_tech", "ai_infrastructure"],
-    "software.security": ["cybersecurity", "big_tech", "defense_tech"],
-    "software.game_dev": ["gaming", "big_tech"],
-    "software.quant_dev": ["quant_firm", "hedge_fund", "fintech"],
-    "data_ml": ["ai_lab", "ai_infrastructure", "big_tech", "data_infrastructure", "high_growth_startup"],
-    "data_ml.ai_research": ["ai_lab", "research_lab", "big_tech"],
-    "hardware": ["semiconductors", "hardware_devices", "big_tech", "robotics_autonomy", "defense_tech"],
-    "hardware.embedded_firmware": ["semiconductors", "hardware_devices", "robotics_autonomy"],
-    "hardware.chip_design": ["semiconductors", "big_tech"],
-    "hardware.robotics_autonomy": ["robotics_autonomy", "defense_tech", "hardware_devices"],
-    "product": ["big_tech", "consumer_tech", "enterprise_saas", "high_growth_startup"],
-    "design": ["big_tech", "consumer_tech", "enterprise_saas", "high_growth_startup"],
-}
+}  # the other boards' employers are their employer_types in taxonomy.json
 _STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term)\b", re.I)
 _BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
 _MON = r"\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
@@ -213,16 +156,22 @@ def experience_entries(sections: dict[str, list[str]]) -> list[dict]:
     return entries
 
 
-def _tech_title(cls: dict) -> bool:
-    return not cls["is_finance"] and cls.get("family") in TECH_FIELDS and cls["confidence"] >= 0.45
+def _title_track(cls: dict, kn: Knowledge) -> str | None:
+    """The track a job title's board reads resumes for ('Software Engineer' -> tech), if any."""
+    if cls["is_finance"] or cls["confidence"] < 0.45:
+        return None
+    track = kn.tracks.get(kn.board_track.get(cls.get("family")))
+    return track.key if track and track.resume else None
 
 
-def tech_resume(entries: list[dict], education: dict, kn: Knowledge) -> bool:
-    """Whether to read the resume for tech roles too: a tech job or project title, or a tech degree."""
+def resume_tracks(entries: list[dict], education: dict, kn: Knowledge) -> frozenset[str]:
+    """The tracks to read the resume for besides finance: each one whose degree it names, or with
+    a job or project title on one of its boards."""
     degree = " ".join(education.get(k) or "" for k in ("program", "degree_text"))
-    return bool(_TECH_DEGREE.search(degree)) or any(
-        e["title"] and e["block"] in ("experience", "projects") and _tech_title(classify(e["title"], kn))
-        for e in entries)
+    titled = {_title_track(classify(e["title"], kn), kn)
+              for e in entries if e["title"] and e["block"] in ("experience", "projects")}
+    return frozenset(key for key, track in kn.tracks.items()
+                     if track.resume and (key in titled or (track.degree and track.degree.search(degree))))
 
 
 def _hits(text: str, signals=SIGNALS) -> dict[str, tuple[float, list[str]]]:
@@ -235,8 +184,9 @@ def _hits(text: str, signals=SIGNALS) -> dict[str, tuple[float, list[str]]]:
     return found
 
 
-def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech: bool = False) -> list[dict]:
-    """Graded role targets with the evidence behind each; ``tech`` (see tech_resume) adds tech roles."""
+def role_interests(entries: list[dict], education_text: str, kn: Knowledge,
+                   tracks: frozenset[str] = frozenset()) -> list[dict]:
+    """Graded role targets with the evidence behind each; ``tracks`` (see resume_tracks) adds their roles."""
     scores: dict[str, float] = {}
     evidence: dict[str, list[str]] = {}
     titled: set[str] = set()
@@ -248,8 +198,9 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech
             if w not in evidence[key]:
                 evidence[key].append(w)
 
-    finance = TECH_FINANCE_SIGNALS if tech else SIGNALS
-    default_signals = finance + TECH_SIGNALS if tech else SIGNALS
+    finance = TRACK_FINANCE_SIGNALS if tracks else SIGNALS
+    track_signals = [signal for key, track in kn.tracks.items() if key in tracks for signal in track.signals]
+    default_signals = finance + track_signals if tracks else SIGNALS
     work = [e for e in entries if e["block"] == "experience"]
     for entry in entries:
         rank = work.index(entry) if entry in work else 2
@@ -258,20 +209,21 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech
         if entry["title"]:
             cls = classify(entry["title"], kn)
             sub = cls.get("subcategory")
+            track = _title_track(cls, kn)
             if cls["is_finance"] and sub and cls["confidence"] >= 0.45:
                 key = f"{cls['category']}.{sub}"
                 titled.add(key)
                 add(key, TITLE_POINTS * weight, [f"title: {entry['title']}"])
-            elif tech and _tech_title(cls):
-                # A tech title counts at its specialty, or at the whole family when it names
-                # none ("Software Engineer").
+            elif track in tracks:
+                # A title on a track's board counts at its specialty, or at the whole family
+                # when it names none ("Software Engineer").
                 key = f"{cls['category']}.{sub}" if sub else cls["category"]
                 titled.add(key)
                 add(key, TITLE_POINTS * weight, [f"title: {entry['title']}"])
-            if tech and cls["confidence"] >= 0.45 and (cls["is_finance"] or _tech_title(cls)):
+            if tracks and cls["confidence"] >= 0.45 and (cls["is_finance"] or track in tracks):
                 # A finance job's work counts for finance roles, a tech job's for tech roles:
                 # "integration tests" and "trading infrastructure" mean different things there.
-                signals = finance if cls["is_finance"] else TECH_SIGNALS
+                signals = finance if cls["is_finance"] else kn.tracks[track].signals
         for key, (points, phrases) in _hits(entry["title"], signals).items():
             add(key, points * weight * TITLE_SIGNAL_FACTOR, [f"title: {p}" for p in phrases])
         for key, (points, phrases) in _hits(entry["company"], signals).items():
@@ -284,11 +236,12 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech
         if key in scores and key not in titled:
             scores[key] *= factor
     valid = {f"{s.parent}.{s.key}" for s in kn.subcategories.values()}
-    if tech:
+    if tracks:
         # A generic title targets the whole family. Work that shows specialties at least as
         # strongly adds them, and the family stays when a job title named it ("Software
         # Developer"); a weaker specialty gives way to the family.
-        for family in [k for k in scores if k in TECH_FIELDS]:
+        boards = {board for key in tracks for board in kn.track_boards.get(key, []) if board in kn.families}
+        for family in [k for k in scores if k in boards]:
             specialties = [k for k in scores if k.startswith(f"{family}.")]
             if specialties and max(scores[k] for k in specialties) >= scores[family]:
                 if family not in titled:
@@ -296,7 +249,7 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge, tech
             else:
                 for key in specialties:
                     del scores[key]
-        valid |= TECH_FIELDS & set(kn.families)
+        valid |= boards
     ranked = sorted(((k, v) for k, v in scores.items() if k in valid and v > 0), key=lambda kv: -kv[1])
     if not ranked:
         return []
@@ -346,11 +299,13 @@ def career_plan(graduation_year: int | None, graduation_month: int | None, today
     return {"stages": stages, "cycles": list(dict.fromkeys(cycles)), "note": note, "months_to_graduation": months}
 
 
-def company_types(interests: list[dict]) -> list[str]:
+def company_types(interests: list[dict], kn: Knowledge) -> list[str]:
+    # A specialty's own employers first, else its family's.
+    known = {**COMPANY_TYPES, **kn.board_employer_types}
     types: list[str] = []
     for interest in interests[:5]:
         key = interest["key"]
-        for t in COMPANY_TYPES.get(key) or COMPANY_TYPES.get(key.split(".")[0], []):
+        for t in known.get(key) or known.get(key.split(".")[0], []):
             if t not in types:
                 types.append(t)
     return types[:7]

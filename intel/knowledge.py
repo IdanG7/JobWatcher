@@ -180,7 +180,24 @@ class Skill:
     label: str
     group: str
     pattern: re.Pattern
-    tech: bool = False      # read only where finance fit can't change (see skills.json)
+    track: str | None = None    # read only where that track is open, so finance fit can't change (see skills.json)
+
+
+@dataclass
+class Track:
+    """Boards that share employer types, skills and resume vocabulary (taxonomy.json tracks)."""
+    key: str
+    label: str
+    employer_heading: str
+    employer_noun: str
+    skills_from: frozenset[str]
+    degree: re.Pattern | None = None
+    signals: list[tuple[str, float, re.Pattern]] = field(default_factory=list)
+
+    @property
+    def resume(self) -> bool:
+        """Whether a resume can open this track (a degree or work it recognizes)."""
+        return bool(self.degree or self.signals)
 
 
 class Knowledge:
@@ -225,10 +242,48 @@ class Knowledge:
                 continue
             self.families[key] = Node(key, fam["label"], None,
                                       compile_fragments(fam.get("title")),
+                                      meta={k: v for k, v in fam.items()
+                                            if k not in ("label", "title", "domain_title", "subcategories")},
                                       domain=compile_fragments(fam.get("domain_title")))
             # Specialties (software.backend) share the subcategory namespace,
             # so profiles, filters and labels treat them like finance groups.
             self._load_subcategories(key, fam)
+        self._load_boards(data)
+
+    def _load_boards(self, data: dict) -> None:
+        """What each board shares with others: its track, skill groups and resume employers."""
+        finance = data.get("finance") or {}
+        self.finance_skill_groups: list[str] = finance.get("skill_groups") or []
+        self.board_track: dict[str, str] = {"finance": finance.get("track", "finance"), **{
+            key: node.meta["track"] for key, node in self.families.items() if node.meta.get("track")}}
+        self.track_boards: dict[str, list[str]] = {}
+        for board, track in self.board_track.items():
+            self.track_boards.setdefault(track, []).append(board)
+        # "Lending AI Engineer": a technical occupation on these boards beats finance words.
+        self.occupation_families = frozenset(
+            key for key, node in self.families.items() if node.meta.get("occupation_beats_finance"))
+        # The employers a resume aimed at a board or specialty proposes ('software', 'software.security').
+        self.board_employer_types: dict[str, list[str]] = {
+            **{key: node.meta["employer_types"] for key, node in self.families.items() if node.meta.get("employer_types")},
+            **{f"{node.parent}.{node.key}": node.meta["employer_types"] for node in self.subcategories.values()
+               if node.parent in self.families and node.meta.get("employer_types")}}
+        self.tracks: dict[str, Track] = {}
+        for key, entry in (data.get("tracks") or {}).items():
+            if key.startswith("_"):
+                continue
+            resume = entry.get("resume") or {}
+            self.tracks[key] = Track(
+                key, entry.get("label") or key.title(), entry.get("employer_heading") or "",
+                entry.get("employer_noun") or "", frozenset(entry.get("skills_from") or []),
+                re.compile(resume["degree"], re.I) if resume.get("degree") else None,
+                [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []])
+
+    def skill_tracks(self, board: str) -> frozenset[str]:
+        """The tracks whose skills a posting on this board reads ('other' when no board places it)."""
+        return frozenset(key for key, track in self.tracks.items() if board in track.skills_from)
+
+    def type_tracks(self, ctype: str | None) -> list[str]:
+        return (self.company_types.get(ctype or "unknown") or {}).get("tracks") or []
 
     def _load_subcategories(self, parent: str, node: dict) -> None:
         for sub_key, sub in (node.get("subcategories") or {}).items():
@@ -268,7 +323,8 @@ class Knowledge:
 
     def family_tree(self) -> list[dict]:
         """Job families with their specialties (empty for families without any)."""
-        return [{"key": key, "label": node.label,
+        return [{"key": key, "label": node.label, "track": node.meta.get("track"),
+                 "skill_groups": node.meta.get("skill_groups") or [],
                  "subcategories": [{"key": n.key, "label": n.label, "note": n.meta.get("note", "")}
                                    for n in self.subcategories.values() if n.parent == key]}
                 for key, node in self.families.items()]
@@ -328,7 +384,7 @@ class Knowledge:
             label = re.escape(entry["label"]).replace(r"\ ", " ")
             pattern = compile_union(entry.get("synonyms", []) + [label])
             self.skills.append(Skill(entry["key"], entry["label"],
-                                     entry.get("group", "other"), pattern, entry.get("track") == "tech"))
+                                     entry.get("group", "other"), pattern, entry.get("track")))
         self.skill_by_key = {s.key: s for s in self.skills}
 
     # ------------------------------------------------------------ geography

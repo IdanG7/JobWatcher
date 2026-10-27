@@ -296,131 +296,554 @@
  "families": [
   {
    "key": "healthcare",
-   "label": "Healthcare & Science"
+   "label": "Healthcare & Science",
+   "track": null,
+   "skill_groups": [
+    "quant",
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "data_ml",
-   "label": "AI & Data"
+   "label": "AI & Data",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "data",
+    "ml",
+    "quant",
+    "tools",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "ml_engineering",
+     "label": "ML Engineering",
+     "note": "Building and shipping ML and LLM systems"
+    },
+    {
+     "key": "ai_research",
+     "label": "AI Research",
+     "note": "Research scientist and research engineer roles"
+    },
+    {
+     "key": "data_science",
+     "label": "Data Science",
+     "note": "Statistics, experiments and predictive models"
+    },
+    {
+     "key": "data_engineering",
+     "label": "Data Engineering",
+     "note": "Pipelines, warehouses and data platforms"
+    },
+    {
+     "key": "analytics",
+     "label": "Analytics & BI",
+     "note": "SQL, dashboards and business insight"
+    }
+   ]
   },
   {
    "key": "software",
-   "label": "Software"
+   "label": "Software",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "web",
+    "cloud",
+    "data",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "backend",
+     "label": "Backend",
+     "note": "APIs, services and databases"
+    },
+    {
+     "key": "frontend",
+     "label": "Frontend",
+     "note": "Web apps, React and TypeScript"
+    },
+    {
+     "key": "full_stack",
+     "label": "Full-Stack",
+     "note": "The web app and the services behind it"
+    },
+    {
+     "key": "mobile",
+     "label": "Mobile",
+     "note": "iOS and Android apps"
+    },
+    {
+     "key": "infrastructure",
+     "label": "Infrastructure & DevOps",
+     "note": "Cloud, DevOps, SRE and platform teams"
+    },
+    {
+     "key": "systems",
+     "label": "Systems",
+     "note": "Distributed systems, compilers, databases and low-level code"
+    },
+    {
+     "key": "security",
+     "label": "Security",
+     "note": "Application, cloud and network security"
+    },
+    {
+     "key": "game_dev",
+     "label": "Game Development",
+     "note": "Gameplay, engines and graphics"
+    },
+    {
+     "key": "quant_dev",
+     "label": "Quant Development",
+     "note": "Trading systems and low-latency code"
+    },
+    {
+     "key": "qa_test",
+     "label": "QA & Test",
+     "note": "Test automation and quality engineering"
+    }
+   ]
   },
   {
    "key": "hardware",
-   "label": "Hardware"
+   "label": "Hardware",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "hardware",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "embedded_firmware",
+     "label": "Embedded & Firmware",
+     "note": "Firmware, microcontrollers and embedded software"
+    },
+    {
+     "key": "chip_design",
+     "label": "Chip Design & Verification",
+     "note": "ASIC, FPGA, RTL and verification"
+    },
+    {
+     "key": "electrical",
+     "label": "Electrical & Circuits",
+     "note": "Circuits, PCBs and power electronics"
+    },
+    {
+     "key": "robotics_autonomy",
+     "label": "Robotics & Autonomy",
+     "note": "Robotics, perception and motion planning"
+    }
+   ]
   },
   {
    "key": "product",
-   "label": "Product"
+   "label": "Product",
+   "track": "tech",
+   "skill_groups": [
+    "tools",
+    "programming",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "design",
-   "label": "Design"
+   "label": "Design",
+   "track": "tech",
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "sales",
-   "label": "Sales & Growth"
+   "label": "Sales & Growth",
+   "track": null,
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "operations",
-   "label": "Operations"
+   "label": "Operations",
+   "track": null,
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "people_legal",
-   "label": "People & Legal"
+   "label": "People & Legal",
+   "track": null,
+   "skill_groups": [
+    "soft"
+   ],
+   "subcategories": []
+  }
+ ],
+ "finance": {
+  "skill_groups": [
+   "modeling",
+   "accounting",
+   "tools",
+   "programming",
+   "markets",
+   "quant",
+   "soft"
+  ]
+ },
+ "tracks": [
+  {
+   "key": "tech",
+   "label": "Tech",
+   "employer_heading": "Tech employer types",
+   "boards": [
+    "data_ml",
+    "software",
+    "hardware",
+    "product",
+    "design"
+   ]
   }
  ],
  "company_types": [
   {
    "key": "bulge_bracket",
    "label": "Bulge Bracket",
-   "group": "Bulge Brackets"
+   "group": "Bulge Brackets",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "elite_boutique",
    "label": "Elite Boutique",
-   "group": "Elite Boutiques"
+   "group": "Elite Boutiques",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "middle_market_bank",
    "label": "Middle-Market Bank",
-   "group": "Middle Market"
+   "group": "Middle Market",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "global_bank",
    "label": "Global Bank",
-   "group": "Global Banks"
+   "group": "Global Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "canadian_bank",
    "label": "Canadian Bank",
-   "group": "Canadian Banks"
+   "group": "Canadian Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "commercial_bank",
    "label": "Commercial Bank",
-   "group": "U.S. Commercial Banks"
+   "group": "U.S. Commercial Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "private_equity",
    "label": "Private Equity",
-   "group": "Private Equity"
+   "group": "Private Equity",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "venture_capital",
    "label": "Venture Capital",
-   "group": "Venture Capital"
+   "group": "Venture Capital",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "hedge_fund",
    "label": "Hedge Fund",
-   "group": "Hedge Funds"
+   "group": "Hedge Funds",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "quant_firm",
    "label": "Quant / Trading Firm",
-   "group": "Quant / Trading"
+   "group": "Quant / Trading",
+   "tracks": [
+    "finance",
+    "tech"
+   ],
+   "section": "Investing"
   },
   {
    "key": "asset_manager",
    "label": "Asset Manager",
-   "group": "Asset Managers"
+   "group": "Asset Managers",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "pension_fund",
    "label": "Pension Fund",
-   "group": "Pension Funds"
+   "group": "Pension Funds",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "insurance",
    "label": "Insurance",
-   "group": "Insurance"
+   "group": "Insurance",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "fintech",
    "label": "FinTech",
-   "group": "FinTech"
+   "group": "FinTech",
+   "tracks": [
+    "finance",
+    "tech"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "market_infrastructure",
    "label": "Exchanges & Data",
-   "group": "Exchanges & Data"
+   "group": "Exchanges & Data",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "accounting_advisory",
    "label": "Accounting & Advisory",
-   "group": "Accounting & Advisory"
+   "group": "Accounting & Advisory",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
   },
   {
    "key": "consulting",
    "label": "Consulting",
-   "group": "Consulting"
+   "group": "Consulting",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
   },
   {
    "key": "corporate",
    "label": "Corporate",
-   "group": "Corporate"
+   "group": "Corporate",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
+  },
+  {
+   "key": "big_tech",
+   "label": "Big Tech",
+   "group": "Big Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "ai_lab",
+   "label": "AI Lab",
+   "group": "AI Labs",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "ai_infrastructure",
+   "label": "AI Infrastructure",
+   "group": "AI Infrastructure",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "developer_tools",
+   "label": "Developer Tools",
+   "group": "Developer Tools",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "data_infrastructure",
+   "label": "Data Infrastructure",
+   "group": "Data Infrastructure",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "cybersecurity",
+   "label": "Cybersecurity",
+   "group": "Cybersecurity",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "enterprise_saas",
+   "label": "Enterprise Software",
+   "group": "Enterprise Software",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "consumer_tech",
+   "label": "Consumer Tech",
+   "group": "Consumer Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "semiconductors",
+   "label": "Semiconductors",
+   "group": "Semiconductors",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "robotics_autonomy",
+   "label": "Robotics & Autonomy",
+   "group": "Robotics & Autonomy",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "defense_tech",
+   "label": "Defense & Aerospace",
+   "group": "Defense & Aerospace",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "gaming",
+   "label": "Gaming",
+   "group": "Gaming",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "high_growth_startup",
+   "label": "High-Growth Startup",
+   "group": "Startups",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "canadian_tech",
+   "label": "Canadian Tech",
+   "group": "Canadian Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "research_lab",
+   "label": "Research Lab",
+   "group": "Research Labs",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "hardware_devices",
+   "label": "Devices & IoT",
+   "group": "Devices & IoT",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "health_tech",
+   "label": "Health Tech",
+   "group": "Health Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "climate_energy",
+   "label": "Climate & Energy",
+   "group": "Climate & Energy",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "quantum",
+   "label": "Quantum Computing",
+   "group": "Quantum Computing",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "telecom",
+   "label": "Telecom",
+   "group": "Telecom & Networks",
+   "tracks": [
+    "tech"
+   ]
   },
   {
    "key": "unknown",

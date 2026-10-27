@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {setupAnswers, setupProfile} from '../js/views/welcome.js';
+import {META} from './board-meta.js';
 
 const FINANCE = ['investment_banking', 'markets'];
 const FAMILIES = ['software', 'data_ml', 'hardware'];
@@ -35,7 +36,7 @@ test('first-run setup without finance drops the default bank employers and off-f
   const DEFAULT = {...PROFILE, target_company_types: ['bulge_bracket', 'canadian_bank'], skills: ['financial_modeling', 'excel', 'python', 'statistics']};
   const SKILLS = [{key: 'financial_modeling', group: 'modeling'}, {key: 'excel', group: 'tools'}, {key: 'python', group: 'programming'}, {key: 'statistics', group: 'quant'}];
   const run = fields => setupProfile(DEFAULT, {...setupAnswers(DEFAULT, {firstRun: true, financeKeys: FINANCE}), fields: new Set(fields)},
-    {firstRun: true, families: FAMILIES, skills: SKILLS});
+    {firstRun: true, families: FAMILIES, skills: SKILLS, meta: META});
   const software = run(['software']);
   assert.deepEqual(software.target_company_types, []);
   assert.deepEqual(software.skills, ['python']);

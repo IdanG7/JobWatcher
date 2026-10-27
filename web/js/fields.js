@@ -15,20 +15,6 @@ export const FIELD_INFO = {
   healthcare: {icon: 'heart', note: 'Healthcare, life sciences and research'},
 };
 
-// Skill groups worth showing for each field.
-const FIELD_SKILLS = {
-  finance: ['modeling', 'accounting', 'tools', 'programming', 'markets', 'quant', 'soft'],
-  software: ['programming', 'web', 'cloud', 'data', 'cs', 'soft'],
-  data_ml: ['programming', 'data', 'ml', 'quant', 'tools', 'cs', 'soft'],
-  hardware: ['programming', 'hardware', 'cs', 'soft'],
-  product: ['tools', 'programming', 'soft'],
-  design: ['tools', 'soft'],
-  sales: ['tools', 'soft'],
-  operations: ['tools', 'soft'],
-  people_legal: ['soft'],
-  healthcare: ['quant', 'tools', 'soft'],
-};
-
 /** Every country as [code, name]; servers older than this page only list countries through their cities. */
 export function countryList(meta, profile = {}) {
   if (meta.countries?.length) return meta.countries.map(c => [c.key, c.label]);
@@ -66,32 +52,32 @@ export function specialtyFamilies(meta) {
   return (meta.families || []).filter(f => f.subcategories?.length).sort((a, b) => fieldRank(a.key) - fieldRank(b.key));
 }
 
-// The tech boards. They see the tech employer types; finance types belong to Finance.
-export const TECH_FIELDS = ['software', 'data_ml', 'hardware', 'product', 'design'];
-const EMPLOYER_SECTIONS = [
-  ['Banks', ['bulge_bracket', 'elite_boutique', 'middle_market_bank', 'global_bank', 'canadian_bank', 'commercial_bank']],
-  ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
-  ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
-  ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']],
-];
-
-/** Employer types as [section, keys] lists: finance types in four plain-language sections
- * (anything new lands in "Other"), tech types in one list for the tech boards. */
-export function employerSections(companyTypes = []) {
+/** Employer types as [section, keys] lists. Finance types sit in the plain-language section each
+ * names (one without lands in "Other"); every other track lists its types once, for its boards
+ * (tech: Software, AI & Data…). A server without tracks lists every type under Finance. */
+export function employerSections(companyTypes = [], tracks = []) {
   const types = companyTypes.filter(t => t.key !== 'unknown');
-  const finance = types.filter(t => t.track !== 'tech').map(t => t.key);
-  const sections = EMPLOYER_SECTIONS.map(([name, keys]) => [name, keys.filter(k => finance.includes(k))]);
-  const placed = new Set(sections.flatMap(([, keys]) => keys));
-  const rest = finance.filter(k => !placed.has(k));
-  if (rest.length) sections.push(['Other', rest]);
-  const tech = types.filter(t => t.track === 'tech').map(t => t.key);
-  return {finance: sections, tech: tech.length ? [['Tech', tech]] : []};
+  const on = t => t.tracks || ['finance'];
+  const named = new Map();
+  const rest = [];
+  for (const t of types.filter(t => on(t).includes('finance'))) {
+    if (t.section) named.set(t.section, [...(named.get(t.section) || []), t.key]);
+    else rest.push(t.key);
+  }
+  const finance = [...named, ...(rest.length ? [['Other', rest]] : [])];
+  const others = tracks.map(track => ({
+    ...track, boards: [...(track.boards || [])].sort((a, b) => fieldRank(a) - fieldRank(b)),
+    sections: [[track.label, types.filter(t => !on(t).includes('finance') && on(t).includes(track.key)).map(t => t.key)]],
+  })).filter(track => track.sections[0][1].length);
+  return {finance, tracks: others};
 }
 
-/** Skill groups to show for these fields, or null for all of them. */
-export function skillGroupsFor(fields) {
+/** Skill groups to show for these fields, or null for all of them. Each board names its own
+ * (meta.finance and meta.families); one that names none shows the soft skills. */
+export function skillGroupsFor(fields, meta = {}) {
   if (!fields.length) return null;
-  return new Set(fields.flatMap(field => FIELD_SKILLS[field] || ['soft']));
+  const named = new Map([['finance', meta.finance?.skill_groups], ...(meta.families || []).map(f => [f.key, f.skill_groups])]);
+  return new Set(fields.flatMap(field => (named.get(field)?.length ? named.get(field) : ['soft'])));
 }
 
 /** Cycles to suggest from a graduation year and the stages someone applies for. */
