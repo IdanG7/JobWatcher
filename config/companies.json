@@ -968,6 +968,17 @@
     {"key": "sandoz", "name": "Sandoz", "type": "pharma", "country": "CH", "hq": "Basel", "aliases": ["=sandoz"]},
     {"key": "apotex", "name": "Apotex", "type": "pharma", "country": "CA", "hq": "Toronto", "aliases": ["=apotex"]},
     {"key": "biontech", "name": "BioNTech", "type": "pharma", "country": "DE", "hq": "Mainz", "aliases": ["=biontech"]},
-    {"key": "bayer", "name": "Bayer", "type": "pharma", "country": "DE", "hq": "Leverkusen", "aliases": ["=bayer"]}
+    {"key": "bayer", "name": "Bayer", "type": "pharma", "country": "DE", "hq": "Leverkusen", "aliases": ["=bayer"]},
+    {"key": "public_health_ontario", "name": "Public Health Ontario", "type": "public_health_agency", "country": "CA", "hq": "Toronto", "aliases": ["=public health ontario"]},
+    {"key": "canadian_blood_services", "name": "Canadian Blood Services", "type": "public_health_agency", "country": "CA", "hq": "Ottawa", "aliases": ["=canadian blood services"]},
+    {"key": "path", "name": "PATH", "type": "public_health_agency", "country": "US", "hq": "Seattle", "aliases": ["=path"]},
+    {"key": "fhi_360", "name": "FHI 360", "type": "public_health_agency", "country": "US", "hq": "Durham", "aliases": ["=fhi 360", "=fhi360"]},
+    {"key": "clinton_health_access_initiative", "name": "Clinton Health Access Initiative", "type": "public_health_agency", "country": "US", "hq": "Boston", "aliases": ["=clinton health access initiative"]},
+    {"key": "gates_foundation", "name": "Gates Foundation", "type": "public_health_agency", "country": "US", "hq": "Seattle", "aliases": ["=gates foundation", "=bill & melinda gates foundation", "=bill and melinda gates foundation"]},
+    {"key": "rti_international", "name": "RTI International", "type": "research_lab", "country": "US", "hq": "Research Triangle Park", "aliases": ["=rti international"]},
+    {"key": "abt_global", "name": "Abt Global", "type": "public_health_agency", "country": "US", "hq": "Rockville", "aliases": ["=abt global", "=abt associates"]},
+    {"key": "american_cancer_society", "name": "American Cancer Society", "type": "public_health_agency", "country": "US", "hq": "Atlanta", "aliases": ["=american cancer society"]},
+    {"key": "american_heart_association", "name": "American Heart Association", "type": "public_health_agency", "country": "US", "hq": "Dallas", "aliases": ["=american heart association"]},
+    {"key": "march_of_dimes", "name": "March of Dimes", "type": "public_health_agency", "country": "US", "hq": "Arlington", "aliases": ["=march of dimes"]}
   ]
 }

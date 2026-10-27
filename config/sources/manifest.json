@@ -77,7 +77,7 @@
         "bioinformatics": ["biotech", "research_institutes", "pharma"],
         "regulatory_quality": ["pharma", "biotech", "cro_cdmo"],
         "medical_devices": [],
-        "public_health": ["research_institutes", "hospitals_canada"],
+        "public_health": ["public_health", "research_institutes", "hospitals_canada"],
         "health_admin": ["hospitals_canada", "hospitals_us", "payers", "pharmacy_consumer"],
         "medical_affairs": ["pharma", "biotech"]
       }

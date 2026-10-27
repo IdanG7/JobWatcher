@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "2c1bf82a83d8a4e1",
+  "hash": "77414ac97ec0e10a",
   "names": [
    "10x_genomics",
    "1password",
@@ -112,6 +112,7 @@
    "abridge",
    "absci",
    "absorb_lms",
+   "abt_global",
    "acorns",
    "ada",
    "addepar",
@@ -147,7 +148,9 @@
    "ambarella",
    "ambience_healthcare",
    "amd",
+   "american_cancer_society",
    "american_express",
+   "american_heart_association",
    "amgen",
    "amplemarket",
    "amplitude",
@@ -251,6 +254,7 @@
    "cambrex",
    "camh",
    "canada_intern26",
+   "canadian_blood_services",
    "canadian_tire",
    "canva",
    "capital_one",
@@ -294,6 +298,7 @@
    "clearco",
    "clickhouse",
    "clickup",
+   "clinton_health_access_initiative",
    "clio",
    "cloudflare",
    "clover_health",
@@ -399,6 +404,7 @@
    "faire",
    "fanduel",
    "fastly",
+   "fhi_360",
    "fico",
    "fidelity",
    "figma",
@@ -428,6 +434,7 @@
    "freshworks",
    "fullstory",
    "garmin",
+   "gates_foundation",
    "gdit",
    "ge_aerospace",
    "ge_healthcare",
@@ -589,6 +596,7 @@
    "mammoth_biosciences",
    "man_group",
    "manulife",
+   "march_of_dimes",
    "marqeta",
    "marvell",
    "mass_general_brigham",
@@ -696,6 +704,7 @@
    "palantir",
    "palo_alto_networks",
    "parexel",
+   "path",
    "pathai",
    "patreon",
    "paxos",
@@ -734,6 +743,7 @@
    "psiquantum",
    "ptc",
    "public_com",
+   "public_health_ontario",
    "pure_storage",
    "qlik",
    "qorvo",
@@ -780,6 +790,7 @@
    "rogers_communications",
    "roku",
    "rover",
+   "rti_international",
    "rtx",
    "rtx_finance",
    "rubrik",
@@ -1035,6 +1046,7 @@
   "abridge": 1,
   "absci": 11,
   "absorb_lms": 10,
+  "abt_global": 11,
   "acorns": 10,
   "ada": 10,
   "addepar": 10,
@@ -1070,7 +1082,9 @@
   "ambarella": 10,
   "ambience_healthcare": 10,
   "amd": 10,
+  "american_cancer_society": 11,
   "american_express": 10,
+  "american_heart_association": 11,
   "amgen": 11,
   "amplemarket": 10,
   "amplitude": 1,
@@ -1174,6 +1188,7 @@
   "cambrex": 11,
   "camh": 11,
   "canada_intern26": 1,
+  "canadian_blood_services": 11,
   "canadian_tire": 10,
   "canva": 10,
   "capital_one": 1,
@@ -1217,6 +1232,7 @@
   "clearco": 10,
   "clickhouse": 1,
   "clickup": 10,
+  "clinton_health_access_initiative": 11,
   "clio": 10,
   "cloudflare": 1,
   "clover_health": 11,
@@ -1322,6 +1338,7 @@
   "faire": 1,
   "fanduel": 10,
   "fastly": 1,
+  "fhi_360": 11,
   "fico": 10,
   "fidelity": 6,
   "figma": 1,
@@ -1351,6 +1368,7 @@
   "freshworks": 10,
   "fullstory": 10,
   "garmin": 10,
+  "gates_foundation": 11,
   "gdit": 10,
   "ge_aerospace": 10,
   "ge_healthcare": 10,
@@ -1514,6 +1532,7 @@
   "mammoth_biosciences": 11,
   "man_group": 1,
   "manulife": 6,
+  "march_of_dimes": 11,
   "marqeta": 1,
   "marvell": 10,
   "mass_general_brigham": 11,
@@ -1621,6 +1640,7 @@
   "palantir": 1,
   "palo_alto_networks": 10,
   "parexel": 11,
+  "path": 11,
   "pathai": 10,
   "patreon": 10,
   "paxos": 10,
@@ -1659,6 +1679,7 @@
   "psiquantum": 10,
   "ptc": 10,
   "public_com": 10,
+  "public_health_ontario": 11,
   "pure_storage": 10,
   "qlik": 10,
   "qorvo": 10,
@@ -1705,6 +1726,7 @@
   "rogers_communications": 10,
   "roku": 10,
   "rover": 10,
+  "rti_international": 11,
   "rtx": 10,
   "rtx_finance": 10,
   "rubrik": 10,
@@ -2045,6 +2067,32 @@
   ],
   "token": [
    "absorblms"
+  ]
+ },
+ "abt_global": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "abt_global"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "egpy.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "JoinAbt"
   ]
  },
  "acorns": {
@@ -2817,6 +2865,32 @@
    2
   ]
  },
+ "american_cancer_society": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "american_cancer_society"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "jobs.cancer.org"
+  ],
+  "lang": [
+   ""
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "american_express": {
   "ats": [
    "oracle_hcm"
@@ -2841,6 +2915,29 @@
   ],
   "site": [
    "CX_1"
+  ]
+ },
+ "american_heart_association": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "american_heart_association"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers-heart.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "amgen": {
@@ -5346,6 +5443,29 @@
    "tech"
   ]
  },
+ "canadian_blood_services": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "canadian_blood_services"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.blood.ca/search/"
+  ]
+ },
  "canadian_tire": {
   "ats": [
    "workday"
@@ -6443,6 +6563,29 @@
   ],
   "token": [
    "clickup"
+  ]
+ },
+ "clinton_health_access_initiative": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "clinton_health_access_initiative"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers-chai.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "clio": {
@@ -8793,6 +8936,35 @@
    "fastly"
   ]
  },
+ "fhi_360": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "fhi_360"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "fhi.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "FHI_360_External_Career_Portal"
+  ],
+  "tenant": [
+   "fhi"
+  ]
+ },
  "fico": {
   "ats": [
    "workday"
@@ -9413,6 +9585,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "gates_foundation": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "gates_foundation"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "gatesfoundation.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Gates"
+  ],
+  "tenant": [
+   "gatesfoundation"
   ]
  },
  "gdit": {
@@ -13618,6 +13819,35 @@
    "manulife"
   ]
  },
+ "march_of_dimes": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "e2a89250-2962-4e67-ac8a-28b568062a9d"
+  ],
+  "company_key": [
+   "march_of_dimes"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "recruiting.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "MAR1021"
+  ]
+ },
  "marqeta": {
   "ats": [
    "marqeta"
@@ -16227,6 +16457,35 @@
    "parexel"
   ]
  },
+ "path": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "path"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "path.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "path"
+  ]
+ },
  "pathai": {
   "ats": [
    "greenhouse"
@@ -17055,6 +17314,35 @@
   ],
   "token": [
    "public"
+  ]
+ },
+ "public_health_ontario": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "public_health_ontario"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "publichealthontario.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PHOCareerSite"
+  ],
+  "tenant": [
+   "publichealthontario"
   ]
  },
  "pure_storage": {
@@ -18159,6 +18447,29 @@
   ],
   "token": [
    "rover"
+  ]
+ },
+ "rti_international": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "rti_international"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers.rti.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "rtx": {

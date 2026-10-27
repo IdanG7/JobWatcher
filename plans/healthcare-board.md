@@ -819,6 +819,24 @@ track's boards, skill groups and types resolve.
          Finance to Healthcare by the life_science_research rule, for your yes;
        - no company key changes;
        - otherwise only employer-type labels, 31 of them on Finance postings, at the same fit.
+   - **Public Health** (2026-10-27): `public_health`, 11 sources and 11 employers, past the 5-feed bar.
+     - Public Health Ontario, Canadian Blood Services, PATH, FHI 360, CHAI, the Gates Foundation, RTI
+       International, Abt Global, and three health charities (American Cancer Society, American Heart
+       Association, March of Dimes).
+     - The nonprofits carry `public_health_agency`, the only public-health type. RTI is a `research_lab`.
+     - Not added: City of Toronto (a SuccessFactors search the adapter can't page), Region of Peel (a
+       whole-region feed), Partners In Health (malformed Jobvite XML), and ICF. ICF is a consulting firm with
+       167 stored postings on other boards, so any type would change them. The rest are listed in the pack note.
+     - Simulated on stored postings: no moves, no key changes, one label (a closed AI & Data posting).
+   - **Poll time** at `8af28fc`: each source fetched once by the app's adapter, 10 at a time. Each
+     profile's cycle was then simulated in poll order (`…\scratchpad\phase4\poll_time.py`):
+     - Healthcare: 785 → 177 sources. A full poll takes 1,055 s → 286 s, set by the two LinkedIn searches
+       (274 s each). Steady fetch work is 19,570 → 2,618 s an hour.
+     - Finance + Healthcare 816 s, Software + Healthcare 839 s, AI & Data + Healthcare 568 s, from 1,055 s.
+     - Alert runner, Sales, Operations, People & Legal and Finance + Sales: 785 → 909 sources. A full poll
+       stays 1,055 s (Microsoft's finance search, 541 s, sets it). Fetch work rises 18%, from 19,570 to
+       21,908 s an hour.
+     - Every other profile is unchanged. None of the 124 new sources failed.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
