@@ -55,6 +55,14 @@ class PageTextTests(unittest.TestCase):
         self.assertTrue(text.startswith("Build three-statement models"))
         self.assertIn("• Excel", text)
 
+    def test_markdown_headings_in_json_ld_are_dropped(self):
+        # As Eightfold (Qualcomm) writes it; a title-like "#Windows" line is not a heading.
+        data = {"@type": "JobPosting", "description": f"##   \nCompany:\n\nQualcomm Canada ULC\n\n## Job Area:\n\n{DUTIES}\n"
+                                                      "#Windows Performance team"}
+        text = posting_description(page("", f'<script type="application/ld+json">{json.dumps(data)}</script>'))
+        self.assertTrue(text.startswith("Company:\n\nQualcomm Canada ULC\n\nJob Area:"), text[:60])
+        self.assertTrue(text.endswith("#Windows Performance team"))
+
     def test_microdata_description(self):
         body = f'<div itemscope itemtype="http://schema.org/JobPosting"><span itemprop="description"><p>{DUTIES * 2}</p></span></div>'
         self.assertIn("pitch books", posting_description(page(f"<nav>Menu</nav>{body}")))

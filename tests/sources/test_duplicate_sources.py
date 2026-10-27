@@ -40,6 +40,42 @@ class AgeColumnTests(unittest.TestCase):
         self.assertNotIn("posted", jobs[1])
 
 
+class MarkdownTitleTests(unittest.TestCase):
+    # As DereC4's list copied zapply's: the link sits in the title cell, with escaped brackets in its text.
+    LINKED = ("| FightCamp | [Embedded Software Engineering Intern \\[Winter 2027\\]]"
+              "(https://zapply.jobs/l/d/greenhouse-figureai-4722086006?s=gh-internships-2027) | San Jose, CA | 11d |")
+    PLAIN = ("| **Roblox** | \\[2027\\] Data Scientist - PhD Intern | San Mateo, CA | 1w | ✅ Sponsor | "
+             "[<img src=\"images/apply.png\" alt=\"Apply\">](https://zapply.jobs/l/d/greenhouse-roblox-8242619?s=gh) |")
+
+    def read(self, row, cols):
+        response = mock.Mock(text=row, raise_for_status=lambda: None)
+        with mock.patch.object(watcher.requests, "get", return_value=response):
+            return watcher.fetch_github_md({"repo": "z/z", "cols": cols})[0]
+
+    def test_escaped_brackets_are_read_as_brackets(self):
+        job = self.read(self.LINKED, {"company": 0, "title": 1, "location": 2, "url": 1})
+        self.assertEqual("Embedded Software Engineering Intern [Winter 2027]", job["title"])
+        self.assertEqual("https://zapply.jobs/l/d/greenhouse-figureai-4722086006?s=gh-internships-2027", job["url"])
+        job = self.read(self.PLAIN, {"company": 0, "title": 1, "location": 2, "url": 5})
+        self.assertEqual("[2027] Data Scientist - PhD Intern", job["title"])
+
+    def test_titles_stored_with_markup_are_repaired(self):
+        con = watcher.db_open(":memory:")
+        stored = {"1": "[Embedded Software Engineering Intern \\[Winter 2027\\]](https://zapply.jobs/l/d/x?s=gh)",
+                  "2": "\\[2027\\] Data Scientist - PhD Intern", "3": "Analyst, M&A (2027)"}
+        for job_id, title in stored.items():
+            con.execute("INSERT INTO jobs VALUES ('derec4',?,?,'','u','t','t')", (job_id, title))
+        con.execute("INSERT INTO applications(job_key, board, job_id, title) VALUES ('derec4:1','derec4','1',?)",
+                    (stored["1"],))
+        config = {"boards": {"derec4": {"ats": "github_md", "repo": "z/z"}}}
+        self.assertEqual(2, watcher.repair_list_titles(con, config))
+        titles = dict(con.execute("SELECT job_id, title FROM jobs"))
+        self.assertEqual({"1": "Embedded Software Engineering Intern [Winter 2027]",
+                          "2": "[2027] Data Scientist - PhD Intern", "3": "Analyst, M&A (2027)"}, titles)
+        self.assertEqual(titles["1"], con.execute("SELECT title FROM applications").fetchone()[0])
+        self.assertEqual(0, watcher.repair_list_titles(con, config))
+
+
 class DuplicateSourceTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

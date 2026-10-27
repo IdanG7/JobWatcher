@@ -159,7 +159,7 @@ def forget_boards(con: sqlite3.Connection, boards: list[str]) -> int:
     gone = lambda t: f"{t}.board IN ({marks}) AND NOT EXISTS (SELECT 1 FROM jobs WHERE jobs.board={t}.board AND jobs.job_id={t}.job_id)"
     if {"job_fts", "job_intel"} <= tables:
         con.execute(f"DELETE FROM job_fts WHERE rowid IN (SELECT rowid FROM job_intel WHERE {gone('job_intel')})", boards)
-    for table in ("job_details", "job_text", "job_intel", "job_state", "job_changes", "resume_matches"):
+    for table in ("job_details", "job_text", "job_notes", "job_intel", "job_state", "job_changes", "resume_matches"):
         if table in tables:
             con.execute(f"DELETE FROM {table} WHERE {gone(table)}", boards)
     if "boards" in tables:      # a source added again later is seeded afresh, not flooded with alerts
@@ -247,6 +247,36 @@ def store_description(con: sqlite3.Connection, board: str, job_id: str, descript
     return True
 
 
+def store_listing_note(con: sqlite3.Connection, board: str, job_id: str, note: str,
+                       department: str = "") -> bool:
+    """Persist a community list's metadata line ("Recruiting term: Summer 2026. Sponsorship: Other.")
+    beside the description, never as it: facts read both, the drawer shows only the description,
+    and the posting's own text is still fetched. The list's category fills an empty department
+    only, so a department read from the posting stays. Returns True when either changed."""
+    note = (note or "").strip()
+    row = con.execute("SELECT note FROM job_notes WHERE board=? AND job_id=?", (board, job_id)).fetchone()
+    changed = (row[0] if row else "") != note
+    if changed and note:
+        con.execute("INSERT INTO job_notes(board, job_id, note) VALUES (?,?,?) "
+                    "ON CONFLICT(board, job_id) DO UPDATE SET note=excluded.note", (board, job_id, note))
+    elif changed:
+        con.execute("DELETE FROM job_notes WHERE board=? AND job_id=?", (board, job_id))
+    if department:
+        # No fetched_at or attempt is recorded: this isn't a description fetch, so it doesn't delay one.
+        changed |= con.execute(
+            "INSERT INTO job_text(board, job_id, department) VALUES (?,?,?) "
+            "ON CONFLICT(board, job_id) DO UPDATE SET department=excluded.department "
+            "WHERE COALESCE(job_text.department, '')=''", (board, job_id, department)).rowcount > 0
+    if changed:
+        con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    return changed
+
+
+def facts_description(description: str, note: str) -> str:
+    """The text facts are read from: the description, then any listing note."""
+    return "\n\n".join(part for part in ((description or "").strip(), (note or "").strip()) if part)
+
+
 # ---------------------------------------------------------------- store
 class IntelStore:
     def __init__(self, con: sqlite3.Connection, config: dict, config_dir: Path | str = CONFIG_DIR,
@@ -301,10 +331,12 @@ class IntelStore:
         rows = self.con.execute(
             f"""SELECT j.board, j.job_id, j.title, j.location, j.url, j.first_seen,
                        COALESCE(d.company, REPLACE(j.board,'_',' ')), COALESCE(d.salary,''), d.posted,
-                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,''), i.cluster_key
+                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,''), i.cluster_key,
+                       COALESCE(n.note,'')
                 FROM jobs j
                 LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
                 LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
+                LEFT JOIN job_notes n ON n.board=j.board AND n.job_id=j.job_id
                 LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
                 WHERE j.title != '' AND (i.board IS NULL OR i.input_hash IS NULL
                       OR i.facts_version != ? OR i.kb_version != ?){scope}
@@ -317,11 +349,12 @@ class IntelStore:
         clusters = set()
         batch, fts_rows = [], []
         for (board, job_id, title, location, url, first_seen, company, salary, posted,
-             description, department, old_cluster) in rows:
+             description, department, old_cluster, note) in rows:
             job = {"board": board, "id": job_id, "title": title, "location": location, "url": url,
                    "company": company, "salary": salary, "posted": posted,
                    # bytes: one damaged byte on disk must not stop indexing for everything
-                   "description": bytes(description).decode("utf-8", "replace"), "department": department}
+                   "description": facts_description(bytes(description).decode("utf-8", "replace"), note),
+                   "department": department}
             facts = build_facts(job, self.kn, self.boards.get(board, {}), self.sections.get(board, ""))
             cls, loc, cyc, comp = (facts["classification"], facts["location"], facts["cycle"],
                                    facts["compensation"])

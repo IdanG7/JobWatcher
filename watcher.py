@@ -44,7 +44,7 @@ import requests
 from intel import load_knowledge
 from intel.sources import enabled_sources, load_config, load_packs, polled_sources
 from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_description,
-                         update_lifecycle)
+                         store_listing_note, update_lifecycle)
 
 HERE = Path(__file__).parent
 DB_PATH = HERE / "jobwatch.db"
@@ -565,7 +565,8 @@ def fetch_github_listings(cfg):
             continue
         locs = j.get("locations") or []
         # Listing metadata (terms, sponsorship, degrees) is phrased the way the
-        # cycle and eligibility extractors already understand.
+        # cycle and eligibility extractors already understand. It is a note beside
+        # the description, not the description: the posting's own page is read for that.
         meta = []
         if j.get("terms"):
             meta.append(f"Recruiting term: {', '.join(map(str, j['terms']))}.")
@@ -580,14 +581,15 @@ def fetch_github_listings(cfg):
             "url": j.get("url", ""),
             "company": j.get("company_name", ""),
             "posted": j.get("date_posted") or j.get("date_updated") or None,
-            "description": " ".join(meta),
-            "description_source": "listing_metadata",
+            "listing_note": " ".join(meta),
             "department": j.get("category") or "",
         })
     return out
 
 
-_MD_LINK = re.compile(r"\[([^\]]*)\]\((https?://[^)\s]+)\)")
+# Link text may hold escaped brackets: "[Intern \[Winter 2027\]](https://...)".
+_MD_LINK = re.compile(r"\[((?:\\.|[^\]\\])*)\]\((https?://[^)\s]+)\)")
+_MD_ESCAPE = re.compile(r"\\([\\`*_{}\[\]()#+\-.!|<>~])")
 _MD_IMG = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 _HREF = re.compile(r'href="(https?://[^"]+)"')
 _RAW_URL = re.compile(r"https?://[^)\s\"'<>\]]+")
@@ -605,6 +607,7 @@ def _cell_text(cell):
         s = m.group(1)
     else:
         s = _HTML_TAG.sub("", s)
+    s = _MD_ESCAPE.sub(r"\1", s)       # "\[2027\] Data Scientist" reads "[2027] Data Scientist"
     s = _DECOR.sub("", s)
     s = _ZERO_WIDTH.sub("", s)      # some lists hide zero-width spaces inside words
     return re.sub(r"\s+", " ", s).strip(" -—")
@@ -1942,7 +1945,7 @@ DETAIL_FETCHERS = {
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
 # Sources whose listings carry no description: each posting's own link is read
 # instead (community lists link to employers' ATS pages, often via a redirect).
-PAGE_DETAIL_ATS = {"bofa", "github_md", "avature", "radancy", "icims", "successfactors", "marqeta",
+PAGE_DETAIL_ATS = {"bofa", "github_md", "github_listings", "avature", "radancy", "icims", "successfactors", "marqeta",
                    "atlassian", "kula"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
@@ -3271,6 +3274,32 @@ def report_progress(callback, event, **data):
             log(f"! progress observer: {type(exc).__name__}: {exc}")
 
 
+def repair_list_titles(con, config):
+    """Read again the titles older versions stored from markdown lists with their
+    markup: a whole "[Title \\[Winter 2027\\]](https://...)" link, or backslash
+    escapes. A posting a list has dropped keeps its stored title, so the next poll
+    can't fix it; this does. Idempotent and cheap, like repair_workday_posted."""
+    boards = [k for k, v in config.get("boards", {}).items()
+              if not k.startswith("_") and isinstance(v, dict) and v.get("ats") == "github_md"]
+    fixed = []
+    for chunk in range(0, len(boards), 400):
+        part = boards[chunk:chunk + 400]
+        marks = ",".join("?" * len(part))
+        for board, job_id, title in con.execute(
+                f"""SELECT board, job_id, title FROM jobs WHERE board IN ({marks})
+                    AND (title LIKE '%\\%' OR title LIKE '%](http%')""", part).fetchall():
+            clean = _cell_text(title)
+            if clean and clean != title:
+                fixed.append((clean, board, job_id, title))
+    if not fixed:
+        return 0        # no empty executemany: it would open a transaction (see repair_workday_posted)
+    con.executemany("UPDATE jobs SET title=? WHERE board=? AND job_id=? AND title=?", fixed)
+    con.executemany("UPDATE applications SET title=? WHERE board=? AND job_id=? AND title=?", fixed)
+    con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?",
+                    [(board, job_id) for _, board, job_id, _ in fixed])
+    return len(fixed)
+
+
 def repair_workday_posted(con, config):
     """Clear posting dates invented from 'Posted 30+ Days Ago'.
 
@@ -3314,6 +3343,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                   if sources is None else sources)
     subs = load_subscribers(config.get("filters", {}))
     repair_workday_posted(con, config)
+    repair_list_titles(con, config)
     new_by_board = {}
     broke = []
     ok_count = fail_count = skipped = 0
@@ -3401,10 +3431,11 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                 con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
                             (ts, name))
                 for j in jobs:
-                    if j.get("description") or j.get("department"):
+                    if "listing_note" in j:
+                        store_listing_note(con, name, j["id"], j["listing_note"], j.get("department") or "")
+                    elif j.get("description") or j.get("department"):
                         store_description(con, name, j["id"], j.get("description") or "",
-                                          j.get("department") or "",
-                                          source=j.get("description_source") or "listing")
+                                          j.get("department") or "", source="listing")
                 runtime_complete = getattr(jobs, "complete", None)
                 complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
                                                  else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
@@ -3594,7 +3625,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     con.execute("""DELETE FROM jobs WHERE last_seen < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)
                    AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)""",
                 (f"-{PRUNE_AFTER_DAYS} days",))
-    for table in ("job_details", "job_text", "job_intel", "job_state"):
+    for table in ("job_details", "job_text", "job_notes", "job_intel", "job_state"):
         con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
                        SELECT 1 FROM jobs WHERE jobs.board={table}.board
                        AND jobs.job_id={table}.job_id)""")

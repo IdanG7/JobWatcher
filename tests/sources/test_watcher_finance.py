@@ -58,8 +58,14 @@ class FinanceAdapterTests(unittest.TestCase):
             "id": 1, "active": True, "title": "Summer Analyst", "url": "https://x/1", "company_name": "Evercore",
             "locations": ["New York, NY"], "terms": ["Summer 2027"], "sponsorship": "Does Not Offer Sponsorship"}])
         job = watcher.fetch_github_listings({"repo": "a/b"})[0]
-        self.assertIn("Summer 2027", job["description"])
-        self.assertEqual("not_available", extract_eligibility(job["description"])["sponsorship"])
+        self.assertIn("Summer 2027", job["listing_note"])
+        self.assertEqual("not_available", extract_eligibility(job["listing_note"])["sponsorship"])
+        # The note is not a description: the posting's own page is read for that.
+        self.assertNotIn("description", job)
+        self.assertTrue(watcher.describable({"ats": "github_listings"}))
+        with patch("watcher.detail_page", return_value=("The role.", "")) as page:
+            self.assertEqual(("The role.", ""), watcher.fetch_description({"ats": "github_listings"}, "1", "https://x/1"))
+        page.assert_called_once_with("https://x/1")
 
 
 class EnrichmentTests(unittest.TestCase):

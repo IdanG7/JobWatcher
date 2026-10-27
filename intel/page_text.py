@@ -32,6 +32,8 @@ _CHROME = re.compile(r"(?:^|[\s_-])(?:cookies?|consent|breadcrumbs?|share|sharin
                      re.I)
 LINE, PARA = "\x00", "\x01"     # break markers, resolved by _render
 MIN_JSON_LD = 80    # a JobPosting's own description, however short, is the description
+# Eightfold sites (Qualcomm, Lam Research) write their JobPosting description in Markdown: "## Job Area:".
+_MD_HEADING = re.compile(r"(?m)^[ \t]*#{1,6}(?=[ \t]|$)[ \t]*")
 MIN_TEXT = 200      # a heuristic pick shorter than this is a teaser or a page shell
 
 
@@ -240,6 +242,7 @@ def posting_description(page: str) -> str:
     """The job description on a posting page: JobPosting JSON-LD, else microdata, else main text."""
     posting = json_ld_posting(page)
     text = html_text(str(posting.get("description") or "")) if posting else ""
+    text = tidy(_MD_HEADING.sub("", text)) if text else ""
     if len(text) >= MIN_JSON_LD:
         return text
     tree = _Tree()

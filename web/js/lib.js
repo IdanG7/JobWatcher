@@ -29,8 +29,11 @@ export function descriptionHtml(text) {
     for (let j = i + 1; j < lines.length; j++) if (lines[j]) return {text: lines[j], gap: j > i + 1};
     return null;
   };
+  let labelled = false;                     // the last line was a "Label:" heading: this one is its value
   lines.forEach((line, i) => {
     if (!line) { if (open?.kind === 'p') open = null; return; }   // a blank line ends a paragraph, not a list
+    const value = labelled;
+    labelled = false;
     const bullet = line.match(BULLET);
     const prev = lines[i - 1] || '';
     if (bullet) {
@@ -46,9 +49,10 @@ export function descriptionHtml(text) {
       return;
     }
     const after = next(i);
-    if (isHeading(line, prev, after && {text: after.gap ? '' : after.text})) {
+    if (!value && isHeading(line, prev, after && {text: after.gap ? '' : after.text})) {
       blocks.push({kind: 'h', text: line.replace(/:$/, '')});
       open = null;
+      labelled = line.endsWith(':');
       return;
     }
     if (open?.kind !== 'p') blocks.push(open = {kind: 'p', lines: []});
