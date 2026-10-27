@@ -587,7 +587,9 @@ def fetch_github_listings(cfg):
     return out
 
 
-_MD_LINK = re.compile(r"\[([^\]]*)\]\((https?://[^)\s]+)\)")
+# Link text may hold escaped brackets: "[Intern \[Winter 2027\]](https://...)".
+_MD_LINK = re.compile(r"\[((?:\\.|[^\]\\])*)\]\((https?://[^)\s]+)\)")
+_MD_ESCAPE = re.compile(r"\\([\\`*_{}\[\]()#+\-.!|<>~])")
 _MD_IMG = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 _HREF = re.compile(r'href="(https?://[^"]+)"')
 _RAW_URL = re.compile(r"https?://[^)\s\"'<>\]]+")
@@ -605,6 +607,7 @@ def _cell_text(cell):
         s = m.group(1)
     else:
         s = _HTML_TAG.sub("", s)
+    s = _MD_ESCAPE.sub(r"\1", s)       # "\[2027\] Data Scientist" reads "[2027] Data Scientist"
     s = _DECOR.sub("", s)
     s = _ZERO_WIDTH.sub("", s)      # some lists hide zero-width spaces inside words
     return re.sub(r"\s+", " ", s).strip(" -—")
@@ -3271,6 +3274,32 @@ def report_progress(callback, event, **data):
             log(f"! progress observer: {type(exc).__name__}: {exc}")
 
 
+def repair_list_titles(con, config):
+    """Read again the titles older versions stored from markdown lists with their
+    markup: a whole "[Title \\[Winter 2027\\]](https://...)" link, or backslash
+    escapes. A posting a list has dropped keeps its stored title, so the next poll
+    can't fix it; this does. Idempotent and cheap, like repair_workday_posted."""
+    boards = [k for k, v in config.get("boards", {}).items()
+              if not k.startswith("_") and isinstance(v, dict) and v.get("ats") == "github_md"]
+    fixed = []
+    for chunk in range(0, len(boards), 400):
+        part = boards[chunk:chunk + 400]
+        marks = ",".join("?" * len(part))
+        for board, job_id, title in con.execute(
+                f"""SELECT board, job_id, title FROM jobs WHERE board IN ({marks})
+                    AND (title LIKE '%\\%' OR title LIKE '%](http%')""", part).fetchall():
+            clean = _cell_text(title)
+            if clean and clean != title:
+                fixed.append((clean, board, job_id, title))
+    if not fixed:
+        return 0        # no empty executemany: it would open a transaction (see repair_workday_posted)
+    con.executemany("UPDATE jobs SET title=? WHERE board=? AND job_id=? AND title=?", fixed)
+    con.executemany("UPDATE applications SET title=? WHERE board=? AND job_id=? AND title=?", fixed)
+    con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?",
+                    [(board, job_id) for _, board, job_id, _ in fixed])
+    return len(fixed)
+
+
 def repair_workday_posted(con, config):
     """Clear posting dates invented from 'Posted 30+ Days Ago'.
 
@@ -3314,6 +3343,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                   if sources is None else sources)
     subs = load_subscribers(config.get("filters", {}))
     repair_workday_posted(con, config)
+    repair_list_titles(con, config)
     new_by_board = {}
     broke = []
     ok_count = fail_count = skipped = 0
