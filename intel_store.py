@@ -247,6 +247,19 @@ def store_description(con: sqlite3.Connection, board: str, job_id: str, descript
     return True
 
 
+def store_department(con: sqlite3.Connection, board: str, job_id: str, department: str) -> bool:
+    """Persist a listing's department when it carries no description. No fetched_at or attempt is
+    recorded: this isn't a description fetch, so it doesn't delay one. It fills an empty department
+    only, so a department read from the posting stays. Returns True when it changed."""
+    changed = con.execute(
+        "INSERT INTO job_text(board, job_id, department) VALUES (?,?,?) "
+        "ON CONFLICT(board, job_id) DO UPDATE SET department=excluded.department "
+        "WHERE COALESCE(job_text.department, '')=''", (board, job_id, department)).rowcount > 0
+    if changed:
+        con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    return changed
+
+
 # ---------------------------------------------------------------- store
 class IntelStore:
     def __init__(self, con: sqlite3.Connection, config: dict, config_dir: Path | str = CONFIG_DIR,
