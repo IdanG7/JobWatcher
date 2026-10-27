@@ -39,7 +39,7 @@ from intel.eligibility import KNOWN_LANGUAGES
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
-from intel_store import IntelStore, iso_epoch, load_profile, save_profile, store_description, utcnow, watched_companies
+from intel_store import IntelStore, iso_epoch, load_profile, save_profile, utcnow, watched_companies
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
                        SELECT_COLUMNS, build_order, build_where, flatten, page_args, resume_params)
@@ -256,10 +256,8 @@ class JobwatchService:
         self._version_con = None
         self._version_lock = threading.Lock()
         self._status_lock = threading.Lock()
-        self._scan_slots = threading.BoundedSemaphore(4)
         self._merge_slots = threading.BoundedSemaphore(2)   # each merge can hold ~100 MB of PDFs
-        self._scan_lock = threading.Lock()
-        self._scanning = set()
+        self._describe_lock = threading.Lock()
         self._describing = set()         # postings whose description is being fetched
         self._letters = {}               # a letter being written or changed in the background, by posting
         self._letter_lock = threading.Lock()
@@ -634,10 +632,6 @@ class JobwatchService:
             # Why the last fetch failed, while there is still no description: the drawer offers to try again.
             job["description_failed"] = (_description_failure(text["last_error"]) if text and text["last_error"]
                                          and not job["description"].strip() and not job["description_pending"] else "")
-            scan = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
-            scan = json.loads(scan[0]) if scan else {}
-            job["posting_scan"] = {"checked_at": scan.get("checked_at"), "error": scan.get("error", ""),
-                "auto": time.time() - scan.get("timestamp", 0) >= 6 * 3600}
             members = con.execute(
                 """SELECT i.board, i.job_id, j.url, j.first_seen, i.is_canonical
                    FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
@@ -697,7 +691,7 @@ class JobwatchService:
         back-off (retried after 6 hours, 3 attempts at most) unless forced (the drawer's Try again).
         True until that fetch and the re-scoring after it finish."""
         key, cfg = job["key"], self.boards.get(job["board"])
-        with self._scan_lock:
+        with self._describe_lock:
             if key in self._describing:
                 return True
             if (job["description"].strip() or not self.fetch_on_open or not cfg or cfg.get("disabled")
@@ -731,7 +725,7 @@ class JobwatchService:
         except Exception as exc:            # a busy or closed database: the next open tries again
             watcher.log(f"! description fetch for {board}:{job_id} failed: {type(exc).__name__}: {exc}")
         finally:
-            with self._scan_lock:
+            with self._describe_lock:
                 self._describing.discard(f"{board}:{job_id}")
 
     def open_link(self, payload: dict) -> dict:
@@ -758,59 +752,6 @@ class JobwatchService:
         if not self._describe_later(job, text, force=True):
             raise ApiError("This posting's description can't be fetched from here; read it on the posting.")
         return {"pending": True}
-
-    def scan_job(self, key: str, payload: dict) -> dict:
-        """Fetch only this stored posting; network work never holds a DB lock."""
-        job = self.job_detail(key)
-        cfg = self.boards.get(job["board"])
-        if not cfg or cfg.get("disabled"):
-            raise ApiError("This posting's source is unavailable for scanning.")
-        with self.db() as con:
-            cached = con.execute("SELECT v FROM kv WHERE k=?", ("posting_scan:" + key,)).fetchone()
-        previous = json.loads(cached[0]) if cached else {}
-        cooldown = 60 if payload.get("force") is True else 6 * 3600
-        if time.time() - previous.get("timestamp", 0) < cooldown:
-            if previous.get("error"):
-                raise ApiError(previous["error"], HTTPStatus.BAD_GATEWAY)
-            return job
-        with self._scan_lock:
-            if key in self._scanning or not self._scan_slots.acquire(blocking=False):
-                raise ApiError("A posting scan is already running. Try again shortly.", HTTPStatus.CONFLICT)
-            self._scanning.add(key)
-        try:
-            try:
-                result = watcher.scan_posting(cfg, job["job_id"], job["url"])
-                if not (result.get("description") or "").strip():
-                    raise ValueError("The source did not provide readable posting details.")
-            except (ValueError, watcher.requests.RequestException) as exc:
-                message = str(exc)[:250] or "Posting details are temporarily unavailable."
-                with self.db() as con:
-                    con.execute("INSERT OR REPLACE INTO kv VALUES (?,?)", ("posting_scan:" + key,
-                        json.dumps({"timestamp": time.time(), "checked_at": utcnow(), "error": message})))
-                raise ApiError(message, HTTPStatus.BAD_GATEWAY) from exc
-            with self.db() as con:
-                store_description(con, job["board"], job["job_id"], result["description"],
-                                  result.get("department", ""), source="detail")
-                url = result.get("url") or job["url"]
-                if url != job["url"]:
-                    con.execute("UPDATE jobs SET url=? WHERE board=? AND job_id=?", (url, job["board"], job["job_id"]))
-                    con.execute("INSERT INTO job_changes(board,job_id,ts,kind,field,old,new) VALUES (?,?,?,'link_changed','url',?,?)",
-                                (job["board"], job["job_id"], utcnow(), job["url"], url))
-                if result.get("salary"):
-                    con.execute("UPDATE job_details SET salary=? WHERE board=? AND job_id=?",
-                                (result["salary"], job["board"], job["job_id"]))
-                con.execute("INSERT OR REPLACE INTO kv VALUES (?,?)", ("posting_scan:" + key,
-                    json.dumps({"timestamp": time.time(), "checked_at": utcnow(), "error": ""})))
-            with self.db() as con:
-                store = IntelStore(con, self.config)
-                store.facts_pass(keys=[(job["board"], job["job_id"])])
-                store.score_pass(keys=[(job["board"], job["job_id"])])
-            self._pending_cache = None
-            return self.job_detail(key)
-        finally:
-            with self._scan_lock:
-                self._scanning.discard(key)
-                self._scan_slots.release()
 
     def set_override(self, key: str, payload: dict) -> dict:
         deadline = _clean_date(payload.get("deadline"), "deadline")
@@ -2645,7 +2586,6 @@ ROUTES = [
     ("GET", r"/api/overview", lambda s, m, q, b: s.overview()),
     ("GET", r"/api/jobs", lambda s, m, q, b: s.jobs(q)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)", lambda s, m, q, b: s.job_detail(unquote(m["key"]))),
-    ("POST", r"/api/jobs/(?P<key>[^/]+)/scan", lambda s, m, q, b: s.scan_job(unquote(m["key"]), b)),
     ("POST", r"/api/jobs/(?P<key>[^/]+)/description", lambda s, m, q, b: s.retry_description(unquote(m["key"]))),
     ("POST", r"/api/open", lambda s, m, q, b: s.open_link(b)),
     ("PUT", r"/api/jobs/(?P<key>[^/]+)/override", lambda s, m, q, b: s.set_override(unquote(m["key"]), b)),

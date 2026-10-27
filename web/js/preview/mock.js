@@ -127,7 +127,7 @@ function detail(job) {
     resume_match: null, sources: [{label: 'Sample source', kind: 'sample', url: job.url, first_seen: job.first_seen, canonical: true}],
     discovered_from: ['Sample source'], changes: [], contacts: [], company_meta: {},
     application: status ? {status, notes: '', next_step: '', next_action_date: '', updated_at: new Date().toISOString()} : null,
-    application_events: [], posting_scan: null,
+    application_events: [],
   };
 }
 
