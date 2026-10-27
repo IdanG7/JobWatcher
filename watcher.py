@@ -1578,6 +1578,7 @@ def fetch_kula(cfg):
     r = requests.get(f"https://careers.kula.ai/{account}",
                      headers={"User-Agent": UA, "RSC": "1", "Accept": "text/x-component"}, timeout=TIMEOUT)
     r.raise_for_status()
+    r.encoding = "utf-8"    # the payload names no charset, and requests would read text/* as Latin-1
     start = r.text.find('"jobs":[')
     if start < 0:
         raise RuntimeError("Kula board data has no jobs list")

@@ -806,6 +806,19 @@ track's boards, skill groups and types resolve.
        feeds the adapters can't read, and Walgreens's 22,585 mostly store postings.
      - `sources_version` 11, history recorded. The manifest names all nine filters; groups that don't exist
        yet are added with their packs.
+   - **Clinical Research** (2026-10-27): 79 sources and 79 employers.
+     - `pharma`: 20, full listings (each was under 2,000).
+     - `biotech`: 29.
+     - `cro_cdmo`: 15. IQVIA reads only its clinical, lab and quality families.
+     - `research_institutes`: 15, the institutes and universities.
+     - Each was fetched once, and each pack's note lists what wasn't added.
+     - The Kula adapter now reads its payload as UTF-8: 10x Genomics' Japanese titles came out as mojibake.
+       Sanctuary AI, the only other Kula source, has no non-ASCII titles, stored or live.
+     - The new employers on stored postings, simulated with this code (`…\scratchpad\phase4\new_employer_effects.py`):
+       - one move off a board: Moderna's "Research Associate, Analytical Technical Operations", from
+         Finance to Healthcare by the life_science_research rule, for your yes;
+       - no company key changes;
+       - otherwise only employer-type labels, 31 of them on Finance postings, at the same fit.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).

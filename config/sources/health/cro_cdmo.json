@@ -1,0 +1,22 @@
+{
+  "title": "CROs and CDMOs",
+  "verified": "2026-10-27",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. IQVIA reads only its clinical operations, monitoring, clinical data, lab and quality job families. Fortrea and Catalent are Phenom sites with a description teaser; Evotec's Radancy listing read 75 of its 96 postings, so it never closes postings it misses. Not added: Medpace (its iCIMS portal shows no jobs table), ICON (Attrax), Syneos Health (blocked; no board confirmed), Everest Clinical Research and Veristat (no board confirmed on their own sites), Samsung Biologics (a custom portal); PPD and Labcorp Drug Development post on Thermo Fisher's and Labcorp's own boards; BioVectra is now Agilent.",
+  "boards": {
+    "iqvia": {"ats": "workday", "host": "iqvia.wd1.myworkdayjobs.com", "tenant": "iqvia", "site": "IQVIA", "min_interval": 3600, "company_key": "iqvia", "group": "CROs & CDMOs", "priority": 2, "geography": "global", "facets": {"jobFamilyGroup": ["9c1453f3b592011252b4096aaf63323a", "9c1453f3b59201355bde7e6aaf63623a", "9c1453f3b59201febe7b0d6aaf63343a", "9c1453f3b592010170c9fd69af632c3a", "9c1453f3b59201fcb668566aaf634e3a", "9c1453f3b59201efe9625a6aaf63503a", "9c1453f3b59201d042dd866aaf63663a", "9c1453f3b59201451c1f5e6aaf63523a", "9c1453f3b59201510804026aaf632e3a", "9c1453f3b5920136666e936aaf636c3a", "e8eee94a2f42016151d88be319019b51", "c7740098347f01815529c395aa015970", "7e40bfbe6f760111b4ed73c0aa015f6e", "0d5fc04e42d21002006fbd910aca0000", "c572730e2c27011bec84f4e3fc009cdb"]}, "label": "IQVIA clinical, lab and quality roles"},
+    "parexel": {"ats": "workday", "host": "parexel.wd1.myworkdayjobs.com", "tenant": "parexel", "site": "Parexel_External_Careers", "min_interval": 1800, "company_key": "parexel", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "fortrea": {"ats": "phenom", "host": "careers.fortrea.com", "min_interval": 1800, "company_key": "fortrea", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "charles_river_laboratories": {"ats": "successfactors", "url": "https://careers.criver.com/search/", "min_interval": 1800, "company_key": "charles_river_laboratories", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "lonza": {"ats": "workday", "host": "lonza.wd3.myworkdayjobs.com", "tenant": "lonza", "site": "Lonza_Careers", "min_interval": 1800, "company_key": "lonza", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "catalent": {"ats": "phenom", "host": "careers.catalent.com", "min_interval": 1800, "company_key": "catalent", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "wuxi_apptec": {"ats": "icims", "host": "careers-wuxiapptec.icims.com", "min_interval": 1800, "company_key": "wuxi_apptec", "group": "CROs & CDMOs", "priority": 2, "geography": "us"},
+    "evotec": {"ats": "radancy", "host": "careers.evotec.com", "lang": "en", "min_interval": 1800, "company_key": "evotec", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "precision_for_medicine": {"ats": "greenhouse", "token": "pfm", "min_interval": 1800, "company_key": "precision_for_medicine", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "worldwide_clinical_trials": {"ats": "workday", "host": "worldwide.wd1.myworkdayjobs.com", "tenant": "worldwide", "site": "External", "min_interval": 1800, "company_key": "worldwide_clinical_trials", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "premier_research": {"ats": "workday", "host": "premierresearch.wd12.myworkdayjobs.com", "tenant": "premierresearch", "site": "PremierResearch", "min_interval": 1800, "company_key": "premier_research", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "altasciences": {"ats": "workday", "host": "altasciences.wd1.myworkdayjobs.com", "tenant": "altasciences", "site": "Careers", "min_interval": 1800, "company_key": "altasciences", "group": "CROs & CDMOs", "priority": 2, "geography": "canada"},
+    "allucent": {"ats": "workable", "account": "allucent", "min_interval": 1800, "company_key": "allucent", "group": "CROs & CDMOs", "priority": 2, "geography": "global"},
+    "alcami": {"ats": "icims", "host": "careers-alcami.icims.com", "min_interval": 1800, "company_key": "alcami", "group": "CROs & CDMOs", "priority": 2, "geography": "us"},
+    "cambrex": {"ats": "jibe", "host": "careers.cambrex.com", "min_interval": 1800, "company_key": "cambrex", "group": "CROs & CDMOs", "priority": 2, "geography": "global"}
+  }
+}

@@ -1,4 +1,27 @@
 {
+ "10x_genomics": {
+  "account": [
+   "10xgenomics"
+  ],
+  "ats": [
+   "kula"
+  ],
+  "company_key": [
+   "10x_genomics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "1password": {
   "ats": [
    "ashby"
@@ -77,14 +100,17 @@
   ]
  },
  "__shipped__": {
-  "hash": "c942f27f5c46897e",
+  "hash": "2c1bf82a83d8a4e1",
   "names": [
+   "10x_genomics",
    "1password",
    "1x_technologies",
    "2k",
    "6sense",
+   "abcellera",
    "abnormal_security",
    "abridge",
+   "absci",
    "absorb_lms",
    "acorns",
    "ada",
@@ -102,13 +128,18 @@
    "akamai",
    "akuna",
    "alayacare",
+   "alcami",
    "aleph_alpha",
    "alignment_health",
    "allegro_microsystems",
    "alloy",
    "alltrails",
+   "allucent",
+   "alnylam_pharmaceuticals",
    "alphasense",
+   "altasciences",
    "alteryx",
+   "altos_labs",
    "amazon",
    "amazon_finance",
    "amazon_newgrad",
@@ -117,6 +148,7 @@
    "ambience_healthcare",
    "amd",
    "american_express",
+   "amgen",
    "amplemarket",
    "amplitude",
    "analog_devices",
@@ -128,6 +160,7 @@
    "apex_space",
    "apollo",
    "apollo_io",
+   "apotex",
    "appian",
    "apple",
    "apple_finance",
@@ -137,12 +170,15 @@
    "apptronik",
    "aptiv",
    "aqr",
+   "arc_institute",
    "arctic_wolf",
    "arize_ai",
    "arm",
    "armis",
    "array_technologies",
+   "arsenal_bio",
    "asana",
+   "aspect_biosystems",
    "assemblyai",
    "astranis",
    "at_t",
@@ -161,14 +197,19 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "bayer",
+   "beam_therapeutics",
    "behaviour_interactive",
    "bell",
    "benchling",
+   "benchsci",
    "benevity",
    "best_buy_canada",
    "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
+   "biogen",
+   "biontech",
    "bitgo",
    "blackbaud",
    "blackberry",
@@ -194,6 +235,8 @@
    "braintrust",
    "braze",
    "brex",
+   "bristol_myers_squibb",
+   "broad_institute",
    "broadcom",
    "brookfield",
    "browserbase",
@@ -204,6 +247,8 @@
    "caci_international",
    "cadence",
    "calendly",
+   "calico",
+   "cambrex",
    "camh",
    "canada_intern26",
    "canadian_tire",
@@ -213,6 +258,7 @@
    "carlyle",
    "carta",
    "cartesia",
+   "catalent",
    "cato_networks",
    "cdpq",
    "cdpq_students",
@@ -224,6 +270,7 @@
    "chainguard",
    "character_ai",
    "chargepoint",
+   "charles_river_laboratories",
    "check_point_software",
    "checkr",
    "cheo",
@@ -276,6 +323,7 @@
    "cpp_investments",
    "cresta",
    "cribl",
+   "crispr_therapeutics",
    "crowdstrike",
    "crusoe",
    "cursor",
@@ -294,6 +342,7 @@
    "dataiku",
    "dave",
    "decagon",
+   "deep_genomics",
    "deepgram",
    "deepl",
    "deepmind",
@@ -301,6 +350,7 @@
    "deliveroo",
    "dell",
    "demandbase",
+   "denali_therapeutics",
    "derec4_newgrad27",
    "descript",
    "deutsche_bank",
@@ -322,13 +372,16 @@
    "drw",
    "duke_health",
    "duolingo",
+   "dyno_therapeutics",
    "e2b",
    "ebay",
+   "eikon_therapeutics",
    "elastic",
    "electronic_arts",
    "elevance_health",
    "elevance_health_clinical",
    "elevenlabs",
+   "eli_lilly",
    "encord",
    "enovix",
    "epic_games",
@@ -338,6 +391,7 @@
    "etched",
    "evercore",
    "evercore_students",
+   "evotec",
    "exa_ai",
    "exabeam",
    "expedia_group",
@@ -367,7 +421,9 @@
    "ford_motor_company",
    "form_energy",
    "fortinet",
+   "fortrea",
    "fraser_health",
+   "freenome",
    "freshbooks",
    "freshworks",
    "fullstory",
@@ -380,9 +436,13 @@
    "ge_vernova_finance",
    "gearbox_software",
    "gemini",
+   "genentech",
    "general_motors",
+   "generate_biomedicines",
    "geneva_trading",
    "geotab",
+   "gilead_sciences",
+   "ginkgo_bioworks",
    "github",
    "gitlab",
    "glean",
@@ -397,7 +457,9 @@
    "gopuff",
    "gradient_ai",
    "grafana_labs",
+   "grail",
    "graphcore",
+   "gsk",
    "gts",
    "guidewire_software",
    "gusto",
@@ -405,12 +467,14 @@
    "hackerone",
    "halton_healthcare",
    "harness",
+   "harvard_university",
    "harvey",
    "headway",
    "hebbia",
    "helion_energy",
    "hex",
    "heygen",
+   "hhmi",
    "hightouch",
    "hinge_health",
    "honeycomb_io",
@@ -431,23 +495,28 @@
    "imbue",
    "imc",
    "imply",
+   "inceptive",
    "inflection_ai",
    "insitro",
    "instacart",
    "intel",
    "intel_early",
+   "intellia_therapeutics",
    "intercom",
    "intuit",
    "intuitive_surgical",
    "inworld_ai",
    "ionq",
+   "iqvia",
    "ironclad",
    "isomorphic_labs",
+   "jackson_laboratory",
    "jam_city",
    "jane_street",
    "jefferies_campus",
    "jfrog",
    "jobber",
+   "johnson_johnson",
    "jpmorgan",
    "jpmorgan_early",
    "jpmorgan_tech",
@@ -466,6 +535,7 @@
    "komodo_health",
    "kong",
    "krea_ai",
+   "kymera_therapeutics",
    "kyndryl",
    "l3harris_technologies",
    "labelbox",
@@ -505,6 +575,7 @@
    "lockheed_martin_finance",
    "locus_robotics",
    "logitech",
+   "lonza",
    "loopio",
    "lowe_s",
    "lucid",
@@ -515,6 +586,7 @@
    "magic",
    "magna_finance",
    "magna_international",
+   "mammoth_biosciences",
    "man_group",
    "manulife",
    "marqeta",
@@ -527,9 +599,11 @@
    "material_security",
    "materialize",
    "mayo_clinic",
+   "mcgill_university",
    "mda_space",
    "medallia",
    "medavie_health_services",
+   "merck",
    "mercor",
    "mercury",
    "microchip",
@@ -547,6 +621,7 @@
    "mixpanel",
    "modal",
    "modern_health",
+   "moderna",
    "moelis",
    "molina_healthcare",
    "monday_com",
@@ -590,7 +665,9 @@
    "northrop_grumman_finance",
    "notion",
    "nova_scotia_health",
+   "novartis",
    "nozomi_networks",
+   "nurix_therapeutics",
    "nuro",
    "nutanix",
    "nuvei",
@@ -618,6 +695,7 @@
    "pagerduty",
    "palantir",
    "palo_alto_networks",
+   "parexel",
    "pathai",
    "patreon",
    "paxos",
@@ -627,6 +705,7 @@
    "peloton",
    "pendo",
    "perplexity",
+   "pfizer",
    "physical_intelligence",
    "pika_labs",
    "pinecone",
@@ -644,7 +723,9 @@
    "poshmark",
    "posthog",
    "postman",
+   "precision_for_medicine",
    "prefect",
+   "premier_research",
    "priceline",
    "procore_technologies",
    "proofpoint",
@@ -676,7 +757,9 @@
    "reddit",
    "redis",
    "regard",
+   "regeneron",
    "relativity_space",
+   "relay_therapeutics",
    "render",
    "replit",
    "retool",
@@ -690,6 +773,7 @@
    "roblox",
    "roboflow",
    "robust_ai",
+   "roche",
    "rocket_lab",
    "rockstar_games",
    "rockwell_automation",
@@ -706,12 +790,16 @@
    "salesforce",
    "salesforce_early",
    "salesloft",
+   "salk_institute",
    "salsify",
    "sambanova",
    "samsara",
    "samsung_semiconductor",
+   "sana_biotechnology",
    "sanctuary_ai",
    "sandboxaq",
+   "sandoz",
+   "sanofi",
    "sap",
    "saronic",
    "scale_ai",
@@ -720,6 +808,7 @@
    "scopely",
    "scotiabank_students",
    "scotiabank_tech",
+   "scripps_research",
    "seatgeek",
    "seattle_children_s",
    "securityscorecard",
@@ -774,6 +863,7 @@
    "squarespace",
    "ss_c_technologies",
    "st_joseph_s_healthcare_hamilton",
+   "st_jude_children_s_research_hospital",
    "stability_ai",
    "stack_av",
    "stackadapt",
@@ -798,6 +888,7 @@
    "synthesia",
    "tailscale",
    "take_two",
+   "takeda",
    "talkspace",
    "tanium",
    "target",
@@ -834,17 +925,23 @@
    "twelve_carbon",
    "twelve_labs",
    "twilio",
+   "twist_bioscience",
    "twitch",
    "two_sigma",
    "typeface",
    "uber",
    "ubisoft",
+   "ucsf",
    "udemy",
    "uipath",
    "ukg",
    "unisys",
    "unitedhealth_group",
    "unity",
+   "university_of_alberta",
+   "university_of_british_columbia",
+   "university_of_toronto",
+   "university_of_washington",
    "unstructured_io",
    "upstart",
    "vancouver_coastal_health",
@@ -862,6 +959,7 @@
    "verkada",
    "viam",
    "viavi_solutions",
+   "vir_biotechnology",
    "virtu",
    "visa",
    "visier",
@@ -896,8 +994,12 @@
    "world_labs",
    "worldpay",
    "worldquant",
+   "worldwide_clinical_trials",
    "writer",
+   "wuxi_apptec",
    "xai",
+   "xaira_therapeutics",
+   "yale_university",
    "yelp",
    "yipitdata",
    "you_com",
@@ -923,12 +1025,15 @@
   "version": 11
  },
  "__since__": {
+  "10x_genomics": 11,
   "1password": 1,
   "1x_technologies": 10,
   "2k": 10,
   "6sense": 10,
+  "abcellera": 11,
   "abnormal_security": 10,
   "abridge": 1,
+  "absci": 11,
   "absorb_lms": 10,
   "acorns": 10,
   "ada": 10,
@@ -946,13 +1051,18 @@
   "akamai": 10,
   "akuna": 1,
   "alayacare": 10,
+  "alcami": 11,
   "aleph_alpha": 10,
   "alignment_health": 11,
   "allegro_microsystems": 10,
   "alloy": 1,
   "alltrails": 10,
+  "allucent": 11,
+  "alnylam_pharmaceuticals": 11,
   "alphasense": 10,
+  "altasciences": 11,
   "alteryx": 10,
+  "altos_labs": 11,
   "amazon": 1,
   "amazon_finance": 10,
   "amazon_newgrad": 1,
@@ -961,6 +1071,7 @@
   "ambience_healthcare": 10,
   "amd": 10,
   "american_express": 10,
+  "amgen": 11,
   "amplemarket": 10,
   "amplitude": 1,
   "analog_devices": 10,
@@ -972,6 +1083,7 @@
   "apex_space": 10,
   "apollo": 6,
   "apollo_io": 10,
+  "apotex": 11,
   "appian": 10,
   "apple": 10,
   "apple_finance": 10,
@@ -981,12 +1093,15 @@
   "apptronik": 10,
   "aptiv": 10,
   "aqr": 1,
+  "arc_institute": 11,
   "arctic_wolf": 10,
   "arize_ai": 10,
   "arm": 10,
   "armis": 10,
   "array_technologies": 10,
+  "arsenal_bio": 11,
   "asana": 1,
+  "aspect_biosystems": 11,
   "assemblyai": 1,
   "astranis": 10,
   "at_t": 10,
@@ -1005,14 +1120,19 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "bayer": 11,
+  "beam_therapeutics": 11,
   "behaviour_interactive": 10,
   "bell": 10,
   "benchling": 10,
+  "benchsci": 11,
   "benevity": 10,
   "best_buy_canada": 10,
   "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
+  "biogen": 11,
+  "biontech": 11,
   "bitgo": 10,
   "blackbaud": 10,
   "blackberry": 10,
@@ -1038,6 +1158,8 @@
   "braintrust": 1,
   "braze": 10,
   "brex": 1,
+  "bristol_myers_squibb": 11,
+  "broad_institute": 11,
   "broadcom": 10,
   "brookfield": 6,
   "browserbase": 1,
@@ -1048,6 +1170,8 @@
   "caci_international": 10,
   "cadence": 10,
   "calendly": 1,
+  "calico": 11,
+  "cambrex": 11,
   "camh": 11,
   "canada_intern26": 1,
   "canadian_tire": 10,
@@ -1057,6 +1181,7 @@
   "carlyle": 6,
   "carta": 10,
   "cartesia": 1,
+  "catalent": 11,
   "cato_networks": 10,
   "cdpq": 6,
   "cdpq_students": 6,
@@ -1068,6 +1193,7 @@
   "chainguard": 10,
   "character_ai": 1,
   "chargepoint": 10,
+  "charles_river_laboratories": 11,
   "check_point_software": 10,
   "checkr": 1,
   "cheo": 11,
@@ -1120,6 +1246,7 @@
   "cpp_investments": 6,
   "cresta": 10,
   "cribl": 10,
+  "crispr_therapeutics": 11,
   "crowdstrike": 10,
   "crusoe": 1,
   "cursor": 1,
@@ -1138,6 +1265,7 @@
   "dataiku": 10,
   "dave": 10,
   "decagon": 1,
+  "deep_genomics": 11,
   "deepgram": 10,
   "deepl": 10,
   "deepmind": 1,
@@ -1145,6 +1273,7 @@
   "deliveroo": 10,
   "dell": 10,
   "demandbase": 10,
+  "denali_therapeutics": 11,
   "derec4_newgrad27": 1,
   "descript": 1,
   "deutsche_bank": 6,
@@ -1166,13 +1295,16 @@
   "drw": 1,
   "duke_health": 11,
   "duolingo": 1,
+  "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
+  "eikon_therapeutics": 11,
   "elastic": 1,
   "electronic_arts": 10,
   "elevance_health": 10,
   "elevance_health_clinical": 11,
   "elevenlabs": 1,
+  "eli_lilly": 11,
   "encord": 10,
   "enovix": 10,
   "epic_games": 10,
@@ -1182,6 +1314,7 @@
   "etched": 10,
   "evercore": 6,
   "evercore_students": 6,
+  "evotec": 11,
   "exa_ai": 10,
   "exabeam": 10,
   "expedia_group": 10,
@@ -1211,7 +1344,9 @@
   "ford_motor_company": 10,
   "form_energy": 10,
   "fortinet": 10,
+  "fortrea": 11,
   "fraser_health": 11,
+  "freenome": 11,
   "freshbooks": 10,
   "freshworks": 10,
   "fullstory": 10,
@@ -1224,9 +1359,13 @@
   "ge_vernova_finance": 10,
   "gearbox_software": 10,
   "gemini": 1,
+  "genentech": 11,
   "general_motors": 10,
+  "generate_biomedicines": 11,
   "geneva_trading": 1,
   "geotab": 10,
+  "gilead_sciences": 11,
+  "ginkgo_bioworks": 11,
   "github": 10,
   "gitlab": 1,
   "glean": 1,
@@ -1241,7 +1380,9 @@
   "gopuff": 1,
   "gradient_ai": 10,
   "grafana_labs": 10,
+  "grail": 11,
   "graphcore": 10,
+  "gsk": 11,
   "gts": 1,
   "guidewire_software": 10,
   "gusto": 1,
@@ -1249,12 +1390,14 @@
   "hackerone": 10,
   "halton_healthcare": 11,
   "harness": 10,
+  "harvard_university": 11,
   "harvey": 1,
   "headway": 10,
   "hebbia": 10,
   "helion_energy": 10,
   "hex": 10,
   "heygen": 1,
+  "hhmi": 11,
   "hightouch": 1,
   "hinge_health": 1,
   "honeycomb_io": 10,
@@ -1275,23 +1418,28 @@
   "imbue": 1,
   "imc": 1,
   "imply": 10,
+  "inceptive": 11,
   "inflection_ai": 10,
   "insitro": 10,
   "instacart": 1,
   "intel": 1,
   "intel_early": 1,
+  "intellia_therapeutics": 11,
   "intercom": 10,
   "intuit": 10,
   "intuitive_surgical": 10,
   "inworld_ai": 10,
   "ionq": 10,
+  "iqvia": 11,
   "ironclad": 10,
   "isomorphic_labs": 10,
+  "jackson_laboratory": 11,
   "jam_city": 10,
   "jane_street": 1,
   "jefferies_campus": 6,
   "jfrog": 10,
   "jobber": 10,
+  "johnson_johnson": 11,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
   "jpmorgan_tech": 10,
@@ -1310,6 +1458,7 @@
   "komodo_health": 10,
   "kong": 10,
   "krea_ai": 10,
+  "kymera_therapeutics": 11,
   "kyndryl": 10,
   "l3harris_technologies": 10,
   "labelbox": 10,
@@ -1351,6 +1500,7 @@
   "lockheed_martin_finance": 10,
   "locus_robotics": 10,
   "logitech": 10,
+  "lonza": 11,
   "loopio": 10,
   "lowe_s": 10,
   "lucid": 10,
@@ -1361,6 +1511,7 @@
   "magic": 10,
   "magna_finance": 10,
   "magna_international": 10,
+  "mammoth_biosciences": 11,
   "man_group": 1,
   "manulife": 6,
   "marqeta": 1,
@@ -1373,9 +1524,11 @@
   "material_security": 10,
   "materialize": 10,
   "mayo_clinic": 11,
+  "mcgill_university": 11,
   "mda_space": 10,
   "medallia": 10,
   "medavie_health_services": 11,
+  "merck": 11,
   "mercor": 1,
   "mercury": 1,
   "microchip": 10,
@@ -1393,6 +1546,7 @@
   "mixpanel": 1,
   "modal": 1,
   "modern_health": 10,
+  "moderna": 11,
   "moelis": 1,
   "molina_healthcare": 11,
   "monday_com": 10,
@@ -1436,7 +1590,9 @@
   "northrop_grumman_finance": 10,
   "notion": 1,
   "nova_scotia_health": 11,
+  "novartis": 11,
   "nozomi_networks": 10,
+  "nurix_therapeutics": 11,
   "nuro": 1,
   "nutanix": 10,
   "nuvei": 10,
@@ -1464,6 +1620,7 @@
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
+  "parexel": 11,
   "pathai": 10,
   "patreon": 10,
   "paxos": 10,
@@ -1473,6 +1630,7 @@
   "peloton": 1,
   "pendo": 10,
   "perplexity": 1,
+  "pfizer": 11,
   "physical_intelligence": 10,
   "pika_labs": 10,
   "pinecone": 10,
@@ -1490,7 +1648,9 @@
   "poshmark": 10,
   "posthog": 10,
   "postman": 1,
+  "precision_for_medicine": 11,
   "prefect": 10,
+  "premier_research": 11,
   "priceline": 10,
   "procore_technologies": 10,
   "proofpoint": 10,
@@ -1522,7 +1682,9 @@
   "reddit": 1,
   "redis": 10,
   "regard": 10,
+  "regeneron": 11,
   "relativity_space": 10,
+  "relay_therapeutics": 11,
   "render": 10,
   "replit": 10,
   "retool": 1,
@@ -1536,6 +1698,7 @@
   "roblox": 1,
   "roboflow": 10,
   "robust_ai": 10,
+  "roche": 11,
   "rocket_lab": 10,
   "rockstar_games": 10,
   "rockwell_automation": 10,
@@ -1552,12 +1715,16 @@
   "salesforce": 1,
   "salesforce_early": 1,
   "salesloft": 10,
+  "salk_institute": 11,
   "salsify": 10,
   "sambanova": 10,
   "samsara": 1,
   "samsung_semiconductor": 10,
+  "sana_biotechnology": 11,
   "sanctuary_ai": 10,
   "sandboxaq": 10,
+  "sandoz": 11,
+  "sanofi": 11,
   "sap": 10,
   "saronic": 10,
   "scale_ai": 1,
@@ -1566,6 +1733,7 @@
   "scopely": 10,
   "scotiabank_students": 2,
   "scotiabank_tech": 10,
+  "scripps_research": 11,
   "seatgeek": 1,
   "seattle_children_s": 11,
   "securityscorecard": 10,
@@ -1620,6 +1788,7 @@
   "squarespace": 1,
   "ss_c_technologies": 10,
   "st_joseph_s_healthcare_hamilton": 11,
+  "st_jude_children_s_research_hospital": 11,
   "stability_ai": 10,
   "stack_av": 10,
   "stackadapt": 10,
@@ -1644,6 +1813,7 @@
   "synthesia": 10,
   "tailscale": 10,
   "take_two": 10,
+  "takeda": 11,
   "talkspace": 10,
   "tanium": 10,
   "target": 1,
@@ -1680,17 +1850,23 @@
   "twelve_carbon": 10,
   "twelve_labs": 10,
   "twilio": 1,
+  "twist_bioscience": 11,
   "twitch": 10,
   "two_sigma": 1,
   "typeface": 1,
   "uber": 10,
   "ubisoft": 10,
+  "ucsf": 11,
   "udemy": 10,
   "uipath": 10,
   "ukg": 10,
   "unisys": 10,
   "unitedhealth_group": 10,
   "unity": 10,
+  "university_of_alberta": 11,
+  "university_of_british_columbia": 11,
+  "university_of_toronto": 11,
+  "university_of_washington": 11,
   "unstructured_io": 10,
   "upstart": 1,
   "vancouver_coastal_health": 11,
@@ -1708,6 +1884,7 @@
   "verkada": 1,
   "viam": 10,
   "viavi_solutions": 10,
+  "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
   "visier": 10,
@@ -1742,8 +1919,12 @@
   "world_labs": 10,
   "worldpay": 10,
   "worldquant": 1,
+  "worldwide_clinical_trials": 11,
   "writer": 1,
+  "wuxi_apptec": 11,
   "xai": 1,
+  "xaira_therapeutics": 11,
+  "yale_university": 11,
   "yelp": 10,
   "yipitdata": 10,
   "you_com": 10,
@@ -1765,6 +1946,29 @@
   "zoox": 1,
   "zscaler": 10,
   "zuora": 10
+ },
+ "abcellera": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "abcellera"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "abcellera"
+  ]
  },
  "abnormal_security": {
   "ats": [
@@ -1795,6 +1999,29 @@
   ],
   "token": [
    "abridge"
+  ]
+ },
+ "absci": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "absci"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "absci"
   ]
  },
  "absorb_lms": {
@@ -2126,6 +2353,29 @@
    "alayacare"
   ]
  },
+ "alcami": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "alcami"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers-alcami.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "aleph_alpha": {
   "ats": [
    "ashby"
@@ -2238,6 +2488,52 @@
    "alltrails"
   ]
  },
+ "allucent": {
+  "account": [
+   "allucent"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "allucent"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "alnylam_pharmaceuticals": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "alnylam_pharmaceuticals"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "alnylampharmaceuticals"
+  ]
+ },
  "alphasense": {
   "ats": [
    "greenhouse"
@@ -2259,6 +2555,35 @@
   ],
   "token": [
    "alphasense"
+  ]
+ },
+ "altasciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "altasciences"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "altasciences.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "altasciences"
   ]
  },
  "alteryx": {
@@ -2288,6 +2613,29 @@
   ],
   "tenant": [
    "alteryx"
+  ]
+ },
+ "altos_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "altos_labs"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "altoslabs"
   ]
  },
  "amazon": {
@@ -2493,6 +2841,32 @@
   ],
   "site": [
    "CX_1"
+  ]
+ },
+ "amgen": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "amgen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.amgen.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "amplemarket": {
@@ -2744,6 +3118,29 @@
    "apolloio"
   ]
  },
+ "apotex": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "apotex"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.apotex.com/search/"
+  ]
+ },
  "appian": {
   "ats": [
    "greenhouse"
@@ -2965,6 +3362,29 @@
    "aqr"
   ]
  },
+ "arc_institute": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "arc_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arcinstitute"
+  ]
+ },
  "arctic_wolf": {
   "ats": [
    "workday"
@@ -3092,12 +3512,58 @@
    "arraytechinc"
   ]
  },
+ "arsenal_bio": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "arsenal_bio"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arsenalbio"
+  ]
+ },
  "asana": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "asana"
+  ]
+ },
+ "aspect_biosystems": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "aspect_biosystems"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "aspectbiosystems"
   ]
  },
  "assemblyai": {
@@ -3495,6 +3961,55 @@
    "baseten"
   ]
  },
+ "bayer": {
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "bayer"
+  ],
+  "domain": [
+   "bayer.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "talent.bayer.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "beam_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "beam_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "beamtherapeutics"
+  ]
+ },
  "behaviour_interactive": {
   "ats": [
    "lever"
@@ -3562,6 +4077,29 @@
   ],
   "token": [
    "benchling"
+  ]
+ },
+ "benchsci": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "benchsci"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "benchsci"
   ]
  },
  "benevity": {
@@ -3697,6 +4235,58 @@
   ],
   "token": [
    "beyondtrust"
+  ]
+ },
+ "biogen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "biogen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "biibhr.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "external"
+  ],
+  "tenant": [
+   "biibhr"
+  ]
+ },
+ "biontech": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "biontech"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.biontech.com/search/"
   ]
  },
  "bitgo": {
@@ -4360,6 +4950,58 @@
    "brex"
   ]
  },
+ "bristol_myers_squibb": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bristol_myers_squibb"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "bristolmyerssquibb.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BMS"
+  ],
+  "tenant": [
+   "bristolmyerssquibb"
+  ]
+ },
+ "broad_institute": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "broad_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://broadinstitute.avature.net/careers/SearchJobs"
+  ]
+ },
  "broadcom": {
   "ats": [
    "workday"
@@ -4609,6 +5251,52 @@
    "calendly"
   ]
  },
+ "calico": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "calico"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "calicolabs"
+  ]
+ },
+ "cambrex": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "cambrex"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.cambrex.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "camh": {
   "ats": [
    "oracle_hcm"
@@ -4823,6 +5511,29 @@
   ],
   "token": [
    "cartesia"
+  ]
+ },
+ "catalent": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "catalent"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.catalent.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "cato_networks": {
@@ -5085,6 +5796,29 @@
   ],
   "token": [
    "chargepoint"
+  ]
+ },
+ "charles_river_laboratories": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "charles_river_laboratories"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.criver.com/search/"
   ]
  },
  "check_point_software": {
@@ -6336,6 +7070,35 @@
    "cribl"
   ]
  },
+ "crispr_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "crispr_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "crisprtx.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "careers"
+  ],
+  "tenant": [
+   "crisprtx"
+  ]
+ },
  "crowdstrike": {
   "ats": [
    "workday"
@@ -6762,6 +7525,29 @@
    "decagon"
   ]
  },
+ "deep_genomics": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "deep_genomics"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "deepgenomics"
+  ]
+ },
  "deepgram": {
   "ats": [
    "ashby"
@@ -6912,6 +7698,35 @@
   ],
   "token": [
    "demandbase"
+  ]
+ },
+ "denali_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "denali_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "dnli.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Discovery"
+  ],
+  "tenant": [
+   "dnli"
   ]
  },
  "derec4_newgrad27": {
@@ -7348,6 +8163,29 @@
    "duolingo"
   ]
  },
+ "dyno_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "dyno_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dynotherapeutics"
+  ]
+ },
  "e2b": {
   "ats": [
    "ashby"
@@ -7389,6 +8227,29 @@
   ],
   "tenant": [
    "ebay"
+  ]
+ },
+ "eikon_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "eikon_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "eikontherapeutics"
   ]
  },
  "elastic": {
@@ -7507,6 +8368,32 @@
   ],
   "token": [
    "elevenlabs"
+  ]
+ },
+ "eli_lilly": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "eli_lilly"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.lilly.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.lilly.com/us/en/job/{id}"
   ]
  },
  "encord": {
@@ -7735,6 +8622,32 @@
   ],
   "priority": [
    1
+  ]
+ },
+ "evotec": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "evotec"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.evotec.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "exa_ai": {
@@ -8341,6 +9254,29 @@
    "CX_2001"
   ]
  },
+ "fortrea": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "fortrea"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.fortrea.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "fraser_health": {
   "ats": [
    "jibe"
@@ -8362,6 +9298,29 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "freenome": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "freenome"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "freenome"
   ]
  },
  "freshbooks": {
@@ -8698,6 +9657,32 @@
    "gemini"
   ]
  },
+ "genentech": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "genentech"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.gene.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.gene.com/us/en/job/{id}"
+  ]
+ },
  "general_motors": {
   "ats": [
    "workday"
@@ -8725,6 +9710,29 @@
   ],
   "tenant": [
    "generalmotors"
+  ]
+ },
+ "generate_biomedicines": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "generate_biomedicines"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "generatebiomedicines"
   ]
  },
  "geneva_trading": {
@@ -8765,6 +9773,58 @@
   ],
   "token": [
    "geotab"
+  ]
+ },
+ "gilead_sciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "gilead_sciences"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "gilead.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "gileadcareers"
+  ],
+  "tenant": [
+   "gilead"
+  ]
+ },
+ "ginkgo_bioworks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ginkgo_bioworks"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ginkgobioworks"
   ]
  },
  "github": {
@@ -9068,6 +10128,29 @@
    "grafanalabs"
   ]
  },
+ "grail": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "grail"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "grailbio"
+  ]
+ },
  "graphcore": {
   "ats": [
    "greenhouse"
@@ -9089,6 +10172,32 @@
   ],
   "token": [
    "graphcore"
+  ]
+ },
+ "gsk": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "gsk"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.gsk.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.gsk.com/global/en/job/{id}"
   ]
  },
  "gts": {
@@ -9231,6 +10340,29 @@
    "harnessinc"
   ]
  },
+ "harvard_university": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "harvard_university"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "HarvardUniversity"
+  ]
+ },
  "harvey": {
   "ats": [
    "ashby"
@@ -9337,6 +10469,35 @@
   ],
   "token": [
    "heygen"
+  ]
+ },
+ "hhmi": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hhmi"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "hhmi.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "hhmi"
   ]
  },
  "hightouch": {
@@ -9820,6 +10981,29 @@
    "imply"
   ]
  },
+ "inceptive": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "inceptive"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "inceptive"
+  ]
+ },
  "inflection_ai": {
   "ats": [
    "greenhouse"
@@ -9916,6 +11100,35 @@
   ],
   "tenant": [
    "intel"
+  ]
+ },
+ "intellia_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "intellia_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "intelliatx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "intelliatxcareers"
+  ],
+  "tenant": [
+   "intelliatx"
   ]
  },
  "intercom": {
@@ -10033,6 +11246,59 @@
    "ionq"
   ]
  },
+ "iqvia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "iqvia"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "9c1453f3b592011252b4096aaf63323a",
+     "9c1453f3b59201355bde7e6aaf63623a",
+     "9c1453f3b59201febe7b0d6aaf63343a",
+     "9c1453f3b592010170c9fd69af632c3a",
+     "9c1453f3b59201fcb668566aaf634e3a",
+     "9c1453f3b59201efe9625a6aaf63503a",
+     "9c1453f3b59201d042dd866aaf63663a",
+     "9c1453f3b59201451c1f5e6aaf63523a",
+     "9c1453f3b59201510804026aaf632e3a",
+     "9c1453f3b5920136666e936aaf636c3a",
+     "e8eee94a2f42016151d88be319019b51",
+     "c7740098347f01815529c395aa015970",
+     "7e40bfbe6f760111b4ed73c0aa015f6e",
+     "0d5fc04e42d21002006fbd910aca0000",
+     "c572730e2c27011bec84f4e3fc009cdb"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "iqvia.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "IQVIA clinical, lab and quality roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "IQVIA"
+  ],
+  "tenant": [
+   "iqvia"
+  ]
+ },
  "ironclad": {
   "ats": [
    "ashby"
@@ -10077,6 +11343,29 @@
   ],
   "token": [
    "isomorphiclabs"
+  ]
+ },
+ "jackson_laboratory": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "jackson_laboratory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "careers-jax.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "jam_city": {
@@ -10177,6 +11466,38 @@
   ],
   "token": [
    "jobber"
+  ]
+ },
+ "johnson_johnson": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "johnson_johnson"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jnjcareers.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Johnson & Johnson"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "JJ"
+  ],
+  "tenant": [
+   "jj"
   ]
  },
  "jpmorgan": {
@@ -10614,6 +11935,29 @@
   ],
   "token": [
    "krea"
+  ]
+ },
+ "kymera_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "kymera_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "kymeratherapeutics"
   ]
  },
  "kyndryl": {
@@ -11906,6 +13250,35 @@
    "logitech"
   ]
  },
+ "lonza": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "lonza"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "lonza.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Lonza_Careers"
+  ],
+  "tenant": [
+   "lonza"
+  ]
+ },
  "loopio": {
   "ats": [
    "ashby"
@@ -12168,6 +13541,29 @@
   ],
   "tenant": [
    "magna"
+  ]
+ },
+ "mammoth_biosciences": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "mammoth_biosciences"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mammothbiosci"
   ]
  },
  "man_group": {
@@ -12488,6 +13884,35 @@
    "CX_1"
   ]
  },
+ "mcgill_university": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mcgill_university"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "mcgill.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "mcgill_careers"
+  ],
+  "tenant": [
+   "mcgill"
+  ]
+ },
  "mda_space": {
   "ats": [
    "ukg"
@@ -12567,6 +13992,35 @@
   ],
   "tenant": [
    "medaviehs"
+  ]
+ },
+ "merck": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "merck"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "msd.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SearchJobs"
+  ],
+  "tenant": [
+   "msd"
   ]
  },
  "mercor": {
@@ -12933,6 +14387,35 @@
   ],
   "token": [
    "modernhealth"
+  ]
+ },
+ "moderna": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "moderna"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "modernatx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "M_tx"
+  ],
+  "tenant": [
+   "modernatx"
   ]
  },
  "moelis": {
@@ -14066,6 +15549,35 @@
    "https://jobs.nshealth.ca/search/"
   ]
  },
+ "novartis": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "novartis"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "novartis.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Novartis_Careers"
+  ],
+  "tenant": [
+   "novartis"
+  ]
+ },
  "nozomi_networks": {
   "ats": [
    "greenhouse"
@@ -14087,6 +15599,29 @@
   ],
   "token": [
    "nozominetworks"
+  ]
+ },
+ "nurix_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "nurix_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "nurix"
   ]
  },
  "nuro": {
@@ -14663,6 +16198,35 @@
    "paloaltonetworks"
   ]
  },
+ "parexel": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "parexel"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "parexel.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Parexel_External_Careers"
+  ],
+  "tenant": [
+   "parexel"
+  ]
+ },
  "pathai": {
   "ats": [
    "greenhouse"
@@ -14820,6 +16384,35 @@
   ],
   "token": [
    "perplexity"
+  ]
+ },
+ "pfizer": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pfizer"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "pfizer.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PfizerCareers"
+  ],
+  "tenant": [
+   "pfizer"
   ]
  },
  "physical_intelligence": {
@@ -15178,6 +16771,29 @@
    "postman"
   ]
  },
+ "precision_for_medicine": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "precision_for_medicine"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "pfm"
+  ]
+ },
  "prefect": {
   "ats": [
    "ashby"
@@ -15199,6 +16815,35 @@
   ],
   "token": [
    "prefect"
+  ]
+ },
+ "premier_research": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "premier_research"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "premierresearch.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PremierResearch"
+  ],
+  "tenant": [
+   "premierresearch"
   ]
  },
  "priceline": {
@@ -15984,6 +17629,35 @@
    "regard"
   ]
  },
+ "regeneron": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "regeneron"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "regeneron.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "regeneron"
+  ]
+ },
  "relativity_space": {
   "ats": [
    "greenhouse"
@@ -16005,6 +17679,29 @@
   ],
   "token": [
    "relativity"
+  ]
+ },
+ "relay_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "relay_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "relaytherapeutics"
   ]
  },
  "render": {
@@ -16283,6 +17980,32 @@
   ],
   "token": [
    "robust-ai"
+  ]
+ },
+ "roche": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "roche"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.roche.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.roche.com/global/en/job/{id}"
   ]
  },
  "rocket_lab": {
@@ -16690,6 +18413,35 @@
    "salesloft"
   ]
  },
+ "salk_institute": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "e9f055e1-a105-4f91-9a67-21aea61655fa"
+  ],
+  "company_key": [
+   "salk_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "recruiting2.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "SAL1013SIBS"
+  ]
+ },
  "salsify": {
   "ats": [
    "greenhouse"
@@ -16767,6 +18519,29 @@
    "samsungsemiconductor"
   ]
  },
+ "sana_biotechnology": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sana_biotechnology"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sanabiotech"
+  ]
+ },
  "sanctuary_ai": {
   "account": [
    "sanctuary-ai"
@@ -16811,6 +18586,61 @@
   ],
   "token": [
    "sandboxaq"
+  ]
+ },
+ "sandoz": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sandoz"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "sandoz.wd103.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "sandoz_careers"
+  ],
+  "tenant": [
+   "sandoz"
+  ]
+ },
+ "sanofi": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "sanofi"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.sanofi.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "sap": {
@@ -16978,6 +18808,35 @@
   ],
   "url": [
    "https://jobs.scotiabank.com/go/IT-%26-Digital-Banking-Jobs/2298017/"
+  ]
+ },
+ "scripps_research": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "98759e7d-7ede-4c0b-ac7b-2c6293c7b522"
+  ],
+  "company_key": [
+   "scripps_research"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "recruiting2.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "SCR1003TSRI"
   ]
  },
  "seatgeek": {
@@ -18167,6 +20026,35 @@
    "stjoes"
   ]
  },
+ "st_jude_children_s_research_hospital": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "st_jude_children_s_research_hospital"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "stjude.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "StJude"
+  ],
+  "tenant": [
+   "stjude"
+  ]
+ },
  "stability_ai": {
   "ats": [
    "greenhouse"
@@ -18666,6 +20554,32 @@
   ],
   "token": [
    "taketwo"
+  ]
+ },
+ "takeda": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "takeda"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.takeda.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "talkspace": {
@@ -19562,6 +21476,29 @@
    "twilio"
   ]
  },
+ "twist_bioscience": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "twist_bioscience"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "twistbioscience"
+  ]
+ },
  "twitch": {
   "ats": [
    "greenhouse"
@@ -19657,6 +21594,32 @@
   ],
   "token": [
    "Ubisoft2"
+  ]
+ },
+ "ucsf": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "ucsf"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "iazuqy.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
   ]
  },
  "udemy": {
@@ -19813,6 +21776,113 @@
   ],
   "tenant": [
    "unitytech"
+  ]
+ },
+ "university_of_alberta": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "university_of_alberta"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "iaejup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "UOA-Careers"
+  ]
+ },
+ "university_of_british_columbia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "university_of_british_columbia"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "ubc.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ubcstaffjobs"
+  ],
+  "tenant": [
+   "ubc"
+  ]
+ },
+ "university_of_toronto": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "university_of_toronto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.utoronto.ca/search/"
+  ]
+ },
+ "university_of_washington": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "university_of_washington"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "uw.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "UWHires"
+  ],
+  "tenant": [
+   "uw"
   ]
  },
  "unstructured_io": {
@@ -20123,6 +22193,29 @@
   ],
   "tenant": [
    "viavisolutions"
+  ]
+ },
+ "vir_biotechnology": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "vir_biotechnology"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "virbiotechnologyinc"
   ]
  },
  "virtu": {
@@ -20868,6 +22961,35 @@
    "worldquant"
   ]
  },
+ "worldwide_clinical_trials": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "worldwide_clinical_trials"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "worldwide.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "worldwide"
+  ]
+ },
  "writer": {
   "ats": [
    "ashby"
@@ -20876,12 +22998,81 @@
    "writer"
   ]
  },
+ "wuxi_apptec": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "wuxi_apptec"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers-wuxiapptec.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "xai": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "xai"
+  ]
+ },
+ "xaira_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "xaira_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "xairatherapeutics"
+  ]
+ },
+ "yale_university": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "yale_university"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "careers.yale.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "yelp": {

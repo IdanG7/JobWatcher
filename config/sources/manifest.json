@@ -72,14 +72,14 @@
       "core": ["lists", "health_tech", "health_core"],
       "filters": {
         "clinical_care": ["hospitals_canada", "hospitals_us", "pharmacy_consumer", "payers"],
-        "clinical_research": ["hospitals_canada", "hospitals_us"],
-        "lab_research": [],
-        "bioinformatics": [],
-        "regulatory_quality": [],
+        "clinical_research": ["cro_cdmo", "pharma", "biotech", "research_institutes", "hospitals_canada", "hospitals_us"],
+        "lab_research": ["biotech", "pharma", "research_institutes", "cro_cdmo"],
+        "bioinformatics": ["biotech", "research_institutes", "pharma"],
+        "regulatory_quality": ["pharma", "biotech", "cro_cdmo"],
         "medical_devices": [],
-        "public_health": ["hospitals_canada"],
+        "public_health": ["research_institutes", "hospitals_canada"],
         "health_admin": ["hospitals_canada", "hospitals_us", "payers", "pharmacy_consumer"],
-        "medical_affairs": []
+        "medical_affairs": ["pharma", "biotech"]
       }
     }
   }
