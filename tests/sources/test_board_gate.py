@@ -107,7 +107,11 @@ class CompareTests(GateCase):
         self.assertEqual(1, code)
         self.assertIn("software", out)
         self.assertIn("- a:2", out)
-        self.assertIn("a:2  software -> healthcare", out)
+        # Counted by move, and each posting that leaves a board listed with its title and employer.
+        self.assertIn("software -> healthcare: 1", out)
+        self.assertIn("other -> healthcare: 1", out)
+        self.assertIn("software -> healthcare  a:2  'Title' @ Acme", out)
+        self.assertNotIn("a:3  'Title'", out)
         self.assertIn("gate: FAILED", out)
         # Allowed when the profile that changes is expected to.
         self.assertEqual(0, self.compare(old, new, expect=("software", "healthcare"))[0])

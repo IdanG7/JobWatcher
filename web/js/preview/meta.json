@@ -297,13 +297,64 @@
   {
    "key": "healthcare",
    "label": "Healthcare & Science",
-   "track": null,
+   "track": "healthcare",
    "skill_groups": [
+    "clinical",
+    "lab",
+    "regulatory",
+    "health_data",
+    "programming",
     "quant",
     "tools",
     "soft"
    ],
-   "subcategories": []
+   "subcategories": [
+    {
+     "key": "clinical_care",
+     "label": "Clinical Care",
+     "note": "Nursing, allied health and pharmacy practice"
+    },
+    {
+     "key": "clinical_research",
+     "label": "Clinical Research",
+     "note": "Trials: coordinators, associates, clinical data and study start-up"
+    },
+    {
+     "key": "lab_research",
+     "label": "Lab Research",
+     "note": "Research associates and technicians, lab scientists"
+    },
+    {
+     "key": "bioinformatics",
+     "label": "Bioinformatics & Biostatistics",
+     "note": "Computational biology, genomics, biostatistics and statistical programming"
+    },
+    {
+     "key": "regulatory_quality",
+     "label": "Regulatory & Quality",
+     "note": "Regulatory affairs, GMP quality, pharmacovigilance and medical writing"
+    },
+    {
+     "key": "medical_devices",
+     "label": "Medical Devices",
+     "note": "Biomedical and device engineering, field clinical and applications"
+    },
+    {
+     "key": "public_health",
+     "label": "Public Health",
+     "note": "Epidemiology, health promotion, health policy and global health"
+    },
+    {
+     "key": "health_admin",
+     "label": "Health Administration",
+     "note": "Patient access, health information, clinic and hospital operations"
+    },
+    {
+     "key": "medical_affairs",
+     "label": "Medical Affairs & Commercial",
+     "note": "MSL, medical information, market access, HEOR, medical and pharma sales"
+    }
+   ]
   },
   {
    "key": "data_ml",
@@ -517,6 +568,14 @@
     "hardware",
     "product",
     "design"
+   ]
+  },
+  {
+   "key": "healthcare",
+   "label": "Healthcare & Science",
+   "employer_heading": "Healthcare & Science employer types",
+   "boards": [
+    "healthcare"
    ]
   }
  ],
@@ -802,7 +861,8 @@
    "label": "Research Lab",
    "group": "Research Labs",
    "tracks": [
-    "tech"
+    "tech",
+    "healthcare"
    ]
   },
   {
@@ -818,7 +878,8 @@
    "label": "Health Tech",
    "group": "Health Tech",
    "tracks": [
-    "tech"
+    "tech",
+    "healthcare"
    ]
   },
   {
@@ -843,6 +904,86 @@
    "group": "Telecom & Networks",
    "tracks": [
     "tech"
+   ]
+  },
+  {
+   "key": "hospital",
+   "label": "Hospital & Health System",
+   "group": "Hospitals & Health Systems",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "pharma",
+   "label": "Pharma",
+   "group": "Pharma",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "biotech",
+   "label": "Biotech",
+   "group": "Biotech",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "medtech",
+   "label": "Medical Devices",
+   "group": "Medical Devices",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "cro_cdmo",
+   "label": "CRO & CDMO",
+   "group": "CROs & CDMOs",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "diagnostics",
+   "label": "Diagnostics & Lab Tools",
+   "group": "Diagnostics & Lab Tools",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "payer",
+   "label": "Health Insurer",
+   "group": "Health Insurers",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "public_health_agency",
+   "label": "Public Health Agency",
+   "group": "Public Health",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "university",
+   "label": "University",
+   "group": "Universities",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "pharmacy_consumer",
+   "label": "Pharmacy & Consumer Health",
+   "group": "Pharmacy & Consumer Health",
+   "tracks": [
+    "healthcare"
    ]
   },
   {
@@ -1301,6 +1442,56 @@
    "group": "programming"
   },
   {
+   "key": "javascript",
+   "label": "JavaScript",
+   "group": "programming"
+  },
+  {
+   "key": "typescript",
+   "label": "TypeScript",
+   "group": "programming"
+  },
+  {
+   "key": "golang",
+   "label": "Go (Golang)",
+   "group": "programming"
+  },
+  {
+   "key": "c_lang",
+   "label": "C (language)",
+   "group": "programming"
+  },
+  {
+   "key": "csharp",
+   "label": "C# / .NET",
+   "group": "programming"
+  },
+  {
+   "key": "kotlin",
+   "label": "Kotlin",
+   "group": "programming"
+  },
+  {
+   "key": "swift",
+   "label": "Swift (iOS)",
+   "group": "programming"
+  },
+  {
+   "key": "scala",
+   "label": "Scala",
+   "group": "programming"
+  },
+  {
+   "key": "ruby",
+   "label": "Ruby",
+   "group": "programming"
+  },
+  {
+   "key": "bash",
+   "label": "Bash / Shell",
+   "group": "programming"
+  },
+  {
    "key": "derivatives",
    "label": "Derivatives",
    "group": "markets"
@@ -1396,6 +1587,256 @@
    "group": "quant"
   },
   {
+   "key": "react",
+   "label": "React.js",
+   "group": "web"
+  },
+  {
+   "key": "angular",
+   "label": "Angular",
+   "group": "web"
+  },
+  {
+   "key": "vue",
+   "label": "Vue.js",
+   "group": "web"
+  },
+  {
+   "key": "nodejs",
+   "label": "Node.js",
+   "group": "web"
+  },
+  {
+   "key": "html_css",
+   "label": "HTML & CSS",
+   "group": "web"
+  },
+  {
+   "key": "apis",
+   "label": "REST & GraphQL APIs",
+   "group": "web"
+  },
+  {
+   "key": "ios",
+   "label": "iOS",
+   "group": "web"
+  },
+  {
+   "key": "android",
+   "label": "Android",
+   "group": "web"
+  },
+  {
+   "key": "cross_platform",
+   "label": "React Native / Flutter",
+   "group": "web"
+  },
+  {
+   "key": "aws",
+   "label": "AWS",
+   "group": "cloud"
+  },
+  {
+   "key": "gcp",
+   "label": "Google Cloud",
+   "group": "cloud"
+  },
+  {
+   "key": "azure",
+   "label": "Azure",
+   "group": "cloud"
+  },
+  {
+   "key": "docker",
+   "label": "Docker",
+   "group": "cloud"
+  },
+  {
+   "key": "kubernetes",
+   "label": "Kubernetes",
+   "group": "cloud"
+  },
+  {
+   "key": "terraform",
+   "label": "Terraform / IaC",
+   "group": "cloud"
+  },
+  {
+   "key": "ci_cd",
+   "label": "CI/CD",
+   "group": "cloud"
+  },
+  {
+   "key": "linux",
+   "label": "Linux",
+   "group": "cloud"
+  },
+  {
+   "key": "git",
+   "label": "Git",
+   "group": "cloud"
+  },
+  {
+   "key": "spark",
+   "label": "Apache Spark",
+   "group": "data"
+  },
+  {
+   "key": "kafka",
+   "label": "Kafka",
+   "group": "data"
+  },
+  {
+   "key": "airflow",
+   "label": "Apache Airflow",
+   "group": "data"
+  },
+  {
+   "key": "dbt",
+   "label": "dbt",
+   "group": "data"
+  },
+  {
+   "key": "data_warehousing",
+   "label": "Data Warehousing",
+   "group": "data"
+  },
+  {
+   "key": "etl",
+   "label": "ETL & Data Pipelines",
+   "group": "data"
+  },
+  {
+   "key": "nosql",
+   "label": "NoSQL & Redis",
+   "group": "data"
+  },
+  {
+   "key": "pytorch",
+   "label": "PyTorch",
+   "group": "ml"
+  },
+  {
+   "key": "tensorflow",
+   "label": "TensorFlow",
+   "group": "ml"
+  },
+  {
+   "key": "scikit_learn",
+   "label": "scikit-learn",
+   "group": "ml"
+  },
+  {
+   "key": "nlp",
+   "label": "NLP",
+   "group": "ml"
+  },
+  {
+   "key": "computer_vision",
+   "label": "Computer Vision",
+   "group": "ml"
+  },
+  {
+   "key": "llms",
+   "label": "LLMs & GenAI",
+   "group": "ml"
+  },
+  {
+   "key": "mlops",
+   "label": "MLOps",
+   "group": "ml"
+  },
+  {
+   "key": "reinforcement_learning",
+   "label": "Reinforcement Learning",
+   "group": "ml"
+  },
+  {
+   "key": "algorithms",
+   "label": "Data Structures & Algorithms",
+   "group": "cs"
+  },
+  {
+   "key": "system_design",
+   "label": "System Design",
+   "group": "cs"
+  },
+  {
+   "key": "distributed_systems",
+   "label": "Distributed Systems",
+   "group": "cs"
+  },
+  {
+   "key": "operating_systems",
+   "label": "Operating Systems",
+   "group": "cs"
+  },
+  {
+   "key": "networking",
+   "label": "Computer Networking",
+   "group": "cs"
+  },
+  {
+   "key": "software_testing",
+   "label": "Software Testing",
+   "group": "cs"
+  },
+  {
+   "key": "oop",
+   "label": "Object-Oriented Design",
+   "group": "cs"
+  },
+  {
+   "key": "cybersecurity",
+   "label": "Cybersecurity",
+   "group": "cs"
+  },
+  {
+   "key": "agile",
+   "label": "Agile / Scrum",
+   "group": "cs"
+  },
+  {
+   "key": "embedded_systems",
+   "label": "Embedded Systems & Firmware",
+   "group": "hardware"
+  },
+  {
+   "key": "microcontrollers",
+   "label": "Microcontrollers",
+   "group": "hardware"
+  },
+  {
+   "key": "serial_protocols",
+   "label": "UART / I2C / SPI / CAN",
+   "group": "hardware"
+  },
+  {
+   "key": "fpga_rtl",
+   "label": "FPGA & RTL",
+   "group": "hardware"
+  },
+  {
+   "key": "pcb_design",
+   "label": "PCB & Circuit Design",
+   "group": "hardware"
+  },
+  {
+   "key": "hardware_validation",
+   "label": "Hardware Validation",
+   "group": "hardware"
+  },
+  {
+   "key": "control_systems",
+   "label": "Control Theory & PID",
+   "group": "hardware"
+  },
+  {
+   "key": "robotics",
+   "label": "Robotics & ROS",
+   "group": "hardware"
+  },
+  {
    "key": "client_communication",
    "label": "Client Communication",
    "group": "soft"
@@ -1414,6 +1855,296 @@
    "key": "attention_to_detail",
    "label": "Attention to Detail",
    "group": "soft"
+  },
+  {
+   "key": "patient_care",
+   "label": "Patient Care",
+   "group": "clinical"
+  },
+  {
+   "key": "medication_administration",
+   "label": "Medication Administration",
+   "group": "clinical"
+  },
+  {
+   "key": "vital_signs",
+   "label": "Vital Signs",
+   "group": "clinical"
+  },
+  {
+   "key": "bls",
+   "label": "BLS",
+   "group": "clinical"
+  },
+  {
+   "key": "acls",
+   "label": "ACLS",
+   "group": "clinical"
+  },
+  {
+   "key": "cpr",
+   "label": "CPR",
+   "group": "clinical"
+  },
+  {
+   "key": "phlebotomy",
+   "label": "Phlebotomy",
+   "group": "clinical"
+  },
+  {
+   "key": "iv_therapy",
+   "label": "IV Therapy",
+   "group": "clinical"
+  },
+  {
+   "key": "wound_care",
+   "label": "Wound Care",
+   "group": "clinical"
+  },
+  {
+   "key": "infection_control",
+   "label": "Infection Control",
+   "group": "clinical"
+  },
+  {
+   "key": "clinical_documentation",
+   "label": "Clinical Documentation",
+   "group": "clinical"
+  },
+  {
+   "key": "triage",
+   "label": "Triage",
+   "group": "clinical"
+  },
+  {
+   "key": "ehr",
+   "label": "EHR / EMR",
+   "group": "clinical"
+  },
+  {
+   "key": "epic_ehr",
+   "label": "Epic",
+   "group": "clinical"
+  },
+  {
+   "key": "cerner",
+   "label": "Cerner",
+   "group": "clinical"
+  },
+  {
+   "key": "medical_terminology",
+   "label": "Medical Terminology",
+   "group": "clinical"
+  },
+  {
+   "key": "dispensing",
+   "label": "Dispensing",
+   "group": "clinical"
+  },
+  {
+   "key": "pcr",
+   "label": "PCR",
+   "group": "lab"
+  },
+  {
+   "key": "elisa",
+   "label": "ELISA",
+   "group": "lab"
+  },
+  {
+   "key": "western_blot",
+   "label": "Western Blot",
+   "group": "lab"
+  },
+  {
+   "key": "cell_culture",
+   "label": "Cell Culture",
+   "group": "lab"
+  },
+  {
+   "key": "flow_cytometry",
+   "label": "Flow Cytometry",
+   "group": "lab"
+  },
+  {
+   "key": "crispr",
+   "label": "CRISPR",
+   "group": "lab"
+  },
+  {
+   "key": "microscopy",
+   "label": "Microscopy",
+   "group": "lab"
+  },
+  {
+   "key": "hplc",
+   "label": "HPLC",
+   "group": "lab"
+  },
+  {
+   "key": "mass_spectrometry",
+   "label": "Mass Spectrometry",
+   "group": "lab"
+  },
+  {
+   "key": "ngs",
+   "label": "Next-Generation Sequencing",
+   "group": "lab"
+  },
+  {
+   "key": "molecular_cloning",
+   "label": "Molecular Cloning",
+   "group": "lab"
+  },
+  {
+   "key": "protein_purification",
+   "label": "Protein Purification",
+   "group": "lab"
+  },
+  {
+   "key": "aseptic_technique",
+   "label": "Aseptic Technique",
+   "group": "lab"
+  },
+  {
+   "key": "immunohistochemistry",
+   "label": "Immunohistochemistry",
+   "group": "lab"
+  },
+  {
+   "key": "animal_handling",
+   "label": "Animal Handling",
+   "group": "lab"
+  },
+  {
+   "key": "gmp",
+   "label": "GMP",
+   "group": "regulatory"
+  },
+  {
+   "key": "good_clinical_practice",
+   "label": "Good Clinical Practice",
+   "group": "regulatory"
+  },
+  {
+   "key": "good_laboratory_practice",
+   "label": "Good Laboratory Practice",
+   "group": "regulatory"
+  },
+  {
+   "key": "sops",
+   "label": "SOPs",
+   "group": "regulatory"
+  },
+  {
+   "key": "capa",
+   "label": "CAPA",
+   "group": "regulatory"
+  },
+  {
+   "key": "regulatory_submissions",
+   "label": "Regulatory Submissions",
+   "group": "regulatory"
+  },
+  {
+   "key": "pharmacovigilance",
+   "label": "Pharmacovigilance",
+   "group": "regulatory"
+  },
+  {
+   "key": "iso_13485",
+   "label": "ISO 13485",
+   "group": "regulatory"
+  },
+  {
+   "key": "fda_regulations",
+   "label": "FDA Regulations",
+   "group": "regulatory"
+  },
+  {
+   "key": "validation_iq_oq_pq",
+   "label": "Validation (IQ/OQ/PQ)",
+   "group": "regulatory"
+  },
+  {
+   "key": "medical_writing",
+   "label": "Medical Writing",
+   "group": "regulatory"
+  },
+  {
+   "key": "quality_management_systems",
+   "label": "Quality Management Systems",
+   "group": "regulatory"
+  },
+  {
+   "key": "sas",
+   "label": "SAS",
+   "group": "health_data"
+  },
+  {
+   "key": "spss",
+   "label": "SPSS",
+   "group": "health_data"
+  },
+  {
+   "key": "stata",
+   "label": "Stata",
+   "group": "health_data"
+  },
+  {
+   "key": "redcap",
+   "label": "REDCap",
+   "group": "health_data"
+  },
+  {
+   "key": "medidata_rave",
+   "label": "Medidata Rave",
+   "group": "health_data"
+  },
+  {
+   "key": "veeva",
+   "label": "Veeva",
+   "group": "health_data"
+  },
+  {
+   "key": "cdisc",
+   "label": "CDISC",
+   "group": "health_data"
+  },
+  {
+   "key": "edc",
+   "label": "EDC",
+   "group": "health_data"
+  },
+  {
+   "key": "biostatistics",
+   "label": "Biostatistics",
+   "group": "health_data"
+  },
+  {
+   "key": "survival_analysis",
+   "label": "Survival Analysis",
+   "group": "health_data"
+  },
+  {
+   "key": "bioconductor",
+   "label": "Bioconductor",
+   "group": "health_data"
+  },
+  {
+   "key": "gwas",
+   "label": "GWAS",
+   "group": "health_data"
+  },
+  {
+   "key": "medical_coding",
+   "label": "Medical Coding",
+   "group": "health_data"
+  },
+  {
+   "key": "hl7_fhir",
+   "label": "HL7 / FHIR",
+   "group": "health_data"
   }
  ],
  "skill_groups": {
@@ -1423,7 +2154,17 @@
   "programming": "Programming",
   "markets": "Markets",
   "quant": "Quant",
-  "soft": "Client & Communication"
+  "web": "Web & Mobile",
+  "cloud": "Cloud & DevOps",
+  "data": "Data & Databases",
+  "ml": "Machine Learning & AI",
+  "cs": "CS Fundamentals",
+  "hardware": "Hardware & Embedded",
+  "soft": "Client & Communication",
+  "clinical": "Clinical",
+  "lab": "Lab Techniques",
+  "regulatory": "Regulatory & Quality",
+  "health_data": "Health Data"
  },
  "statuses": [
   {

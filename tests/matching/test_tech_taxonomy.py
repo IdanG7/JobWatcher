@@ -177,10 +177,12 @@ class TechFitTests(unittest.TestCase):
 
     def test_every_employer_type_has_a_track_and_finance_ones_are_unchanged(self):
         tracks = {key: tuple(KN.type_tracks(key)) for key in KN.company_types if key != "unknown"}
-        self.assertTrue(set(tracks.values()) <= {("finance",), ("tech",), ("finance", "tech")})
+        # Healthcare has its own types and shares Research Lab and Health Tech with tech (healthcare-board D4, D10).
+        self.assertTrue(set(tracks.values()) <= {("finance",), ("tech",), ("finance", "tech"), ("healthcare",),
+                                                 ("tech", "healthcare")})
         self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == ("finance", "tech")})
         self.assertIn("ai_lab", {k for k, t in tracks.items() if t == ("tech",)})
-        self.assertEqual(20, sum(t == ("tech",) for t in tracks.values()))      # 3 since: climate, quantum, telecom
+        self.assertEqual(20, sum("tech" in t and "finance" not in t for t in tracks.values()))  # 3 since: climate, quantum, telecom
 
 
 class TechEmployerTests(unittest.TestCase):

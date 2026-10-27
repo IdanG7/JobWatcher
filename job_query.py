@@ -2,7 +2,8 @@
 
 Shared by the dashboard API, saved-search notifications and CSV export so
 "Toronto IB 2027" means the same thing everywhere.  Every filter maps to
-indexed columns on ``job_intel``; nothing loads the whole table.
+indexed columns on ``job_intel``; nothing loads the whole table. Stated hours are the
+exception: they live only in the facts, so that filter reads them when it is set.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import re
 import time
 from intel import FACTS_VERSION
+from intel.hours import EMPLOYMENT as HOURS_EMPLOYMENT, SHIFTS as HOURS_SHIFTS
 from datetime import date, timedelta
 
 APP_STATUSES = ["discovered", "saved", "preparing", "applied", "assessment", "phone_screen",
@@ -148,6 +150,17 @@ def build_where(params: dict, fts: bool, watched: set[str] | None = None,
     any_of("i.company_type", _list(p.get("company_type")))
     any_of("i.company_key", _list(p.get("company")))
     any_of("i.stage", _list(p.get("stage")))
+    # Stated hours (facts.hours): the one filter read from the facts, and only when it is set.
+    hours = _list(p.get("hours"))
+    employment = [h for h in hours if h in HOURS_EMPLOYMENT]
+    shifts = [h for h in hours if h in HOURS_SHIFTS]
+    parts = [f"EXISTS (SELECT 1 FROM json_each(i.facts, '$.hours.{name}') WHERE value IN ({','.join('?' * len(values))}))"
+             for name, values in (("employment", employment), ("shifts", shifts)) if values]
+    args.extend(employment + shifts)
+    if "on_call" in hours:
+        parts.append("json_extract(i.facts, '$.hours.on_call') = 1")
+    if parts:
+        where.append("(" + " OR ".join(parts) + ")")
     any_of("i.level", _list(p.get("level")))
 
     cycles = _list(p.get("cycle"))

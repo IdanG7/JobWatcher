@@ -4,7 +4,8 @@
 // listing came from close the column.
 import {del, enc, get, openExternal, patch, post, put} from './api.js';
 import {
-  ageLong, cleanQuote, descriptionHtml, esc, fitBand, fmtDay, isoDay, levelText, safeUrl, sourceName, toEpochMs,
+  ageLong, cleanQuote, descriptionHtml, esc, fitBand, fmtDay, hoursText, isoDay, levelText, safeUrl, sourceName,
+  toEpochMs,
 } from './lib.js';
 import {
   STATUS_LABELS, STATUS_ORDER, badges, bindMenu, confirmDialog, deadlineCell, icon, logo, modalOpen, openModal, options,
@@ -244,6 +245,8 @@ function glance(job, f) {
     cells.push(['Work', work, loc.hybrid && loc.work_model?.office_days ? `${esc(loc.work_model.office_days)} days in office` : '',
       loc.work_model?.text ? cleanQuote(loc.work_model.text) : '']);
   }
+  const hours = hoursText(f.hours);
+  if (hours) cells.push(['Hours', esc(hours), '', 'As the posting states them']);
   if (cyc.label) cells.push(['Cycle', esc(cyc.label), cyc.inferred ? 'inferred' : '']);
   const seen = ageLong(toEpochMs(job.first_seen));
   cells.push(job.posted ? ['Posted', esc(ageLong(job.posted)), '', `First seen ${seen}`] : ['Found', esc(seen), '', 'The source doesn’t give a posting date']);

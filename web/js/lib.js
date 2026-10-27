@@ -263,6 +263,21 @@ export function levelText({level_label: level = '', stage = ''} = {}) {
   return b.includes(a) || a.includes(b) ? level : `${level} · ${kind}`;
 }
 
+/** Hours a posting states (facts.hours), as the Opportunities filter offers them. */
+export const HOURS = [
+  {key: 'full_time', label: 'Full-time'}, {key: 'part_time', label: 'Part-time'}, {key: 'casual', label: 'Casual'},
+  {key: 'per_diem', label: 'Per diem / PRN'}, {key: 'temporary', label: 'Temporary or contract'},
+  {key: 'day', label: 'Days'}, {key: 'evening', label: 'Evenings'}, {key: 'night', label: 'Nights'},
+  {key: 'weekend', label: 'Weekends'}, {key: 'rotating', label: 'Rotating shifts'}, {key: 'twelve_hour', label: '12-hour shifts'},
+  {key: 'on_call', label: 'On call'},
+];
+
+/** 'Casual · Nights · On call' from facts.hours, or ''. */
+export function hoursText({employment = [], shifts = [], on_call: onCall = false} = {}) {
+  const on = new Set([...employment, ...shifts, ...(onCall ? ['on_call'] : [])]);
+  return HOURS.filter(h => on.has(h.key)).map(h => h.label).join(' · ');
+}
+
 /** The posting's words a fact was read from. Extracts start and end mid-word
  *  ('ion reimbursement … 2026 * Jo'), so broken ends are cut and marked with an ellipsis. */
 export function cleanQuote(text = '', max = 180) {

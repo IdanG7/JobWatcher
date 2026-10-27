@@ -138,7 +138,7 @@ def prune_profile(profile: dict, kn) -> dict:
     return out
 
 
-RULES_VERSION = 2      # raise when scoring or resume-match rules change, so installs rescore once
+RULES_VERSION = 3      # raise when scoring or resume-match rules change, so installs rescore once
 
 
 def profile_version(profile: dict, watched: list[str] | tuple[str, ...] = ()) -> str:

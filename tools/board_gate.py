@@ -33,6 +33,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 # Onboarding's first-run skill groups (web/js/fields.js at v0.3.11). Kept fixed, so both sides
@@ -306,7 +307,8 @@ def board_views(path) -> dict:
         rows.sort(key=lambda r: (-(r[5] or 0), -(r[2] or 0), r[0], r[1]))
         out[name] = {"boards": fields, "order": [(r[0], r[1]) for r in rows],
                      "rows": {(r[0], r[1]): dict(zip(VIEW, r[5:])) for r in rows}}
-    facts = {(r[0], r[1]): r[2:] for r in con.execute("SELECT board, job_id, facts_hash, is_finance, family FROM facts")}
+    facts = {(r[0], r[1]): r[2:] for r in con.execute(
+        "SELECT board, job_id, facts_hash, is_finance, family, title, company_name, is_canonical, status FROM facts")}
     con.close()
     return {"profiles": out, "facts": facts}
 
@@ -350,13 +352,19 @@ def compare(old_path, new_path, expect=(), out=print) -> int:
         matched = sum(bool(b["rows"][k]["matched"]) for k in b["order"])
         same = "=" if a["order"] and digest(a) == digest(b) else digest(b)
         out(f"{name:22} {','.join(b['boards']):24} {len(a['order']):8} -> {len(b['order']):5} {fits:8} {matched:8}  {same}")
-    moved = [k for k in old["facts"] if k in new["facts"] and old["facts"][k][1:] != new["facts"][k][1:]]
+    def placed(row):
+        return "finance" if row[1] else row[2]
+    moved = [k for k in old["facts"] if k in new["facts"] and placed(old["facts"][k]) != placed(new["facts"][k])]
     refacted = sum(1 for k in old["facts"] if k in new["facts"] and old["facts"][k][0] != new["facts"][k][0])
     out(f"postings: {len(old['facts'])} -> {len(new['facts'])}; facts differ for {refacted}; "
         f"{len(moved)} change board")
-    for key in moved[:20]:
-        a, b = old["facts"][key][1:], new["facts"][key][1:]
-        out(f"    {key[0]}:{key[1]}  {'finance' if a[0] else a[1]} -> {'finance' if b[0] else b[1]}")
+    for (a, b), n in Counter((placed(old["facts"][k]), placed(new["facts"][k])) for k in moved).most_common():
+        out(f"    {a} -> {b}: {n}")
+    # Postings that leave a board (not 'other', which no board shows), listed in full when open and listed.
+    for key in sorted(k for k in moved if placed(old["facts"][k]) != "other" and new["facts"][k][5] == 1
+                      and new["facts"][k][6] != "closed"):
+        row = new["facts"][key]
+        out(f"      {placed(old['facts'][key])} -> {placed(row)}  {key[0]}:{key[1]}  {row[3]!r} @ {row[4]}")
     failed = False
     for name, d in differences(old, new).items():
         if d.get("missing_profile"):

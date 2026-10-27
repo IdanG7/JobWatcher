@@ -28,6 +28,10 @@ LEVEL_BADGES = {"summer_analyst": "SUMMER ANALYST", "summer_associate": "SUMMER 
                 "off_cycle": "OFF-CYCLE", "spring_week": "SPRING WEEK", "co_op": "CO-OP",
                 "intern": "INTERN", "graduate_analyst": "GRADUATE ANALYST", "rotational": "ROTATIONAL",
                 "new_grad": "NEW GRAD", "analyst": "ANALYST"}
+# A board's own levels (taxonomy.json stage_rules), on that board's postings only.
+BOARD_LEVEL_BADGES = {"extern": "EXTERN", "summer_student": "SUMMER STUDENT", "student_worker": "STUDENT",
+                      "new_grad_program": "NEW GRAD PROGRAM", "residency": "RESIDENCY", "fellowship": "FELLOWSHIP",
+                      "postdoc": "POSTDOC"}
 
 
 GRADUATION_SLACK_MONTHS = 3
@@ -162,7 +166,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         pts, detail = 20, f"{level_label} — target career stage"
         reasons.append(f"{level_label} level")
     elif stage == "entry" and ({"new_grad", "entry"} & stage_targets):
-        pts, detail = 16, f"{level_label} — entry level in finance"
+        pts, detail = 16, f"{level_label} — entry level{'' if lvl.get('board_level') else ' in finance'}"
         reasons.append("Entry-level title")
     elif stage == "entry":
         pts, detail = 10, f"{level_label} — entry level, not a target stage"
@@ -388,6 +392,8 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         badges.append(str(cyc["year"]))
     if lvl.get("level") in LEVEL_BADGES and cls.get("is_finance"):
         badges.append(LEVEL_BADGES[lvl["level"]])
+    elif lvl.get("board_level") and lvl.get("level") in BOARD_LEVEL_BADGES:
+        badges.append(BOARD_LEVEL_BADGES[lvl["level"]])
     if status == "closed":
         badges.append("CLOSED")
     elif status == "possibly_closed":

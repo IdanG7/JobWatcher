@@ -72,13 +72,18 @@ test('finance employer types keep their sections and tech types are listed apart
     ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
     ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
     ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']]]);
-  assert.equal(tracks.length, 1);
-  const [tech] = tracks;
+  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare']);
+  const [tech, health] = tracks;
   assert.equal(tech.employer_heading, 'Tech employer types');
   assert.deepEqual(tech.boards, ['software', 'data_ml', 'hardware', 'product', 'design']);
   assert.deepEqual(tech.sections.map(([name]) => name), ['Tech']);
   assert.equal(tech.sections[0][1].length, 20);
   assert.ok(tech.sections[0][1].includes('big_tech') && !tech.sections[0][1].includes('quant_firm'));
+  // Healthcare's own types, plus the two it shares with tech.
+  assert.equal(health.employer_heading, 'Healthcare & Science employer types');
+  assert.deepEqual(health.boards, ['healthcare']);
+  assert.equal(health.sections[0][1].length, 12);
+  assert.ok(['hospital', 'research_lab', 'health_tech'].every(k => health.sections[0][1].includes(k)));
   // A finance type without a section lands in "Other"; a track with no types shows nothing.
   const types = [{key: 'bulge_bracket', tracks: ['finance'], section: 'Banks'}, {key: 'new_finance_type', tracks: ['finance']},
     {key: 'big_tech', tracks: ['tech']}, {key: 'unknown'}];

@@ -14,13 +14,14 @@ from .companies import resolve_company
 from .compensation import comp_from_description, parse_compensation
 from .cycle import detect_cycle, extract_deadline, graduation_window, is_rolling
 from .eligibility import extract_eligibility
+from .hours import extract_hours
 from .knowledge import Knowledge
 from .locations import geo_key, parse_location
 from .seniority import detect_seniority
 from .skills import extract_skills
 from .taxonomy import classify
 
-FACTS_VERSION = 10
+FACTS_VERSION = 11
 
 _TITLE_NOISE = re.compile(
     r"\((?:m/f/d|f/m/d|m/w/d|h/f|all genders)\)|\breq(?:uisition)?\s*#?\s*\d+\b|\bjob\s*id\s*:?\s*\w+\b|[-–—|,]\s*(remote|hybrid|on[\s-]?site)\s*$",
@@ -76,8 +77,9 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     company = resolve_company(job.get("company") or "", kn, job.get("board") or "",
                               board_cfg, section)
     classification = classify(title, kn, description, department, company["type"])
+    board = "finance" if classification["is_finance"] else classification["family"]
     level = detect_seniority(title, description, classification["associate_stage"],
-                             classification["category"])
+                             classification["category"], kn.stage_rules.get(board))
     location = parse_location(job.get("location") or "", kn)
     work_model = _work_model(description)
     if work_model:
@@ -92,7 +94,6 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     if not comp or comp.get("unparsed"):
         comp = comp_from_description(description, country) or comp
     # A track's skills only on the boards that read them, so Finance board postings keep their skills and fit.
-    board = "finance" if classification["is_finance"] else classification["family"]
     skills = extract_skills(f"{title}\n{description}", kn, tracks=kn.skill_tracks(board))
 
     title_norm = normalize_title(title)
@@ -110,6 +111,7 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
         "eligibility": eligibility,
         "compensation": comp or {},
         "skills": skills,
+        "hours": extract_hours(title, description),
         "has_description": bool(description.strip()),
         "title_norm": title_norm,
         "cluster_key": cluster_key,

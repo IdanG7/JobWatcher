@@ -200,6 +200,40 @@ class Track:
         return bool(self.degree or self.signals)
 
 
+@dataclass
+class Claim:
+    """A named rule by which a board takes a title that another board, or Finance, places (taxonomy.json claims).
+
+    The title must name one of ``title``. With evidence configured, it also needs a ``subject`` in the title, or an
+    employer of one of ``employer_types``, or ``min_description`` distinct ``description`` phrases; when the title
+    is a finance one, the last two count only while the posting reads as finance in fewer than two phrases.
+    """
+    name: str
+    board: str
+    takes_from: frozenset[str]
+    title: list
+    unless: list = field(default_factory=list)
+    subject: list = field(default_factory=list)
+    employer_types: frozenset[str] = frozenset()
+    description: list = field(default_factory=list)
+    min_description: int = 0
+    sole_occupation: bool = False       # not when the title also names a tech or business occupation
+    subcategory: str | None = None
+
+    @property
+    def needs_evidence(self) -> bool:
+        return bool(self.subject or self.employer_types or self.description)
+
+
+@dataclass
+class StageRules:
+    """A board's own career levels (taxonomy.json stage_rules), read before the shared ones in seniority.py."""
+    levels: list[tuple[str, str, str, Prefiltered, Prefiltered | None]] = field(default_factory=list)
+    entry_label: str = ""
+    entry: Prefiltered | None = None    # occupations that are entry level when no level word or experience is given
+    entry_unless: Prefiltered | None = None
+
+
 class Knowledge:
     """Compiled view of config/*.json.  Treat instances as immutable."""
 
@@ -277,6 +311,28 @@ class Knowledge:
                 entry.get("employer_noun") or "", frozenset(entry.get("skills_from") or []),
                 re.compile(resume["degree"], re.I) if resume.get("degree") else None,
                 [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []])
+        # Tier 2: words that place a title no board placed ('Registered Nurse'), checked after Finance and every
+        # board's own title words.
+        self.fallback_titles: list[tuple[str, list]] = [
+            (key, compile_fragments(node.meta["fallback_title"]))
+            for key, node in self.families.items() if node.meta.get("fallback_title")]
+        self.claims: list[Claim] = [
+            Claim(name, key, frozenset(rule["from"]), compile_fragments(rule["title"]),
+                  compile_fragments(rule.get("unless")), compile_fragments(rule.get("subject")),
+                  frozenset(rule.get("employer_types") or []), compile_fragments(rule.get("description")),
+                  rule.get("min_description", 0), bool(rule.get("sole_occupation")), rule.get("subcategory"))
+            for key, node in self.families.items()
+            for name, rule in (node.meta.get("claims") or {}).items() if not name.startswith("_")]
+        self.stage_rules: dict[str, StageRules] = {}
+        for key, node in self.families.items():
+            rules = node.meta.get("stage_rules")
+            if not rules:
+                continue
+            entry = rules.get("entry_to_practice") or {}
+            self.stage_rules[key] = StageRules(
+                [(r["level"], r["stage"], r["label"], compile_union(r["title"]), compile_union(r.get("unless")))
+                 for r in rules.get("levels") or []],
+                entry.get("label", ""), compile_union(entry.get("title")), compile_union(entry.get("unless")))
 
     def skill_tracks(self, board: str) -> frozenset[str]:
         """The tracks whose skills a posting on this board reads ('other' when no board places it)."""

@@ -1,7 +1,7 @@
 # Healthcare & Science board: design (Phase 1)
 
 Status: **approved** on 2026-10-27, D1–D12 as recommended and then D13–D16 (section 3.4) as recommended.
-Phase 2 is in progress. Branch `feat/healthcare-board`, worktree
+Phases 2 and 3 are done (section 11). Branch `feat/healthcare-board`, worktree
 `.claude/worktrees/healthcare-board`. It was created from `main` at `9c6724b` (v0.3.11). It was then
 fast-forwarded to `main` at `6c7112c`, because the three description fixes landed on `main` during this
 session. The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §1 and the
@@ -233,6 +233,30 @@ Data or Product. Nothing about that changes.
 3. **Tier 3, cross-board rules you approve (D1, D2):** the few cases where today's placement is plainly
    wrong. Each is a named rule with tests. The gate lists every stored posting it moves.
 
+**As built (Phase 3).** A title-only pass over your copy's 214,196 open postings showed that some tier 2 words
+also name engineering, physics, banking or hardware work:
+- "Regulatory Affairs" at JPMorgan, Moody's, Visa and Brex;
+- national-lab postdocs in quantum devices and thin films;
+- drone and semiconductor lab technicians;
+- "AI Scientist" and "Security Scientist";
+- "Health, Safety and Environment", "Industrial Hygienist" and "Radiological Control Technician".
+
+So:
+- **Tier 2 (`fallback_title`)** keeps only clinical occupations, life-science disciplines and health-service
+  phrases: nurse, pharmacist, phlebotomist, microbiology, epidemiology, "patient access", "public health"….
+  It never claims a title that names tech or business work: an engineer, developer, recruiter, marketer or
+  analyst of data, AI, security or software.
+- **Generic science words need life-science evidence:** laboratory, lab technician, scientist, chemist,
+  postdoc, research associate or assistant, and regulatory affairs. These are named rules (`claims`):
+  `life_science_research` and `life_science_regulatory`. The evidence is one of:
+  - a life-science subject in the title ("Scientist I, Analytical Development");
+  - a life-science employer type ("Laboratory Technician" at a diagnostics company);
+  - three lab or clinical phrases in the description.
+
+  Phase 4's employers carry those types, so their lab postings place themselves.
+- **The cross-board rules** are `life_science_research` (D1, from Finance), plus `clinical_occupation`,
+  `lab_quality` and `health_policy` (D2). Each posting they move carries its rule in `classification.rule`.
+
 On your copy, 2,971 open postings in `other` carry a health word in the title. 2,282 of them are at UnitedHealth
 Group, whose whole feed Healthcare already polls. Tier 2 brings them onto the Healthcare board, and no other
 board loses anything.
@@ -335,6 +359,25 @@ plus `other` postings with a health word in the title.
    - **Deadlines:** program windows go to Calendar as deadlines: the PhORCAS deadline, AIFA December 12, the
      externship and summer research windows, and NGG.
 
+**As built (Phase 3).**
+- **Levels:** `stage_rules` in the Healthcare entry of `taxonomy.json`. They're read only for postings on the
+  Healthcare board, and such a level carries `board_level` with a badge: EXTERN, RESIDENCY, FELLOWSHIP,
+  POSTDOC…. Its Career stage line says "entry level", not "entry level in finance".
+- **Entry to practice** applies when no level word matched and under two years of experience are asked. Two
+  years or more read as before, so "2+ years" stays Experienced.
+  - The shared years reader only reads "N years of experience…" phrasings.
+  - "3 years of acute care experience" isn't read, today or now. Widening it would change postings on
+    every board, so it's left for a separate change.
+- **Hours** are in the facts on every board (`facts.hours`). They show in the posting's details ("Hours: Casual ·
+  Nights · Rotating shifts") and as the Hours filter in Opportunities. That filter reads the facts JSON, and
+  only when it is set: about 2 s over all 228k postings and well under a second for one board, with no schema
+  change.
+- **The hours preference** in Settings ("Hours I can work", "No nights"), the only part of D15 that could add
+  fit points, comes with the Settings work in Phase 6.
+
+---
+
+## 4. Employer types
 
 All new types are on the healthcare track. Existing employers are never re-typed. A new type would change the
 label and the company points of their postings on the Finance and tech boards.
@@ -366,6 +409,12 @@ label and the company points of their postings on the Finance and tech boards.
 - **New company keys** equal the slugs those employers' stored postings resolve to today, so cluster keys don't
   move. The gate checks this. A new entry that would re-type a stored Finance posting shows in the gate's
   label list.
+- **As built (Phase 3):**
+  - The types, their priors and the shared Research Lab and Health Tech types are in.
+  - Healthcare employers themselves come in Phase 4, each with its sources. Until then the new types have no
+    employers.
+  - In Settings, a Healthcare profile sees "Healthcare & Science employer types": the 10 new types plus the
+    two shared ones.
 
 ---
 
@@ -688,8 +737,9 @@ track's boards, skill groups and types resolve.
   - Finance postings go first (`ORDER BY is_finance DESC`): about 41k in about 45 minutes. Until a posting
     is recomputed, it keeps its old facts and score.
   - Taxonomy, companies, skills and the new sources land in one release (D6).
-- **Versions:** `FACTS_VERSION` stays 10, and I'll ask before any bump. `RULES_VERSION` goes 2 → 3. No schema
-  change (7 comes from `main`).
+- **Versions:** `FACTS_VERSION` goes 10 → 11 for hours (D15), in the same release as the taxonomy change, so it
+  costs no second recompute. `RULES_VERSION` goes 2 → 3. Both were done in Phase 3. No schema change (7 comes
+  from `main`).
 
 ---
 
@@ -720,6 +770,28 @@ track's boards, skill groups and types resolve.
      existing test stays unchanged.
    - The gate: only approved moves (D1, D2), stage changes on the Healthcare board (D13, D14) and label
      changes.
+   - **Done.** The gate on the copy, epoch 1793070000, compared `main` (`6c7112c`) with this branch:
+     - **Boards without Healthcare:**
+       - each lost only postings that moved to Healthcare: Finance 18, Software 5, Operations 10 and
+         Sales 1;
+       - nothing was added and nothing else changed (fit, detail, match, badges, urgency), and the order
+         stayed the same;
+       - Hardware, Product, Design, AI & Data and People & Legal were identical.
+     - **Healthcare** grew from 1,260 to 5,274 postings:
+       - 4,868 came from no board and 36 from other boards;
+       - 817 changed filter;
+       - stage changes were only on this board: 2,082 entry to practice, 18 residency, 14 postdoc, 2
+         fellowship, 2 student worker and 1 extern;
+       - in Finance + Healthcare, two D1 postings lost Finance's recruiting-cycle urgency.
+     - **Fix from the first run:** it moved The Aerospace Corporation's "Research Associate – Non-Destructive
+       Evaluation" off Finance on the description words microscopy, specimens and laboratories. Those three
+       words no longer count as life-science evidence. The same change keeps five medtech and pharma postings
+       with no employer type yet (Baxter, BD, Danaher, Zoetis, J&J) off the board until Phase 4 types their
+       employers.
+     - **Tests:** three existing ones changed for the new track or the gate's output:
+       - the tech type count in `test_tech_taxonomy.py`;
+       - the field tracks in `fields.test.js`;
+       - the move listing in `test_board_gate.py`.
 4. **Sources, one filter at a time.** Research, verify, write packs, commit; the gate again. Then the
    per-profile poll time, before and after, including the alert runner.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
