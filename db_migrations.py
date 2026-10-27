@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -192,8 +192,18 @@ def _v6_drop_cover_letters(con: sqlite3.Connection) -> None:
     con.execute("DROP TABLE IF EXISTS cover_letters")
 
 
+def _v7_refetch_stranded_descriptions(con: sqlite3.Connection) -> None:
+    """Older polls stored a listing with a department but no description (Bank of America's line
+    of business) as an empty fetch: each used up an attempt, and the poll after a fetch wiped the
+    description. Those postings ran out of attempts with no error to try again from, so nothing
+    fetched them again. They start over. Polls no longer write such rows, so this matches only
+    what older ones left. A posting whose last fetch failed keeps its back-off and its Try again."""
+    con.execute("""UPDATE job_text SET attempts=0, fetched_at=NULL
+                   WHERE source='listing' AND COALESCE(description, '')='' AND COALESCE(last_error, '')=''""")
+
+
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
-              5: _v5_resume_matching, 6: _v6_drop_cover_letters}
+              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_refetch_stranded_descriptions}
 
 
 def migrate(con: sqlite3.Connection) -> int:

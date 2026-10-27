@@ -7,6 +7,7 @@ import time
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 import watcher
 from db_migrations import SCHEMA_VERSION, migrate
@@ -76,6 +77,53 @@ class MigrationTests(unittest.TestCase):
         con = watcher.db_open(":memory:")
         self.assertEqual(SCHEMA_VERSION, migrate(con))
         self.assertEqual(SCHEMA_VERSION, con.execute("PRAGMA user_version").fetchone()[0])
+
+    def test_postings_older_polls_left_without_a_description_are_fetched_again(self):
+        config = {"boards": {"bofa": {"ats": "bofa"}}, "profile": {}}
+        text = lambda con, job_id: con.execute(  # noqa: E731
+            "SELECT description, attempts, fetched_at IS NULL FROM job_text WHERE job_id=?", (job_id,)).fetchone()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "v6.db"
+            con = watcher.db_open(path)
+            for job_id in ("1", "2", "3"):
+                add_job(con, "bofa", job_id, "Global Markets Summer Analyst", "New York, NY", "Bank of America")
+            # How 0.3.11 stored Bank of America's department-only listings. Posting 1 was polled,
+            # fetched, then wiped by the next poll: out of attempts, with no error to try again from.
+            store_description(con, "bofa", "1", "", "Global Markets", source="listing")
+            watcher.save_description(con, "bofa", "1", ("Summer 2027 analyst.", ""))
+            store_description(con, "bofa", "1", "", "Global Markets", source="listing")
+            # Posting 2's fetches failed: the drawer says why and offers Try again.
+            store_description(con, "bofa", "2", "", "Global Markets", source="listing")
+            for _ in range(2):
+                watcher.record_description_error(con, "bofa", "2", ValueError("the posting page is gone"))
+            # Posting 3 kept its description (no poll since the fetch).
+            store_description(con, "bofa", "3", "", "Global Markets", source="listing")
+            watcher.save_description(con, "bofa", "3", ("Equity research analyst.", ""))
+            self.assertEqual(("", 3, 0), text(con, "1"))
+            IntelStore(con, config).refresh()
+            before = con.execute("SELECT job_id, input_hash, fit FROM job_intel ORDER BY job_id").fetchall()
+            changes = lambda: con.execute("SELECT COUNT(*) FROM job_changes").fetchone()[0]  # noqa: E731
+            logged = changes()
+            con.execute("PRAGMA user_version=6")
+            con.commit()
+            con.close()
+
+            con = watcher.db_open(path)
+            self.assertEqual(SCHEMA_VERSION, con.execute("PRAGMA user_version").fetchone()[0])
+            self.assertEqual(("", 0, 1), text(con, "1"))
+            self.assertEqual(("", 3, 0), text(con, "2"))
+            self.assertEqual(("Equity research analyst.", 2, 0), text(con, "3"))
+            # The migration alone changes no facts or fit: the board shows what it showed.
+            self.assertEqual(0, IntelStore(con, config).facts_pass())
+            self.assertEqual(before, con.execute("SELECT job_id, input_hash, fit FROM job_intel "
+                                                 "ORDER BY job_id").fetchall())
+            page = ("Summer 2027 analyst. Financial modeling in Excel.", "")
+            with patch.object(watcher, "detail_page", return_value=page) as detail_page:
+                self.assertEqual(1, watcher.enrich_descriptions(config, con))
+            detail_page.assert_called_once_with("https://example.com/bofa/1")
+            self.assertEqual((page[0], 1, 0), text(con, "1"))
+            self.assertEqual(logged, changes())     # fetching what a poll wiped is not a description change
+            con.close()
 
 
 class LifecycleTests(unittest.TestCase):
