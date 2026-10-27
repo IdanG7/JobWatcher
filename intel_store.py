@@ -247,12 +247,25 @@ def store_description(con: sqlite3.Connection, board: str, job_id: str, descript
     return True
 
 
+def store_department(con: sqlite3.Connection, board: str, job_id: str, department: str) -> bool:
+    """Persist a listing's department when it carries no description. No fetched_at or attempt is
+    recorded: this isn't a description fetch, so it doesn't delay one. It fills an empty department
+    only, so a department read from the posting stays. Returns True when it changed."""
+    changed = con.execute(
+        "INSERT INTO job_text(board, job_id, department) VALUES (?,?,?) "
+        "ON CONFLICT(board, job_id) DO UPDATE SET department=excluded.department "
+        "WHERE COALESCE(job_text.department, '')=''", (board, job_id, department)).rowcount > 0
+    if changed:
+        con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    return changed
+
+
 def store_listing_note(con: sqlite3.Connection, board: str, job_id: str, note: str,
                        department: str = "") -> bool:
     """Persist a community list's metadata line ("Recruiting term: Summer 2026. Sponsorship: Other.")
     beside the description, never as it: facts read both, the drawer shows only the description,
     and the posting's own text is still fetched. The list's category fills an empty department
-    only, so a department read from the posting stays. Returns True when either changed."""
+    only (store_department). Returns True when either changed."""
     note = (note or "").strip()
     row = con.execute("SELECT note FROM job_notes WHERE board=? AND job_id=?", (board, job_id)).fetchone()
     changed = (row[0] if row else "") != note
@@ -261,14 +274,10 @@ def store_listing_note(con: sqlite3.Connection, board: str, job_id: str, note: s
                     "ON CONFLICT(board, job_id) DO UPDATE SET note=excluded.note", (board, job_id, note))
     elif changed:
         con.execute("DELETE FROM job_notes WHERE board=? AND job_id=?", (board, job_id))
-    if department:
-        # No fetched_at or attempt is recorded: this isn't a description fetch, so it doesn't delay one.
-        changed |= con.execute(
-            "INSERT INTO job_text(board, job_id, department) VALUES (?,?,?) "
-            "ON CONFLICT(board, job_id) DO UPDATE SET department=excluded.department "
-            "WHERE COALESCE(job_text.department, '')=''", (board, job_id, department)).rowcount > 0
     if changed:
         con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    if department:
+        changed |= store_department(con, board, job_id, department)
     return changed
 
 

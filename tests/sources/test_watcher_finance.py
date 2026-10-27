@@ -93,6 +93,37 @@ class EnrichmentTests(unittest.TestCase):
             self.assertIn("boom", error)
             self.assertEqual(1, watcher.enrich_descriptions(config, con, budget=5))  # job 3 is backing off
 
+    def test_a_department_only_listing_is_fetched_at_once_and_a_poll_keeps_what_was_fetched(self):
+        """Bank of America lists a line of business and no description: storing that department
+        isn't a fetch, so the posting is fetched with no six-hour wait and every attempt left, and
+        the next poll neither replaces the posting's department nor wipes its description."""
+        config = {"boards": {"bofa": {"ats": "fake"}}, "filters": {}, "profile": {}}
+        listing = [{"id": "1", "title": "Global Markets Summer Analyst", "location": "New York, NY",
+                    "url": "https://x/1", "company": "Bank of America", "department": "Global Markets"}]
+        adapter = Mock(side_effect=lambda cfg: [dict(j) for j in listing])
+        detail = Mock(return_value=("Summer 2027 analyst. Financial modeling in Excel.", "Sales & Trading"))
+        enrich = watcher.enrich_descriptions                # the poll's own call is patched out below
+        with tempfile.TemporaryDirectory() as tmp:
+            subs = Path(tmp) / "subs.json"
+            subs.write_text("{}")
+            with patch.object(watcher, "SUBSCRIBERS", subs), \
+                    patch.dict(watcher.ADAPTERS, {"fake": adapter}), \
+                    patch.dict(watcher.DETAIL_FETCHERS, {"fake": detail}), \
+                    patch.object(watcher, "EPHEMERAL", False), \
+                    patch("watcher.enrich_descriptions", return_value=0):
+                con = watcher.db_open(":memory:")
+                text = lambda: con.execute(  # noqa: E731
+                    "SELECT description, department, attempts, fetched_at IS NULL FROM job_text").fetchone()
+                watcher.cycle(config, con)
+                self.assertEqual(("", "Global Markets", 0, 1), text())  # no attempt used, no back-off
+                self.assertEqual(1, enrich(config, con))
+                fetched = ("Summer 2027 analyst. Financial modeling in Excel.", "Sales & Trading", 1, 0)
+                self.assertEqual(fetched, text())
+                watcher.cycle(config, con)
+                self.assertEqual(fetched, text())
+                self.assertEqual([], con.execute("SELECT * FROM job_changes WHERE kind='description_changed'")
+                                 .fetchall())
+
 
 class FitAlertTests(unittest.TestCase):
     def sub(self, **extra):

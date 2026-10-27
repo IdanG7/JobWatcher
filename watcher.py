@@ -43,8 +43,8 @@ import requests
 
 from intel import load_knowledge
 from intel.sources import enabled_sources, load_config, load_packs, polled_sources
-from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_description,
-                         store_listing_note, update_lifecycle)
+from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_department,
+                         store_description, store_listing_note, update_lifecycle)
 
 HERE = Path(__file__).parent
 DB_PATH = HERE / "jobwatch.db"
@@ -3431,11 +3431,15 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                 con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
                             (ts, name))
                 for j in jobs:
+                    # A listing without a description isn't a fetch: it must not use up or delay
+                    # one, nor wipe a description fetched since.
                     if "listing_note" in j:
                         store_listing_note(con, name, j["id"], j["listing_note"], j.get("department") or "")
-                    elif j.get("description") or j.get("department"):
-                        store_description(con, name, j["id"], j.get("description") or "",
-                                          j.get("department") or "", source="listing")
+                    elif (j.get("description") or "").strip():
+                        store_description(con, name, j["id"], j["description"], j.get("department") or "",
+                                          source="listing")
+                    elif j.get("department"):
+                        store_department(con, name, j["id"], j["department"])
                 runtime_complete = getattr(jobs, "complete", None)
                 complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
                                                  else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
