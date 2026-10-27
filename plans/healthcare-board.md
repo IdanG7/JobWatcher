@@ -1,6 +1,7 @@
 # Healthcare & Science board: design (Phase 1)
 
-Status: **design for approval. No code has changed.** Branch `feat/healthcare-board`, worktree
+Status: **approved** on 2026-10-27, D1–D12 as recommended and then D13–D16 (section 3.4) as recommended.
+Phase 2 is in progress. Branch `feat/healthcare-board`, worktree
 `.claude/worktrees/healthcare-board`. It was created from `main` at `9c6724b` (v0.3.11). It was then
 fast-forwarded to `main` at `6c7112c`, because the three description fixes landed on `main` during this
 session. The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §1 and the
@@ -252,9 +253,88 @@ board loses anything.
 The counts come from title scans of the stored facts in the DB copy (`…\scratchpad\gate\overlap.py`). Phase 3's
 gate replaces them with the exact lists.
 
----
+### 3.4 Career stages, hours and licences (proposed after Phase 1; D13–D16)
+Healthcare careers don't follow the internship → new grad → analyst ladder. They have externships,
+residencies, fellowships, rotations, shift patterns and on-call work, and most clinical jobs have no level
+word at all, because the licence is the level.
 
-## 4. Employer types
+**How the stored postings read today.** Measured on the `main` snapshot, over 5,556 open postings: Healthcare,
+plus `other` postings with a health word in the title.
+- **No level word.** 3,801 (68%) have none, so they become "Unspecified": the Experienced stage, 4 of 20
+  stage points and an 8-point "Experience required" penalty for a student. "Registered Nurse", "Patient
+  Care Technician" and "Pharmacy Technician" are all scored as experienced hires.
+- **Hours.** 433 titles say casual, per diem or PRN, and 259 say part-time, full-time or temporary.
+  "Per Diem Days, 8a-4p", "Nights, 7 PM-7 AM" and "12 Hour Shifts" sit in titles too. None of these is read.
+- **Misread programs:**
+  - "Summer 2027 Nurse Extern Program" is New Grad, from the year in the title. Externs are students
+    between their junior and senior years.
+  - "Summer Student, Research" is Unspecified.
+  - "Postdoctoral Fellow" and "Physician Resident" are Experienced.
+- **Words with several meanings:**
+  - "resident" is a trainee, a job for current residents ("Physician Resident Pathways") or a patient in
+    long-term care ("Resident Care Aide").
+  - "rotation" is a new-grad rotation program, a student's clinical rotation or rotating shifts.
+  - "on-call" is an employment status in a hospital, and an SRE duty in tech.
+
+**How the pathways work.**
+- **Nurse externships:** paid summer programs of 8–10 weeks for nursing students who have finished their
+  junior year. Applications open in October.
+- **New-graduate nurse residencies:** 12-month programs. Applicants apply in their final semester, with or
+  without the NCLEX passed, depending on the program. Cohorts start in spring and fall.
+- **Ontario's Nursing Graduate Guarantee:** covers nurses within 12 months of CNO registration.
+- **PGY1 pharmacy residencies:** run through the ASHP Match. PhORCAS applications are due in early January,
+  and Phase I results come out in mid-March.
+- **Post-PharmD industry fellowships:** open in October, with first offers on the AIFA date of December 12.
+- **Hospital summer research programs:** run May to August, for undergraduates who return to school.
+
+**Proposal: four parts, all scoped to the Healthcare board.** The gate proves every other board unchanged.
+1. **Levels in data, mapped to today's five stages (D13).** A board can carry its own level rules
+   (`stage_rules` in its taxonomy entry), checked before the shared ones. They apply only to postings on that
+   board.
+
+   | Level | Stage | Title evidence |
+   |---|---|---|
+   | Extern | Internship | extern, externship |
+   | Summer Student | Internship | summer student, research summer student |
+   | Student Worker | Internship | nursing or pharmacy student, student pharmacist, undergraduate nursing employee |
+   | New Grad Program | New grad | nurse or RN residency, graduate nurse (GN), transition to practice, NGG, new grad RN |
+   | Residency | New grad | PGY1 or PGY2, pharmacy, dietetic or PT residency, "Resident" next to a training word |
+   | Fellowship | New grad | research, clinical, industry or postdoctoral fellowship or fellow |
+   | Postdoc | New grad | postdoc, postdoctoral |
+
+   - **Stages stay as they are.** No new stage is added, so filters, saved profiles and Finance stay
+     unchanged. The label shows the real name, for example "Residency — target career stage".
+   - **Words with other meanings never count:**
+     - "Resident" means a patient in long-term care.
+     - "rotating shifts" is a schedule, not a rotation program.
+     - Clinical rotations in a description are not a level.
+2. **Entry to practice (D14).** On the Healthcare board, a licensed entry-to-practice occupation with no
+   level word reads as Entry, labelled "Entry to practice". The occupations are RN, RPN or LPN, pharmacist,
+   pharmacy technician, MLT, RRT, PT, OT, dietitian, paramedic, PSW or CNA, patient care technician and
+   medical assistant.
+   - The rule that years of experience decide still wins: "3+ years acute care" stays Experienced.
+   - Physicians, NPs, PAs and CRNAs stay Experienced.
+   - About 1,711 stored postings move from Experienced to Entry. All of them are on the Healthcare board.
+3. **Hours as facts, not a stage (D15).** Facts gain `hours`:
+   - the employment type: full-time, part-time, casual, per diem or PRN, temporary or contract;
+   - the shifts: days, evenings, nights, rotating, 12-hour or weekends;
+   - whether the job is on call.
+
+   They're read from the title and the description. They show as chips on the posting and as an Opportunities
+   filter. They add no fit points unless you set a preference in Settings ("Hours I can work", "No nights").
+   Every board's facts gain the field, but no board's fit changes. It is a code change to `build_facts`, so it
+   needs `FACTS_VERSION` 10 → 11 in the same release as the taxonomy change. That costs no extra recompute.
+4. **Licences and credentials (D16, with Phase 5).**
+   - **What a posting asks:** the registration it requires (RN or CNO, RPN, OCP, CPhT, CSMLS, BLS…), and
+     whether it takes pending licensees ("eligible for registration", GN status, "new graduates welcome",
+     NGG).
+   - **What you hold:** the profile gains "Licences & certifications", read from the resume's certifications
+     section.
+   - **The penalty:** "Licence required", applied the way the degree penalty is. It applies when a posting
+     requires a licence you neither hold nor expect.
+   - **Deadlines:** program windows go to Calendar as deadlines: the PhORCAS deadline, AIFA December 12, the
+     externship and summer research windows, and NGG.
+
 
 All new types are on the healthcare track. Existing employers are never re-typed. A new type would change the
 label and the company points of their postings on the Finance and tech boards.
@@ -485,7 +565,7 @@ types and degree, not as Finance or Software.
   - A resume that opens no track is read exactly as today, with the finance vocabulary.
   - Tech's gate is today's, moved into data.
 - **When the Healthcare track is open:**
-  - each filter's resume signals (data, section 9) are read: GCP, IRB and protocols point at
+  - the track's resume signals (data, section 9) are read: GCP, IRB and protocols point at
     clinical_research; PCR, ELISA and cell culture at lab_research;
   - Healthcare skills are read;
   - Healthcare employer types are proposed;
@@ -529,13 +609,15 @@ types and degree, not as Finance or Software.
   - `employer_types`: what a resume on this board proposes. It replaces the non-finance keys of
     `COMPANY_TYPES` in `intel/resume_insights.py`.
 
-  Each filter gains `resume` (weighted signals, replacing `TECH_SIGNALS`) and `employer_types`. Finance gets
-  a small top-level `finance` entry with its `track` and `skill_groups`.
+  Each filter gains `employer_types`. Finance gets a small top-level `finance` entry with its `track` and
+  `skill_groups`.
 - **`taxonomy.json` → `tracks`** holds what a track's boards share:
   - `label`;
   - the Settings heading ("Tech employer types");
   - `employer_noun` for the "Why" line ("recognized tech employer");
-  - resume `degree` and `role_words`;
+  - resume `degree`, `role_words` and `signals`, which replace `TECH_SIGNALS`. The signals are one ordered
+    list per track, `[filter, weight, pattern]`, not a list on each filter: the order they're read in
+    settles ties between specialties, so a resume's targets stay byte-identical (Phase 2);
   - `skills_from`: the boards whose postings read the track's skills. Tech keeps today's rule: every
     non-finance posting, listed board by board. Healthcare reads only Healthcare postings (D9).
 
@@ -580,8 +662,8 @@ Later boards will probably meet `_BUSINESS_OCCUPATION` and `_SUPPORT_OCCUPATION`
 session reports it, as the brief asks.
 
 ### 9.4 What a later board adds
-- its taxonomy entry: track, filters with resume signals, `fallback_title`, `skill_groups` and
-  `employer_types`;
+- its taxonomy entry: track, filters, `fallback_title`, `skill_groups` and `employer_types`, and its
+  track's resume signals;
 - types in `companies.json` and skills in `skills.json`;
 - its folder, packs and manifest entry, plus the folder's audience;
 - tests.
@@ -625,12 +707,22 @@ track's boards, skill groups and types resolve.
    - The upgrade test.
    - The gate: an empty diff for all 17 profiles.
    - I stop and show the output.
-3. **Filters, employer types and skills.**
-   - Classifier tests for each filter, and every existing test unchanged.
-   - The gate: only approved moves (D1, D2) and label changes.
+   - **Done.** The gate on the copy, epoch 1793070000, compared `main` (`6c7112c`) with this branch:
+     - all 17 profiles showed identical board views: postings, fit, order, fit detail and resume match;
+     - facts were identical for all 294,571 postings;
+     - no posting changed board.
+
+     Polling: every existing board polls the lists and hashes of section 2.2. Healthcare polls 53 sources,
+     Finance + Healthcare 376, Software + Healthcare 713 and AI & Data + Healthcare 524. Every resume text in
+     the test suite, and your stored resume, parse and apply byte-identically against `main`.
+3. **Filters, employer types and skills, plus career stages and hours (D13–D15).**
+   - Classifier tests for each filter and each healthcare level, including the near-misses in 3.4. Every
+     existing test stays unchanged.
+   - The gate: only approved moves (D1, D2), stage changes on the Healthcare board (D13, D14) and label
+     changes.
 4. **Sources, one filter at a time.** Research, verify, write packs, commit; the gate again. Then the
    per-profile poll time, before and after, including the alert runner.
-5. **Resume reading, matching and Calendar,** with the fixtures in section 8; the gate again.
+5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
    - What's new items drafted in `web/js/release-notes.js`, with no version bump.
@@ -640,6 +732,8 @@ track's boards, skill groups and types resolve.
 ---
 
 ## 12. Decisions for you
+
+All sixteen were approved as recommended on 2026-10-27.
 
 | # | Question | Recommendation |
 |---|---|---|
@@ -655,3 +749,7 @@ track's boards, skill groups and types resolve.
 | **D10** | `research_lab` (Ai2 today) also counts for Healthcare and takes biomedical institutes; its label stays "Research Lab". Universities get their own `university` type. | **Yes** |
 | **D11** | No new adapters are planned. Employers whose ATS no adapter reads go to "not added", and I'll ask then. | **As stated** |
 | **D12** | The alert runner (no profile) keeps polling every pack, including `health/` (+N; its added time is reported in Phase 4). | **Yes** |
+| **D13** | Healthcare levels (Extern, Summer Student, Student Worker, New Grad Program, Residency, Fellowship, Postdoc) as board-specific `stage_rules` in data, mapped to today's five stages. The alternative is a sixth stage, "Residency & fellowship". | **Map to today's stages**, in Phase 3 |
+| **D14** | On the Healthcare board, a licensed entry-to-practice occupation with no level word ("Registered Nurse") reads as Entry ("Entry to practice"), not Experienced. Years asked still decide. About 1,711 stored postings change. | **Yes**, in Phase 3 |
+| **D15** | Hours (employment type, shifts, on-call) become facts, chips and a filter, with no fit points unless you set a preference. This needs `FACTS_VERSION` 10 → 11 in the same release, so no extra recompute. | **Yes**, in Phase 3 |
+| **D16** | Licences: what a posting requires and whether it accepts pending licensees; "Licences & certifications" in the profile; a "Licence required" penalty; program windows in Calendar. | **Yes**, in Phase 5 |
