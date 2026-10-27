@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -192,8 +192,23 @@ def _v6_drop_cover_letters(con: sqlite3.Connection) -> None:
     con.execute("DROP TABLE IF EXISTS cover_letters")
 
 
+def _v7_listing_notes(con: sqlite3.Connection) -> None:
+    """Community lists (SimplifyJobs and forks) carry metadata, not descriptions. It was
+    stored as the description ("Sponsorship: Other."), which the drawer showed and which
+    kept the posting's own text from being fetched. It moves to its own table; facts read
+    description and note together, so moved postings keep the same facts."""
+    con.execute("""CREATE TABLE IF NOT EXISTS job_notes(
+        board TEXT, job_id TEXT, note TEXT NOT NULL DEFAULT '', PRIMARY KEY(board, job_id))""")
+    con.execute("""INSERT OR IGNORE INTO job_notes(board, job_id, note)
+                   SELECT board, job_id, description FROM job_text
+                   WHERE source='listing_metadata' AND COALESCE(description, '')!=''""")
+    # Never fetched: the poll and the drawer may fetch the description at once.
+    con.execute("""UPDATE job_text SET description='', content_hash='', source='', fetched_at=NULL,
+                   attempts=0, last_error='' WHERE source='listing_metadata'""")
+
+
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
-              5: _v5_resume_matching, 6: _v6_drop_cover_letters}
+              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes}
 
 
 def migrate(con: sqlite3.Connection) -> int:

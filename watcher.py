@@ -44,7 +44,7 @@ import requests
 from intel import load_knowledge
 from intel.sources import enabled_sources, load_config, load_packs, polled_sources
 from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_description,
-                         update_lifecycle)
+                         store_listing_note, update_lifecycle)
 
 HERE = Path(__file__).parent
 DB_PATH = HERE / "jobwatch.db"
@@ -565,7 +565,8 @@ def fetch_github_listings(cfg):
             continue
         locs = j.get("locations") or []
         # Listing metadata (terms, sponsorship, degrees) is phrased the way the
-        # cycle and eligibility extractors already understand.
+        # cycle and eligibility extractors already understand. It is a note beside
+        # the description, not the description: the posting's own page is read for that.
         meta = []
         if j.get("terms"):
             meta.append(f"Recruiting term: {', '.join(map(str, j['terms']))}.")
@@ -580,8 +581,7 @@ def fetch_github_listings(cfg):
             "url": j.get("url", ""),
             "company": j.get("company_name", ""),
             "posted": j.get("date_posted") or j.get("date_updated") or None,
-            "description": " ".join(meta),
-            "description_source": "listing_metadata",
+            "listing_note": " ".join(meta),
             "department": j.get("category") or "",
         })
     return out
@@ -1942,7 +1942,7 @@ DETAIL_FETCHERS = {
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
 # Sources whose listings carry no description: each posting's own link is read
 # instead (community lists link to employers' ATS pages, often via a redirect).
-PAGE_DETAIL_ATS = {"bofa", "github_md", "avature", "radancy", "icims", "successfactors", "marqeta",
+PAGE_DETAIL_ATS = {"bofa", "github_md", "github_listings", "avature", "radancy", "icims", "successfactors", "marqeta",
                    "atlassian", "kula"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
@@ -3401,10 +3401,11 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                 con.execute("UPDATE boards SET failures=0, last_ok=?, seeded=1 WHERE board=?",
                             (ts, name))
                 for j in jobs:
-                    if j.get("description") or j.get("department"):
+                    if "listing_note" in j:
+                        store_listing_note(con, name, j["id"], j["listing_note"], j.get("department") or "")
+                    elif j.get("description") or j.get("department"):
                         store_description(con, name, j["id"], j.get("description") or "",
-                                          j.get("department") or "",
-                                          source=j.get("description_source") or "listing")
+                                          j.get("department") or "", source="listing")
                 runtime_complete = getattr(jobs, "complete", None)
                 complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
                                                  else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
@@ -3594,7 +3595,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     con.execute("""DELETE FROM jobs WHERE last_seen < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)
                    AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)""",
                 (f"-{PRUNE_AFTER_DAYS} days",))
-    for table in ("job_details", "job_text", "job_intel", "job_state"):
+    for table in ("job_details", "job_text", "job_notes", "job_intel", "job_state"):
         con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
                        SELECT 1 FROM jobs WHERE jobs.board={table}.board
                        AND jobs.job_id={table}.job_id)""")

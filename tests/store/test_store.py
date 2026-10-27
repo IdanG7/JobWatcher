@@ -10,7 +10,8 @@ from pathlib import Path
 
 import watcher
 from db_migrations import SCHEMA_VERSION, migrate
-from intel_store import IntelStore, ensure_fts, record_changes, store_description, update_lifecycle
+from intel_store import (IntelStore, ensure_fts, record_changes, store_description, store_listing_note,
+                         update_lifecycle)
 
 CONFIG = {
     "profile": {},
@@ -76,6 +77,78 @@ class MigrationTests(unittest.TestCase):
         con = watcher.db_open(":memory:")
         self.assertEqual(SCHEMA_VERSION, migrate(con))
         self.assertEqual(SCHEMA_VERSION, con.execute("PRAGMA user_version").fetchone()[0])
+
+
+class ListingNoteTests(unittest.TestCase):
+    """A community list's metadata ("Sponsorship: Other.") is a note beside the description."""
+    NOTE = "Recruiting term: Summer 2027. Sponsorship: Does Not Offer Sponsorship."
+    CONFIG = {"profile": {}, "boards": {"simplify": {"ats": "github_listings", "repo": "a/b"}}}
+
+    def setUp(self):
+        self.con = watcher.db_open(":memory:")
+        add_job(self.con, "simplify", "1", "Investment Banking Summer Analyst", company="Evercore")
+
+    def text(self):
+        return self.con.execute("SELECT description, department, attempts, fetched_at FROM job_text "
+                                "WHERE board='simplify' AND job_id='1'").fetchone()
+
+    def facts(self):
+        IntelStore(self.con, self.CONFIG).refresh()
+        return json.loads(self.con.execute("SELECT facts FROM job_intel WHERE job_id='1'").fetchone()[0])
+
+    def test_a_note_is_not_a_description_and_does_not_delay_the_fetch(self):
+        self.assertTrue(store_listing_note(self.con, "simplify", "1", self.NOTE, "Finance"))
+        self.assertEqual(("", "Finance", 0, None), self.text())
+        self.assertFalse(store_listing_note(self.con, "simplify", "1", self.NOTE, "Finance"))   # the next poll
+        self.assertEqual("not_available", self.facts()["eligibility"]["sponsorship"])
+        picked = self.con.execute("""SELECT COUNT(*) FROM job_text WHERE COALESCE(description,'')=''
+                                     AND attempts < ? AND COALESCE(fetched_at,'') < ?""",
+                                  (watcher.DESCRIPTION_ATTEMPTS, watcher.description_retry_before())).fetchone()[0]
+        self.assertEqual(1, picked)         # the poll's enrichment may fetch it at once
+
+    def test_polls_keep_a_fetched_description_and_its_department(self):
+        store_listing_note(self.con, "simplify", "1", self.NOTE, "Finance")
+        store_description(self.con, "simplify", "1", "Join our M&A team. Build models.", "Banking", source="detail")
+        self.assertFalse(store_listing_note(self.con, "simplify", "1", self.NOTE, "Finance"))
+        self.assertEqual(("Join our M&A team. Build models.", "Banking"), self.text()[:2])
+        facts = self.facts()            # facts read the description and the note together
+        self.assertEqual("not_available", facts["eligibility"]["sponsorship"])
+        self.assertEqual("Summer 2027", facts["cycle"]["label"])
+
+    def test_a_changed_note_rescores(self):
+        store_listing_note(self.con, "simplify", "1", self.NOTE)
+        self.facts()
+        self.assertTrue(store_listing_note(self.con, "simplify", "1", "Sponsorship: Offers Sponsorship."))
+        self.assertIsNone(self.con.execute("SELECT input_hash FROM job_intel WHERE job_id='1'").fetchone()[0])
+        self.assertEqual("available", self.facts()["eligibility"]["sponsorship"])
+
+    def test_migration_moves_stored_metadata_out_of_the_description_with_the_same_facts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "v6.db"
+            con = watcher.db_open(path)
+            add_job(con, "simplify", "1", "Investment Banking Summer Analyst", company="Evercore")
+            add_job(con, "simplify", "2", "Software Engineer Intern", company="Acme")
+            # How 0.3.11 stored a list's metadata, and a posting that already has its own text.
+            store_description(con, "simplify", "1", self.NOTE, "Finance", source="listing_metadata")
+            store_description(con, "simplify", "2", "Build services in Go.", "Software", source="detail")
+            IntelStore(con, self.CONFIG).refresh()      # with no notes yet, facts read what 0.3.11 read
+            before = dict(con.execute("SELECT job_id, input_hash || facts FROM job_intel"))
+            con.execute("DROP TABLE job_notes")
+            con.execute("PRAGMA user_version=6")
+            con.commit()
+            con.close()
+
+            con = watcher.db_open(path)
+            self.assertEqual(SCHEMA_VERSION, con.execute("PRAGMA user_version").fetchone()[0])
+            self.assertEqual([("1", self.NOTE)], con.execute("SELECT job_id, note FROM job_notes").fetchall())
+            rows = dict(con.execute("SELECT job_id, description || '|' || department || '|' || attempts || '|' || "
+                                    "COALESCE(fetched_at, 'never') FROM job_text"))
+            self.assertEqual("|Finance|0|never", rows["1"])
+            self.assertTrue(rows["2"].startswith("Build services in Go.|Software|1|"))
+            # Nothing to recompute: facts read the same text as before.
+            self.assertEqual(0, IntelStore(con, self.CONFIG).facts_pass())
+            self.assertEqual(before, dict(con.execute("SELECT job_id, input_hash || facts FROM job_intel")))
+            con.close()
 
 
 class LifecycleTests(unittest.TestCase):

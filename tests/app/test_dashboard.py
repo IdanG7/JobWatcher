@@ -10,7 +10,7 @@ from pathlib import Path
 
 import watcher
 from dashboard import ApiError, JobwatchHandler, JobwatchService
-from intel_store import store_description, update_lifecycle
+from intel_store import store_description, store_listing_note, update_lifecycle
 from job_intelligence import analyze_job, board_tags, location_bucket, role_track, seniority
 
 
@@ -112,6 +112,22 @@ class ServiceFixture(unittest.TestCase):
 
 
 class DashboardServiceTests(ServiceFixture):
+    def test_a_list_postings_metadata_is_never_shown_as_its_description(self):
+        con = watcher.db_open(self.db_path)
+        now = watcher.now()
+        con.execute("INSERT INTO jobs VALUES (?,?,?,?,?,?,?)", ("simplify", "s1", "2027 Investment Banking Summer Analyst",
+                                                                "Toronto, ON", "https://example.com/s1", now, now))
+        con.execute("INSERT INTO job_details VALUES (?,?,?,?,?)", ("simplify", "s1", "RBC", "", time.time() - 600))
+        store_listing_note(con, "simplify", "s1", "Recruiting term: Summer 2027. Sponsorship: Other.", "Finance")
+        con.commit()
+        con.close()
+        self.service.refresh_now()
+        job = self.service.job_detail("simplify:s1")
+        self.assertNotIn("Sponsorship", job["description"])
+        # The employer's own copy of the same job stands in until the list posting's page is read.
+        self.assertTrue(job["description"].startswith("Join our M&A team."))
+        self.assertEqual("RBC Careers", job["description_from"])
+
     def test_search_filters_and_overview(self):
         results = self.service.jobs({"category": ["investment_banking"], "location": ["toronto"]})
         self.assertEqual(1, results["total"])        # LinkedIn twin is merged, not duplicated

@@ -87,6 +87,10 @@ test('descriptions read as paragraphs, tight lists and small headings, not a col
   // a form's labels over their values read as one line each, grouped; a code is a value, never a heading
   assert.equal(descriptionHtml('Job ID\n\n26WD101684\n\nWork Location\n\nToronto, Ontario'),
     '<p class="desc-facts"><span class="desc-label">Job ID</span> 26WD101684<br><span class="desc-label">Work Location</span> Toronto, Ontario</p>');
+  // a "Label:" heading's value under it, a blank line apart (Eightfold pages), is a value, not another heading
+  assert.equal(descriptionHtml('Company:\n\nQualcomm Canada ULC\n\nJob Area:\n\nInterns Group\n\nOverview:\n\nQualcomm is a company of inventors.'),
+    '<p class="desc-facts"><span class="desc-label">Company</span> Qualcomm Canada ULC<br><span class="desc-label">Job Area</span> Interns Group'
+    + '<br><span class="desc-label">Overview</span> Qualcomm is a company of inventors.</p>');
   const long = 'You will support the desk with research, models and client materials every day.';
   assert.equal(descriptionHtml(`What you'll do:\n${long}`), `<h4 class="desc-head">What you&#39;ll do</h4><p>${long}</p>`);
   // a short last line is not a heading over nothing
