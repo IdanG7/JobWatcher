@@ -951,6 +951,33 @@ track's boards, skill groups and types resolve.
      - Left as is: a title that only its bullets place ("Research Assistant Co-op" alone, "Regulatory Affairs
        Co-op Student") isn't listed among the resume's roles, though its work still counts toward the
        filters. "Prosthetic Hand Controller" reads as a finance Controller title, today and for any resume.
+   - **Licences (D16)** (2026-10-28): the Healthcare entry's `licences` in `taxonomy.json`, read by
+     `intel/licences.py`.
+     - 11 licences (RN, RPN/LPN, NP, pharmacist, pharmacy technician, MLT, RRT, PT, OT, RD, paramedic) and 6
+       certifications (BLS, ACLS, PALS, PSW/CNA, clinical research, RAC). Each has fragments for the posting's
+       title, its description (the registration, regulator or exam), a resume, and the degree that expects it.
+     - **Postings:** only Healthcare postings gain `facts.licences` (`required`, `certifications`,
+       `pending_ok`); other boards' facts are unchanged. A title names a licence unless it is a student,
+       extern, assistant or trainee role. A licence the description only prefers ("RPhT preferred") isn't
+       required. Pending phrases: "eligible for registration", GN status, "new grads welcome", NGG.
+     - **Fit:** "Licence required", −20, when a required licence isn't in the profile's `licences`; its line
+       says when pending registration is considered. A certification is shown, never scored.
+     - **Resume:** held from the top lines, the certifications section, a credential line or a licensed job
+       title; expected (licences only) from the program, so a BScN expects RN. Applying the resume adds them
+       to the profile. Finance and tech resumes read none and stay byte-identical.
+     - **Shown:** Licence and Certifications cells on the posting, labelled from `/api/meta`'s `licences`.
+     - Tests: `tests/matching/test_health_licences.py`, `web/tests/lib.test.js`.
+   - **Program windows in Calendar (D16)** (2026-10-28): the Healthcare entry's `program_windows` in
+     `taxonomy.json`, read by `intel/programs.py` and added to `/api/calendar` (and so to Today's next 7 days).
+     - Seven windows, all from section 3.4: nurse externship applications (October), PhORCAS (early January),
+       ASHP Match Phase I results (mid-March), industry fellowships open (October), AIFA (December 12),
+       hospital summer research (May to August), and the NGG (from the graduation month). Titles say
+       "typically", and each item carries its `when` ("Early January") and a note.
+     - Who sees them: only profiles with the Healthcare board. A window shows when the profile chose one of its
+       filters or holds or expects one of its licences; a profile with no Healthcare filter and none of the
+       board's licences sees all seven. Finance and tech calendars have none.
+     - Shown as an italic amber "Program window" with a legend entry only when one is on screen.
+     - Tests: `tests/app/test_program_windows.py`.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
    - What's new items drafted in `web/js/release-notes.js`, with no version bump.

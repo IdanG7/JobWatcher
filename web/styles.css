@@ -718,6 +718,7 @@ body.review-docked .drawer.show { opacity: 1; transform: none; }
 .ev.interview { --ev: var(--ink); background: var(--accent-soft); }
 .ev.follow_up { --ev: var(--pos); background: var(--pos-soft); }
 .ev.next_action { --ev: var(--text-2); }
+.ev.program { --ev: var(--warn); font-style: italic; }   /* a program's typical date, not a posting's */
 .ev.extracted::before { background: transparent; box-shadow: inset 0 0 0 1px var(--ev); }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-2); align-items: center; }
 .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1); }
@@ -1283,6 +1284,7 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 .cal-sheet .ev.interview { --ev: var(--ink); background: none; font-weight: 600; }
 .cal-sheet .ev.follow_up { --ev: var(--pos); background: none; }
 .cal-sheet .ev.next_action { --ev: var(--text-3); }
+.cal-sheet .ev.program { --ev: var(--warn); }
 .cal-sheet .ev.extracted::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ev); }
 .cal-sheet .ev:hover { background: var(--hover); }
 .cal-sheet .ev time { font: 500 11px var(--mono); color: var(--text-3); }
@@ -1293,6 +1295,7 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 .cal-legend i.k-interview { background: var(--ink); }
 .cal-legend i.k-follow_up { background: var(--pos); }
 .cal-legend i.k-next_action { background: var(--text-3); }
+.cal-legend i.k-program { background: var(--warn); }
 .cal-legend i.k-extracted { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text-3); }
 .cal-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-top: 14px; }
 .cal-foot p { margin: 0; max-width: 72ch; font-size: 12px; color: var(--text-3); }
@@ -1314,6 +1317,7 @@ table.data td.row-actions .btn + .btn { margin-left: 2px; }
 .agenda-item.deadline { --ev: var(--warn-strong); }
 .agenda-item.interview { --ev: var(--ink); }
 .agenda-item.follow_up { --ev: var(--pos); }
+.agenda-item.program { --ev: var(--warn); }
 .agenda-item .grow { flex: 1; min-width: 0; }
 .agenda-item .t { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda-item .s { font-size: 12px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

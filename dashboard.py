@@ -36,6 +36,7 @@ import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
+from intel.programs import program_windows
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
@@ -1289,6 +1290,7 @@ class JobwatchService:
                 items.append({"date": r["date"], "time": r["time"], "kind": r["kind"] or "event", "source": "event",
                               "event_id": r["id"], "title": r["title"], "company": r["company"],
                               "notes": r["notes"], "job_key": r["job_key"], "manual": True})
+            items += program_windows(profile, self.kn, start, end)
         finally:
             if own:
                 con.close()
@@ -2318,6 +2320,8 @@ class JobwatchService:
             "languages": sorted(lang.title() for lang in KNOWN_LANGUAGES),
             "skills": [{"key": s.key, "label": s.label, "group": s.group} for s in self.kn.skills],
             "skill_groups": self.kn.skill_groups,
+            # Licences & certifications a board's postings may ask for (D16).
+            "licences": [{"key": l.key, "label": l.label, "kind": l.kind} for l in self.kn.licence_by_key.values()],
             "statuses": [{"key": s, "label": STATUS_LABELS[s]} for s in APP_STATUSES],
             "relationships": RELATIONSHIPS,
             "cycles": [{"key": c, "label": cycle_label(c)} for c in cycles],

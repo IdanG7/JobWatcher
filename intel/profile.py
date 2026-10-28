@@ -78,7 +78,7 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
     if month is not None and (not isinstance(month, int) or not 1 <= month <= 12):
         problems.append("graduation_month must be 1–12")
     for key in ("target_roles", "target_stages", "target_cycles", "target_locations",
-                "target_countries", "target_company_types", "languages", "skills", "fields"):
+                "target_countries", "target_company_types", "languages", "skills", "fields", "licences"):
         if not isinstance(profile.get(key, []), list):
             problems.append(f"{key} must be a list")
     bad_stages = set(profile.get("target_stages") or []) - set(STAGES)
@@ -108,6 +108,10 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
         unknown = [f for f in profile.get("fields") or [] if f != "finance" and f not in kn.families]
         if unknown:
             problems.append(f"unknown fields: {', '.join(unknown)}")
+        # Licences & certifications held or expected (D16); absent means none.
+        unknown = [k for k in profile.get("licences") or [] if k not in kn.licence_by_key]
+        if unknown:
+            problems.append(f"unknown licences: {', '.join(unknown)}")
     return problems
 
 

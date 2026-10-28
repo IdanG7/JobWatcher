@@ -235,6 +235,25 @@ class StageRules:
     entry_unless: Prefiltered | None = None
 
 
+@dataclass
+class Licence:
+    """A licence or certification a board's postings ask for (taxonomy.json licences; read in licences.py)."""
+    key: str
+    label: str
+    kind: str                           # "licence" (missing it costs fit) or "certification" (shown only)
+    title: Prefiltered | None = None    # the title names the occupation that needs it...
+    title_unless: Prefiltered | None = None     # ...unless it is a student or assistant role
+    description: Prefiltered | None = None      # the description asks for its registration, regulator or exam
+    resume: Prefiltered | None = None   # a resume line shows it held
+    degree: Prefiltered | None = None   # a resume's program means it is expected
+
+
+@dataclass
+class BoardLicences:
+    items: list[Licence]
+    pending: Prefiltered | None = None  # the posting takes people whose registration is pending
+
+
 class Knowledge:
     """Compiled view of config/*.json.  Treat instances as immutable."""
 
@@ -335,6 +354,22 @@ class Knowledge:
                 [(r["level"], r["stage"], r["label"], compile_union(r["title"]), compile_union(r.get("unless")))
                  for r in rules.get("levels") or []],
                 entry.get("label", ""), compile_union(entry.get("title")), compile_union(entry.get("unless")))
+        self.licences: dict[str, BoardLicences] = {}
+        for key, node in self.families.items():
+            spec = node.meta.get("licences")
+            if spec:
+                self.licences[key] = BoardLicences(
+                    [Licence(name, item["label"], item.get("kind", "licence"),
+                             *(compile_union(item.get(part)) for part in
+                               ("title", "title_unless", "description", "resume", "degree")))
+                     for name, item in (spec.get("items") or {}).items() if not name.startswith("_")],
+                    compile_union(spec.get("pending")))
+        self.licence_by_key: dict[str, Licence] = {
+            item.key: item for board in self.licences.values() for item in board.items}
+        # Yearly program windows a board shows in Calendar (read in programs.py).
+        self.program_windows: dict[str, list[dict]] = {
+            key: node.meta["program_windows"]["items"] for key, node in self.families.items()
+            if node.meta.get("program_windows")}
 
     def skill_tracks(self, board: str) -> frozenset[str]:
         """The tracks whose skills a posting on this board reads ('other' when no board places it)."""

@@ -141,8 +141,8 @@ function attnRow(a) {
 function eventRow(ev) {
   const d = parseDay(ev.date);
   const kind = ev.kind === 'interview' ? 'interview' : ev.kind === 'deadline' ? 'deadline' : '';
-  const label = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up'}[ev.kind] || 'Event';
-  return `<li${ev.job_key ? ` data-job="${esc(ev.job_key)}" tabindex="0" role="button"` : ''}><span class="date-chip ${kind}"><small>${d ? MONTHS[d.getMonth()] : ''}</small><b>${d ? d.getDate() : ''}</b></span><div class="grow"><div class="t">${esc(ev.company ? `${ev.company} — ` : '')}${esc(ev.title)}</div><div class="s">${label}${ev.source === 'extracted' ? ' · from the posting' : ''}${ev.time ? ` · ${esc(ev.time)}` : ''}</div></div></li>`;
+  const label = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up', program: 'Program window'}[ev.kind] || 'Event';
+  return `<li${ev.job_key ? ` data-job="${esc(ev.job_key)}" tabindex="0" role="button"` : ''}><span class="date-chip ${kind}"><small>${d ? MONTHS[d.getMonth()] : ''}</small><b>${d ? d.getDate() : ''}</b></span><div class="grow"><div class="t">${esc(ev.company ? `${ev.company} — ` : '')}${esc(ev.title)}</div><div class="s">${label}${ev.when ? ` · ${esc(ev.when)}` : ''}${ev.source === 'extracted' ? ' · from the posting' : ''}${ev.time ? ` · ${esc(ev.time)}` : ''}</div></div></li>`;
 }
 
 function savedRow(s) {

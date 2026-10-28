@@ -20,6 +20,7 @@ from datetime import date
 from xml.etree import ElementTree
 
 from .knowledge import Knowledge
+from .licences import resume_licences
 from .locations import parse_location
 from .skills import extract_skills
 from .sources import profile_fields, role_field
@@ -411,6 +412,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))
     skills = extract_skills(text, kn, limit=60, tracks=tracks)
+    licences = resume_licences(sections, entries, education, tracks, kn)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference
     for line in top[:6] + exp_lines:
@@ -424,7 +426,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     email = _EMAIL.search("\n".join(top[:8]) or text)
     phone = _PHONE.search("\n".join(top[:8]) or text)
     linkedin = _LINKEDIN.search(text)
-    return {
+    parsed = {
         "name": _guess_name(top),
         "email": email.group(0) if email else None,
         "phone": phone.group(0).strip() if phone else None,
@@ -445,6 +447,10 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "internships": insights.student_roles(entries),
         "chars": len(text),
     }
+    if licences:
+        # Only a resume track whose boards define licences reads them: finance and tech resumes are as before.
+        parsed["licences"] = licences
+    return parsed
 
 
 def profile_suggestions(parsed: dict, profile: dict, kn: Knowledge) -> dict:
@@ -475,6 +481,10 @@ def profile_suggestions(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     cities = [c for c in parsed.get("cities") or [] if c in kn.city_by_key and c not in (profile.get("target_locations") or [])]
     if cities:
         out["target_locations"] = cities[:4]
+    licences = [l["key"] for l in parsed.get("licences") or [] if l["key"] in kn.licence_by_key
+                and l["key"] not in (profile.get("licences") or [])]
+    if licences:
+        out["licences"] = licences
     langs = [l for l in parsed.get("languages") or [] if l not in (profile.get("languages") or [])]
     if langs:
         out["languages"] = langs
@@ -551,6 +561,9 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
         result["target_countries"] = list(dict.fromkeys(c for c in countries if c))
     if parsed.get("languages"):
         result["languages"] = list(parsed["languages"])
+    licences = [l["key"] for l in parsed.get("licences") or [] if l["key"] in kn.licence_by_key]
+    if licences:
+        result["licences"] = list(dict.fromkeys([*(profile.get("licences") or []), *licences]))
     if edu.get("graduation_year"):
         year = edu["graduation_year"]
         result["graduation_year"] = year

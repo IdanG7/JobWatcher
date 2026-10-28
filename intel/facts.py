@@ -15,6 +15,7 @@ from .compensation import comp_from_description, parse_compensation
 from .cycle import detect_cycle, extract_deadline, graduation_window, is_rolling
 from .eligibility import extract_eligibility
 from .hours import extract_hours
+from .licences import posting_licences
 from .knowledge import Knowledge
 from .locations import geo_key, parse_location
 from .seniority import detect_seniority
@@ -98,7 +99,7 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
 
     title_norm = normalize_title(title)
     cluster_key = "|".join([company["key"], title_norm, geo_key(location, job.get("location") or "", kn)])
-    return {
+    facts = {
         "v": FACTS_VERSION,
         "company": company,
         "classification": classification,
@@ -116,3 +117,7 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
         "title_norm": title_norm,
         "cluster_key": cluster_key,
     }
+    if board in kn.licences:
+        # Only a board that defines licences reads them (D16), so other boards' facts stay as they were.
+        facts["licences"] = posting_licences(title, description, kn.licences[board])
+    return facts

@@ -323,6 +323,13 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
             penalty("degree", "Graduate degree required", 10, "Master's students targeted")
         elif "undergraduate" in degrees:
             reasons.append("Undergraduate eligible")
+    # A licence the posting requires that the profile neither holds nor expects (D16; Healthcare postings only).
+    licences = facts.get("licences") or {}
+    missing = [kn.licence_by_key[k].label for k in licences.get("required") or []
+               if k in kn.licence_by_key and k not in (profile.get("licences") or [])]
+    if missing:
+        penalty("licence", "Licence required", 20, ", ".join(missing) + " required"
+                + ("; candidates whose registration is pending are considered" if licences.get("pending_ok") else ""))
     job_countries = set(loc["countries"]) or ({company["country"]} if company.get("country") else set())
     auth = profile.get("work_authorization") or {}
     if elig.get("sponsorship") == "not_available":
