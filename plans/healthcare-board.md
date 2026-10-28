@@ -856,6 +856,16 @@ track's boards, skill groups and types resolve.
        Analytical Technical Operations" (Finance → Healthcare).
      - **Approved** on 2026-10-27: the Moderna move, and again Thermo Fisher's "FSP Clinical Research
        Associate I - Bilingual French QC Canada" (already one of the 34).
+   - **Gate at `c3f0cd5`** (all 172 `health/` sources, 945 employers in all): passed with what was approved.
+     - The moves off boards without Healthcare are the same 35 postings as at `8af28fc`: Finance 19,
+       Operations 10, Software 5, Sales 1.
+     - Every other posting on those boards keeps its fit, order and filter. The differences are employer-type
+       labels: Finance 30, Software 131, Sales 102, Operations 74, user 185.
+     - Healthcare gains 14 more postings from no board than at `8af28fc` (4,904).
+     - Results in `E:\healthcare-gate\compare_p4.txt`.
+   - **Phase 4 done** on 2026-10-27. All nine filters poll their groups, and each pack's note lists what
+     wasn't added. Left for your call: ICF (consulting; any type changes its stored postings), and a title
+     filter for test requisitions ("DO NOT APPLY - TEST REQ", 42 at Thermo Fisher).
      - Otherwise there are no fit, order or other changes, only employer-type labels.
      - Healthcare gains 22 more postings from no board than at Phase 3: 4,890 against 4,868, as simulated.
    - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
