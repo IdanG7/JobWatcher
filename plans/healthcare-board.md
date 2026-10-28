@@ -856,15 +856,22 @@ track's boards, skill groups and types resolve.
        Analytical Technical Operations" (Finance → Healthcare), which waits on your yes.
      - Otherwise there are no fit, order or other changes, only employer-type labels.
      - Healthcare gains 22 more postings from no board than at Phase 3: 4,890 against 4,868, as simulated.
-   - **Poll time** at `8af28fc`: each source fetched once by the app's adapter, 10 at a time. Each
-     profile's cycle was then simulated in poll order (`…\scratchpad\phase4\poll_time.py`):
-     - Healthcare: 785 → 177 sources. A full poll takes 1,055 s → 286 s, set by the two LinkedIn searches
-       (274 s each). Steady fetch work is 19,570 → 2,618 s an hour.
-     - Finance + Healthcare 816 s, Software + Healthcare 839 s, AI & Data + Healthcare 568 s, from 1,055 s.
-     - Alert runner, Sales, Operations, People & Legal and Finance + Sales: 785 → 909 sources. A full poll
-       stays 1,055 s (Microsoft's finance search, 541 s, sets it). Fetch work rises 18%, from 19,570 to
-       21,908 s an hour.
-     - Every other profile is unchanged. None of the 124 new sources failed.
+   - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
+     - Method: each source was fetched once by the app's adapter, 10 at a time. The 124 sources up to
+       `8af28fc` were timed in one run, the 48 after it in a second. Each profile's cycle was then simulated
+       in poll order (`…\scratchpad\phase4\poll_time.py`). Results are in `E:\healthcare-gate\poll\`.
+     - Healthcare: 785 → 225 sources. A full poll takes 1,055 s → 310 s, set by the two LinkedIn searches
+       (274 s each). Steady fetch work is 19,570 → 3,501 s an hour.
+     - Mixed profiles, full poll from 1,055 s: Finance + Healthcare 852 s, Software + Healthcare 856 s, AI &
+       Data + Healthcare 593 s.
+     - One filter picked: 92–166 sources and 278–310 s.
+     - Alert runner, Sales, Operations, People & Legal and Finance + Sales: 785 → 957 sources (D8, D12).
+       - A full poll takes 1,055 s → 1,102 s. Microsoft's finance search (541 s) sets most of it.
+       - Fetch work rises 16%, from 19,570 to 22,791 s an hour.
+     - Every other profile is unchanged.
+     - None of the 172 new sources failed. Eight existing ones failed in the first run: Eightfold 403s for
+       Lockheed Martin, Northrop Grumman, Qualcomm and UKG; Anduril timed out; Atlassian's response was cut
+       off; Old Mission's Greenhouse board answered 404.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
