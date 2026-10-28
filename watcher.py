@@ -2553,6 +2553,101 @@ def fetch_successfactors_portal(cfg):
     return _finish_listing(out, "SuccessFactors", limit)
 
 
+HOPKINS_PAUSE = 2.0         # jobs.hopkinsmedicine.org's robots.txt asks for a Crawl-delay of 2
+HOPKINS_GAP_MAX = 40        # postings read one by one; more than this and the listing stays incomplete
+
+
+def _hopkins_cards(text, root):
+    """One page of the listing: <div><a href="/job/<id>/<slug>/"><h3>title</h3></a><dl> labelled fields."""
+    if 'id="job-list-section"' not in text:
+        raise RuntimeError("Johns Hopkins Medicine pagination response has no job list")
+    page = []
+    for item in re.findall(r"<div>\s*(<a\b[^>]*href=[\"']/job/\d+/.*?)</dl>", text.split('id="job-list-section"', 1)[1], re.S):
+        link = re.search(r"<a\b([^>]*)>\s*<h3>(.*?)</h3>", item, re.S)
+        if not link:
+            raise RuntimeError("Johns Hopkins Medicine pagination could not parse a result")
+        href = _html_attr(link.group(1), "href")
+        field = {name: " ".join(html_to_text(value).split())
+                 for name, value in re.findall(r'<span class="([\w-]+)"><dt>.*?</dt><dd>(.*?)</dd>', item, re.S)}
+        job = {"id": re.search(r"/job/(\d+)/", href).group(1), "title": html_to_text(link.group(2)).strip(),
+               "location": field.get("location", "").replace(" ,", ","), "url": urljoin(root, href), "posted": None}
+        if field.get("category"):
+            job["department"] = field["category"]
+        note = [f"{label}: {field[name]}." for name, label in (("job-ref", "Requisition #"), ("schedule", "Schedule"),
+                                                                ("employment_type", "Employment Type")) if field.get(name)]
+        if note:
+            job["listing_note"] = " ".join(note)
+        page.append(job)
+    return page
+
+
+def _hopkins_posting(jid, url):
+    """A posting the paging skipped, from its own page's JobPosting; None once it is gone."""
+    from intel.page_text import json_ld_posting
+    r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
+    if r.status_code in (404, 410) or f"/job/{jid}/" not in urlsplit(r.url).path:     # gone, or sent back to the list
+        return None
+    r.raise_for_status()
+    posting = json_ld_posting(r.text)
+    if not posting.get("title"):
+        raise RuntimeError("Johns Hopkins Medicine posting page has no JobPosting")
+    place = (posting.get("jobLocation") or {}).get("address") or {}
+    region = " ".join(filter(None, (place.get("addressRegion"), place.get("postalCode"))))
+    job = {"id": jid, "title": html_to_text(posting["title"]).strip(), "url": url,
+           "location": ", ".join(filter(None, (place.get("streetAddress"), place.get("addressLocality"), region))),
+           "posted": _date_epoch(posting.get("datePosted"))}
+    ref = (posting.get("identifier") or {}).get("value")
+    if ref:
+        job["listing_note"] = f"Requisition #: {ref}."
+    return job
+
+
+def fetch_hopkins_medicine(cfg):
+    """Johns Hopkins Medicine's own jobs site (jobs.hopkinsmedicine.org, linked from hopkinsmedicine.org):
+    server-rendered pages of 20 postings ordered by title (?page_jobs=N), with the total in 'Found
+    <strong>1087</strong>'. The id is the site's own (/job/<id>/<slug>/). The category goes in department,
+    and the requisition number, schedule and employment type in listing_note. The listing has no date.
+
+    Odd: postings with the same title are placed differently from one page to the next, so paging repeats a
+    few and skips as many (1,082 of 1,087). The sitemap that robots.txt names lists every posting, so each
+    one paging skipped is read from its own page, and the listing is complete when it holds every posting
+    the sitemap lists. robots.txt asks for two seconds between requests.
+    cfg: url (default https://jobs.hopkinsmedicine.org/jobs/), max (safety limit, default 5000)."""
+    root = cfg.get("url", "https://jobs.hopkinsmedicine.org/jobs/")
+    limit = _source_limit(cfg)
+    r = requests.get(urljoin(root, "/sitemap.xml"), headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    listed = {m.group(1): m.group(0) for m in re.finditer(r"https://[^<\s]+/job/(\d+)/[^<\s]*", r.text)}
+    out, seen, number, last = SourceListing(), set(), 1, 1
+    while number <= last and len(out) < limit:
+        time.sleep(HOPKINS_PAUSE)
+        r = requests.get(root, params={"page_jobs": number} if number > 1 else None,
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        total = re.search(r"Found\s*<strong>\s*([\d,]+)\s*</strong>", r.text)
+        if total:
+            out.total = int(total.group(1).replace(",", ""))
+        last = max([last] + [int(n) for n in re.findall(r"[?&]page_jobs=(\d+)", r.text)])
+        for job in _hopkins_cards(r.text, root):
+            if job["id"] not in seen:
+                seen.add(job["id"])
+                out.append(job)
+        number += 1
+    gap = [jid for jid in listed if jid not in seen]
+    if len(out) >= limit or not listed or len(gap) > HOPKINS_GAP_MAX:
+        out.reason = (f"Johns Hopkins Medicine read {len(out)} of {out.total}; "
+                      f"{len(gap)} postings in its sitemap were not on the listing's pages")
+        return _finish_listing(out, "Johns Hopkins Medicine", limit)
+    for jid in gap:
+        time.sleep(HOPKINS_PAUSE)
+        job = _hopkins_posting(jid, listed[jid])
+        if job:
+            seen.add(jid)
+            out.append(job)
+    out.complete = True
+    return _finish_listing(out, "Johns Hopkins Medicine", limit)
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -2596,6 +2691,7 @@ ADAPTERS = {
     "neogov": fetch_neogov,
     "paradox": fetch_paradox,
     "successfactors_portal": fetch_successfactors_portal,
+    "hopkins_medicine": fetch_hopkins_medicine,
 }
 
 
@@ -2848,7 +2944,7 @@ OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
 # Sources whose listings carry no description: each posting's own link is read
 # instead (community lists link to employers' ATS pages, often via a redirect).
 PAGE_DETAIL_ATS = {"bofa", "github_md", "github_listings", "avature", "radancy", "icims", "successfactors", "marqeta",
-                   "atlassian", "kula", "paradox", "successfactors_portal"}
+                   "atlassian", "kula", "paradox", "successfactors_portal", "hopkins_medicine"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
 PAGE_MAX_BYTES = 5_000_000

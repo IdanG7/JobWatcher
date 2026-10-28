@@ -702,5 +702,80 @@ class SuccessFactorsPortalTests(unittest.TestCase):
         self.assertNotIn("department", watcher.fetch_successfactors_portal({"url": "https://careers.novonordisk.com/search/"})[0])
 
 
+def hopkins_card(jid, title, category="Nursing", ref="675343"):
+    return (f'<div>\n<a href="/job/{jid}/{title.lower().replace(" ", "-")}-nursing-us-md-baltimore/">\n<h3>{title}</h3>\n</a>\n<dl>\n'
+            f'<span class="job-ref"><dt>Requisition #:</dt><dd>{ref}</dd></span>\n'
+            '<span class="location"><dt>Location:</dt><dd>Johns Hopkins Hospital, \n\nBaltimore, \nMD 21287\n</dd></span>\n'
+            f'<span class="category"><dt>Category:</dt><dd>{category}</dd></span>\n'
+            '<span class="schedule"><dt>Schedule:</dt><dd>Day Shift</dd></span>\n'
+            '<span class="employment_type"><dt>Employment Type:</dt><dd>Full Time</dd></span>\n</dl>\n'
+            '<span class="description">You were meant for Hopkins …</span>\n</div>')
+
+
+def hopkins_page(total, last, *cards):
+    pages = "".join(f'<a href="/jobs/?page_jobs={n}">{n}</a>' for n in range(2, last + 1))
+    return response(text=f'<p>Found <strong>{total}</strong> jobs</p><div id="job-list-section" >{"".join(cards)}</div>{pages}')
+
+
+def hopkins_sitemap(*ids):
+    return response(text='<urlset><url><loc>https://jobs.hopkinsmedicine.org/jobs/nursing/</loc></url>'
+                         + "".join(f"<url><loc>https://jobs.hopkinsmedicine.org/job/{i}/posting-{i}/</loc></url>" for i in ids)
+                         + "</urlset>")
+
+
+def hopkins_posting(jid, title, status=200, landed=None):
+    r = response(text='<script type="application/ld+json">' + json.dumps({
+        "@context": "http://schema.org/", "@type": "JobPosting", "title": title, "datePosted": "2026-10-20",
+        "description": "<p>Johns Hopkins Health Plans is a leader in provider-sponsored health plans.</p>",
+        "identifier": {"@type": "PropertyValue", "name": "Johns Hopkins Medicine", "value": "680809"},
+        "jobLocation": {"@type": "Place", "address": {
+            "@type": "PostalAddress", "streetAddress": "Johns Hopkins Health Plans", "addressLocality": "Hanover",
+            "addressRegion": "MD", "postalCode": "21076", "addressCountry": "US"}}}) + "</script>")
+    r.status_code, r.url = status, landed or f"https://jobs.hopkinsmedicine.org/job/{jid}/posting-{jid}/"
+    return r
+
+
+@patch("watcher.time.sleep")
+class HopkinsMedicineTests(unittest.TestCase):
+    @patch("watcher.requests.get")
+    def test_a_posting_the_paging_skips_is_read_from_its_own_page(self, get, sleep):
+        # Page 2 repeats posting 102 (same title as 101) and skips 104, which the sitemap lists.
+        get.side_effect = [hopkins_sitemap(101, 102, 103, 104),
+                           hopkins_page(4, 2, hopkins_card(101, "Registered Nurse"), hopkins_card(102, "Registered Nurse")),
+                           hopkins_page(4, 2, hopkins_card(102, "Registered Nurse"), hopkins_card(103, "Surgical Technician")),
+                           hopkins_posting(104, "Actuarial Analyst I")]
+        jobs = watcher.fetch_hopkins_medicine({})
+        self.assertEqual(["101", "102", "103", "104"], [j["id"] for j in jobs])
+        self.assertTrue(jobs.complete)
+        self.assertEqual(4, jobs.total)
+        first, gap = jobs[0], jobs[3]
+        self.assertEqual(("Registered Nurse", "Johns Hopkins Hospital, Baltimore, MD 21287", "Nursing",
+                          "Requisition #: 675343. Schedule: Day Shift. Employment Type: Full Time."),
+                         (first["title"], first["location"], first["department"], first["listing_note"]))
+        self.assertEqual("https://jobs.hopkinsmedicine.org/job/101/registered-nurse-nursing-us-md-baltimore/", first["url"])
+        self.assertEqual(("Actuarial Analyst I", "Johns Hopkins Health Plans, Hanover, MD 21076", "Requisition #: 680809."),
+                         (gap["title"], gap["location"], gap["listing_note"]))
+        self.assertEqual(watcher._date_epoch("2026-10-20"), gap["posted"])
+        self.assertEqual("https://jobs.hopkinsmedicine.org/sitemap.xml", get.call_args_list[0].args[0])
+        self.assertEqual({"page_jobs": 2}, get.call_args_list[2].kwargs["params"])
+        # robots.txt asks for two seconds between requests
+        self.assertEqual([2.0] * 3, [c.args[0] for c in sleep.call_args_list])
+
+    @patch("watcher.requests.get")
+    def test_a_closed_posting_is_left_out_and_a_large_gap_stays_incomplete(self, get, sleep):
+        get.side_effect = [hopkins_sitemap(101, 102, 103), hopkins_page(3, 1, hopkins_card(101, "Registered Nurse")),
+                           hopkins_posting(102, "", status=404),
+                           hopkins_posting(103, "", landed="https://jobs.hopkinsmedicine.org/jobs/")]
+        jobs = watcher.fetch_hopkins_medicine({})
+        self.assertEqual(["101"], [j["id"] for j in jobs])
+        self.assertTrue(jobs.complete)
+        get.side_effect = [hopkins_sitemap(101, 102, 103), hopkins_page(3, 1, hopkins_card(101, "Registered Nurse"))]
+        with patch.object(watcher, "HOPKINS_GAP_MAX", 1):
+            short = watcher.fetch_hopkins_medicine({})
+        self.assertEqual(1, len(short))
+        self.assertFalse(short.complete)
+        self.assertIn("2 postings in its sitemap were not on the listing's pages", short.reason)
+
+
 if __name__ == "__main__":
     unittest.main()

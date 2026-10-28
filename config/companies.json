@@ -1052,6 +1052,8 @@
     {"key": "health_standards_organization", "name": "Health Standards Organization", "type": "public_health_agency", "country": "CA", "hq": "Ottawa", "aliases": ["=health standards organization"]},
     {"key": "diabetes_canada", "name": "Diabetes Canada", "type": "public_health_agency", "country": "CA", "hq": "Toronto", "aliases": ["=diabetes canada"]},
     {"key": "colorado_public_health", "name": "Colorado Department of Public Health and Environment", "type": "public_health_agency", "country": "US", "hq": "Denver", "aliases": ["=colorado department of public health and environment"]},
-    {"key": "la_county_public_health", "name": "Los Angeles County Department of Public Health", "type": "public_health_agency", "country": "US", "hq": "Los Angeles", "aliases": ["=los angeles county department of public health"]}
+    {"key": "la_county_public_health", "name": "Los Angeles County Department of Public Health", "type": "public_health_agency", "country": "US", "hq": "Los Angeles", "aliases": ["=los angeles county department of public health"]},
+    {"key": "johns_hopkins_medicine", "name": "Johns Hopkins Medicine", "type": "hospital", "country": "US", "hq": "Baltimore", "aliases": ["=johns hopkins medicine", "=johns hopkins hospital", "=the johns hopkins hospital", "=johns hopkins health system"]},
+    {"key": "city_of_toronto", "name": "City of Toronto", "type": "public_health_agency", "country": "CA", "hq": "Toronto", "aliases": ["=city of toronto", "=toronto public health"]}
   ]
 }

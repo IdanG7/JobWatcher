@@ -50,6 +50,26 @@ class PostingLicenceTests(unittest.TestCase):
         self.assertEqual(facts("Pharmacy Technician", "Registered Pharmacy Technician preferred.")["licences"], {})
         self.assertEqual(facts("Patient Access Representative", "Verify Medicare Part A and Part B coverage.")["licences"], {})
 
+    def test_a_job_family_line_asks_for_nothing(self):
+        # Elevance's pharmacy technician postings end with their family's name, which names pharmacists.
+        family = "\nJob Level:\nNon-Management Non-Exempt\nJob Family:\nMED > Licensed/Registered Pharmacist/Pharmacy Technician"
+        self.assertEqual(facts("Pharmacy Technician I", "Inputs data for the pharmacists." + family)["licences"], {})
+        self.assertEqual(facts("Pharmacy Technician I", "Job Family: MED > Licensed/Registered Pharmacist")["licences"], {})
+        self.assertEqual(facts("Pharmacy Technician", "Requirements:\nCertified Pharmacy Technician (CPhT)." + family)["licences"],
+                         {"required": ["pharmacy_technician"]})
+
+    def test_a_bonus_or_a_licence_for_some_cases_is_not_required(self):
+        # Oscar's NP and PA postings: "Bonus Points:" lists a compact RN licence for APRNs only.
+        bonus = "Requirements:\n• Licensed in a minimum of 2 core Oscar States\n\nBonus Points:\n• Compact RN license\n• Remote monitoring"
+        self.assertNotIn("rn", facts("Physician Assistant - Virtual Health Assessment", bonus)["licences"].get("required", []))
+        self.assertNotIn("rn", facts("Physician Assistant", "Requirements:\n• Compact RN license (if an APRN)")["licences"].get("required", []))
+        required = "Requirements:\n• Compact RN license\n\nBonus Points:\n• Spanish"
+        self.assertIn("rn", facts("Physician Assistant", required)["licences"]["required"])
+
+    def test_an_emt_title_asks_for_the_paramedic_or_emt_licence(self):
+        self.assertEqual(facts("Firefighter EMT")["licences"], {"required": ["paramedic"]})
+        self.assertEqual(KN.licence_by_key["paramedic"].label, "Paramedic or EMT")
+
     def test_other_boards_read_no_licences(self):
         self.assertNotIn("licences", facts("Investment Banking Analyst", "Registered nurse experience a plus."))
         self.assertNotIn("licences", facts("Software Engineer Intern", "BLS certification is a plus."))

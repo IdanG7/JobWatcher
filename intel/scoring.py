@@ -369,7 +369,11 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         penalty("closed", "Posting closed", 40, "No longer listed on the source")
     elif status == "possibly_closed":
         penalty("possibly_closed", "Possibly closed", 10, "Missing from the latest poll of a complete listing")
-    if win == "closed" and status != "closed":
+    if facts.get("test_posting"):
+        # No opening at all, so it leaves every list, count and alert the way a passed deadline does.
+        win = "closed"
+        penalty("test_posting", "Test posting", 40, "The employer marks it as a test requisition")
+    elif win == "closed" and status != "closed":
         penalty("deadline_passed", "Deadline passed", 30, f"Deadline was {deadline}")
     elif age_hours is not None and age_hours > 45 * 24 and status == "active":
         penalty("stale", "Stale posting", 5, f"Posted {int(age_hours // 24)} days ago")

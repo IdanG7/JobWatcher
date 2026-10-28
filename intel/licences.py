@@ -18,15 +18,35 @@ _CREDENTIAL_LINE = re.compile(r"\b(?:licen[cs]\w*|registration|registered (?:wit
                               r"in good standing|certifi\w+|certificate)\b", re.I)
 
 
+# An ATS's job-family line names a family of roles, not what this posting asks for: "Job Family:\nMED >
+# Licensed/Registered Pharmacist/Pharmacy Technician" on Elevance's pharmacy technician postings.
+_JOB_FAMILY_LINE = re.compile(r"^[ \t]*job family[ \t]*:[ \t]*(?:\n[ \t]*)?[^\n]*", re.I | re.M)
+# A licence asked for only in some case ("Compact RN license (if an APRN)"), or listed under a heading of extras.
+_CONDITIONAL = re.compile(r"\(if an? [^()\n]{1,30}\)", re.I)
+_HEADING_LINE = re.compile(r"^[^\n:]{1,40}:[ \t]*$", re.M)
+_BONUS = re.compile(r"\s*bonus points?\s*:", re.I)
+
+
+def _bonus(text: str, pos: int) -> bool:
+    """Whether the nearest heading above pos is 'Bonus points:' (Oscar)."""
+    heading = None
+    for heading in _HEADING_LINE.finditer(text, 0, pos):
+        pass
+    return bool(heading and _BONUS.match(heading.group(0)))
+
+
 def _asked(pattern, text: str, licence: bool) -> bool:
-    """Whether the description asks for it; a licence it only prefers ('RPhT preferred') isn't required."""
-    return any(not licence or not _PREFERRED.search(_clause(text, m)) for m in pattern.finditer(text))
+    """Whether the description asks for it; a licence it only prefers ('RPhT preferred'), lists as a bonus or asks
+    for in some case only isn't required."""
+    return any(not licence or not (_PREFERRED.search(clause := _clause(text, m)) or _CONDITIONAL.search(clause)
+                                   or _bonus(text, m.start()))
+               for m in pattern.finditer(text))
 
 
 def posting_licences(title: str, description: str, board: BoardLicences) -> dict:
     """{'required': [licence keys], 'certifications': [keys], 'pending_ok': True}, each only when stated."""
     title = title or ""
-    description = (description or "")[:20000]
+    description = _JOB_FAMILY_LINE.sub("", (description or "")[:20000])
     required, certifications = [], []
     for item in board.items:
         named = bool(item.title and item.title.search(title)
