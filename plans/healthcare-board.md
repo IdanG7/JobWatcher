@@ -828,6 +828,18 @@ track's boards, skill groups and types resolve.
        whole-region feed), Partners In Health (malformed Jobvite XML), and ICF. ICF is a consulting firm with
        167 stored postings on other boards, so any type would change them. The rest are listed in the pack note.
      - Simulated on stored postings: no moves, no key changes, one label (a closed AI & Data posting).
+   - **Lab Research** (2026-10-27): `diagnostics_labs`, 19 sources and 17 employers, typed `diagnostics`. Lab
+     Research, Bioinformatics, Regulatory & Quality and Medical Devices poll it.
+     - Labcorp, Thermo Fisher and Danaher are read from Workday, the board behind their Phenom sites, which
+       gives full descriptions. Each reads only its lab, clinical, R&D, quality and intern families (1,605,
+       1,279 and 567 postings). Quest's whole listing is read (2,168).
+     - Danaher's board carries its operating companies (Cytiva, Beckman Coulter, Leica, Cepheid), and Masimo.
+     - Thermo Fisher's board lists test requisitions titled "DO NOT APPLY - TEST REQ", 42 in its Clinical
+       Research category. No source drops such titles today.
+     - The Jobvite feeds need the company id from the board page (Dynacare, NeoGenomics), not the slug.
+     - Simulated on stored postings: one move off a board, Thermo Fisher's "FSP Clinical Research Associate I
+       - Bilingual French QC Canada", from Finance to Healthcare by the life_science_research rule, for your
+       yes. No key changes; 254 type labels, 11 of them on Finance postings.
    - **Poll time** at `8af28fc`: each source fetched once by the app's adapter, 10 at a time. Each
      profile's cycle was then simulated in poll order (`…\scratchpad\phase4\poll_time.py`):
      - Healthcare: 785 → 177 sources. A full poll takes 1,055 s → 286 s, set by the two LinkedIn searches

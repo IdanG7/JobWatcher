@@ -979,6 +979,23 @@
     {"key": "abt_global", "name": "Abt Global", "type": "public_health_agency", "country": "US", "hq": "Rockville", "aliases": ["=abt global", "=abt associates"]},
     {"key": "american_cancer_society", "name": "American Cancer Society", "type": "public_health_agency", "country": "US", "hq": "Atlanta", "aliases": ["=american cancer society"]},
     {"key": "american_heart_association", "name": "American Heart Association", "type": "public_health_agency", "country": "US", "hq": "Dallas", "aliases": ["=american heart association"]},
-    {"key": "march_of_dimes", "name": "March of Dimes", "type": "public_health_agency", "country": "US", "hq": "Arlington", "aliases": ["=march of dimes"]}
+    {"key": "march_of_dimes", "name": "March of Dimes", "type": "public_health_agency", "country": "US", "hq": "Arlington", "aliases": ["=march of dimes"]},
+    {"key": "dynacare", "name": "Dynacare", "type": "diagnostics", "country": "CA", "hq": "Brampton", "aliases": ["=dynacare"]},
+    {"key": "labcorp", "name": "Labcorp", "type": "diagnostics", "country": "US", "hq": "Burlington", "aliases": ["=labcorp"]},
+    {"key": "quest_diagnostics", "name": "Quest Diagnostics", "type": "diagnostics", "country": "US", "hq": "Secaucus", "aliases": ["=quest diagnostics"]},
+    {"key": "thermo_fisher_scientific", "name": "Thermo Fisher Scientific", "type": "diagnostics", "country": "US", "hq": "Waltham", "aliases": ["=thermo fisher scientific"]},
+    {"key": "danaher", "name": "Danaher", "type": "diagnostics", "country": "US", "hq": "Washington", "aliases": ["=danaher", "=danaher corporation"]},
+    {"key": "illumina", "name": "Illumina", "type": "diagnostics", "country": "US", "hq": "San Diego", "aliases": ["=illumina"]},
+    {"key": "agilent_technologies", "name": "Agilent Technologies", "type": "diagnostics", "country": "US", "hq": "Santa Clara", "aliases": ["=agilent technologies"]},
+    {"key": "revvity", "name": "Revvity", "type": "diagnostics", "country": "US", "hq": "Waltham", "aliases": ["=revvity"]},
+    {"key": "qiagen", "name": "QIAGEN", "type": "diagnostics", "country": "NL", "hq": "Venlo", "aliases": ["=qiagen"]},
+    {"key": "waters", "name": "Waters Corporation", "type": "diagnostics", "country": "US", "hq": "Milford", "aliases": ["=waters", "=waters corporation"]},
+    {"key": "bruker", "name": "Bruker", "type": "diagnostics", "country": "US", "hq": "Billerica", "aliases": ["=bruker"]},
+    {"key": "pacbio", "name": "PacBio", "type": "diagnostics", "country": "US", "hq": "Menlo Park", "aliases": ["=pacbio"]},
+    {"key": "myriad_genetics", "name": "Myriad Genetics", "type": "diagnostics", "country": "US", "hq": "Salt Lake City", "aliases": ["=myriad genetics"]},
+    {"key": "caris_life_sciences", "name": "Caris Life Sciences", "type": "diagnostics", "country": "US", "hq": "Irving", "aliases": ["=caris life sciences"]},
+    {"key": "neogenomics", "name": "NeoGenomics", "type": "diagnostics", "country": "US", "hq": "Fort Myers", "aliases": ["=neogenomics"]},
+    {"key": "sysmex_america", "name": "Sysmex America", "type": "diagnostics", "country": "US", "hq": "Lincolnshire", "aliases": ["=sysmex america"]},
+    {"key": "standard_biotools", "name": "Standard BioTools", "type": "diagnostics", "country": "US", "hq": "South San Francisco", "aliases": ["=standard biotools"]}
   ]
 }

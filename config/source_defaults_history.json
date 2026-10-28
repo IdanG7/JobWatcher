@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "77414ac97ec0e10a",
+  "hash": "1cff8335d68aa6f6",
   "names": [
    "10x_genomics",
    "1password",
@@ -120,6 +120,7 @@
    "adobe_university",
    "adp",
    "affirm",
+   "agilent_technologies",
    "agility_robotics",
    "ai2",
    "airbnb",
@@ -243,6 +244,8 @@
    "broadcom",
    "brookfield",
    "browserbase",
+   "bruker",
+   "bruker_international",
    "bugcrowd",
    "buildkite",
    "bumble",
@@ -259,6 +262,7 @@
    "canva",
    "capital_one",
    "capital_one_early",
+   "caris_life_sciences",
    "carlyle",
    "carta",
    "cartesia",
@@ -340,6 +344,7 @@
    "d2l",
    "d_matrix",
    "dana_farber_cancer_institute",
+   "danaher",
    "darktrace",
    "databricks",
    "datadog",
@@ -377,6 +382,7 @@
    "drw",
    "duke_health",
    "duolingo",
+   "dynacare",
    "dyno_therapeutics",
    "e2b",
    "ebay",
@@ -498,6 +504,7 @@
    "humana_clinical",
    "humber_river_health",
    "ideogram",
+   "illumina",
    "illumio",
    "imbue",
    "imc",
@@ -545,6 +552,7 @@
    "kymera_therapeutics",
    "kyndryl",
    "l3harris_technologies",
+   "labcorp",
    "labelbox",
    "lam_research",
    "lambda_labs",
@@ -647,6 +655,7 @@
    "mozilla",
    "msci",
    "msci_us",
+   "myriad_genetics",
    "nabla",
    "nasdaq",
    "natera",
@@ -655,6 +664,7 @@
    "nebius",
    "neo4j",
    "neo_financial",
+   "neogenomics",
    "nerdwallet",
    "netapp",
    "netflix",
@@ -700,6 +710,7 @@
    "otter_ai",
    "oura",
    "outreach",
+   "pacbio",
    "pagerduty",
    "palantir",
    "palo_alto_networks",
@@ -745,6 +756,7 @@
    "public_com",
    "public_health_ontario",
    "pure_storage",
+   "qiagen",
    "qlik",
    "qorvo",
    "qualcomm",
@@ -753,6 +765,7 @@
    "quantinuum",
    "qube_rt",
    "quera_computing",
+   "quest_diagnostics",
    "quora",
    "rady_children_s_hospital",
    "railway",
@@ -773,6 +786,7 @@
    "render",
    "replit",
    "retool",
+   "revvity",
    "rigetti_computing",
    "ringcentral",
    "riot_games",
@@ -878,6 +892,7 @@
    "stability_ai",
    "stack_av",
    "stackadapt",
+   "standard_biotools",
    "stanford_children_s_health",
    "stanford_health_care",
    "starburst",
@@ -897,6 +912,7 @@
    "sword_health",
    "synopsys",
    "synthesia",
+   "sysmex_america",
    "tailscale",
    "take_two",
    "takeda",
@@ -917,6 +933,7 @@
    "the_aerospace",
    "the_home_depot",
    "the_new_york_times",
+   "thermo_fisher_scientific",
    "thinkific",
    "thinking_machines",
    "thomson_reuters",
@@ -983,6 +1000,8 @@
    "walmart_global_tech",
    "warner_bros_discovery",
    "warp",
+   "waters",
+   "waters_international",
    "wattpad",
    "waymo",
    "wayve",
@@ -1054,6 +1073,7 @@
   "adobe_university": 1,
   "adp": 10,
   "affirm": 1,
+  "agilent_technologies": 11,
   "agility_robotics": 10,
   "ai2": 10,
   "airbnb": 1,
@@ -1177,6 +1197,8 @@
   "broadcom": 10,
   "brookfield": 6,
   "browserbase": 1,
+  "bruker": 11,
+  "bruker_international": 11,
   "bugcrowd": 10,
   "buildkite": 10,
   "bumble": 10,
@@ -1193,6 +1215,7 @@
   "canva": 10,
   "capital_one": 1,
   "capital_one_early": 1,
+  "caris_life_sciences": 11,
   "carlyle": 6,
   "carta": 10,
   "cartesia": 1,
@@ -1274,6 +1297,7 @@
   "d2l": 10,
   "d_matrix": 10,
   "dana_farber_cancer_institute": 11,
+  "danaher": 11,
   "darktrace": 10,
   "databricks": 1,
   "datadog": 1,
@@ -1311,6 +1335,7 @@
   "drw": 1,
   "duke_health": 11,
   "duolingo": 1,
+  "dynacare": 11,
   "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
@@ -1432,6 +1457,7 @@
   "humana_clinical": 11,
   "humber_river_health": 11,
   "ideogram": 10,
+  "illumina": 11,
   "illumio": 10,
   "imbue": 1,
   "imc": 1,
@@ -1479,6 +1505,7 @@
   "kymera_therapeutics": 11,
   "kyndryl": 10,
   "l3harris_technologies": 10,
+  "labcorp": 11,
   "labelbox": 10,
   "lam_research": 10,
   "lambda_labs": 1,
@@ -1583,6 +1610,7 @@
   "mozilla": 10,
   "msci": 6,
   "msci_us": 6,
+  "myriad_genetics": 11,
   "nabla": 10,
   "nasdaq": 1,
   "natera": 10,
@@ -1591,6 +1619,7 @@
   "nebius": 10,
   "neo4j": 10,
   "neo_financial": 10,
+  "neogenomics": 11,
   "nerdwallet": 10,
   "netapp": 10,
   "netflix": 1,
@@ -1636,6 +1665,7 @@
   "otter_ai": 10,
   "oura": 10,
   "outreach": 10,
+  "pacbio": 11,
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
@@ -1681,6 +1711,7 @@
   "public_com": 10,
   "public_health_ontario": 11,
   "pure_storage": 10,
+  "qiagen": 11,
   "qlik": 10,
   "qorvo": 10,
   "qualcomm": 10,
@@ -1689,6 +1720,7 @@
   "quantinuum": 10,
   "qube_rt": 1,
   "quera_computing": 10,
+  "quest_diagnostics": 11,
   "quora": 10,
   "rady_children_s_hospital": 11,
   "railway": 10,
@@ -1709,6 +1741,7 @@
   "render": 10,
   "replit": 10,
   "retool": 1,
+  "revvity": 11,
   "rigetti_computing": 10,
   "ringcentral": 10,
   "riot_games": 10,
@@ -1814,6 +1847,7 @@
   "stability_ai": 10,
   "stack_av": 10,
   "stackadapt": 10,
+  "standard_biotools": 11,
   "stanford_children_s_health": 11,
   "stanford_health_care": 11,
   "starburst": 1,
@@ -1833,6 +1867,7 @@
   "sword_health": 10,
   "synopsys": 10,
   "synthesia": 10,
+  "sysmex_america": 11,
   "tailscale": 10,
   "take_two": 10,
   "takeda": 11,
@@ -1853,6 +1888,7 @@
   "the_aerospace": 10,
   "the_home_depot": 10,
   "the_new_york_times": 10,
+  "thermo_fisher_scientific": 11,
   "thinkific": 10,
   "thinking_machines": 10,
   "thomson_reuters": 10,
@@ -1919,6 +1955,8 @@
   "walmart_global_tech": 10,
   "warner_bros_discovery": 10,
   "warp": 1,
+  "waters": 11,
+  "waters_international": 11,
   "wattpad": 10,
   "waymo": 1,
   "wayve": 10,
@@ -2234,6 +2272,35 @@
   ],
   "token": [
    "affirm"
+  ]
+ },
+ "agilent_technologies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "agilent_technologies"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "agilent.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Agilent_Careers"
+  ],
+  "tenant": [
+   "agilent"
   ]
  },
  "agility_robotics": {
@@ -5179,6 +5246,52 @@
    "browserbase"
   ]
  },
+ "bruker": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "bruker"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "uscareers-bruker.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "bruker_international": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "bruker"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "internationalcareers-bruker.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "bugcrowd": {
   "ats": [
    "greenhouse"
@@ -5568,6 +5681,35 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "caris_life_sciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "caris_life_sciences"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "wd12.myworkdaysite.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CLS"
+  ],
+  "tenant": [
+   "carislifesciences"
   ]
  },
  "carlyle": {
@@ -7537,6 +7679,49 @@
    "danafarber"
   ]
  },
+ "danaher": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "danaher"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "d6411cefd940108622dfeea86884f921",
+     "d6411cefd940108622dfefeefae7f927",
+     "d6411cefd940108622dfd5ac4243f89b",
+     "d6411cefd940108622dfe9fdf3bbf913",
+     "d6411cefd940108622dfdb3ed909f8a9"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "danaher.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Danaher (Cytiva, Beckman Coulter, Leica, Cepheid and its other companies) science, engineering, manufacturing, quality and intern roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "DanaherJobs"
+  ],
+  "tenant": [
+   "danaher"
+  ]
+ },
  "darktrace": {
   "ats": [
    "workday"
@@ -8304,6 +8489,29 @@
   ],
   "token": [
    "duolingo"
+  ]
+ },
+ "dynacare": {
+  "account": [
+   "qiFaVfwM"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "dynacare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "dyno_therapeutics": {
@@ -11120,6 +11328,35 @@
    "ideogram"
   ]
  },
+ "illumina": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "illumina"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "illumina.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "illumina-careers"
+  ],
+  "tenant": [
+   "illumina"
+  ]
+ },
  "illumio": {
   "ats": [
    "ashby"
@@ -12211,6 +12448,49 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "labcorp": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "labcorp"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "4a6c2a97581e01007f4f6a14064c0000",
+     "4a6c2a97581e01007f4f6a14064c0002",
+     "4a6c2a97581e01007f4f68dd6f9e0000",
+     "4a6c2a97581e01007f4f67a6fd370002",
+     "4a6c2a97581e01007f4f670d0f060000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "labcorp.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Labcorp patient service, lab, clinical, R&D and regulatory roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "labcorp"
   ]
  },
  "labelbox": {
@@ -15127,6 +15407,32 @@
    2
   ]
  },
+ "myriad_genetics": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "myriad_genetics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "ekgn.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_2001"
+  ]
+ },
  "nabla": {
   "ats": [
    "ashby"
@@ -15321,6 +15627,29 @@
   ],
   "token": [
    "neofinancial"
+  ]
+ },
+ "neogenomics": {
+  "account": [
+   "qolaVfwy"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "neogenomics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "nerdwallet": {
@@ -16359,6 +16688,35 @@
    "outreach"
   ]
  },
+ "pacbio": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pacbio"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "pacbio.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PacBio-"
+  ],
+  "tenant": [
+   "pacbio"
+  ]
+ },
  "pagerduty": {
   "ats": [
    "greenhouse"
@@ -17377,6 +17735,35 @@
    "purestorage"
   ]
  },
+ "qiagen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "qiagen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "qiagen.wd502.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "QIAGEN"
+  ],
+  "tenant": [
+   "qiagen"
+  ]
+ },
  "qlik": {
   "api": [
    "pcsx"
@@ -17575,6 +17962,32 @@
   ],
   "token": [
    "queracomputinginc"
+  ]
+ },
+ "quest_diagnostics": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "quest_diagnostics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "careers.questdiagnostics.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "quora": {
@@ -18056,6 +18469,32 @@
   ],
   "token": [
    "retool"
+  ]
+ },
+ "revvity": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "revvity"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "jobs.revvity.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "rigetti_computing": {
@@ -20444,6 +20883,35 @@
    "stackadapt"
   ]
  },
+ "standard_biotools": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "standard_biotools"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "standardbiotools.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "standardbiotools"
+  ]
+ },
  "stanford_children_s_health": {
   "ats": [
    "radancy"
@@ -20819,6 +21287,29 @@
   ],
   "token": [
    "synthesia"
+  ]
+ },
+ "sysmex_america": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "sysmex_america"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "careers-sysmex.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "tailscale": {
@@ -21352,6 +21843,51 @@
   ],
   "token": [
    "thenewyorktimes"
+  ]
+ },
+ "thermo_fisher_scientific": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "thermo_fisher_scientific"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "8a2797301f6510019d769e3956f40000",
+     "8a2797301f6510019d76a13f41330000",
+     "8a2797301f6510019d76a1da42ea0000",
+     "cca9477dcbc410002fb142e7c3cf0000",
+     "8a2797301f6510019d76a30f4b8b0000",
+     "306eda38c1081005308ae0abc9517d53",
+     "cfd97197b02d01e37cc6e8156d5cc6d9"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "thermofisher.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Thermo Fisher Scientific clinical lab, clinical trial, pre-clinical, R&D, medical affairs and intern roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ThermoFisherCareers"
+  ],
+  "tenant": [
+   "thermofisher"
   ]
  },
  "thinkific": {
@@ -22783,6 +23319,52 @@
   ],
   "token": [
    "warp"
+  ]
+ },
+ "waters": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "waters"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "uscareers-waters.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "waters_international": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "waters"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "internationalcareers-waters.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "wattpad": {
