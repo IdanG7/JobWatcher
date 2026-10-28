@@ -914,6 +914,19 @@ track's boards, skill groups and types resolve.
        - City of Toronto: a whole-city board. The new SuccessFactors reader can read it.
        - Vital Strategies: Taleo Business Edition.
        - Sobeys: Dayforce behind a WordPress plugin.
+     - **Poll time with the 38 new sources** (`91b0b19`; same method as below,
+       `E:\healthcare-gate\poll\poll_time_91b0b19.txt`). All 38 fetched with no error, 91 s in all. The slowest
+       are Johns Hopkins University (81 s), Boston Scientific (66 s) and Shoppers Drug Mart (65 s).
+       - Healthcare: 225 → 263 sources. A full poll takes 310 → 311 s, still set by the two LinkedIn searches.
+         Fetch seconds in one full poll: 2,283 → 2,635.
+       - One filter picked: 101–182 sources, 278–311 s.
+       - Finance + Healthcare 852 → 867 s, Software + Healthcare 856 → 915 s, AI & Data + Healthcare 593 →
+         606 s.
+       - Alert runner, Sales, Operations, People & Legal and Finance + Sales: 957 → 995 sources, 1,102 →
+         1,162 s.
+       - Finance, the tech boards and Finance + Software are unchanged. Every new source polls every 30 or
+         60 minutes. Finance + Healthcare's every-cycle count rises from 173 to 185 only because its longer
+         full poll brings 12 existing 15-minute sources under the simulation's due line.
    - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
      - Method: each source was fetched once by the app's adapter, 10 at a time. The 124 sources up to
        `8af28fc` were timed in one run, the 48 after it in a second. Each profile's cycle was then simulated
