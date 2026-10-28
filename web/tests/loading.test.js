@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {mountView} from '../js/view-loader.js';
 import {collectionMarkup, collectionStatus} from '../js/collection-status.js';
-import {api} from '../js/api.js';
+import {api, freshly} from '../js/api.js';
 
 test('navigation stays independent of a slow previous tab and cleans it up', async () => {
   const current = {};
@@ -73,4 +73,25 @@ test('stalled requests time out, including stalled response bodies', async () =>
     controller.abort();
     await assert.rejects(pending, {name: 'AbortError'});
   } finally { globalThis.fetch = original; }
+});
+
+test('a Refresh asks for current pages, and a page kept from before background changes is announced', async () => {
+  const original = globalThis.fetch, dispatch = globalThis.dispatchEvent;
+  const sent = [], events = [];
+  try {
+    globalThis.fetch = async (url, init) => {
+      sent.push([url, init.method, init.headers['Cache-Control']]);
+      return {ok: true, headers: new Headers(url === '/api/jobs' ? {'X-Foothold-Stale': '1'} : {}), text: async () => '{}'};
+    };
+    globalThis.dispatchEvent = event => events.push(event.type);
+    await api('/api/overview');
+    await freshly(async () => { await api('/api/overview'); await api('/api/refresh', {method: 'POST', body: {}}); });
+    await api('/api/jobs');
+    assert.deepEqual(sent, [['/api/overview', 'GET', undefined], ['/api/overview', 'GET', 'no-cache'],
+      ['/api/refresh', 'POST', undefined], ['/api/jobs', 'GET', undefined]]);
+    assert.deepEqual(events, ['foothold-stale']);
+  } finally {
+    globalThis.fetch = original;
+    globalThis.dispatchEvent = dispatch;
+  }
 });
