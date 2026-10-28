@@ -4,7 +4,7 @@
 import {put} from '../api.js';
 import {esc} from '../lib.js';
 import {errorState, icon, options, toast} from '../ui.js';
-import {FIELD_INFO, countryList as allCountries, fieldList, profileFields, skillGroupsFor, specialtyFamilies, suggestCycles} from '../fields.js';
+import {FIELD_INFO, countryList as allCountries, fieldList, licencesFor, profileFields, skillGroupsFor, specialtyFamilies, suggestCycles} from '../fields.js';
 
 const STAGES = [
   ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
@@ -41,11 +41,12 @@ export function setupAnswers(profile, {firstRun = false, financeKeys = [], thisY
     countries: new Set(firstRun ? [] : profile.target_countries || []),
     cities: new Set(firstRun ? [] : profile.target_locations || []),
     remote: profile.open_to_remote !== false,
+    licences: new Set(profile.licences || []),
   };
 }
 
 /** The profile to save from setup answers; whatever setup doesn't ask about is kept as it was. */
-export function setupProfile(profile, answers, {firstRun = false, families = [], cities = [], skills = []} = {}) {
+export function setupProfile(profile, answers, {firstRun = false, families = [], cities = [], skills = [], meta = {}} = {}) {
   const targets = firstRun ? [] : profile.target_roles || [];
   const familyKeys = new Set(families);
   // Finance targets: keep any narrower groups already picked inside a chosen area.
@@ -66,7 +67,7 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
   const before = new Set(firstRun ? [] : profile.target_countries || []);
   // On first run the profile is the finance default: without finance, drop its bank employer
   // types and the skills outside the chosen fields' groups (Python stays for Software).
-  const groups = skillGroupsFor([...answers.fields]);
+  const groups = skillGroupsFor([...answers.fields], meta);
   const groupOf = new Map(skills.map(s => [s.key, s.group]));
   const notFinance = firstRun && !answers.fields.has('finance') ? {
     target_company_types: [],
@@ -84,6 +85,8 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
     graduation_month: Number(answers.gradMonth) || 5,
     education: {...(profile.education || {}), level: answers.level},
     target_countries: [...answers.countries],
+    // Licences picked here (the resume adds certifications too); a profile without any keeps none.
+    ...(answers.licences?.size || profile.licences ? {licences: [...(answers.licences || [])]} : {}),
     // A city goes only with a country dropped here; setup never shows cities in other countries.
     target_locations: [...answers.cities].filter(key => {
       const city = cities.find(c => c.key === key);
@@ -110,10 +113,12 @@ export async function render(root, ctx) {
   const thisYear = new Date().getFullYear();
   const state = {step: 0, ...setupAnswers(profile, {firstRun, financeKeys, thisYear})};
 
-  // Job families split into specialties (Software, AI & Data, Hardware) that were picked as fields.
+  // Job families split into specialties (Software, AI & Data, Hardware, Healthcare) that were picked as fields.
   const chosenSpecialtyFamilies = () => specialtyFamilies(meta).filter(f => state.fields.has(f.key));
+  // The licences those fields' postings can require (Healthcare's), asked on the same step.
+  const chosenLicences = () => licencesFor([...state.fields], meta).filter(l => l.kind === 'licence');
   const steps = () => ['fields', ...(state.fields.has('finance') ? ['finance'] : []),
-    ...(chosenSpecialtyFamilies().length ? ['specialties'] : []), 'you', 'where', 'done'];
+    ...(chosenSpecialtyFamilies().length || chosenLicences().length ? ['specialties'] : []), 'you', 'where', 'done'];
   const countryList = allCountries(meta, profile);
   const countryName = new Map(countryList);
 
@@ -138,7 +143,9 @@ export async function render(root, ctx) {
       title: 'Which specialties?',
       sub: 'Pick the kinds of roles you want ranked first, or continue to cover the whole field. Foothold checks the employers that hire for your picks, and their other roles still show up, lower down.',
       body: chosenSpecialtyFamilies().map(f => `<section class="welcome-q"><h2>${esc(f.label)}</h2><div class="choices">${f.subcategories.map(s =>
-        card('checkbox', 'specialty', `${f.key}.${s.key}`, state.specialties.has(`${f.key}.${s.key}`), s.label, s.note || '')).join('')}</div></section>`).join(''),
+        card('checkbox', 'specialty', `${f.key}.${s.key}`, state.specialties.has(`${f.key}.${s.key}`), s.label, s.note || '')).join('')}</div></section>`).join('')
+        + (chosenLicences().length ? `<section class="welcome-q"><h2>Licences you hold or will hold</h2><p class="fine">Postings that require a licence you don’t have rank lower. Count one you will have by the time you start, such as RN once you finish nursing school.</p>
+          <div class="picks">${chosenLicences().map(l => chip('licence', l.key, state.licences.has(l.key), l.label)).join('')}</div></section>` : ''),
       ready: true,
     }),
     you: () => {
@@ -177,6 +184,7 @@ export async function render(root, ctx) {
       const rows = [['Fields', fieldNames.join(', ')],
         ...(state.fields.has('finance') ? [['Finance areas', (meta.taxonomy || []).filter(c => state.finance.has(c.key)).map(c => c.label).join(', ')]] : []),
         ...chosenSpecialtyFamilies().map(f => [f.label, f.subcategories.filter(s => state.specialties.has(`${f.key}.${s.key}`)).map(s => s.label).join(', ') || 'Every specialty']),
+        ...(chosenLicences().length ? [['Licences', chosenLicences().filter(l => state.licences.has(l.key)).map(l => l.label).join(', ') || 'None yet']] : []),
         ['Applying to', STAGES.filter(([k]) => state.stages.has(k)).map(([, t]) => t).join(', ')],
         ['Graduating', `${new Date(2000, state.gradMonth - 1, 1).toLocaleDateString(undefined, {month: 'long'})} ${state.gradYear}`],
         ['Cycles', [...state.cycles].map(k => k.replace(/_(\d{4})$/, ' $1').replace(/_/g, ' ').replace(/^./, ch => ch.toUpperCase())).join(', ') || 'None'],
@@ -231,7 +239,7 @@ export async function render(root, ctx) {
     if (hint) hint.textContent = view.ready ? '' : view.hint;
   }
 
-  const profileOut = () => setupProfile(profile, state, {firstRun, families, cities: meta.cities || [], skills: meta.skills || []});
+  const profileOut = () => setupProfile(profile, state, {firstRun, families, cities: meta.cities || [], skills: meta.skills || [], meta});
 
   async function save(btn) {
     root.querySelectorAll('[data-act=save]').forEach(b => { b.disabled = true; });
@@ -254,6 +262,7 @@ export async function render(root, ctx) {
     if (name === 'field') toggle(state.fields);
     else if (name === 'finance') toggle(state.finance);
     else if (name === 'specialty') toggle(state.specialties);
+    else if (name === 'licence') toggle(state.licences);
     else if (name === 'stage') { toggle(state.stages); if (!state.cyclesTouched) { draw(); return; } }
     else if (name === 'cycle') { state.cyclesTouched = true; toggle(state.cycles); }
     else if (name === 'level') state.level = value;

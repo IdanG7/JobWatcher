@@ -15,7 +15,7 @@ from __future__ import annotations
 import math
 import re
 
-from .knowledge import Knowledge, Node
+from .knowledge import Claim, Knowledge, Node
 
 _TECH_OCCUPATION = re.compile(
     r"\b(engineer(?:ing)?|developer|architect|designer|product (?:manag(?:er|ement)|coordinat(?:or|ion))|"
@@ -177,6 +177,40 @@ def family_of(title: str, kn: Knowledge) -> str:
     return "other"
 
 
+def _finance_prose(kn: Knowledge, category: str, sub: str | None, description: str) -> int:
+    """Distinct description phrases of the finance group a title was placed in."""
+    nodes = [kn.categories[category]] + ([kn.subcategories[f"{category}.{sub}"]] if sub else [])
+    return len({hit.lower() for node in nodes for hit in _hits(node.description, description)})
+
+
+def _other_occupation(title: str) -> bool:
+    """The title names a tech or business occupation: 'Nurse Recruiter' is a recruiter."""
+    return bool(_TECH_OCCUPATION.search(title) or _CS_OCCUPATION.search(title) or _BUSINESS_OCCUPATION.search(title))
+
+
+def _other_work(title: str) -> bool:
+    """Tech or business work that a board's fallback words must not claim: 'AI Scientist', 'Marketing, Biotech'."""
+    return _other_occupation(title) or bool(_SOFTWARE_WORK.search(title))
+
+
+def _claim(kn: Knowledge, title: str, description: str, company_type: str, placed: str,
+           finance_prose: int = 0) -> Claim | None:
+    """The first named rule by which a board takes this title from where it is placed ('finance' or a family)."""
+    if placed == "other" and _other_work(title):
+        return None
+    for claim in kn.claims:
+        if placed not in claim.takes_from or not _hits(claim.title, title) or _hits(claim.unless, title):
+            continue
+        if claim.sole_occupation and _other_occupation(title):
+            continue
+        if claim.needs_evidence and not _hits(claim.subject, title):
+            prose = bool(claim.description) and len(_hits(claim.description, description)) >= claim.min_description
+            if not ((company_type in claim.employer_types or prose) and finance_prose < 2):
+                continue
+        return claim
+    return None
+
+
 def classify(title: str, kn: Knowledge, description: str = "", department: str = "",
              company_type: str = "unknown", source_hint: str = "") -> dict:
     title = title or ""
@@ -244,8 +278,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     # Domain words and employer priors must not replace the actual occupation.
     # Financial quantitative research remains finance, while software and
     # trading systems development stays technical even at a trading firm.
-    technical_occupation = family in {"software", "hardware", "data_ml", "product", "design", "healthcare"} and bool(
-        _TECH_OCCUPATION.search(title))
+    technical_occupation = family in kn.occupation_families and bool(_TECH_OCCUPATION.search(title))
     if cs_occupation or support_occupation:
         finance_title_hit = False
     elif technical_occupation:
@@ -264,10 +297,26 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         # 'Summer Analyst' at a bank with no division named: finance, low confidence
         is_finance = True
 
+    # 'Research Associate, Cell Biology' is lab work that Equity Research's title words also cover: a board's
+    # named rule takes it (plans/healthcare-board.md, D1). Finance is otherwise decided exactly as before.
+    claim = None
+    if is_finance:
+        claim = _claim(kn, title, description, company_type, "finance",
+                       _finance_prose(kn, best_key, best["sub"], description))
+        is_finance = claim is None
     if not is_finance:
-        secondary = [k for k, r in ranked[:2] if r["score"] >= min_score]
-        sub, sub_evidence, secondary_subs = specialty(title, kn, family, department, description, company_type)
-        return {
+        secondary = [] if claim else [k for k, r in ranked[:2] if r["score"] >= min_score]
+        claim = claim or _claim(kn, title, description, company_type, family)
+        if claim:
+            family = claim.board
+        elif family == "other" and not _other_work(title):
+            # Tier 2: a board's fallback words place what no board and no finance rule placed.
+            family = next((key for key, words in kn.fallback_titles if _hits(words, title)), family)
+        if claim and claim.subcategory:
+            sub, sub_evidence, secondary_subs = claim.subcategory, [], []
+        else:
+            sub, sub_evidence, secondary_subs = specialty(title, kn, family, department, description, company_type)
+        out = {
             "family": family if family != "other" else "other",
             "category": family,
             "category_label": kn.category_label(family),
@@ -277,12 +326,16 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
             "secondary_labels": [kn.category_label(k) for k in secondary],
             "confidence": 0.6 if family != "other" else 0.2,
             "is_finance": False,
-            "evidence": ([f"title family: {family}"] + sub_evidence) if family != "other" else ["no strong signal"],
+            "evidence": ([f"rule: {claim.name}" if claim else f"title family: {family}"] + sub_evidence)
+                        if family != "other" else ["no strong signal"],
             "competitive": False,
             "associate_stage": "entry",
             "secondary_subcategories": secondary_subs,
             "secondary_subcategory_labels": [kn.subcategory_label(family, k) for k in secondary_subs],
         }
+        if claim:
+            out["rule"] = claim.name
+        return out
 
     top = best["score"]
     margin = max(0, (top - second_score) / top) if top else 0

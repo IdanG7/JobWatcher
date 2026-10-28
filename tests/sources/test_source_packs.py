@@ -96,7 +96,7 @@ class PackTests(unittest.TestCase):
                 if cfg["ats"] != "linkedin":
                     self.assertIn(cfg.get("company_key"), kn.companies)
         for key, pack in packs.packs.items():
-            if pack.folder == "tech":
+            if pack.folder in ("tech", "health"):
                 self.assertRegex(pack.verified or "", r"^\d{4}-\d{2}-\d{2}$", key)      # fetched before shipping
 
     def test_the_build_ships_every_setting_a_source_uses(self):
@@ -203,7 +203,7 @@ class SelectionTests(unittest.TestCase):
 
     def test_boards_without_packs_of_their_own_poll_every_source(self):
         every = set(enabled_sources(self.config))
-        for profile in ({"fields": ["sales"]}, {"fields": ["software", "healthcare"]}, {"fields": ["astronomy"]}):
+        for profile in ({"fields": ["sales"]}, {"fields": ["software", "sales"]}, {"fields": ["astronomy"]}):
             with self.subTest(profile=profile):
                 self.assertEqual(every, self.polled(profile))
 

@@ -180,7 +180,78 @@ class Skill:
     label: str
     group: str
     pattern: re.Pattern
-    tech: bool = False      # read only where finance fit can't change (see skills.json)
+    track: str | None = None    # read only where that track is open, so finance fit can't change (see skills.json)
+
+
+@dataclass
+class Track:
+    """Boards that share employer types, skills and resume vocabulary (taxonomy.json tracks)."""
+    key: str
+    label: str
+    employer_heading: str
+    employer_noun: str
+    skills_from: frozenset[str]
+    degree: re.Pattern | None = None
+    signals: list[tuple[str, float, re.Pattern]] = field(default_factory=list)
+    role_words: re.Pattern | None = None    # words that make a resume line a role, read only while the track is open
+
+    @property
+    def resume(self) -> bool:
+        """Whether a resume can open this track (a degree or work it recognizes)."""
+        return bool(self.degree or self.signals)
+
+
+@dataclass
+class Claim:
+    """A named rule by which a board takes a title that another board, or Finance, places (taxonomy.json claims).
+
+    The title must name one of ``title``. With evidence configured, it also needs a ``subject`` in the title, or an
+    employer of one of ``employer_types``, or ``min_description`` distinct ``description`` phrases; when the title
+    is a finance one, the last two count only while the posting reads as finance in fewer than two phrases.
+    """
+    name: str
+    board: str
+    takes_from: frozenset[str]
+    title: list
+    unless: list = field(default_factory=list)
+    subject: list = field(default_factory=list)
+    employer_types: frozenset[str] = frozenset()
+    description: list = field(default_factory=list)
+    min_description: int = 0
+    sole_occupation: bool = False       # not when the title also names a tech or business occupation
+    subcategory: str | None = None
+
+    @property
+    def needs_evidence(self) -> bool:
+        return bool(self.subject or self.employer_types or self.description)
+
+
+@dataclass
+class StageRules:
+    """A board's own career levels (taxonomy.json stage_rules), read before the shared ones in seniority.py."""
+    levels: list[tuple[str, str, str, Prefiltered, Prefiltered | None]] = field(default_factory=list)
+    entry_label: str = ""
+    entry: Prefiltered | None = None    # occupations that are entry level when no level word or experience is given
+    entry_unless: Prefiltered | None = None
+
+
+@dataclass
+class Licence:
+    """A licence or certification a board's postings ask for (taxonomy.json licences; read in licences.py)."""
+    key: str
+    label: str
+    kind: str                           # "licence" (missing it costs fit) or "certification" (shown only)
+    title: Prefiltered | None = None    # the title names the occupation that needs it...
+    title_unless: Prefiltered | None = None     # ...unless it is a student or assistant role
+    description: Prefiltered | None = None      # the description asks for its registration, regulator or exam
+    resume: Prefiltered | None = None   # a resume line shows it held
+    degree: Prefiltered | None = None   # a resume's program means it is expected
+
+
+@dataclass
+class BoardLicences:
+    items: list[Licence]
+    pending: Prefiltered | None = None  # the posting takes people whose registration is pending
 
 
 class Knowledge:
@@ -225,10 +296,87 @@ class Knowledge:
                 continue
             self.families[key] = Node(key, fam["label"], None,
                                       compile_fragments(fam.get("title")),
+                                      meta={k: v for k, v in fam.items()
+                                            if k not in ("label", "title", "domain_title", "subcategories")},
                                       domain=compile_fragments(fam.get("domain_title")))
             # Specialties (software.backend) share the subcategory namespace,
             # so profiles, filters and labels treat them like finance groups.
             self._load_subcategories(key, fam)
+        self._load_boards(data)
+
+    def _load_boards(self, data: dict) -> None:
+        """What each board shares with others: its track, skill groups and resume employers."""
+        finance = data.get("finance") or {}
+        self.finance_skill_groups: list[str] = finance.get("skill_groups") or []
+        self.board_track: dict[str, str] = {"finance": finance.get("track", "finance"), **{
+            key: node.meta["track"] for key, node in self.families.items() if node.meta.get("track")}}
+        self.track_boards: dict[str, list[str]] = {}
+        for board, track in self.board_track.items():
+            self.track_boards.setdefault(track, []).append(board)
+        # "Lending AI Engineer": a technical occupation on these boards beats finance words.
+        self.occupation_families = frozenset(
+            key for key, node in self.families.items() if node.meta.get("occupation_beats_finance"))
+        # The employers a resume aimed at a board or specialty proposes ('software', 'software.security').
+        self.board_employer_types: dict[str, list[str]] = {
+            **{key: node.meta["employer_types"] for key, node in self.families.items() if node.meta.get("employer_types")},
+            **{f"{node.parent}.{node.key}": node.meta["employer_types"] for node in self.subcategories.values()
+               if node.parent in self.families and node.meta.get("employer_types")}}
+        self.tracks: dict[str, Track] = {}
+        for key, entry in (data.get("tracks") or {}).items():
+            if key.startswith("_"):
+                continue
+            resume = entry.get("resume") or {}
+            self.tracks[key] = Track(
+                key, entry.get("label") or key.title(), entry.get("employer_heading") or "",
+                entry.get("employer_noun") or "", frozenset(entry.get("skills_from") or []),
+                re.compile(resume["degree"], re.I) if resume.get("degree") else None,
+                [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []],
+                re.compile(resume["role_words"], re.I) if resume.get("role_words") else None)
+        # Tier 2: words that place a title no board placed ('Registered Nurse'), checked after Finance and every
+        # board's own title words.
+        self.fallback_titles: list[tuple[str, list]] = [
+            (key, compile_fragments(node.meta["fallback_title"]))
+            for key, node in self.families.items() if node.meta.get("fallback_title")]
+        self.claims: list[Claim] = [
+            Claim(name, key, frozenset(rule["from"]), compile_fragments(rule["title"]),
+                  compile_fragments(rule.get("unless")), compile_fragments(rule.get("subject")),
+                  frozenset(rule.get("employer_types") or []), compile_fragments(rule.get("description")),
+                  rule.get("min_description", 0), bool(rule.get("sole_occupation")), rule.get("subcategory"))
+            for key, node in self.families.items()
+            for name, rule in (node.meta.get("claims") or {}).items() if not name.startswith("_")]
+        self.stage_rules: dict[str, StageRules] = {}
+        for key, node in self.families.items():
+            rules = node.meta.get("stage_rules")
+            if not rules:
+                continue
+            entry = rules.get("entry_to_practice") or {}
+            self.stage_rules[key] = StageRules(
+                [(r["level"], r["stage"], r["label"], compile_union(r["title"]), compile_union(r.get("unless")))
+                 for r in rules.get("levels") or []],
+                entry.get("label", ""), compile_union(entry.get("title")), compile_union(entry.get("unless")))
+        self.licences: dict[str, BoardLicences] = {}
+        for key, node in self.families.items():
+            spec = node.meta.get("licences")
+            if spec:
+                self.licences[key] = BoardLicences(
+                    [Licence(name, item["label"], item.get("kind", "licence"),
+                             *(compile_union(item.get(part)) for part in
+                               ("title", "title_unless", "description", "resume", "degree")))
+                     for name, item in (spec.get("items") or {}).items() if not name.startswith("_")],
+                    compile_union(spec.get("pending")))
+        self.licence_by_key: dict[str, Licence] = {
+            item.key: item for board in self.licences.values() for item in board.items}
+        # Yearly program windows a board shows in Calendar (read in programs.py).
+        self.program_windows: dict[str, list[dict]] = {
+            key: node.meta["program_windows"]["items"] for key, node in self.families.items()
+            if node.meta.get("program_windows")}
+
+    def skill_tracks(self, board: str) -> frozenset[str]:
+        """The tracks whose skills a posting on this board reads ('other' when no board places it)."""
+        return frozenset(key for key, track in self.tracks.items() if board in track.skills_from)
+
+    def type_tracks(self, ctype: str | None) -> list[str]:
+        return (self.company_types.get(ctype or "unknown") or {}).get("tracks") or []
 
     def _load_subcategories(self, parent: str, node: dict) -> None:
         for sub_key, sub in (node.get("subcategories") or {}).items():
@@ -268,7 +416,8 @@ class Knowledge:
 
     def family_tree(self) -> list[dict]:
         """Job families with their specialties (empty for families without any)."""
-        return [{"key": key, "label": node.label,
+        return [{"key": key, "label": node.label, "track": node.meta.get("track"),
+                 "skill_groups": node.meta.get("skill_groups") or [],
                  "subcategories": [{"key": n.key, "label": n.label, "note": n.meta.get("note", "")}
                                    for n in self.subcategories.values() if n.parent == key]}
                 for key, node in self.families.items()]
@@ -328,7 +477,7 @@ class Knowledge:
             label = re.escape(entry["label"]).replace(r"\ ", " ")
             pattern = compile_union(entry.get("synonyms", []) + [label])
             self.skills.append(Skill(entry["key"], entry["label"],
-                                     entry.get("group", "other"), pattern, entry.get("track") == "tech"))
+                                     entry.get("group", "other"), pattern, entry.get("track")))
         self.skill_by_key = {s.key: s for s in self.skills}
 
     # ------------------------------------------------------------ geography

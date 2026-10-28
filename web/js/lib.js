@@ -263,6 +263,30 @@ export function levelText({level_label: level = '', stage = ''} = {}) {
   return b.includes(a) || a.includes(b) ? level : `${level} · ${kind}`;
 }
 
+/** Hours a posting states (facts.hours), as the Opportunities filter offers them; Settings' "Hours I can work"
+ *  offers the employment types. */
+export const HOURS = [
+  {key: 'full_time', label: 'Full-time', employment: true}, {key: 'part_time', label: 'Part-time', employment: true},
+  {key: 'casual', label: 'Casual', employment: true}, {key: 'per_diem', label: 'Per diem / PRN', employment: true},
+  {key: 'temporary', label: 'Temporary or contract', employment: true},
+  {key: 'day', label: 'Days'}, {key: 'evening', label: 'Evenings'}, {key: 'night', label: 'Nights'},
+  {key: 'weekend', label: 'Weekends'}, {key: 'rotating', label: 'Rotating shifts'}, {key: 'twelve_hour', label: '12-hour shifts'},
+  {key: 'on_call', label: 'On call'},
+];
+
+/** 'Casual · Nights · On call' from facts.hours, or ''. */
+export function hoursText({employment = [], shifts = [], on_call: onCall = false} = {}) {
+  const on = new Set([...employment, ...shifts, ...(onCall ? ['on_call'] : [])]);
+  return HOURS.filter(h => on.has(h.key)).map(h => h.label).join(' · ');
+}
+
+/** {licences: 'Registered Nurse (RN)', certifications: 'BLS / CPR · ACLS'} from facts.licences, labelled from
+ *  meta.licences ('' where the posting names none). */
+export function licenceText({required = [], certifications = []} = {}, defs = []) {
+  const label = key => defs.find(d => d.key === key)?.label || key.replace(/_/g, ' ').toUpperCase();
+  return {licences: required.map(label).join(' · '), certifications: certifications.map(label).join(' · ')};
+}
+
 /** The posting's words a fact was read from. Extracts start and end mid-word
  *  ('ion reimbursement … 2026 * Jo'), so broken ends are cut and marked with an ellipsis. */
 export function cleanQuote(text = '', max = 180) {

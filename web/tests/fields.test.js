@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
+import {countryList, employerSections, fieldList, licencesFor, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
+import {META} from './board-meta.js';
 
 const FINANCE = ['investment_banking', 'private_markets', 'public_markets'];
 
@@ -21,15 +22,18 @@ test('a target role belongs to finance or to its job family, specialties include
 });
 
 test('each field shows the skill groups that fit it; no field picked shows them all', () => {
-  assert.equal(skillGroupsFor([]), null);
-  assert.deepEqual([...skillGroupsFor(['finance'])].sort(), ['accounting', 'markets', 'modeling', 'programming', 'quant', 'soft', 'tools']);
-  assert.deepEqual([...skillGroupsFor(['software'])].sort(), ['cloud', 'cs', 'data', 'programming', 'soft', 'web']);
-  assert.ok(skillGroupsFor(['data_ml']).has('quant') && skillGroupsFor(['data_ml']).has('ml'));
-  assert.ok(skillGroupsFor(['hardware']).has('hardware'));
-  assert.ok(!skillGroupsFor(['finance']).has('web'));
-  const both = skillGroupsFor(['software', 'finance']);
+  const groups = fields => skillGroupsFor(fields, META);
+  assert.equal(groups([]), null);
+  assert.deepEqual([...groups(['finance'])].sort(), ['accounting', 'markets', 'modeling', 'programming', 'quant', 'soft', 'tools']);
+  assert.deepEqual([...groups(['software'])].sort(), ['cloud', 'cs', 'data', 'programming', 'soft', 'web']);
+  assert.ok(groups(['data_ml']).has('quant') && groups(['data_ml']).has('ml'));
+  assert.ok(groups(['hardware']).has('hardware'));
+  assert.ok(!groups(['finance']).has('web'));
+  const both = groups(['software', 'finance']);
   assert.ok(both.has('modeling') && both.has('programming'));
-  assert.deepEqual([...skillGroupsFor(['people_legal', 'unknown'])], ['soft']);
+  assert.deepEqual([...groups(['people_legal', 'unknown'])], ['soft']);
+  // A server that doesn't send them shows the soft skills for every field.
+  assert.deepEqual([...skillGroupsFor(['software'])], ['soft']);
 });
 
 test('only families split into specialties get a card of them', () => {
@@ -62,13 +66,37 @@ test('suggested cycles run from the next summer through graduation', () => {
 });
 
 test('finance employer types keep their sections and tech types are listed apart for the tech boards', () => {
-  const types = [{key: 'bulge_bracket', track: 'finance'}, {key: 'quant_firm', track: 'both'}, {key: 'fintech', track: 'both'},
-    {key: 'corporate', track: 'finance'}, {key: 'new_finance_type', track: 'finance'}, {key: 'big_tech', track: 'tech'},
-    {key: 'ai_lab', track: 'tech'}, {key: 'unknown'}];
-  const {finance, tech} = employerSections(types);
-  assert.deepEqual(finance, [['Banks', ['bulge_bracket']], ['Investing', ['quant_firm']], ['Financial services', ['fintech']],
-    ['Advisory & corporate', ['corporate']], ['Other', ['new_finance_type']]]);
-  assert.deepEqual(tech, [['Tech', ['big_tech', 'ai_lab']]]);
+  const {finance, tracks} = employerSections(META.company_types, META.tracks);
+  assert.deepEqual(finance, [
+    ['Banks', ['bulge_bracket', 'elite_boutique', 'middle_market_bank', 'global_bank', 'canadian_bank', 'commercial_bank']],
+    ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
+    ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
+    ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']]]);
+  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare']);
+  const [tech, health] = tracks;
+  assert.equal(tech.employer_heading, 'Tech employer types');
+  assert.deepEqual(tech.boards, ['software', 'data_ml', 'hardware', 'product', 'design']);
+  assert.deepEqual(tech.sections.map(([name]) => name), ['Tech']);
+  assert.equal(tech.sections[0][1].length, 20);
+  assert.ok(tech.sections[0][1].includes('big_tech') && !tech.sections[0][1].includes('quant_firm'));
+  // Healthcare's own types, plus the two it shares with tech.
+  assert.equal(health.employer_heading, 'Healthcare & Science employer types');
+  assert.deepEqual(health.boards, ['healthcare']);
+  assert.equal(health.sections[0][1].length, 13);
+  assert.ok(['hospital', 'research_lab', 'health_tech'].every(k => health.sections[0][1].includes(k)));
+  // A finance type without a section lands in "Other"; a track with no types shows nothing.
+  const types = [{key: 'bulge_bracket', tracks: ['finance'], section: 'Banks'}, {key: 'new_finance_type', tracks: ['finance']},
+    {key: 'big_tech', tracks: ['tech']}, {key: 'unknown'}];
+  assert.deepEqual(employerSections(types, [{key: 'tech', label: 'Tech', boards: []}, {key: 'empty', label: 'Empty', boards: []}]),
+    {finance: [['Banks', ['bulge_bracket']], ['Other', ['new_finance_type']]],
+      tracks: [{key: 'tech', label: 'Tech', boards: [], sections: [['Tech', ['big_tech']]]}]});
   // A server without tracks lists every type under Finance, as before.
-  assert.deepEqual(employerSections([{key: 'bulge_bracket'}, {key: 'unknown'}]).tech, []);
+  assert.deepEqual(employerSections([{key: 'bulge_bracket'}, {key: 'unknown'}]), {finance: [['Other', ['bulge_bracket']]], tracks: []});
+});
+
+test('licences follow the boards whose postings ask for them', () => {
+  const meta = {licences: [{key: 'rn', kind: 'licence', board: 'healthcare'}, {key: 'bls', kind: 'certification', board: 'healthcare'}]};
+  assert.deepEqual(licencesFor(['finance', 'healthcare'], meta).map(l => l.key), ['rn', 'bls']);
+  assert.deepEqual(licencesFor(['finance', 'software'], meta), []);
+  assert.deepEqual(licencesFor(['healthcare'], {}), []);      // a server from before licences
 });

@@ -296,131 +296,695 @@
  "families": [
   {
    "key": "healthcare",
-   "label": "Healthcare & Science"
+   "label": "Healthcare & Science",
+   "track": "healthcare",
+   "skill_groups": [
+    "clinical",
+    "lab",
+    "regulatory",
+    "health_data",
+    "programming",
+    "quant",
+    "tools",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "clinical_care",
+     "label": "Clinical Care",
+     "note": "Nursing, allied health and pharmacy practice"
+    },
+    {
+     "key": "clinical_research",
+     "label": "Clinical Research",
+     "note": "Trials: coordinators, associates, clinical data and study start-up"
+    },
+    {
+     "key": "lab_research",
+     "label": "Lab Research",
+     "note": "Research associates and technicians, lab scientists"
+    },
+    {
+     "key": "bioinformatics",
+     "label": "Bioinformatics & Biostatistics",
+     "note": "Computational biology, genomics, biostatistics and statistical programming"
+    },
+    {
+     "key": "regulatory_quality",
+     "label": "Regulatory & Quality",
+     "note": "Regulatory affairs, GMP quality, pharmacovigilance and medical writing"
+    },
+    {
+     "key": "medical_devices",
+     "label": "Medical Devices",
+     "note": "Biomedical and device engineering, field clinical and applications"
+    },
+    {
+     "key": "public_health",
+     "label": "Public Health",
+     "note": "Epidemiology, health promotion, health policy and global health"
+    },
+    {
+     "key": "health_admin",
+     "label": "Health Administration",
+     "note": "Patient access, health information, clinic and hospital operations"
+    },
+    {
+     "key": "medical_affairs",
+     "label": "Medical Affairs & Commercial",
+     "note": "MSL, medical information, market access, HEOR, medical and pharma sales"
+    }
+   ]
   },
   {
    "key": "data_ml",
-   "label": "AI & Data"
+   "label": "AI & Data",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "data",
+    "ml",
+    "quant",
+    "tools",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "ml_engineering",
+     "label": "ML Engineering",
+     "note": "Building and shipping ML and LLM systems"
+    },
+    {
+     "key": "ai_research",
+     "label": "AI Research",
+     "note": "Research scientist and research engineer roles"
+    },
+    {
+     "key": "data_science",
+     "label": "Data Science",
+     "note": "Statistics, experiments and predictive models"
+    },
+    {
+     "key": "data_engineering",
+     "label": "Data Engineering",
+     "note": "Pipelines, warehouses and data platforms"
+    },
+    {
+     "key": "analytics",
+     "label": "Analytics & BI",
+     "note": "SQL, dashboards and business insight"
+    }
+   ]
   },
   {
    "key": "software",
-   "label": "Software"
+   "label": "Software",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "web",
+    "cloud",
+    "data",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "backend",
+     "label": "Backend",
+     "note": "APIs, services and databases"
+    },
+    {
+     "key": "frontend",
+     "label": "Frontend",
+     "note": "Web apps, React and TypeScript"
+    },
+    {
+     "key": "full_stack",
+     "label": "Full-Stack",
+     "note": "The web app and the services behind it"
+    },
+    {
+     "key": "mobile",
+     "label": "Mobile",
+     "note": "iOS and Android apps"
+    },
+    {
+     "key": "infrastructure",
+     "label": "Infrastructure & DevOps",
+     "note": "Cloud, DevOps, SRE and platform teams"
+    },
+    {
+     "key": "systems",
+     "label": "Systems",
+     "note": "Distributed systems, compilers, databases and low-level code"
+    },
+    {
+     "key": "security",
+     "label": "Security",
+     "note": "Application, cloud and network security"
+    },
+    {
+     "key": "game_dev",
+     "label": "Game Development",
+     "note": "Gameplay, engines and graphics"
+    },
+    {
+     "key": "quant_dev",
+     "label": "Quant Development",
+     "note": "Trading systems and low-latency code"
+    },
+    {
+     "key": "qa_test",
+     "label": "QA & Test",
+     "note": "Test automation and quality engineering"
+    }
+   ]
   },
   {
    "key": "hardware",
-   "label": "Hardware"
+   "label": "Hardware",
+   "track": "tech",
+   "skill_groups": [
+    "programming",
+    "hardware",
+    "cs",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "embedded_firmware",
+     "label": "Embedded & Firmware",
+     "note": "Firmware, microcontrollers and embedded software"
+    },
+    {
+     "key": "chip_design",
+     "label": "Chip Design & Verification",
+     "note": "ASIC, FPGA, RTL and verification"
+    },
+    {
+     "key": "electrical",
+     "label": "Electrical & Circuits",
+     "note": "Circuits, PCBs and power electronics"
+    },
+    {
+     "key": "robotics_autonomy",
+     "label": "Robotics & Autonomy",
+     "note": "Robotics, perception and motion planning"
+    }
+   ]
   },
   {
    "key": "product",
-   "label": "Product"
+   "label": "Product",
+   "track": "tech",
+   "skill_groups": [
+    "tools",
+    "programming",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "design",
-   "label": "Design"
+   "label": "Design",
+   "track": "tech",
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "sales",
-   "label": "Sales & Growth"
+   "label": "Sales & Growth",
+   "track": null,
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "operations",
-   "label": "Operations"
+   "label": "Operations",
+   "track": null,
+   "skill_groups": [
+    "tools",
+    "soft"
+   ],
+   "subcategories": []
   },
   {
    "key": "people_legal",
-   "label": "People & Legal"
+   "label": "People & Legal",
+   "track": null,
+   "skill_groups": [
+    "soft"
+   ],
+   "subcategories": []
+  }
+ ],
+ "finance": {
+  "skill_groups": [
+   "modeling",
+   "accounting",
+   "tools",
+   "programming",
+   "markets",
+   "quant",
+   "soft"
+  ]
+ },
+ "tracks": [
+  {
+   "key": "tech",
+   "label": "Tech",
+   "employer_heading": "Tech employer types",
+   "boards": [
+    "data_ml",
+    "software",
+    "hardware",
+    "product",
+    "design"
+   ]
+  },
+  {
+   "key": "healthcare",
+   "label": "Healthcare & Science",
+   "employer_heading": "Healthcare & Science employer types",
+   "boards": [
+    "healthcare"
+   ]
   }
  ],
  "company_types": [
   {
    "key": "bulge_bracket",
    "label": "Bulge Bracket",
-   "group": "Bulge Brackets"
+   "group": "Bulge Brackets",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "elite_boutique",
    "label": "Elite Boutique",
-   "group": "Elite Boutiques"
+   "group": "Elite Boutiques",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "middle_market_bank",
    "label": "Middle-Market Bank",
-   "group": "Middle Market"
+   "group": "Middle Market",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "global_bank",
    "label": "Global Bank",
-   "group": "Global Banks"
+   "group": "Global Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "canadian_bank",
    "label": "Canadian Bank",
-   "group": "Canadian Banks"
+   "group": "Canadian Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "commercial_bank",
    "label": "Commercial Bank",
-   "group": "U.S. Commercial Banks"
+   "group": "U.S. Commercial Banks",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Banks"
   },
   {
    "key": "private_equity",
    "label": "Private Equity",
-   "group": "Private Equity"
+   "group": "Private Equity",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "venture_capital",
    "label": "Venture Capital",
-   "group": "Venture Capital"
+   "group": "Venture Capital",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "hedge_fund",
    "label": "Hedge Fund",
-   "group": "Hedge Funds"
+   "group": "Hedge Funds",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "quant_firm",
    "label": "Quant / Trading Firm",
-   "group": "Quant / Trading"
+   "group": "Quant / Trading",
+   "tracks": [
+    "finance",
+    "tech"
+   ],
+   "section": "Investing"
   },
   {
    "key": "asset_manager",
    "label": "Asset Manager",
-   "group": "Asset Managers"
+   "group": "Asset Managers",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "pension_fund",
    "label": "Pension Fund",
-   "group": "Pension Funds"
+   "group": "Pension Funds",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Investing"
   },
   {
    "key": "insurance",
    "label": "Insurance",
-   "group": "Insurance"
+   "group": "Insurance",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "fintech",
    "label": "FinTech",
-   "group": "FinTech"
+   "group": "FinTech",
+   "tracks": [
+    "finance",
+    "tech"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "market_infrastructure",
    "label": "Exchanges & Data",
-   "group": "Exchanges & Data"
+   "group": "Exchanges & Data",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Financial services"
   },
   {
    "key": "accounting_advisory",
    "label": "Accounting & Advisory",
-   "group": "Accounting & Advisory"
+   "group": "Accounting & Advisory",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
   },
   {
    "key": "consulting",
    "label": "Consulting",
-   "group": "Consulting"
+   "group": "Consulting",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
   },
   {
    "key": "corporate",
    "label": "Corporate",
-   "group": "Corporate"
+   "group": "Corporate",
+   "tracks": [
+    "finance"
+   ],
+   "section": "Advisory & corporate"
+  },
+  {
+   "key": "big_tech",
+   "label": "Big Tech",
+   "group": "Big Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "ai_lab",
+   "label": "AI Lab",
+   "group": "AI Labs",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "ai_infrastructure",
+   "label": "AI Infrastructure",
+   "group": "AI Infrastructure",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "developer_tools",
+   "label": "Developer Tools",
+   "group": "Developer Tools",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "data_infrastructure",
+   "label": "Data Infrastructure",
+   "group": "Data Infrastructure",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "cybersecurity",
+   "label": "Cybersecurity",
+   "group": "Cybersecurity",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "enterprise_saas",
+   "label": "Enterprise Software",
+   "group": "Enterprise Software",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "consumer_tech",
+   "label": "Consumer Tech",
+   "group": "Consumer Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "semiconductors",
+   "label": "Semiconductors",
+   "group": "Semiconductors",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "robotics_autonomy",
+   "label": "Robotics & Autonomy",
+   "group": "Robotics & Autonomy",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "defense_tech",
+   "label": "Defense & Aerospace",
+   "group": "Defense & Aerospace",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "gaming",
+   "label": "Gaming",
+   "group": "Gaming",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "high_growth_startup",
+   "label": "High-Growth Startup",
+   "group": "Startups",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "canadian_tech",
+   "label": "Canadian Tech",
+   "group": "Canadian Tech",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "research_lab",
+   "label": "Research Lab",
+   "group": "Research Labs",
+   "tracks": [
+    "tech",
+    "healthcare"
+   ]
+  },
+  {
+   "key": "hardware_devices",
+   "label": "Devices & IoT",
+   "group": "Devices & IoT",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "health_tech",
+   "label": "Health Tech",
+   "group": "Health Tech",
+   "tracks": [
+    "tech",
+    "healthcare"
+   ]
+  },
+  {
+   "key": "climate_energy",
+   "label": "Climate & Energy",
+   "group": "Climate & Energy",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "quantum",
+   "label": "Quantum Computing",
+   "group": "Quantum Computing",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "telecom",
+   "label": "Telecom",
+   "group": "Telecom & Networks",
+   "tracks": [
+    "tech"
+   ]
+  },
+  {
+   "key": "hospital",
+   "label": "Hospital & Health System",
+   "group": "Hospitals & Health Systems",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "pharma",
+   "label": "Pharma",
+   "group": "Pharma",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "biotech",
+   "label": "Biotech",
+   "group": "Biotech",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "medtech",
+   "label": "Medical Devices",
+   "group": "Medical Devices",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "cro_cdmo",
+   "label": "CRO & CDMO",
+   "group": "CROs & CDMOs",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "diagnostics",
+   "label": "Diagnostics & Lab Tools",
+   "group": "Diagnostics & Lab Tools",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "payer",
+   "label": "Health Insurer",
+   "group": "Health Insurers",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "public_health_agency",
+   "label": "Public Health Agency",
+   "group": "Public Health",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "university",
+   "label": "University",
+   "group": "Universities",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "pharmacy_consumer",
+   "label": "Pharmacy & Consumer Health",
+   "group": "Pharmacy & Consumer Health",
+   "tracks": [
+    "healthcare"
+   ]
   },
   {
    "key": "unknown",
@@ -878,6 +1442,56 @@
    "group": "programming"
   },
   {
+   "key": "javascript",
+   "label": "JavaScript",
+   "group": "programming"
+  },
+  {
+   "key": "typescript",
+   "label": "TypeScript",
+   "group": "programming"
+  },
+  {
+   "key": "golang",
+   "label": "Go (Golang)",
+   "group": "programming"
+  },
+  {
+   "key": "c_lang",
+   "label": "C (language)",
+   "group": "programming"
+  },
+  {
+   "key": "csharp",
+   "label": "C# / .NET",
+   "group": "programming"
+  },
+  {
+   "key": "kotlin",
+   "label": "Kotlin",
+   "group": "programming"
+  },
+  {
+   "key": "swift",
+   "label": "Swift (iOS)",
+   "group": "programming"
+  },
+  {
+   "key": "scala",
+   "label": "Scala",
+   "group": "programming"
+  },
+  {
+   "key": "ruby",
+   "label": "Ruby",
+   "group": "programming"
+  },
+  {
+   "key": "bash",
+   "label": "Bash / Shell",
+   "group": "programming"
+  },
+  {
    "key": "derivatives",
    "label": "Derivatives",
    "group": "markets"
@@ -973,6 +1587,256 @@
    "group": "quant"
   },
   {
+   "key": "react",
+   "label": "React.js",
+   "group": "web"
+  },
+  {
+   "key": "angular",
+   "label": "Angular",
+   "group": "web"
+  },
+  {
+   "key": "vue",
+   "label": "Vue.js",
+   "group": "web"
+  },
+  {
+   "key": "nodejs",
+   "label": "Node.js",
+   "group": "web"
+  },
+  {
+   "key": "html_css",
+   "label": "HTML & CSS",
+   "group": "web"
+  },
+  {
+   "key": "apis",
+   "label": "REST & GraphQL APIs",
+   "group": "web"
+  },
+  {
+   "key": "ios",
+   "label": "iOS",
+   "group": "web"
+  },
+  {
+   "key": "android",
+   "label": "Android",
+   "group": "web"
+  },
+  {
+   "key": "cross_platform",
+   "label": "React Native / Flutter",
+   "group": "web"
+  },
+  {
+   "key": "aws",
+   "label": "AWS",
+   "group": "cloud"
+  },
+  {
+   "key": "gcp",
+   "label": "Google Cloud",
+   "group": "cloud"
+  },
+  {
+   "key": "azure",
+   "label": "Azure",
+   "group": "cloud"
+  },
+  {
+   "key": "docker",
+   "label": "Docker",
+   "group": "cloud"
+  },
+  {
+   "key": "kubernetes",
+   "label": "Kubernetes",
+   "group": "cloud"
+  },
+  {
+   "key": "terraform",
+   "label": "Terraform / IaC",
+   "group": "cloud"
+  },
+  {
+   "key": "ci_cd",
+   "label": "CI/CD",
+   "group": "cloud"
+  },
+  {
+   "key": "linux",
+   "label": "Linux",
+   "group": "cloud"
+  },
+  {
+   "key": "git",
+   "label": "Git",
+   "group": "cloud"
+  },
+  {
+   "key": "spark",
+   "label": "Apache Spark",
+   "group": "data"
+  },
+  {
+   "key": "kafka",
+   "label": "Kafka",
+   "group": "data"
+  },
+  {
+   "key": "airflow",
+   "label": "Apache Airflow",
+   "group": "data"
+  },
+  {
+   "key": "dbt",
+   "label": "dbt",
+   "group": "data"
+  },
+  {
+   "key": "data_warehousing",
+   "label": "Data Warehousing",
+   "group": "data"
+  },
+  {
+   "key": "etl",
+   "label": "ETL & Data Pipelines",
+   "group": "data"
+  },
+  {
+   "key": "nosql",
+   "label": "NoSQL & Redis",
+   "group": "data"
+  },
+  {
+   "key": "pytorch",
+   "label": "PyTorch",
+   "group": "ml"
+  },
+  {
+   "key": "tensorflow",
+   "label": "TensorFlow",
+   "group": "ml"
+  },
+  {
+   "key": "scikit_learn",
+   "label": "scikit-learn",
+   "group": "ml"
+  },
+  {
+   "key": "nlp",
+   "label": "NLP",
+   "group": "ml"
+  },
+  {
+   "key": "computer_vision",
+   "label": "Computer Vision",
+   "group": "ml"
+  },
+  {
+   "key": "llms",
+   "label": "LLMs & GenAI",
+   "group": "ml"
+  },
+  {
+   "key": "mlops",
+   "label": "MLOps",
+   "group": "ml"
+  },
+  {
+   "key": "reinforcement_learning",
+   "label": "Reinforcement Learning",
+   "group": "ml"
+  },
+  {
+   "key": "algorithms",
+   "label": "Data Structures & Algorithms",
+   "group": "cs"
+  },
+  {
+   "key": "system_design",
+   "label": "System Design",
+   "group": "cs"
+  },
+  {
+   "key": "distributed_systems",
+   "label": "Distributed Systems",
+   "group": "cs"
+  },
+  {
+   "key": "operating_systems",
+   "label": "Operating Systems",
+   "group": "cs"
+  },
+  {
+   "key": "networking",
+   "label": "Computer Networking",
+   "group": "cs"
+  },
+  {
+   "key": "software_testing",
+   "label": "Software Testing",
+   "group": "cs"
+  },
+  {
+   "key": "oop",
+   "label": "Object-Oriented Design",
+   "group": "cs"
+  },
+  {
+   "key": "cybersecurity",
+   "label": "Cybersecurity",
+   "group": "cs"
+  },
+  {
+   "key": "agile",
+   "label": "Agile / Scrum",
+   "group": "cs"
+  },
+  {
+   "key": "embedded_systems",
+   "label": "Embedded Systems & Firmware",
+   "group": "hardware"
+  },
+  {
+   "key": "microcontrollers",
+   "label": "Microcontrollers",
+   "group": "hardware"
+  },
+  {
+   "key": "serial_protocols",
+   "label": "UART / I2C / SPI / CAN",
+   "group": "hardware"
+  },
+  {
+   "key": "fpga_rtl",
+   "label": "FPGA & RTL",
+   "group": "hardware"
+  },
+  {
+   "key": "pcb_design",
+   "label": "PCB & Circuit Design",
+   "group": "hardware"
+  },
+  {
+   "key": "hardware_validation",
+   "label": "Hardware Validation",
+   "group": "hardware"
+  },
+  {
+   "key": "control_systems",
+   "label": "Control Theory & PID",
+   "group": "hardware"
+  },
+  {
+   "key": "robotics",
+   "label": "Robotics & ROS",
+   "group": "hardware"
+  },
+  {
    "key": "client_communication",
    "label": "Client Communication",
    "group": "soft"
@@ -991,6 +1855,296 @@
    "key": "attention_to_detail",
    "label": "Attention to Detail",
    "group": "soft"
+  },
+  {
+   "key": "patient_care",
+   "label": "Patient Care",
+   "group": "clinical"
+  },
+  {
+   "key": "medication_administration",
+   "label": "Medication Administration",
+   "group": "clinical"
+  },
+  {
+   "key": "vital_signs",
+   "label": "Vital Signs",
+   "group": "clinical"
+  },
+  {
+   "key": "bls",
+   "label": "BLS",
+   "group": "clinical"
+  },
+  {
+   "key": "acls",
+   "label": "ACLS",
+   "group": "clinical"
+  },
+  {
+   "key": "cpr",
+   "label": "CPR",
+   "group": "clinical"
+  },
+  {
+   "key": "phlebotomy",
+   "label": "Phlebotomy",
+   "group": "clinical"
+  },
+  {
+   "key": "iv_therapy",
+   "label": "IV Therapy",
+   "group": "clinical"
+  },
+  {
+   "key": "wound_care",
+   "label": "Wound Care",
+   "group": "clinical"
+  },
+  {
+   "key": "infection_control",
+   "label": "Infection Control",
+   "group": "clinical"
+  },
+  {
+   "key": "clinical_documentation",
+   "label": "Clinical Documentation",
+   "group": "clinical"
+  },
+  {
+   "key": "triage",
+   "label": "Triage",
+   "group": "clinical"
+  },
+  {
+   "key": "ehr",
+   "label": "EHR / EMR",
+   "group": "clinical"
+  },
+  {
+   "key": "epic_ehr",
+   "label": "Epic",
+   "group": "clinical"
+  },
+  {
+   "key": "cerner",
+   "label": "Cerner",
+   "group": "clinical"
+  },
+  {
+   "key": "medical_terminology",
+   "label": "Medical Terminology",
+   "group": "clinical"
+  },
+  {
+   "key": "dispensing",
+   "label": "Dispensing",
+   "group": "clinical"
+  },
+  {
+   "key": "pcr",
+   "label": "PCR",
+   "group": "lab"
+  },
+  {
+   "key": "elisa",
+   "label": "ELISA",
+   "group": "lab"
+  },
+  {
+   "key": "western_blot",
+   "label": "Western Blot",
+   "group": "lab"
+  },
+  {
+   "key": "cell_culture",
+   "label": "Cell Culture",
+   "group": "lab"
+  },
+  {
+   "key": "flow_cytometry",
+   "label": "Flow Cytometry",
+   "group": "lab"
+  },
+  {
+   "key": "crispr",
+   "label": "CRISPR",
+   "group": "lab"
+  },
+  {
+   "key": "microscopy",
+   "label": "Microscopy",
+   "group": "lab"
+  },
+  {
+   "key": "hplc",
+   "label": "HPLC",
+   "group": "lab"
+  },
+  {
+   "key": "mass_spectrometry",
+   "label": "Mass Spectrometry",
+   "group": "lab"
+  },
+  {
+   "key": "ngs",
+   "label": "Next-Generation Sequencing",
+   "group": "lab"
+  },
+  {
+   "key": "molecular_cloning",
+   "label": "Molecular Cloning",
+   "group": "lab"
+  },
+  {
+   "key": "protein_purification",
+   "label": "Protein Purification",
+   "group": "lab"
+  },
+  {
+   "key": "aseptic_technique",
+   "label": "Aseptic Technique",
+   "group": "lab"
+  },
+  {
+   "key": "immunohistochemistry",
+   "label": "Immunohistochemistry",
+   "group": "lab"
+  },
+  {
+   "key": "animal_handling",
+   "label": "Animal Handling",
+   "group": "lab"
+  },
+  {
+   "key": "gmp",
+   "label": "GMP",
+   "group": "regulatory"
+  },
+  {
+   "key": "good_clinical_practice",
+   "label": "Good Clinical Practice",
+   "group": "regulatory"
+  },
+  {
+   "key": "good_laboratory_practice",
+   "label": "Good Laboratory Practice",
+   "group": "regulatory"
+  },
+  {
+   "key": "sops",
+   "label": "SOPs",
+   "group": "regulatory"
+  },
+  {
+   "key": "capa",
+   "label": "CAPA",
+   "group": "regulatory"
+  },
+  {
+   "key": "regulatory_submissions",
+   "label": "Regulatory Submissions",
+   "group": "regulatory"
+  },
+  {
+   "key": "pharmacovigilance",
+   "label": "Pharmacovigilance",
+   "group": "regulatory"
+  },
+  {
+   "key": "iso_13485",
+   "label": "ISO 13485",
+   "group": "regulatory"
+  },
+  {
+   "key": "fda_regulations",
+   "label": "FDA Regulations",
+   "group": "regulatory"
+  },
+  {
+   "key": "validation_iq_oq_pq",
+   "label": "Validation (IQ/OQ/PQ)",
+   "group": "regulatory"
+  },
+  {
+   "key": "medical_writing",
+   "label": "Medical Writing",
+   "group": "regulatory"
+  },
+  {
+   "key": "quality_management_systems",
+   "label": "Quality Management Systems",
+   "group": "regulatory"
+  },
+  {
+   "key": "sas",
+   "label": "SAS",
+   "group": "health_data"
+  },
+  {
+   "key": "spss",
+   "label": "SPSS",
+   "group": "health_data"
+  },
+  {
+   "key": "stata",
+   "label": "Stata",
+   "group": "health_data"
+  },
+  {
+   "key": "redcap",
+   "label": "REDCap",
+   "group": "health_data"
+  },
+  {
+   "key": "medidata_rave",
+   "label": "Medidata Rave",
+   "group": "health_data"
+  },
+  {
+   "key": "veeva",
+   "label": "Veeva",
+   "group": "health_data"
+  },
+  {
+   "key": "cdisc",
+   "label": "CDISC",
+   "group": "health_data"
+  },
+  {
+   "key": "edc",
+   "label": "EDC",
+   "group": "health_data"
+  },
+  {
+   "key": "biostatistics",
+   "label": "Biostatistics",
+   "group": "health_data"
+  },
+  {
+   "key": "survival_analysis",
+   "label": "Survival Analysis",
+   "group": "health_data"
+  },
+  {
+   "key": "bioconductor",
+   "label": "Bioconductor",
+   "group": "health_data"
+  },
+  {
+   "key": "gwas",
+   "label": "GWAS",
+   "group": "health_data"
+  },
+  {
+   "key": "medical_coding",
+   "label": "Medical Coding",
+   "group": "health_data"
+  },
+  {
+   "key": "hl7_fhir",
+   "label": "HL7 / FHIR",
+   "group": "health_data"
   }
  ],
  "skill_groups": {
@@ -1000,7 +2154,17 @@
   "programming": "Programming",
   "markets": "Markets",
   "quant": "Quant",
-  "soft": "Client & Communication"
+  "web": "Web & Mobile",
+  "cloud": "Cloud & DevOps",
+  "data": "Data & Databases",
+  "ml": "Machine Learning & AI",
+  "cs": "CS Fundamentals",
+  "hardware": "Hardware & Embedded",
+  "soft": "Client & Communication",
+  "clinical": "Clinical",
+  "lab": "Lab Techniques",
+  "regulatory": "Regulatory & Quality",
+  "health_data": "Health Data"
  },
  "statuses": [
   {

@@ -158,7 +158,7 @@ class PortableTests(unittest.TestCase):
                     keys = lambda table: sorted(r[0] for r in con.execute(f"SELECT board || ':' || job_id FROM {table}"))
                     jobs, intel, fts = keys("jobs"), keys("job_intel"), con.execute("SELECT COUNT(*) FROM job_fts").fetchone()[0]
                     seeded = [r[0] for r in con.execute("SELECT board FROM boards")]
-                self.assertEqual(10, config["sources_version"])
+                self.assertEqual(bundled["sources_version"], config["sources_version"])
                 self.assertEqual(set(bundled["boards"]), set(config["boards"]))
                 self.assertEqual(["geotab:1", "jpmorgan:4", "linkedin_canada_tech:6", "micron:2", "okta:3"], jobs)
                 self.assertEqual(jobs, intel)                                       # an application keeps its posting
@@ -170,8 +170,8 @@ class PortableTests(unittest.TestCase):
                 self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], config["boards"]["linkedin_us"]["queries"])
 
     def test_upgrading_a_0_3_7_install_keeps_every_source_and_posting_and_adds_tech_ones(self):
-        # The sources moved from config.json into config/sources packs, and the next release
-        # (sources_version 10) adds tech/ and shared/ sources: a 0.3.7 install keeps its sources,
+        # The sources moved from config.json into config/sources packs, and later releases add
+        # tech/ and shared/ sources (sources_version 10) and health/ ones (11): a 0.3.7 install keeps its sources,
         # settings and postings, and its Finance board polls what it did plus the shared/ additions.
         root = Path(__file__).resolve().parents[2]
         bundled = clean_config(load_config(root / "config.json"))
@@ -204,10 +204,10 @@ class PortableTests(unittest.TestCase):
         folder = lambda name: packs.packs[packs.source_pack[name]].folder
         added = set(packs.source_pack) - set(old)
         shared = {name for name in added if folder(name) == "shared"}
-        self.assertEqual(10, config["sources_version"])
+        self.assertEqual(bundled["sources_version"], config["sources_version"])
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual({"tech", "shared"}, {folder(name) for name in added})
+        self.assertEqual({"tech", "shared", "health"}, {folder(name) for name in added})
         self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= added)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
@@ -216,6 +216,46 @@ class PortableTests(unittest.TestCase):
         finance = polled_sources(config, profile, kn, packs)
         self.assertEqual(set(enabled_sources({"boards": mine})) | shared, set(finance))    # what it did, plus shared/
         self.assertIn("okta", polled_sources(config, {"fields": ["software"]}, kn, packs))
+
+    def test_upgrading_a_0_3_11_install_keeps_every_source_setting_and_posting(self):
+        # Healthcare got its own groups after 0.3.11 (sources_version 10): an install keeps every source
+        # with its settings, its postings and its profile, whatever later releases add.
+        root = Path(__file__).resolve().parents[2]
+        bundled = clean_config(load_config(root / "config.json"))
+        history = (root / "config" / "source_defaults_history.json").read_text(encoding="utf-8")
+        old = json.loads((root / "tests/sources/v0_3_11_sources.json").read_text(encoding="utf-8"))   # as installed
+        self.assertEqual(old, {name: board for name, board in bundled["boards"].items() if name in old})
+        mine = {**old, "rbc": {**old["rbc"], "disabled": True}, "mine": {"ats": "greenhouse", "token": "mine"}}
+        profile = {"name": "PRIVATE", "fields": ["finance", "healthcare"], "target_roles": ["investment_banking"]}
+        with tempfile.TemporaryDirectory() as directory:
+            app, data = Path(directory) / "app", Path(directory) / "data"
+            (app / "config").mkdir(parents=True)
+            data.mkdir()
+            (app / "config.json").write_text(json.dumps(bundled), encoding="utf-8")
+            (app / "config" / "source_defaults_history.json").write_text(history, encoding="utf-8")
+            stage_sources(root, app)
+            (data / "config.json").write_text(json.dumps({"sources_version": 10, "profile": profile, "boards": mine}),
+                                              encoding="utf-8")
+            with closing(watcher.db_open(data / "jobwatch.db")) as con:
+                con.executemany("INSERT INTO jobs(board,job_id,title,location,url,first_seen,last_seen) "
+                                "VALUES (?,'1','Research Associate','Toronto, ON','https://example.com','t','t')",
+                                [(b,) for b in mine])
+                con.execute("INSERT INTO applications(job_key, board, job_id) VALUES ('rbc:1', 'rbc', '1')")
+                IntelStore(con, {"boards": mine}).refresh(force_score=True)
+                con.commit()
+            upgrade_sources(app, data)
+            config = json.loads((data / "config.json").read_text(encoding="utf-8"))
+            with closing(sqlite3.connect(data / "jobwatch.db")) as con:
+                count = lambda table: con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                postings = {table: count(table) for table in ("jobs", "job_intel", "job_fts", "applications")}
+            packs = load_packs(app / "config" / "sources")
+        added = set(packs.source_pack) - set(old)
+        self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
+        self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
+        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"health"})
+        self.assertEqual(profile, config["profile"])
+        self.assertEqual({"jobs": 796, "job_intel": 796, "job_fts": 796, "applications": 1}, postings)
+        self.assertEqual(set(bundled["boards"]), set(packs.source_pack))
 
     def test_distribution_drops_private_config_and_subscribers(self):
         source = {

@@ -316,6 +316,18 @@ class NewAdapterTests(unittest.TestCase):
         self.assertEqual("https://careers.kula.ai/sanctuary-ai/33797", out[0]["url"])
         self.assertEqual("1", get.call_args.kwargs["headers"]["RSC"])
 
+    @patch("watcher.requests.get")
+    def test_kula_titles_keep_their_non_ascii_text(self, get):
+        # The payload is UTF-8 with a bare text/x-component type: read as Latin-1, 10x Genomics' Japanese
+        # titles came out as mojibake.
+        raw = watcher.requests.models.Response()
+        raw.status_code, raw.headers["Content-Type"] = 200, "text/x-component"
+        raw._content = ('1d:{"jobs":' + json.dumps([{"id": 1, "title": "フィールドサービスエンジニア", "listed": True}],
+                                                  ensure_ascii=False) + '}\n').encode("utf-8")
+        raw.encoding = watcher.requests.utils.get_encoding_from_headers(raw.headers)    # as requests' adapter sets it
+        get.return_value = raw
+        self.assertEqual("フィールドサービスエンジニア", watcher.fetch_kula({"account": "10xgenomics"})[0]["title"])
+
     @patch("watcher.time.sleep")
     @patch("watcher.requests.post")
     @patch("watcher.requests.get")

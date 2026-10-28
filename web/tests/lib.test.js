@@ -3,7 +3,7 @@ import {test} from 'node:test';
 
 import {
   age, buildHash, cleanParams, cleanQuote, cycleLabel, daysUntil, deadlineText, descriptionHtml, esc, fitBand, followTop,
-  levelText, niceMax,
+  levelText, licenceText, niceMax,
   parseHash, safeUrl, sourceName, toggleListParam,
 } from '../js/lib.js';
 
@@ -73,6 +73,17 @@ test('posting text reads cleanly: levels said once, quotes cut at whole words, r
   assert.equal(sourceName('GitHub · Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships'), 'GitHub · Summer 2027 and Fall 2026 Tech Internships');
   assert.equal(sourceName('Wells Fargo Careers'), 'Wells Fargo Careers');
   assert.equal(sourceName('LinkedIn · Toronto · Finance'), 'LinkedIn · Toronto · Finance');
+});
+
+test('a posting’s licences and certifications read by their labels', () => {
+  const defs = [{key: 'rn', label: 'Registered Nurse (RN)', kind: 'licence'}, {key: 'bls', label: 'BLS / CPR', kind: 'certification'},
+    {key: 'acls', label: 'ACLS', kind: 'certification'}];
+  assert.deepEqual(licenceText({required: ['rn'], certifications: ['bls', 'acls']}, defs),
+    {licences: 'Registered Nurse (RN)', certifications: 'BLS / CPR · ACLS'});
+  // before /api/meta arrives, the key stands in
+  assert.deepEqual(licenceText({required: ['respiratory_therapist']}), {licences: 'RESPIRATORY THERAPIST', certifications: ''});
+  // postings on other boards carry no licences
+  assert.deepEqual(licenceText(undefined, defs), {licences: '', certifications: ''});
 });
 
 test('descriptions read as paragraphs, tight lists and small headings, not a column of spaced-out lines', () => {

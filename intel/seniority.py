@@ -57,12 +57,21 @@ def years_required(description: str) -> int | None:
 
 
 def detect_seniority(title: str, description: str = "", associate_stage: str = "entry",
-                     category: str | None = None) -> dict:
-    """Return {stage, level, level_label, confidence, notes, years_required, post_mba}."""
+                     category: str | None = None, board_rules=None) -> dict:
+    """Return {stage, level, level_label, confidence, notes, years_required, post_mba}.
+
+    ``board_rules`` (knowledge.StageRules) are the levels of the posting's board, read before the shared ones:
+    a nurse residency or a postdoc maps onto the same five stages. Such a level adds ``board_level``.
+    """
     title = _TEAM_NAME.sub(" ", title or "")
     notes: list[str] = []
     level, stage, label = None, None, None
-    for lvl, stg, lbl, pattern in TITLE_RULES:
+    board_level = False
+    for lvl, stg, lbl, pattern, unless in (board_rules.levels if board_rules else ()):
+        if pattern.search(title) and not (unless and unless.search(title)):
+            level, stage, label, board_level = lvl, stg, lbl, True
+            break
+    for lvl, stg, lbl, pattern in TITLE_RULES if not level else ():
         if pattern.search(title):
             level, stage, label = lvl, stg, lbl
             break
@@ -90,6 +99,12 @@ def detect_seniority(title: str, description: str = "", associate_stage: str = "
         # '2027 Investment Banking Program' — a dated start is a campus hire
         level, stage, label, confidence = "new_grad", "new_grad", "New Grad", 0.6
         notes.append("dated program in title")
+    entry = board_rules.entry if board_rules else None
+    if (not level and entry and (years is None or years < 2) and entry.search(title)
+            and not (board_rules.entry_unless and board_rules.entry_unless.search(title))):
+        # 'Registered Nurse': the licence is the level, and no experience is asked.
+        level, stage, label, board_level, confidence = "entry_to_practice", "entry", board_rules.entry_label, True, 0.6
+        notes.append("A licensed occupation with no level or experience named: usually open to new graduates")
     if not level:
         if years is not None and years >= 5:
             stage, label = "senior", "Senior"
@@ -106,11 +121,14 @@ def detect_seniority(title: str, description: str = "", associate_stage: str = "
         notes.append(f"{years}+ years of experience required despite an entry-level title")
         confidence = 0.6
 
-    return {
+    out = {
         "stage": stage, "level": level, "level_label": label,
         "confidence": confidence, "notes": notes,
         "years_required": years, "post_mba": post_mba,
     }
+    if board_level:
+        out["board_level"] = True
+    return out
 
 
 def legacy_stage(title: str) -> str:

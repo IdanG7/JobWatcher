@@ -1,0 +1,12 @@
+{
+  "title": "Pharmacy and consumer health",
+  "verified": "2026-10-28",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27, or on 2026-10-28 for the four added that day. CVS Health is also polled for tech and finance (tech/ and shared/ health_tech); this source reads its Pharmacy Services, Clinical Pharmacists and Clinical Services job families. Loblaw's and Shoppers Drug Mart's Paradox sites are read only in their Pharmacy and Healthcare categories; Shoppers' 1,562 are mostly store pharmacy roles. Their main sites refuse plain requests, so the Shoppers and Rexall career hosts (on their own domains) were found by a web search. Rexall's site is read whole. Kenvue posts on Workday. Not added: Walgreens (22,585 postings, mostly store roles, and its Radancy site can't be narrowed); CVS Health's internships (about 4,000 store-level pharmacy intern postings, beyond the 2,000 Workday serves); Kroger (its Oracle feed repeats a page); London Drugs (CareerPlug); Jean Coutu (a custom portal); Sobeys (a Dayforce board behind a WordPress plugin); Haleon (unconfirmed, blocked); Rite Aid (not hiring).",
+  "boards": {
+    "cvs_health_clinical": {"ats": "workday", "host": "cvshealth.wd1.myworkdayjobs.com", "tenant": "cvshealth", "site": "CVS_Health_Careers", "facets": {"jobFamilyGroup": ["e65dbadf6a50100168ed8361150c0000", "e65dbadf6a50100168ed7df44fa00000", "e65dbadf6a50100168ed7d5902dc0001"]}, "min_interval": 3600, "company_key": "cvs_health", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "us", "label": "CVS Health pharmacy and clinical roles"},
+    "loblaw_pharmacy": {"ats": "paradox", "host": "careers.loblaw.ca", "facets": {"category": ["Pharmacy", "Healthcare"]}, "min_interval": 1800, "company_key": "loblaw_companies", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "canada"},
+    "shoppers_drug_mart": {"ats": "paradox", "host": "careers.shoppersdrugmart.ca", "facets": {"category": ["Pharmacy", "Healthcare"]}, "min_interval": 3600, "company_key": "shoppers_drug_mart", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "canada"},
+    "rexall": {"ats": "paradox", "host": "careers.rexall.ca", "min_interval": 1800, "company_key": "rexall", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "canada"},
+    "kenvue": {"ats": "workday", "host": "kenvue.wd5.myworkdayjobs.com", "tenant": "kenvue", "site": "kenvue", "min_interval": 1800, "company_key": "kenvue", "group": "Pharmacy & Consumer Health", "priority": 2, "geography": "global"}
+  }
+}

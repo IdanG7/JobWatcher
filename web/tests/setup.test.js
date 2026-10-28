@@ -72,6 +72,13 @@ test('a first run asks afresh and keeps only cities in the chosen countries', ()
   assert.deepEqual(out.target_roles, ['investment_banking', 'private_markets']);
 });
 
+test('setup saves the licences picked and keeps certifications the resume added', () => {
+  assert.equal('licences' in again(OLD, a => { a.fields.add('healthcare'); return a; }), false);
+  const nurse = {...OLD, fields: ['healthcare'], licences: ['bls']};
+  assert.deepEqual(again(nurse, a => { a.licences.add('rn'); return a; }).licences, ['bls', 'rn']);
+  assert.deepEqual(again(nurse, a => { a.licences.delete('bls'); return a; }).licences, []);
+});
+
 test('an old saved view still sends every filter it was saved with', () => {
   const view = {q: 'analyst', category: 'investment_banking,private_markets.private_equity', location: 'toronto,us,UK',
     cycle: 'summer_2027,off_cycle', stage: 'internship', company_type: 'bulge_bracket', min_fit: '75', posted: 'today',

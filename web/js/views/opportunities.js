@@ -2,7 +2,7 @@
 // Interests (job families) come from the reviewed profile and can be changed
 // per search; categories and quick filters follow them.
 import {get} from '../api.js';
-import {age, compact, debounce, esc, followTop, listParam, safeUrl, toggleListParam} from '../lib.js';
+import {HOURS, age, compact, debounce, esc, followTop, listParam, safeUrl, toggleListParam} from '../lib.js';
 import {
   STATUS_LABELS, badgeLabel, deadlineCell, emptyState, errorState, fitMeter, icon, locationText, logo,
   options, prettyKey, skeletonRows, statusPill,
@@ -11,7 +11,7 @@ import {markVisited, saveSearchForm} from '../forms.js';
 import {setDrawerDocked} from '../detail.js';
 
 export const PER_PAGE = 50;
-const LIST_KEYS = new Set(['category', 'location', 'cycle', 'stage', 'company_type']);
+const LIST_KEYS = new Set(['category', 'location', 'cycle', 'stage', 'company_type', 'hours']);
 // Whole-country location filters (job_query.py matches 'canada', 'us' and two-letter codes).
 export const COUNTRY_FILTERS = [{key: 'canada', label: 'Canada'}, {key: 'us', label: 'United States'}, {key: 'UK', label: 'United Kingdom'}];
 const COLUMNS = [
@@ -412,6 +412,7 @@ export async function render(root, ctx) {
     if (k === 'company_type') return (meta.company_types || []).find(t => t.key === v)?.label || v;
     if (k === 'cycle') return /^\d{4}$/.test(v) ? v : cycleText(v);
     if (k === 'stage') return STAGE_SHORT[v] || prettyKey(v);
+    if (k === 'hours') return HOURS.find(h => h.key === v)?.label || prettyKey(v);
     return prettyKey(v);
   }
 
@@ -505,6 +506,9 @@ export async function render(root, ctx) {
       ${group('timing', 'Timing', n(['posted', 'deadline']), `
         <div class="frow"><label class="field"><span>Posted</span><select class="select" data-single="posted">${options([{key: '', label: 'Any time'}, {key: 'today', label: 'Last 24 hours'}, {key: '48h', label: 'Last 48 hours'}, {key: '7d', label: 'Last 7 days'}, {key: '14d', label: 'Last 14 days'}, {key: '30d', label: 'Last 30 days'}], p.posted || '')}</select></label>
         <label class="field"><span>Deadline</span><select class="select" data-single="deadline">${options([{key: '', label: 'Any'}, {key: '3d', label: 'Within 3 days'}, {key: '7d', label: 'Within 7 days'}, {key: '14d', label: 'Within 14 days'}, {key: '30d', label: 'Within 30 days'}, {key: 'any', label: 'Has a deadline'}, {key: 'rolling', label: 'Rolling'}], p.deadline || '')}</select></label></div>`)}
+      ${group('hours', 'Hours', n(['hours']), `
+        <fieldset><legend class="sr-only">Hours</legend>${p.hours ? '<button type="button" class="clear-inline" data-clear="hours">Clear hours</button>' : ''}${checkList('hours', HOURS, {}, {limit: 5})}
+        <p class="fnote">Only postings that state their hours. A shift pattern or casual status is usually in the title or the posting’s job details.</p></fieldset>`)}
       ${group('fit', 'Fit & pay', n(['min_fit', 'comp_min']), `
         <label class="field"><span>Minimum fit <output data-range-out>${range || 'Any'}</output></span><input type="range" min="0" max="100" step="5" value="${esc(range)}" data-range="min_fit" aria-label="Minimum fit score"></label>
         <label class="field"><span>Minimum annual pay</span><input class="input" type="number" min="0" step="5000" inputmode="numeric" placeholder="e.g. 80000" value="${esc(p.comp_min || '')}" data-single="comp_min"><small class="muted">Only postings that disclose pay; local currency.</small></label>`)}

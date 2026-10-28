@@ -16,8 +16,9 @@ import time
 from datetime import date, datetime, timezone
 
 from .cycle import window_status
+from .hours import EMPLOYMENT, EMPLOYMENT_LABELS
 from .knowledge import Knowledge
-from .sources import TECH_FIELDS, profile_fields
+from .sources import profile_fields
 
 FINANCE_TYPES = {"bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank", "canadian_bank",
                  "commercial_bank", "private_equity", "venture_capital", "hedge_fund", "quant_firm",
@@ -28,6 +29,10 @@ LEVEL_BADGES = {"summer_analyst": "SUMMER ANALYST", "summer_associate": "SUMMER 
                 "off_cycle": "OFF-CYCLE", "spring_week": "SPRING WEEK", "co_op": "CO-OP",
                 "intern": "INTERN", "graduate_analyst": "GRADUATE ANALYST", "rotational": "ROTATIONAL",
                 "new_grad": "NEW GRAD", "analyst": "ANALYST"}
+# A board's own levels (taxonomy.json stage_rules), on that board's postings only.
+BOARD_LEVEL_BADGES = {"extern": "EXTERN", "summer_student": "SUMMER STUDENT", "student_worker": "STUDENT",
+                      "new_grad_program": "NEW GRAD PROGRAM", "residency": "RESIDENCY", "fellowship": "FELLOWSHIP",
+                      "postdoc": "POSTDOC"}
 
 
 GRADUATION_SLACK_MONTHS = 3
@@ -162,7 +167,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         pts, detail = 20, f"{level_label} — target career stage"
         reasons.append(f"{level_label} level")
     elif stage == "entry" and ({"new_grad", "entry"} & stage_targets):
-        pts, detail = 16, f"{level_label} — entry level in finance"
+        pts, detail = 16, f"{level_label} — entry level{'' if lvl.get('board_level') else ' in finance'}"
         reasons.append("Entry-level title")
     elif stage == "entry":
         pts, detail = 10, f"{level_label} — entry level, not a target stage"
@@ -190,10 +195,13 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         reasons.append(f"{company['type_label']} priority")
     elif company["type"] in FINANCE_TYPES:
         pts, detail = 7, f"{company['type_label']} — recognized finance employer"
-    elif kn.company_types.get(company["type"], {}).get("track") == "tech":
-        # Only a tech board makes a tech employer count: Finance-only profiles score them as before.
-        if TECH_FIELDS.intersection(profile_fields(profile, kn)):
-            pts, detail = 7, f"{company['type_label']} — recognized tech employer"
+    elif tracks := [t for t in kn.type_tracks(company["type"]) if t != "finance"]:
+        # Only a board on the employer's track makes it count: Finance-only profiles score tech
+        # employers as before.
+        boards = {kn.board_track.get(field) for field in profile_fields(profile, kn)}
+        shared = next((t for t in tracks if t in boards), None)
+        if shared:
+            pts, detail = 7, f"{company['type_label']} — {kn.tracks[shared].employer_noun}"
         else:
             pts, detail = 4, f"{company['type_label']} — outside finance"
     elif company["type"] in ("consulting", "accounting_advisory"):
@@ -316,6 +324,22 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
             penalty("degree", "Graduate degree required", 10, "Master's students targeted")
         elif "undergraduate" in degrees:
             reasons.append("Undergraduate eligible")
+    # A posting's licences, none of which the profile holds or expects (D16; Healthcare postings only). Any one is
+    # enough, since a posting that names several mostly takes either ("LPN or RN", "RT/RN/RPN").
+    licences = facts.get("licences") or {}
+    required = [k for k in licences.get("required") or [] if k in kn.licence_by_key]
+    if required and not set(required) & set(profile.get("licences") or []):
+        penalty("licence", "Licence required", 20, " or ".join(kn.licence_by_key[k].label for k in required) + " required"
+                + ("; candidates whose registration is pending are considered" if licences.get("pending_ok") else ""))
+    # Hours the profile can work (D15; Settings, unset by default): a posting that states only other employment
+    # types, or night shifts. One that states no hours costs nothing.
+    hours, can = facts.get("hours") or {}, profile.get("hours") or {}
+    stated = hours.get("employment") or []
+    if can.get("employment") and stated and not set(stated) & set(can["employment"]):
+        penalty("hours", "Hours", 10, " / ".join(EMPLOYMENT_LABELS[k] for k in stated) + "; you can work "
+                + ", ".join(EMPLOYMENT_LABELS[k] for k in EMPLOYMENT if k in can["employment"]))
+    if can.get("no_nights") and "night" in (hours.get("shifts") or []):
+        penalty("nights", "Night shifts", 10, "Night shifts")
     job_countries = set(loc["countries"]) or ({company["country"]} if company.get("country") else set())
     auth = profile.get("work_authorization") or {}
     if elig.get("sponsorship") == "not_available":
@@ -385,6 +409,8 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         badges.append(str(cyc["year"]))
     if lvl.get("level") in LEVEL_BADGES and cls.get("is_finance"):
         badges.append(LEVEL_BADGES[lvl["level"]])
+    elif lvl.get("board_level") and lvl.get("level") in BOARD_LEVEL_BADGES:
+        badges.append(BOARD_LEVEL_BADGES[lvl["level"]])
     if status == "closed":
         badges.append("CLOSED")
     elif status == "possibly_closed":

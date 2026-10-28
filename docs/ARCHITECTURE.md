@@ -27,16 +27,19 @@ ES-module JavaScript with no build step.
 |---|---|
 | `watcher.py` | Adapters, polling loop, dedupe gate, notifications, CLI. The original adapters and the delivery flow are unchanged. Finance hooks run inside `cycle()`. |
 | `db_migrations.py` | Versioned migrations through `PRAGMA user_version`. v1 is the original schema. v2 adds the intelligence, CRM and alert tables. Each migration is additive and idempotent. |
-| `intel/knowledge.py` | Loads and validates `config/*.json`, compiles regex fragments, matches companies and fingerprints the config so facts recompute when knowledge changes. |
-| `intel/taxonomy.py` | Hierarchical classification: category, subcategory, secondary categories and confidence, with evidence. |
+| `intel/knowledge.py` | Loads and validates `config/*.json`, compiles regex fragments, matches companies and fingerprints the config so facts recompute when knowledge changes. Boards are defined here from data (see Boards). |
+| `intel/taxonomy.py` | Hierarchical classification: category, subcategory, secondary categories and confidence, with evidence. Finance decides first; a board's `claims` and `fallback_title` place what it leaves. |
 | `intel/seniority.py` | Finance-aware levels. Analyst is entry level. Associate depends on the category (IB/PE post-MBA or post-analyst vs. entry at banks/asset managers). Stated years of experience can override it. |
 | `intel/cycle.py` | Recruiting cycle (`summer_2027`, `new_grad_2027`, off-cycle), graduation windows, deadline extraction with confidence, rolling detection and window status. |
 | `intel/eligibility.py` | Degree, GPA, work authorization, sponsorship, citizenship, languages and experience. Fields stay `None` ("Not specified") unless the text states them. |
 | `intel/compensation.py` | CAD/USD/GBP parsing. Keeps the original text and labels annualized hourly or monthly pay as an estimate. |
-| `intel/skills.py` | Skill extraction with synonym normalization (`DCF` → Valuation, `CapIQ` → Capital IQ). Tech skills (`"track": "tech"` in `skills.json`) are read only from postings outside finance and from tech resumes. |
+| `intel/skills.py` | Skill extraction with synonym normalization (`DCF` → Valuation, `CapIQ` → Capital IQ). A skill with a track (`"track": "tech"` or `"healthcare"` in `skills.json`) is read only from the boards its track's `skills_from` names and from resumes on that track. |
+| `intel/hours.py` | Employment type, shifts and on-call a posting states (`facts.hours`, every board). They cost fit only through the profile's `hours` preference. |
+| `intel/licences.py` | Licences and certifications a board's postings require (`facts.licences`, Healthcare only) and a resume shows held or expected. |
+| `intel/programs.py` | A board's yearly program windows (PhORCAS, AIFA, NGG…) as Calendar items, for profiles with that board. |
 | `intel/profile.py` | Candidate profile defaults, merge and validation, and the version hash that triggers rescoring. |
 | `intel/scoring.py` | Fit Score 2.0: subscores, penalties, reasons, urgency and badges. |
-| `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. A resume with a tech job or project title, or a tech degree, is also read for Software, AI & Data and Hardware specialties and tech skills, and proposes their fields; any other resume is read with the finance vocabulary alone. |
+| `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. A resume with a track's job or project titles, degree or signals (tech, healthcare) is also read for that track's specialties, skills and licences, and proposes its fields; any other resume is read with the finance vocabulary alone. |
 | `intel/matching.py` | Resume shortlist decisions, explicit conflicts and unknown requirements for review. Roles outside the profile's fields are excluded; finance roles stay eligible only when Finance is one of them. |
 | `intel/sources.py` | Source packs and selection: which sources each profile's boards poll (see Sources). |
 | `intel_store.py` | Incremental facts and score passes, clustering and canonical selection, FTS, change and lifecycle tracking. |
@@ -72,16 +75,21 @@ A source is one feed Foothold polls (`config["boards"]` in the code). Sources li
 | Folder | Polled by | Holds |
 |---|---|---|
 | `finance/` | Finance | Banks, boutiques, private markets, asset managers, pensions, finance LinkedIn searches (0.3.7 sources only) |
-| `shared/` | Finance and the tech boards | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
-| `tech/` | Software, AI & Data, Hardware, Product, Design | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
+| `shared/` | Finance, the tech boards and Healthcare | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
+| `tech/` | Software, AI & Data, Hardware, Product, Design and Healthcare | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
+| `health/` | Healthcare | Hospitals, pharma, biotech, medtech, CROs, labs, research institutes, public health, insurers, pharmacies and the healthcare LinkedIn searches |
+
+Each board polls only the groups the manifest names for it, so adding a board to a folder's audience
+changes no other board (Healthcare polls `shared/lists` and the health tech groups, nothing else there).
 
 An employer whose whole listing is slow to read (Apple, Microsoft, Qualcomm, Siemens) reads it on the tech boards
 only, and gives the Finance board a finance search of its site (`query`) instead, since a poll waits for
 its slowest source.
 
 `config/sources/manifest.json` names each board's groups (pack file names, which may repeat across
-folders): Finance polls every pack it may (`"groups": "*"`); a tech board polls its `core` groups plus
-each picked filter's groups (every filter's when none is picked); `everything` boards poll every pack.
+folders): Finance polls every pack it may (`"groups": "*"`); a tech board or Healthcare polls its `core`
+groups plus each picked filter's groups (every filter's when none is picked); `everything` boards (Sales,
+Operations, People & Legal) poll every pack.
 `intel/sources.py` turns a profile into polled sources: `profile_fields` → `groups_for` →
 `selected_packs` → `polled_sources`. A source in no pack (one the user added) is always polled, and a
 disabled one never. `watcher.cycle` polls a profile's sources; the CLI alert runner, which has no
@@ -95,7 +103,30 @@ classification runs first, and tech filters only refine postings it leaves outsi
 tests and the gate check this). A tech employer type (track `tech` in `companies.json`) only labels a posting: its priors point
 at tech filters, and its HQ country never stands in for a posting's location. Before a release that
 changes sources or knowledge, a gate recomputes every posting on a copy of a real database, at a frozen
-time, with the old and the new code, and compares the Finance board posting by posting.
+time, with the old and the new code, and compares every board posting by posting: `python -m
+tools.board_gate snapshot` (once per checkout, each from its own export) and `compare`, for one sample
+profile per board, mixed profiles and the user's own. Only an employer-type label going from Unclassified
+to a new type passes without the user's yes.
+
+## Boards
+
+A board is a field picked in setup. Finance's vocabulary is in code; every other board is data, so a new
+one needs no code:
+
+- `config/taxonomy.json` → `non_finance_families.<board>`: label, title words, filters (each with title,
+  department and description rules, `tie_priority` and `employer_types`; one evidence threshold,
+  `weights.min_specialty_score`, serves every board), its `track`, `fallback_title`, `claims`,
+  `occupation_beats_finance`, `skill_groups` and `employer_types`. Healthcare adds `stage_rules` (levels
+  such as Residency and Entry to practice), `licences` and `program_windows`, read only for its postings and
+  profiles.
+- `taxonomy.json` → `tracks`: what a track's boards share (Settings heading, the "Why" line's employer
+  noun, resume degree, role words and signals, `skills_from`).
+- `config/companies.json`: each employer type's `tracks` (and a finance type's Settings `section`).
+- `config/skills.json`: each skill's `track`.
+- `config/sources/<folder>/` packs and the manifest's entry for the board.
+
+`/api/meta` passes tracks, board tracks, skill groups and licences to the browser, so Settings and setup
+show each board's parts only to profiles with that board.
 
 **Configs and upgrades.** The repository's `config.json` lists no sources; `load_config` assembles them
 from the packs (`Packs.flat()`, with `_<pack>` headings, and a pack's `sections` keep the old
@@ -128,6 +159,10 @@ Penalties apply only to explicit evidence:
 - Cycle year: −10.
 - Graduation window: −12.
 - Degree: −10 to −20.
+- Licence required (Healthcare postings): −20 when the profile holds none of the licences the posting asks
+  for.
+- Hours, only once the profile sets them: −10 for a posting that states only other employment types, −10
+  for night shifts.
 - No sponsorship when you need it: −15.
 - Citizenship, language and GPA.
 - Closed: −40.

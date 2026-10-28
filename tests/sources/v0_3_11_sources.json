@@ -1,0 +1,7194 @@
+{
+ "moelis": {
+  "ats": "workday",
+  "host": "moelis.wd1.myworkdayjobs.com",
+  "tenant": "moelis",
+  "site": "Experienced-Hires",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "moelis",
+  "group": "Elite Boutiques",
+  "priority": 1,
+  "complete_listing": true,
+  "geography": "global"
+ },
+ "pjt_partners": {
+  "ats": "workday",
+  "host": "pjtpartners.wd1.myworkdayjobs.com",
+  "tenant": "pjtpartners",
+  "site": "Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "pjt",
+  "group": "Elite Boutiques",
+  "priority": 1,
+  "complete_listing": true,
+  "geography": "global"
+ },
+ "houlihan_lokey_campus": {
+  "ats": "workday",
+  "host": "hl.wd1.myworkdayjobs.com",
+  "tenant": "hl",
+  "site": "Campus",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "houlihan_lokey",
+  "group": "Middle Market",
+  "priority": 1,
+  "complete_listing": true,
+  "geography": "global"
+ },
+ "houlihan_lokey": {
+  "ats": "workday",
+  "host": "hl.wd1.myworkdayjobs.com",
+  "tenant": "hl",
+  "site": "External",
+  "search": "",
+  "min_interval": 3600,
+  "company_key": "houlihan_lokey",
+  "group": "Middle Market",
+  "priority": 2,
+  "complete_listing": true,
+  "geography": "global"
+ },
+ "piper_sandler": {
+  "ats": "workday",
+  "host": "pipersandler.wd501.myworkdayjobs.com",
+  "tenant": "pipersandler",
+  "site": "Piper_Sandler_Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "piper_sandler",
+  "group": "Middle Market",
+  "priority": 2,
+  "complete_listing": true,
+  "geography": "us"
+ },
+ "william_blair": {
+  "ats": "greenhouse",
+  "token": "williamblair",
+  "company_key": "william_blair",
+  "group": "Middle Market",
+  "priority": 2,
+  "geography": "us"
+ },
+ "evercore_students": {
+  "ats": "oleeo",
+  "feed": "https://evercore.tal.net/vx/lang-en-GB/mobile-0/channel-1/appcentre-ext/brand-6/candidate/jobboard/vacancy/2/feed/rss",
+  "min_interval": 1800,
+  "company_key": "evercore",
+  "group": "Elite Boutiques",
+  "priority": 1,
+  "geography": "global"
+ },
+ "evercore": {
+  "ats": "oleeo",
+  "feed": "https://evercore.tal.net/vx/lang-en-GB/mobile-0/channel-1/appcentre-ext/brand-6/candidate/jobboard/vacancy/3/feed/rss",
+  "min_interval": 1800,
+  "company_key": "evercore",
+  "group": "Elite Boutiques",
+  "priority": 1,
+  "geography": "global"
+ },
+ "lazard": {
+  "ats": "oracle_hcm",
+  "host": "icbpjb.fa.ocs.oraclecloud.com",
+  "site": "LazardProfessionalCareers",
+  "max": 2000,
+  "min_interval": 1800,
+  "company_key": "lazard",
+  "group": "Elite Boutiques",
+  "priority": 1,
+  "geography": "global"
+ },
+ "jefferies_campus": {
+  "ats": "oleeo",
+  "feed": "https://jefferies.tal.net/vx/lang-en-GB/mobile-0/appcentre-ext/brand-4/xf-016c915b0a67/candidate/jobboard/vacancy/2/feed/rss",
+  "min_interval": 1800,
+  "company_key": "jefferies",
+  "group": "Middle Market",
+  "priority": 1,
+  "geography": "global"
+ },
+ "jpmorgan": {
+  "ats": "oracle_hcm",
+  "host": "jpmc.fa.oraclecloud.com",
+  "site": "CX_1001",
+  "min_interval": 1800,
+  "max": 10000,
+  "company_key": "jpmorgan",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "jpmorgan_early": {
+  "ats": "oracle_hcm",
+  "host": "jpmc.fa.oraclecloud.com",
+  "site": "CX_1001",
+  "query": "analyst",
+  "min_interval": 900,
+  "company_key": "jpmorgan",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "morgan_stanley": {
+  "ats": "workday",
+  "host": "ms.wd5.myworkdayjobs.com",
+  "tenant": "ms",
+  "site": "External",
+  "search": "",
+  "min_interval": 900,
+  "company_key": "morgan_stanley",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "morgan_stanley_early": {
+  "ats": "workday",
+  "host": "ms.wd5.myworkdayjobs.com",
+  "tenant": "ms",
+  "site": "External",
+  "search": "analyst",
+  "min_interval": 900,
+  "company_key": "morgan_stanley",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "citi": {
+  "ats": "workday",
+  "host": "citi.wd5.myworkdayjobs.com",
+  "tenant": "citi",
+  "site": "2",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "citi",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "citi_early": {
+  "ats": "workday",
+  "host": "citi.wd5.myworkdayjobs.com",
+  "tenant": "citi",
+  "site": "2",
+  "search": "analyst",
+  "min_interval": 1800,
+  "company_key": "citi",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "barclays": {
+  "ats": "workday",
+  "host": "barclays.wd3.myworkdayjobs.com",
+  "tenant": "barclays",
+  "site": "External_Career_Site_Barclays",
+  "search": "",
+  "min_interval": 900,
+  "company_key": "barclays",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "wells_fargo": {
+  "ats": "workday",
+  "host": "wf.wd1.myworkdayjobs.com",
+  "tenant": "wf",
+  "site": "WellsFargoJobs",
+  "search": "analyst",
+  "min_interval": 1800,
+  "company_key": "wells_fargo",
+  "group": "U.S. Commercial Banks",
+  "priority": 2,
+  "geography": "us"
+ },
+ "goldman_sachs": {
+  "ats": "oracle_hcm",
+  "host": "hdpc.fa.us2.oraclecloud.com",
+  "site": "LateralHiring",
+  "url": "https://higher.gs.com/roles/{id}",
+  "max": 5000,
+  "min_interval": 1800,
+  "company_key": "goldman_sachs",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "deutsche_bank": {
+  "ats": "workday",
+  "host": "db.wd3.myworkdayjobs.com",
+  "tenant": "db",
+  "site": "DBWebsite",
+  "search": "",
+  "max": 5000,
+  "min_interval": 1800,
+  "company_key": "deutsche_bank",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "rbc": {
+  "ats": "phenom",
+  "host": "jobs.rbc.com",
+  "query": "",
+  "max": 5000,
+  "min_interval": 1800,
+  "url": "https://jobs.rbc.com/ca/en/job/{id}",
+  "company_key": "rbc",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "rbc_early": {
+  "ats": "phenom",
+  "host": "jobs.rbc.com",
+  "query": "intern",
+  "min_interval": 900,
+  "url": "https://jobs.rbc.com/ca/en/job/{id}",
+  "company_key": "rbc",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "rbc_students": {
+  "ats": "workday",
+  "host": "rbc.wd3.myworkdayjobs.com",
+  "tenant": "rbc",
+  "site": "RBCEARLYTALENT1",
+  "max": 5000,
+  "min_interval": 900,
+  "company_key": "rbc",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "td": {
+  "ats": "workday",
+  "host": "td.wd3.myworkdayjobs.com",
+  "tenant": "td",
+  "site": "TD_Bank_Careers",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "td",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "td_students": {
+  "ats": "workday",
+  "host": "td.wd3.myworkdayjobs.com",
+  "tenant": "td",
+  "site": "TD_Bank_Careers",
+  "min_interval": 900,
+  "facets": {
+   "jobFamily": [
+    "de769652963501ab29a8b80c0704c3aa",
+    "de769652963501e60b293b0d070431ab"
+   ]
+  },
+  "company_key": "td",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "bmo": {
+  "ats": "workday",
+  "host": "bmo.wd3.myworkdayjobs.com",
+  "tenant": "bmo",
+  "site": "External",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "bmo",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "bmo_students": {
+  "ats": "workday",
+  "host": "bmo.wd3.myworkdayjobs.com",
+  "tenant": "bmo",
+  "site": "External",
+  "min_interval": 900,
+  "facets": {
+   "company": [
+    "99ba898c88ac011c8a873c01f2016c06"
+   ]
+  },
+  "company_key": "bmo",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "cibc": {
+  "ats": "workday",
+  "host": "cibc.wd3.myworkdayjobs.com",
+  "tenant": "cibc",
+  "site": "search",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "cibc",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "cibc_students": {
+  "ats": "workday",
+  "host": "cibc.wd3.myworkdayjobs.com",
+  "tenant": "cibc",
+  "site": "search",
+  "min_interval": 900,
+  "facets": {
+   "jobFamilyGroup": [
+    "4bbe6c74e8a7013edb3931a881012710"
+   ]
+  },
+  "company_key": "cibc",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "scotiabank_students": {
+  "ats": "successfactors",
+  "url": "https://jobs.scotiabank.com/go/Student-%26-New-Grad-Jobs/2298417/",
+  "max": 5000,
+  "min_interval": 1800,
+  "company_key": "scotiabank",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "linkedin_us": {
+  "ats": "linkedin",
+  "location": "United States",
+  "min_interval": 1800,
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "queries": [
+   "finance internship",
+   "investment banking summer analyst",
+   "equity research intern",
+   "asset management internship",
+   "private equity intern",
+   "finance new graduate",
+   "software engineer intern",
+   "software engineer new grad",
+   "machine learning intern"
+  ]
+ },
+ "linkedin_canada": {
+  "ats": "linkedin",
+  "location": "Canada",
+  "min_interval": 1800,
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "queries": [
+   "finance internship",
+   "investment banking intern",
+   "summer analyst",
+   "sales trading internship",
+   "asset management internship",
+   "equity research intern",
+   "private equity intern",
+   "pension internship",
+   "finance co-op",
+   "finance student",
+   "new graduate analyst",
+   "software engineer intern",
+   "software engineer new grad"
+  ]
+ },
+ "linkedin_quant": {
+  "ats": "linkedin",
+  "location": "United States",
+  "min_interval": 900,
+  "queries": [
+   "quantitative trading intern",
+   "quantitative research intern",
+   "quantitative trader 2026"
+  ]
+ },
+ "otpp": {
+  "ats": "workday",
+  "host": "otppb.wd3.myworkdayjobs.com",
+  "tenant": "otppb",
+  "site": "OntarioTeachers_Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "otpp",
+  "group": "Pension Funds",
+  "priority": 1
+ },
+ "cdpq": {
+  "ats": "workday",
+  "host": "cdpq.wd10.myworkdayjobs.com",
+  "tenant": "cdpq",
+  "site": "CDPQ",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "cdpq",
+  "group": "Pension Funds",
+  "priority": 1
+ },
+ "cdpq_students": {
+  "ats": "workday",
+  "host": "cdpq.wd10.myworkdayjobs.com",
+  "tenant": "cdpq",
+  "site": "CDPQ-recrutement-universitaire",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "cdpq",
+  "group": "Pension Funds",
+  "priority": 1
+ },
+ "stepstone": {
+  "ats": "greenhouse",
+  "token": "stepstone",
+  "company_key": "stepstone",
+  "group": "Private Equity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "apollo": {
+  "ats": "workday",
+  "host": "athene.wd5.myworkdayjobs.com",
+  "tenant": "athene",
+  "site": "Apollo_Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "apollo",
+  "group": "Private Equity",
+  "priority": 1,
+  "geography": "global"
+ },
+ "cursor": {
+  "ats": "ashby",
+  "token": "cursor"
+ },
+ "sierra": {
+  "ats": "ashby",
+  "token": "sierra"
+ },
+ "decagon": {
+  "ats": "ashby",
+  "token": "decagon"
+ },
+ "mercor": {
+  "ats": "ashby",
+  "token": "mercor"
+ },
+ "glean": {
+  "ats": "greenhouse",
+  "token": "gleanwork"
+ },
+ "harvey": {
+  "ats": "ashby",
+  "token": "harvey"
+ },
+ "writer": {
+  "ats": "ashby",
+  "token": "writer"
+ },
+ "braintrust": {
+  "ats": "ashby",
+  "token": "braintrust"
+ },
+ "typeface": {
+  "ats": "greenhouse",
+  "token": "typeface"
+ },
+ "heygen": {
+  "ats": "greenhouse",
+  "token": "heygen"
+ },
+ "descript": {
+  "ats": "greenhouse",
+  "token": "descript"
+ },
+ "scale_ai": {
+  "ats": "greenhouse",
+  "token": "scaleai"
+ },
+ "databricks": {
+  "ats": "greenhouse",
+  "token": "databricks"
+ },
+ "modal": {
+  "ats": "ashby",
+  "token": "modal"
+ },
+ "together_ai": {
+  "ats": "greenhouse",
+  "token": "togetherai"
+ },
+ "baseten": {
+  "ats": "ashby",
+  "token": "baseten"
+ },
+ "crusoe": {
+  "ats": "ashby",
+  "token": "crusoe"
+ },
+ "lambda_labs": {
+  "ats": "ashby",
+  "token": "lambda"
+ },
+ "runpod": {
+  "ats": "ashby",
+  "token": "runpod"
+ },
+ "assemblyai": {
+  "ats": "greenhouse",
+  "token": "assemblyai"
+ },
+ "coreweave": {
+  "ats": "greenhouse",
+  "token": "coreweave",
+  "min_interval": 1800,
+  "company_key": "coreweave",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fireworks_ai": {
+  "ats": "ashby",
+  "token": "fireworks",
+  "min_interval": 1800,
+  "company_key": "fireworks_ai",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "anthropic": {
+  "ats": "greenhouse",
+  "token": "anthropic"
+ },
+ "openai": {
+  "ats": "ashby",
+  "token": "openai"
+ },
+ "xai": {
+  "ats": "greenhouse",
+  "token": "xai"
+ },
+ "deepmind": {
+  "ats": "greenhouse",
+  "token": "deepmind",
+  "disabled": true
+ },
+ "perplexity": {
+  "ats": "ashby",
+  "token": "perplexity"
+ },
+ "cohere": {
+  "ats": "ashby",
+  "token": "cohere"
+ },
+ "elevenlabs": {
+  "ats": "ashby",
+  "token": "elevenlabs"
+ },
+ "cartesia": {
+  "ats": "ashby",
+  "token": "cartesia"
+ },
+ "suno": {
+  "ats": "ashby",
+  "token": "suno"
+ },
+ "character_ai": {
+  "ats": "ashby",
+  "token": "character"
+ },
+ "midjourney": {
+  "ats": "ashby",
+  "token": "midjourney"
+ },
+ "poolside": {
+  "ats": "ashby",
+  "token": "poolside"
+ },
+ "runway": {
+  "ats": "ashby",
+  "token": "runway"
+ },
+ "imbue": {
+  "ats": "greenhouse",
+  "token": "imbue"
+ },
+ "speedy_ai": {
+  "ats": "github_md",
+  "repo": "speedyapply/2027-AI-College-Jobs",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "salary": 3,
+   "url": 4
+  }
+ },
+ "blackrock": {
+  "ats": "workday",
+  "host": "blackrock.wd1.myworkdayjobs.com",
+  "tenant": "blackrock",
+  "site": "BlackRock_Professional",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "blackrock",
+  "group": "Asset Managers",
+  "priority": 1,
+  "geography": "global"
+ },
+ "man_group": {
+  "ats": "greenhouse",
+  "token": "mangroup",
+  "company_key": "man_group",
+  "group": "Hedge Funds",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fidelity": {
+  "ats": "workday",
+  "host": "fmr.wd1.myworkdayjobs.com",
+  "tenant": "fmr",
+  "site": "FidelityCareers",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "fidelity",
+  "group": "Asset Managers",
+  "priority": 2,
+  "geography": "global"
+ },
+ "vanguard": {
+  "ats": "workday",
+  "host": "vanguard.wd5.myworkdayjobs.com",
+  "tenant": "vanguard",
+  "site": "vanguard_external",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "vanguard",
+  "group": "Asset Managers",
+  "priority": 2,
+  "geography": "global"
+ },
+ "amazon": {
+  "ats": "amazon_jobs",
+  "query": "software engineer intern",
+  "min_interval": 300
+ },
+ "amazon_newgrad": {
+  "ats": "amazon_jobs",
+  "query": "software development engineer",
+  "min_interval": 900,
+  "max": 2500
+ },
+ "microsoft": {
+  "ats": "microsoft",
+  "query": "software engineer intern",
+  "min_interval": 300,
+  "disabled": true
+ },
+ "nvidia": {
+  "ats": "workday",
+  "host": "nvidia.wd5.myworkdayjobs.com",
+  "tenant": "nvidia",
+  "site": "NVIDIAExternalCareerSite",
+  "min_interval": 600,
+  "facets": {
+   "workerSubType": [
+    "ab40a98049581037a3ada55b087049b7",
+    "0c40f6bd1d8f10adf6dae42e46d44a17"
+   ]
+  }
+ },
+ "salesforce_early": {
+  "ats": "workday",
+  "host": "salesforce.wd12.myworkdayjobs.com",
+  "tenant": "salesforce",
+  "site": "External_Career_Site",
+  "min_interval": 600,
+  "facets": {
+   "workerSubType": [
+    "3a910852b2c31010f48d2cefdccd0000"
+   ]
+  }
+ },
+ "adobe_university": {
+  "ats": "workday",
+  "host": "adobe.wd5.myworkdayjobs.com",
+  "tenant": "adobe",
+  "site": "external_experienced",
+  "min_interval": 600,
+  "facets": {
+   "jobFamilyGroup": [
+    "591af8b812fa10737b43a1662896f01c"
+   ]
+  }
+ },
+ "salesforce": {
+  "ats": "workday",
+  "host": "salesforce.wd12.myworkdayjobs.com",
+  "tenant": "salesforce",
+  "site": "External_Career_Site",
+  "search": "",
+  "min_interval": 1800
+ },
+ "adobe": {
+  "ats": "workday",
+  "host": "adobe.wd5.myworkdayjobs.com",
+  "tenant": "adobe",
+  "site": "external_experienced",
+  "search": "",
+  "min_interval": 1800
+ },
+ "netflix": {
+  "ats": "eightfold",
+  "host": "explore.jobs.netflix.net",
+  "domain": "netflix.com",
+  "min_interval": 600
+ },
+ "ebay": {
+  "ats": "workday",
+  "host": "ebay.wd5.myworkdayjobs.com",
+  "tenant": "ebay",
+  "site": "apply",
+  "search": "",
+  "min_interval": 1800
+ },
+ "autodesk": {
+  "ats": "workday",
+  "host": "autodesk.wd1.myworkdayjobs.com",
+  "tenant": "autodesk",
+  "site": "Ext",
+  "search": "",
+  "min_interval": 1800
+ },
+ "workday_hq": {
+  "ats": "workday",
+  "host": "workday.wd5.myworkdayjobs.com",
+  "tenant": "workday",
+  "site": "Workday",
+  "search": "",
+  "min_interval": 1800
+ },
+ "zoom": {
+  "ats": "workday",
+  "host": "zoom.wd5.myworkdayjobs.com",
+  "tenant": "zoom",
+  "site": "Zoom",
+  "search": "",
+  "min_interval": 1800
+ },
+ "hp": {
+  "ats": "workday",
+  "host": "hp.wd5.myworkdayjobs.com",
+  "tenant": "hp",
+  "site": "ExternalCareerSite",
+  "search": "",
+  "min_interval": 1800
+ },
+ "intuit": {
+  "ats": "radancy",
+  "host": "jobs.intuit.com",
+  "min_interval": 1800,
+  "company_key": "intuit",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "thomson_reuters": {
+  "ats": "workday",
+  "host": "thomsonreuters.wd5.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "External_Career_Site",
+  "tenant": "thomsonreuters",
+  "company_key": "thomson_reuters",
+  "group": "Enterprise Software",
+  "priority": 1,
+  "geography": "global"
+ },
+ "sap": {
+  "ats": "smartrecruiters",
+  "token": "SAPITBusinessSysteme",
+  "min_interval": 1800,
+  "company_key": "sap",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "oracle": {
+  "ats": "oracle_hcm",
+  "host": "eeho.fa.us2.oraclecloud.com",
+  "site": "CX_45001",
+  "min_interval": 3600,
+  "company_key": "oracle",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "cisco": {
+  "ats": "phenom",
+  "host": "careers.cisco.com",
+  "min_interval": 3600,
+  "company_key": "cisco",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "dell": {
+  "ats": "oracle_hcm",
+  "host": "enterpriseplatform.dell.com",
+  "site": "CX_1001",
+  "min_interval": 1800,
+  "company_key": "dell_technologies",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "google": {
+  "ats": "google",
+  "min_interval": 3600,
+  "company_key": "google",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "uber": {
+  "ats": "jobs_api",
+  "host": "jobs.uber.com",
+  "min_interval": 1800,
+  "company_key": "uber",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "amazon_finance": {
+  "ats": "amazon_jobs",
+  "query": "",
+  "max": 5000,
+  "categories": [
+   "finance-accounting",
+   "economics",
+   "business-intelligence"
+  ],
+  "min_interval": 1800,
+  "company_key": "amazon",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global",
+  "label": "Amazon finance, economics and BI roles"
+ },
+ "microsoft_finance": {
+  "ats": "eightfold",
+  "host": "apply.careers.microsoft.com",
+  "domain": "microsoft.com",
+  "api": "pcsx",
+  "query": "finance",
+  "min_interval": 10800,
+  "company_key": "microsoft",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global",
+  "label": "Microsoft finance roles"
+ },
+ "apple_finance": {
+  "ats": "apple",
+  "query": "finance",
+  "min_interval": 3600,
+  "company_key": "apple",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global",
+  "label": "Apple finance roles"
+ },
+ "bank_of_america": {
+  "ats": "bofa",
+  "servlet": "jobssearchservlet",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "bank_of_america",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "bank_of_america_students": {
+  "ats": "bofa",
+  "servlet": "campusjobssearchservlet",
+  "max": 2000,
+  "min_interval": 1800,
+  "company_key": "bank_of_america",
+  "group": "Bulge Brackets",
+  "priority": 1,
+  "geography": "global"
+ },
+ "national_bank": {
+  "ats": "avature",
+  "url": "https://emplois.bnc.ca/en_CA/careers/searchjobs/",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "national_bank",
+  "group": "Canadian Banks",
+  "priority": 1
+ },
+ "opentext": {
+  "ats": "phenom",
+  "host": "careers.opentext.com",
+  "min_interval": 1800,
+  "company_key": "opentext",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "rogers_communications": {
+  "ats": "successfactors",
+  "url": "https://jobs.rogers.com/search/",
+  "min_interval": 1800,
+  "company_key": "rogers_communications",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "canadian_tire": {
+  "ats": "workday",
+  "host": "canadiantirecorporation.wd3.myworkdayjobs.com",
+  "tenant": "canadiantirecorporation",
+  "site": "Enterprise_External_Careers_Site",
+  "min_interval": 1800,
+  "company_key": "canadian_tire",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "magna_finance": {
+  "ats": "workday",
+  "host": "magna.wd3.myworkdayjobs.com",
+  "tenant": "magna",
+  "site": "Magna",
+  "facets": {
+   "jobFamilyGroup": [
+    "5aaaed564f43015d2adc43ca250337df"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "magna",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada",
+  "label": "Magna International finance roles"
+ },
+ "terrapower": {
+  "ats": "greenhouse",
+  "token": "terrapowerllc",
+  "min_interval": 1800,
+  "company_key": "terrapower",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nextracker": {
+  "ats": "workday",
+  "host": "nextracker.wd5.myworkdayjobs.com",
+  "tenant": "nextracker",
+  "site": "nextpower_careers",
+  "min_interval": 1800,
+  "company_key": "nextracker",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ge_vernova_finance": {
+  "ats": "workday",
+  "host": "gevernova.wd5.myworkdayjobs.com",
+  "tenant": "gevernova",
+  "site": "Vernova_ExternalSite",
+  "facets": {
+   "jobFamilyGroup": [
+    "efb947d8be4310015d7a272039d30000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "ge_vernova",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global",
+  "label": "GE Vernova finance roles"
+ },
+ "cloudflare": {
+  "ats": "greenhouse",
+  "token": "cloudflare"
+ },
+ "twilio": {
+  "ats": "greenhouse",
+  "token": "twilio"
+ },
+ "fastly": {
+  "ats": "greenhouse",
+  "token": "fastly"
+ },
+ "pure_storage": {
+  "ats": "greenhouse",
+  "token": "purestorage",
+  "min_interval": 1800,
+  "company_key": "pure_storage",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "digitalocean": {
+  "ats": "greenhouse",
+  "token": "digitalocean98",
+  "min_interval": 1800,
+  "company_key": "digitalocean",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hpe": {
+  "ats": "workday",
+  "host": "hpe.wd5.myworkdayjobs.com",
+  "min_interval": 3600,
+  "search": "",
+  "site": "Jobsathpe",
+  "tenant": "hpe",
+  "company_key": "hewlett_packard_enterprise",
+  "group": "Big Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Hewlett Packard Enterprise Careers"
+ },
+ "disney_early": {
+  "ats": "workday",
+  "host": "disney.wd5.myworkdayjobs.com",
+  "tenant": "disney",
+  "site": "disneycareer",
+  "min_interval": 600,
+  "facets": {
+   "workerSubType": [
+    "4f84d9e8a0970100aec0ae70150e0000"
+   ]
+  }
+ },
+ "disney": {
+  "ats": "workday",
+  "host": "disney.wd5.myworkdayjobs.com",
+  "tenant": "disney",
+  "site": "disneycareer",
+  "search": "",
+  "min_interval": 1800
+ },
+ "airbnb": {
+  "ats": "greenhouse",
+  "token": "airbnb"
+ },
+ "doordash": {
+  "ats": "greenhouse",
+  "token": "doordashusa"
+ },
+ "pinterest": {
+  "ats": "greenhouse",
+  "token": "pinterest"
+ },
+ "reddit": {
+  "ats": "greenhouse",
+  "token": "reddit"
+ },
+ "duolingo": {
+  "ats": "greenhouse",
+  "token": "duolingo"
+ },
+ "discord": {
+  "ats": "greenhouse",
+  "token": "discord"
+ },
+ "lyft": {
+  "ats": "greenhouse",
+  "token": "lyft"
+ },
+ "instacart": {
+  "ats": "greenhouse",
+  "token": "instacart"
+ },
+ "squarespace": {
+  "ats": "greenhouse",
+  "token": "squarespace"
+ },
+ "spotify": {
+  "ats": "lever",
+  "token": "spotify"
+ },
+ "comcast": {
+  "ats": "workday",
+  "host": "comcast.wd115.myworkdayjobs.com",
+  "tenant": "comcast",
+  "site": "Comcast_Careers",
+  "search": "",
+  "min_interval": 1800
+ },
+ "target": {
+  "ats": "workday",
+  "host": "target.wd5.myworkdayjobs.com",
+  "tenant": "target",
+  "site": "targetcareers",
+  "search": "",
+  "min_interval": 1800
+ },
+ "zillow": {
+  "ats": "workday",
+  "host": "zillow.wd5.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "Zillow_Group_External",
+  "tenant": "zillow",
+  "company_key": "zillow",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sony": {
+  "ats": "workday",
+  "host": "sonyglobal.wd1.myworkdayjobs.com",
+  "tenant": "sonyglobal",
+  "site": "SonyGlobalCareers",
+  "min_interval": 1800,
+  "company_key": "sony",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "expedia_group": {
+  "ats": "workday",
+  "host": "expedia.wd108.myworkdayjobs.com",
+  "tenant": "expedia",
+  "site": "search",
+  "min_interval": 1800,
+  "company_key": "expedia_group",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lowe_s": {
+  "ats": "phenom",
+  "host": "talent.lowes.com",
+  "categories": [
+   "Technology",
+   "Corporate"
+  ],
+  "min_interval": 1800,
+  "company_key": "lowe_s",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Lowe's technology and corporate roles"
+ },
+ "warner_bros_discovery": {
+  "ats": "phenom",
+  "host": "careers.wbd.com",
+  "min_interval": 1800,
+  "company_key": "warner_bros_discovery",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "the_home_depot": {
+  "ats": "workday",
+  "host": "homedepot.wd5.myworkdayjobs.com",
+  "tenant": "homedepot",
+  "site": "CareerDepot",
+  "min_interval": 1800,
+  "company_key": "home_depot",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "walmart_finance": {
+  "ats": "workday",
+  "host": "walmart.wd504.myworkdayjobs.com",
+  "tenant": "walmart",
+  "site": "WalmartExternal",
+  "facets": {
+   "jobFamilyGroup": [
+    "e83ebdbd2a0a01eed84c8c8948e96ec6"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "walmart",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Walmart finance roles"
+ },
+ "nike_finance": {
+  "ats": "workday",
+  "host": "nike.wd1.myworkdayjobs.com",
+  "tenant": "nike",
+  "site": "nke",
+  "facets": {
+   "jobFamilyGroup": [
+    "cd128a2666561000bad38228ca2e0000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "nike",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Nike finance roles"
+ },
+ "gopuff": {
+  "ats": "lever",
+  "token": "gopuff"
+ },
+ "faire": {
+  "ats": "greenhouse",
+  "token": "faire"
+ },
+ "peloton": {
+  "ats": "greenhouse",
+  "token": "peloton"
+ },
+ "seatgeek": {
+  "ats": "greenhouse",
+  "token": "seatgeek"
+ },
+ "sweetgreen": {
+  "ats": "greenhouse",
+  "token": "sweetgreen"
+ },
+ "glossier": {
+  "ats": "greenhouse",
+  "token": "glossier"
+ },
+ "mongodb": {
+  "ats": "greenhouse",
+  "token": "mongodb"
+ },
+ "elastic": {
+  "ats": "greenhouse",
+  "token": "elastic"
+ },
+ "clickhouse": {
+  "ats": "ashby",
+  "token": "clickhouse"
+ },
+ "cockroach_labs": {
+  "ats": "greenhouse",
+  "token": "cockroachlabs"
+ },
+ "fivetran": {
+  "ats": "greenhouse",
+  "token": "fivetran"
+ },
+ "hightouch": {
+  "ats": "ashby",
+  "token": "hightouch-inc"
+ },
+ "planetscale": {
+  "ats": "greenhouse",
+  "token": "planetscale"
+ },
+ "starburst": {
+  "ats": "greenhouse",
+  "token": "starburst"
+ },
+ "amplitude": {
+  "ats": "ashby",
+  "token": "amplitude"
+ },
+ "mixpanel": {
+  "ats": "greenhouse",
+  "token": "mixpanel"
+ },
+ "snowflake": {
+  "ats": "ashby",
+  "token": "snowflake",
+  "min_interval": 1800,
+  "company_key": "snowflake",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "palantir": {
+  "ats": "lever",
+  "token": "palantir"
+ },
+ "spacex": {
+  "ats": "greenhouse",
+  "token": "spacex"
+ },
+ "anduril": {
+  "ats": "greenhouse",
+  "token": "andurilindustries"
+ },
+ "shield_ai": {
+  "ats": "lever",
+  "token": "shieldai"
+ },
+ "blue_origin": {
+  "ats": "workday",
+  "host": "blueorigin.wd5.myworkdayjobs.com",
+  "tenant": "blueorigin",
+  "site": "BlueOrigin",
+  "min_interval": 3600,
+  "company_key": "blue_origin",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "boeing": {
+  "ats": "workday",
+  "host": "boeing.wd1.myworkdayjobs.com",
+  "tenant": "boeing",
+  "site": "EXTERNAL_CAREERS",
+  "min_interval": 1800,
+  "company_key": "boeing",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "booz_allen_hamilton": {
+  "ats": "workday",
+  "host": "bah.wd1.myworkdayjobs.com",
+  "tenant": "bah",
+  "site": "BAH_Jobs",
+  "min_interval": 3600,
+  "company_key": "booz_allen_hamilton",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "caci_international": {
+  "ats": "workday",
+  "host": "caci.wd1.myworkdayjobs.com",
+  "tenant": "caci",
+  "site": "External",
+  "min_interval": 3600,
+  "company_key": "caci_international",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "leidos": {
+  "ats": "workday",
+  "host": "leidos.wd5.myworkdayjobs.com",
+  "tenant": "leidos",
+  "site": "External",
+  "min_interval": 3600,
+  "company_key": "leidos",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "northrop_grumman_finance": {
+  "ats": "eightfold",
+  "host": "jobs.northropgrumman.com",
+  "domain": "ngc.com",
+  "api": "pcsx",
+  "query": "finance",
+  "min_interval": 3600,
+  "company_key": "northrop_grumman",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global",
+  "label": "Northrop Grumman finance roles"
+ },
+ "gdit": {
+  "ats": "workday",
+  "host": "gdit.wd5.myworkdayjobs.com",
+  "tenant": "gdit",
+  "site": "External_Career_Site",
+  "min_interval": 3600,
+  "company_key": "gdit",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "l3harris_technologies": {
+  "ats": "radancy",
+  "host": "careers.l3harris.com",
+  "min_interval": 3600,
+  "company_key": "l3harris_technologies",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "the_aerospace": {
+  "ats": "workday",
+  "host": "aero.wd5.myworkdayjobs.com",
+  "tenant": "aero",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "the_aerospace",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ge_aerospace": {
+  "ats": "phenom",
+  "host": "careers.geaerospace.com",
+  "min_interval": 1800,
+  "company_key": "ge_aerospace",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "curtiss_wright": {
+  "ats": "workday",
+  "host": "curtisswright.wd1.myworkdayjobs.com",
+  "tenant": "curtisswright",
+  "site": "CW_External_Career_Site",
+  "min_interval": 1800,
+  "company_key": "curtiss_wright",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rtx_finance": {
+  "ats": "workday",
+  "host": "globalhr.wd5.myworkdayjobs.com",
+  "tenant": "globalhr",
+  "site": "REC_RTX_Ext_Gateway",
+  "facets": {
+   "jobFamilyGroup": [
+    "bac5186f63f210324b590a5029ae3ccf"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "rtx",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global",
+  "label": "RTX finance roles"
+ },
+ "lockheed_martin_finance": {
+  "ats": "eightfold",
+  "host": "lockheedmartin.eightfold.ai",
+  "domain": "lockheedmartin.com",
+  "api": "pcsx",
+  "query": "finance",
+  "min_interval": 1800,
+  "company_key": "lockheed_martin",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global",
+  "label": "Lockheed Martin finance roles"
+ },
+ "vercel": {
+  "ats": "greenhouse",
+  "token": "vercel"
+ },
+ "linear": {
+  "ats": "ashby",
+  "token": "linear"
+ },
+ "supabase": {
+  "ats": "ashby",
+  "token": "supabase"
+ },
+ "retool": {
+  "ats": "ashby",
+  "token": "retool",
+  "disabled": true
+ },
+ "datadog": {
+  "ats": "greenhouse",
+  "token": "datadog"
+ },
+ "gitlab": {
+  "ats": "greenhouse",
+  "token": "gitlab"
+ },
+ "launchdarkly": {
+  "ats": "greenhouse",
+  "token": "launchdarkly"
+ },
+ "postman": {
+  "ats": "workday",
+  "host": "postman.wd108.myworkdayjobs.com",
+  "tenant": "postman",
+  "site": "careers",
+  "min_interval": 900
+ },
+ "warp": {
+  "ats": "ashby",
+  "token": "warp"
+ },
+ "browserbase": {
+  "ats": "ashby",
+  "token": "browserbase"
+ },
+ "verkada": {
+  "ats": "greenhouse",
+  "token": "verkada"
+ },
+ "neuralink": {
+  "ats": "greenhouse",
+  "token": "neuralink"
+ },
+ "oura": {
+  "ats": "greenhouse",
+  "token": "oura",
+  "min_interval": 1800,
+  "company_key": "oura",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "whoop": {
+  "ats": "ashby",
+  "token": "whoop",
+  "min_interval": 1800,
+  "company_key": "whoop",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "motorola_solutions": {
+  "ats": "workday",
+  "host": "motorolasolutions.wd5.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "Careers",
+  "tenant": "motorolasolutions",
+  "company_key": "motorola_solutions",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rockwell_automation": {
+  "ats": "workday",
+  "host": "rockwellautomation.wd1.myworkdayjobs.com",
+  "tenant": "rockwellautomation",
+  "site": "External_Rockwell_Automation",
+  "min_interval": 1800,
+  "company_key": "rockwell_automation",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "flex": {
+  "ats": "workday",
+  "host": "flextronics.wd1.myworkdayjobs.com",
+  "tenant": "flextronics",
+  "site": "Careers",
+  "min_interval": 3600,
+  "company_key": "flex",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "trimble": {
+  "ats": "workday",
+  "host": "trimble.wd1.myworkdayjobs.com",
+  "tenant": "trimble",
+  "site": "TrimbleCareers",
+  "min_interval": 1800,
+  "company_key": "trimble",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "honeywell": {
+  "ats": "oracle_hcm",
+  "host": "ibqbjb.fa.ocs.oraclecloud.com",
+  "site": "Honeywell",
+  "min_interval": 3600,
+  "company_key": "honeywell",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "keysight_technologies": {
+  "ats": "jibe",
+  "host": "jobs.keysight.com",
+  "min_interval": 1800,
+  "company_key": "keysight_technologies",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nokia": {
+  "ats": "oracle_hcm",
+  "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_1",
+  "min_interval": 1800,
+  "company_key": "nokia",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lenovo_us": {
+  "ats": "avature",
+  "url": "https://jobs.lenovo.com/en_US/careers/SearchJobs",
+  "location": "United States",
+  "min_interval": 1800,
+  "company_key": "lenovo",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "us",
+  "label": "Lenovo · United States"
+ },
+ "lenovo_canada": {
+  "ats": "avature",
+  "url": "https://jobs.lenovo.com/en_US/careers/SearchJobs",
+  "location": "Canada",
+  "min_interval": 1800,
+  "company_key": "lenovo",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "canada",
+  "label": "Lenovo · Canada"
+ },
+ "siemens_finance": {
+  "ats": "avature",
+  "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs",
+  "query": "finance",
+  "location": "United States",
+  "min_interval": 1800,
+  "company_key": "siemens",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "us",
+  "label": "Siemens finance roles · United States"
+ },
+ "siemens_canada": {
+  "ats": "avature",
+  "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs",
+  "location": "Canada",
+  "min_interval": 1800,
+  "company_key": "siemens",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "canada",
+  "label": "Siemens · Canada"
+ },
+ "samsara": {
+  "ats": "greenhouse",
+  "token": "samsara"
+ },
+ "figma": {
+  "ats": "greenhouse",
+  "token": "figma"
+ },
+ "notion": {
+  "ats": "ashby",
+  "token": "notion"
+ },
+ "rippling": {
+  "ats": "greenhouse",
+  "token": "rippling",
+  "disabled": true
+ },
+ "dropbox": {
+  "ats": "greenhouse",
+  "token": "dropbox"
+ },
+ "asana": {
+  "ats": "greenhouse",
+  "token": "asana"
+ },
+ "airtable": {
+  "ats": "greenhouse",
+  "token": "airtable"
+ },
+ "servicenow": {
+  "ats": "smartrecruiters",
+  "token": "ServiceNow"
+ },
+ "webflow": {
+  "ats": "greenhouse",
+  "token": "webflow"
+ },
+ "smartsheet": {
+  "ats": "greenhouse",
+  "token": "smartsheet"
+ },
+ "calendly": {
+  "ats": "greenhouse",
+  "token": "calendly"
+ },
+ "attio": {
+  "ats": "ashby",
+  "token": "attio"
+ },
+ "alphasense": {
+  "ats": "greenhouse",
+  "token": "alphasense",
+  "min_interval": 1800,
+  "company_key": "alphasense",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kyndryl": {
+  "ats": "workday",
+  "host": "kyndryl.wd5.myworkdayjobs.com",
+  "tenant": "kyndryl",
+  "site": "KyndrylProfessionalCareers",
+  "min_interval": 1800,
+  "company_key": "kyndryl",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "workiva": {
+  "ats": "workday",
+  "host": "workiva.wd503.myworkdayjobs.com",
+  "tenant": "workiva",
+  "site": "careers",
+  "min_interval": 1800,
+  "company_key": "workiva",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ptc": {
+  "ats": "workday",
+  "host": "ptc.wd1.myworkdayjobs.com",
+  "tenant": "ptc",
+  "site": "PTC",
+  "min_interval": 1800,
+  "company_key": "ptc",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "blackbaud": {
+  "ats": "workday",
+  "host": "blackbaud.wd1.myworkdayjobs.com",
+  "tenant": "blackbaud",
+  "site": "ExternalCareers",
+  "min_interval": 1800,
+  "company_key": "blackbaud",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ukg": {
+  "ats": "eightfold",
+  "host": "apply.ukg.com",
+  "domain": "ukg.com",
+  "api": "pcsx",
+  "min_interval": 1800,
+  "company_key": "ukg",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "flexport": {
+  "ats": "greenhouse",
+  "token": "flexport"
+ },
+ "gusto": {
+  "ats": "greenhouse",
+  "token": "gusto"
+ },
+ "checkr": {
+  "ats": "greenhouse",
+  "token": "checkr"
+ },
+ "capital_one_early": {
+  "ats": "workday",
+  "host": "capitalone.wd12.myworkdayjobs.com",
+  "tenant": "capitalone",
+  "site": "Capital_One",
+  "min_interval": 600,
+  "facets": {
+   "workerSubType": [
+    "a12c70bf789e10572aab83c4780919ad"
+   ]
+  }
+ },
+ "mastercard_early": {
+  "ats": "workday",
+  "host": "mastercard.wd1.myworkdayjobs.com",
+  "tenant": "mastercard",
+  "site": "CorporateCareers",
+  "min_interval": 600,
+  "facets": {
+   "workerSubType": [
+    "cfba33fac07f49c9b6d3d53336c6a291"
+   ]
+  }
+ },
+ "capital_one": {
+  "ats": "workday",
+  "host": "capitalone.wd12.myworkdayjobs.com",
+  "tenant": "capitalone",
+  "site": "Capital_One",
+  "search": "",
+  "min_interval": 1800
+ },
+ "paypal": {
+  "ats": "workday",
+  "host": "paypal.wd1.myworkdayjobs.com",
+  "tenant": "paypal",
+  "site": "jobs",
+  "search": "",
+  "min_interval": 1800
+ },
+ "mastercard": {
+  "ats": "workday",
+  "host": "mastercard.wd1.myworkdayjobs.com",
+  "tenant": "mastercard",
+  "site": "CorporateCareers",
+  "search": "",
+  "min_interval": 1800
+ },
+ "nasdaq": {
+  "ats": "workday",
+  "host": "nasdaq.wd1.myworkdayjobs.com",
+  "tenant": "nasdaq",
+  "site": "Global_External_Site",
+  "search": "",
+  "min_interval": 1800
+ },
+ "visa": {
+  "ats": "workday",
+  "host": "visa.wd5.myworkdayjobs.com",
+  "tenant": "visa",
+  "site": "Visa",
+  "min_interval": 1800,
+  "company_key": "visa",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "american_express": {
+  "ats": "oracle_hcm",
+  "host": "egug.fa.us2.oraclecloud.com",
+  "site": "CX_1",
+  "min_interval": 1800,
+  "company_key": "american_express",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fis": {
+  "ats": "workday",
+  "host": "fis.wd5.myworkdayjobs.com",
+  "tenant": "fis",
+  "site": "SearchJobs",
+  "min_interval": 1800,
+  "company_key": "fis",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "global_payments": {
+  "ats": "workday",
+  "host": "tsys.wd1.myworkdayjobs.com",
+  "tenant": "tsys",
+  "site": "TSYS",
+  "min_interval": 1800,
+  "company_key": "global_payments",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ss_c_technologies": {
+  "ats": "workday",
+  "host": "ssctech.wd1.myworkdayjobs.com",
+  "tenant": "ssctech",
+  "site": "SSCTechnologies",
+  "min_interval": 1800,
+  "company_key": "ss_c_technologies",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "paychex": {
+  "ats": "jibe",
+  "host": "careers.paychex.com",
+  "min_interval": 1800,
+  "company_key": "paychex",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "equifax": {
+  "ats": "workday",
+  "host": "equifax.wd5.myworkdayjobs.com",
+  "tenant": "equifax",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "equifax",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "transunion": {
+  "ats": "workday",
+  "host": "transunion.wd5.myworkdayjobs.com",
+  "tenant": "transunion",
+  "site": "TransUnion",
+  "min_interval": 1800,
+  "company_key": "transunion",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fiserv": {
+  "ats": "phenom",
+  "host": "careers.fiserv.com",
+  "min_interval": 1800,
+  "company_key": "fiserv",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "adp": {
+  "ats": "adp",
+  "min_interval": 1800,
+  "company_key": "adp",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "stripe": {
+  "ats": "greenhouse",
+  "token": "stripe"
+ },
+ "plaid": {
+  "ats": "ashby",
+  "token": "plaid"
+ },
+ "ramp": {
+  "ats": "ashby",
+  "token": "ramp"
+ },
+ "brex": {
+  "ats": "greenhouse",
+  "token": "brex"
+ },
+ "affirm": {
+  "ats": "greenhouse",
+  "token": "affirm"
+ },
+ "chime": {
+  "ats": "greenhouse",
+  "token": "chime"
+ },
+ "robinhood": {
+  "ats": "greenhouse",
+  "token": "robinhood"
+ },
+ "coinbase": {
+  "ats": "greenhouse",
+  "token": "coinbase"
+ },
+ "wealthsimple": {
+  "ats": "ashby",
+  "token": "wealthsimple"
+ },
+ "mercury": {
+  "ats": "greenhouse",
+  "token": "mercury"
+ },
+ "sofi": {
+  "ats": "greenhouse",
+  "token": "sofi"
+ },
+ "block": {
+  "ats": "greenhouse",
+  "token": "block"
+ },
+ "gemini": {
+  "ats": "greenhouse",
+  "token": "gemini"
+ },
+ "fireblocks": {
+  "ats": "greenhouse",
+  "token": "fireblocks"
+ },
+ "marqeta": {
+  "ats": "marqeta",
+  "url": "https://www.marqeta.com"
+ },
+ "lithic": {
+  "ats": "greenhouse",
+  "token": "lithic"
+ },
+ "alloy": {
+  "ats": "greenhouse",
+  "token": "alloy"
+ },
+ "betterment": {
+  "ats": "greenhouse",
+  "token": "betterment"
+ },
+ "upstart": {
+  "ats": "greenhouse",
+  "token": "upstart"
+ },
+ "carta": {
+  "ats": "greenhouse",
+  "token": "carta",
+  "min_interval": 1800,
+  "company_key": "carta",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "toast": {
+  "ats": "greenhouse",
+  "token": "toast",
+  "min_interval": 1800,
+  "company_key": "toast",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "roblox": {
+  "ats": "greenhouse",
+  "token": "roblox"
+ },
+ "unitedhealth_group": {
+  "ats": "radancy",
+  "host": "careers.unitedhealthgroup.com",
+  "min_interval": 3600,
+  "company_key": "unitedhealth_group",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "intuitive_surgical": {
+  "ats": "smartrecruiters",
+  "token": "Intuitive",
+  "min_interval": 1800,
+  "company_key": "intuitive_surgical",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cvs_health_finance": {
+  "ats": "workday",
+  "host": "cvshealth.wd1.myworkdayjobs.com",
+  "tenant": "cvshealth",
+  "site": "CVS_Health_Careers",
+  "facets": {
+   "jobFamilyGroup": [
+    "e65dbadf6a50100168ed805f37060000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "cvs_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "CVS Health finance roles"
+ },
+ "cigna_finance": {
+  "ats": "workday",
+  "host": "cigna.wd5.myworkdayjobs.com",
+  "tenant": "cigna",
+  "site": "cignacareers",
+  "facets": {
+   "jobFamilyGroup": [
+    "b7947bbbfff2012176fc0916390c8916",
+    "b7947bbbfff20113d67b1416390c8f16"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "cigna",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Cigna finance roles"
+ },
+ "ge_healthcare_finance": {
+  "ats": "workday",
+  "host": "gehc.wd5.myworkdayjobs.com",
+  "tenant": "gehc",
+  "site": "GEHC_ExternalSite",
+  "facets": {
+   "jobFamilyGroup": [
+    "864c17d3c011100151a995af6e1e0000",
+    "85e6093984ac1025ddded5682e260000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "ge_healthcare",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "GE HealthCare finance roles"
+ },
+ "oscar_health": {
+  "ats": "greenhouse",
+  "token": "oscar"
+ },
+ "hinge_health": {
+  "ats": "ashby",
+  "token": "hinge-health"
+ },
+ "abridge": {
+  "ats": "ashby",
+  "token": "abridge"
+ },
+ "commure": {
+  "ats": "ashby",
+  "token": "commure"
+ },
+ "openevidence": {
+  "ats": "ashby",
+  "token": "openevidence"
+ },
+ "simplify_newgrad": {
+  "ats": "github_listings",
+  "repo": "SimplifyJobs/New-Grad-Positions",
+  "min_interval": 300
+ },
+ "simplify_intern26": {
+  "ats": "github_listings",
+  "repo": "SimplifyJobs/Summer2026-Internships",
+  "min_interval": 300
+ },
+ "vansh_intern26": {
+  "ats": "github_listings",
+  "repo": "vanshb03/Summer2026-Internships",
+  "min_interval": 300
+ },
+ "vansh_intern27": {
+  "ats": "github_listings",
+  "repo": "vanshb03/Summer2027-Internships",
+  "min_interval": 300
+ },
+ "vansh_newgrad27": {
+  "ats": "github_listings",
+  "repo": "vanshb03/New-Grad-2027",
+  "min_interval": 300
+ },
+ "cvrve_newgrad": {
+  "ats": "github_listings",
+  "repo": "cvrve/New-Grad",
+  "min_interval": 300
+ },
+ "simplify_intern27": {
+  "ats": "github_listings",
+  "repo": "SimplifyJobs/Summer2027-Internships",
+  "min_interval": 600,
+  "disabled": true
+ },
+ "canada_intern26": {
+  "ats": "github_md",
+  "repo": "negarprh/Canadian-Tech-Internships-2026",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "url": 3
+  }
+ },
+ "offseason_fall26": {
+  "ats": "github_md",
+  "repo": "zshah101/Automated-List-Of-Summer-2027-and-Fall-2026-Tech-Internships",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 3,
+   "url": 2
+  }
+ },
+ "sndsh_intern27": {
+  "ats": "github_md",
+  "repo": "sndsh404/summer-2027-internships",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "url": 3
+  }
+ },
+ "zapply_intern27": {
+  "ats": "github_md",
+  "repo": "zapplyjobs/Internships-2027",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "age": 3,
+   "url": 5
+  },
+  "indirect_links": true
+ },
+ "zapply_newgrad27": {
+  "ats": "github_md",
+  "repo": "zapplyjobs/New-Grad-Jobs-2027",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "age": 3,
+   "url": 5
+  },
+  "indirect_links": true
+ },
+ "zapply_ca_jobs": {
+  "ats": "github_md",
+  "repo": "zapplyjobs/Canada-Jobs-2027",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "age": 3,
+   "url": 5
+  },
+  "indirect_links": true
+ },
+ "zapply_ca_intern": {
+  "ats": "github_md",
+  "repo": "zapplyjobs/Canada-Internships-2027",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "age": 3,
+   "url": 5
+  },
+  "indirect_links": true
+ },
+ "derec4_newgrad27": {
+  "ats": "github_md",
+  "repo": "DereC4/internships-and-newgrad",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "url": 1
+  }
+ },
+ "cpp_investments": {
+  "ats": "workday",
+  "host": "cppib.wd10.myworkdayjobs.com",
+  "tenant": "cppib",
+  "site": "cppinvestments",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "cpp_investments",
+  "group": "Pension Funds",
+  "priority": 1
+ },
+ "manulife": {
+  "ats": "workday",
+  "host": "manulife.wd3.myworkdayjobs.com",
+  "tenant": "manulife",
+  "site": "MFCJH_Jobs",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "manulife",
+  "group": "Insurance",
+  "priority": 2
+ },
+ "sun_life": {
+  "ats": "workday",
+  "host": "sunlife.wd3.myworkdayjobs.com",
+  "tenant": "sunlife",
+  "site": "Experienced-Jobs",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "sun_life",
+  "group": "Insurance",
+  "priority": 2
+ },
+ "sun_life_students": {
+  "ats": "workday",
+  "host": "sunlife.wd3.myworkdayjobs.com",
+  "tenant": "sunlife",
+  "site": "Campus",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "sun_life",
+  "group": "Insurance",
+  "priority": 1
+ },
+ "blackstone": {
+  "ats": "workday",
+  "host": "blackstone.wd1.myworkdayjobs.com",
+  "tenant": "blackstone",
+  "site": "Blackstone_Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "blackstone",
+  "group": "Private Equity",
+  "priority": 1,
+  "geography": "global"
+ },
+ "blackstone_campus": {
+  "ats": "workday",
+  "host": "blackstone.wd1.myworkdayjobs.com",
+  "tenant": "blackstone",
+  "site": "Blackstone_Campus_Careers",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "blackstone",
+  "group": "Private Equity",
+  "priority": 1,
+  "geography": "global"
+ },
+ "kkr": {
+  "ats": "greenhouse",
+  "token": "stage",
+  "min_interval": 1800,
+  "company_key": "kkr",
+  "group": "Private Equity",
+  "priority": 1,
+  "geography": "global"
+ },
+ "carlyle": {
+  "ats": "workday",
+  "host": "carlyle.wd1.myworkdayjobs.com",
+  "tenant": "carlyle",
+  "site": "Carlyle",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "carlyle",
+  "group": "Private Equity",
+  "priority": 1,
+  "geography": "global"
+ },
+ "brookfield": {
+  "ats": "workday",
+  "host": "brookfield.wd5.myworkdayjobs.com",
+  "tenant": "brookfield",
+  "site": "brookfield",
+  "search": "",
+  "min_interval": 1800,
+  "company_key": "brookfield",
+  "group": "Asset Managers",
+  "priority": 1,
+  "geography": "global"
+ },
+ "jump_trading": {
+  "ats": "greenhouse",
+  "token": "jumptrading"
+ },
+ "hrt": {
+  "ats": "greenhouse",
+  "token": "wehrtyou"
+ },
+ "citadel": {
+  "ats": "greenhouse",
+  "token": "citadel",
+  "disabled": true
+ },
+ "citadel_sec": {
+  "ats": "greenhouse",
+  "token": "citadelsecurities",
+  "disabled": true
+ },
+ "point72": {
+  "ats": "greenhouse",
+  "token": "point72"
+ },
+ "sig": {
+  "ats": "icims",
+  "host": "careers-sig.icims.com",
+  "max": 2000,
+  "min_interval": 1800
+ },
+ "imc": {
+  "ats": "greenhouse",
+  "token": "imc"
+ },
+ "optiver_us": {
+  "ats": "greenhouse",
+  "token": "optiverus"
+ },
+ "akuna": {
+  "ats": "greenhouse",
+  "token": "akunacapital"
+ },
+ "drw": {
+  "ats": "greenhouse",
+  "token": "drweng"
+ },
+ "two_sigma": {
+  "ats": "greenhouse",
+  "token": "twosigma",
+  "disabled": true
+ },
+ "tower_research": {
+  "ats": "greenhouse",
+  "token": "towerresearchcapital"
+ },
+ "five_rings": {
+  "ats": "greenhouse",
+  "token": "fiveringsllc"
+ },
+ "pdt_partners": {
+  "ats": "greenhouse",
+  "token": "pdtpartners"
+ },
+ "voleon": {
+  "ats": "ashby",
+  "token": "voleon"
+ },
+ "gts": {
+  "ats": "greenhouse",
+  "token": "gtsassociates",
+  "disabled": true
+ },
+ "virtu": {
+  "ats": "greenhouse",
+  "token": "virtu"
+ },
+ "old_mission": {
+  "ats": "greenhouse",
+  "token": "oldmissioncapital"
+ },
+ "flow_traders": {
+  "ats": "greenhouse",
+  "token": "flowtraders"
+ },
+ "geneva_trading": {
+  "ats": "greenhouse",
+  "token": "genevatrading"
+ },
+ "vatic_labs": {
+  "ats": "greenhouse",
+  "token": "vaticlabs"
+ },
+ "squarepoint": {
+  "ats": "greenhouse",
+  "token": "squarepointcapital"
+ },
+ "schonfeld": {
+  "ats": "greenhouse",
+  "token": "schonfeld"
+ },
+ "qube_rt": {
+  "ats": "greenhouse",
+  "token": "quberesearchandtechnologies"
+ },
+ "aqr": {
+  "ats": "greenhouse",
+  "token": "aqr"
+ },
+ "jane_street": {
+  "ats": "janestreet",
+  "min_interval": 600
+ },
+ "worldquant": {
+  "ats": "greenhouse",
+  "token": "worldquant"
+ },
+ "nwfintech_quant27": {
+  "ats": "github_md",
+  "repo": "northwesternfintech/2027QuantInternships",
+  "min_interval": 900,
+  "disabled": true
+ },
+ "moodys": {
+  "ats": "radancy",
+  "host": "careers.moodys.com",
+  "lang": "en",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "moodys",
+  "group": "Ratings & Data",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sp_global": {
+  "ats": "workday",
+  "host": "spgi.wd5.myworkdayjobs.com",
+  "tenant": "spgi",
+  "site": "SPGI_Careers",
+  "search": "",
+  "max": 5000,
+  "min_interval": 3600,
+  "company_key": "sp_global",
+  "group": "Ratings & Data",
+  "priority": 2,
+  "geography": "global"
+ },
+ "msci": {
+  "ats": "icims",
+  "host": "globalcareers-msci.icims.com",
+  "max": 2000,
+  "min_interval": 3600,
+  "company_key": "msci",
+  "group": "Ratings & Data",
+  "priority": 2,
+  "geography": "global"
+ },
+ "msci_us": {
+  "ats": "icims",
+  "host": "uscareers-msci.icims.com",
+  "max": 2000,
+  "min_interval": 3600,
+  "company_key": "msci",
+  "group": "Ratings & Data",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bloomberg": {
+  "ats": "avature",
+  "url": "https://bloomberg.avature.net/careers/SearchJobs/",
+  "min_interval": 1800,
+  "company_key": "bloomberg",
+  "group": "Exchanges & Data",
+  "priority": 2,
+  "geography": "global"
+ },
+ "waymo": {
+  "ats": "greenhouse",
+  "token": "waymo"
+ },
+ "nuro": {
+  "ats": "greenhouse",
+  "token": "nuro"
+ },
+ "aurora": {
+  "ats": "ashby",
+  "token": "aurora-operations-inc"
+ },
+ "zoox": {
+  "ats": "lever",
+  "token": "zoox"
+ },
+ "waabi": {
+  "ats": "lever",
+  "token": "waabi"
+ },
+ "rivian": {
+  "ats": "jibe",
+  "host": "careers.rivian.com",
+  "min_interval": 1800,
+  "company_key": "rivian",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ford_motor_company": {
+  "ats": "radancy",
+  "host": "www.careers.ford.com",
+  "min_interval": 1800,
+  "company_key": "ford_motor_company",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "aptiv": {
+  "ats": "workday",
+  "host": "aptiv.wd5.myworkdayjobs.com",
+  "tenant": "aptiv",
+  "site": "APTIV_CAREERS",
+  "min_interval": 1800,
+  "company_key": "aptiv",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "vanta": {
+  "ats": "ashby",
+  "token": "vanta"
+ },
+ "1password": {
+  "ats": "ashby",
+  "token": "1password"
+ },
+ "fortinet": {
+  "ats": "oracle_hcm",
+  "host": "edel.fa.us2.oraclecloud.com",
+  "site": "CX_2001",
+  "min_interval": 3600,
+  "company_key": "fortinet",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "palo_alto_networks": {
+  "ats": "workday",
+  "host": "paloaltonetworks.wd5.myworkdayjobs.com",
+  "tenant": "paloaltonetworks",
+  "site": "panwexternalcareers",
+  "min_interval": 3600,
+  "company_key": "palo_alto_networks",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "okta": {
+  "ats": "greenhouse",
+  "token": "okta",
+  "min_interval": 1800,
+  "company_key": "okta",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "intel_early": {
+  "ats": "workday",
+  "host": "intel.wd1.myworkdayjobs.com",
+  "tenant": "intel",
+  "site": "External",
+  "min_interval": 600,
+  "facets": {
+   "jobFamilyGroup": [
+    "dc8bf79476611087d67b36517cf17036"
+   ]
+  }
+ },
+ "intel": {
+  "ats": "workday",
+  "host": "intel.wd1.myworkdayjobs.com",
+  "tenant": "intel",
+  "site": "External",
+  "search": "",
+  "min_interval": 1800
+ },
+ "applied_materials": {
+  "ats": "workday",
+  "host": "amat.wd1.myworkdayjobs.com",
+  "min_interval": 3600,
+  "search": "",
+  "site": "External",
+  "tenant": "amat",
+  "company_key": "applied_materials",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "micron": {
+  "ats": "workday",
+  "host": "micron.wd1.myworkdayjobs.com",
+  "min_interval": 3600,
+  "search": "",
+  "site": "External",
+  "tenant": "micron",
+  "company_key": "micron_technology",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nxp": {
+  "ats": "workday",
+  "host": "nxp.wd3.myworkdayjobs.com",
+  "tenant": "nxp",
+  "site": "careers",
+  "min_interval": 1800,
+  "company_key": "nxp_semiconductors",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kla": {
+  "ats": "workday",
+  "host": "kla.wd1.myworkdayjobs.com",
+  "tenant": "kla",
+  "site": "Search",
+  "min_interval": 3600,
+  "company_key": "kla",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "texas_instruments": {
+  "ats": "oracle_hcm",
+  "host": "edbz.fa.us2.oraclecloud.com",
+  "site": "CX",
+  "min_interval": 1800,
+  "company_key": "texas_instruments",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cadence": {
+  "ats": "workday",
+  "host": "cadence.wd1.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "External_Careers",
+  "tenant": "cadence",
+  "company_key": "cadence",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "analog_devices": {
+  "ats": "workday",
+  "host": "analogdevices.wd1.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "External",
+  "tenant": "analogdevices",
+  "company_key": "analog_devices",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lam_research": {
+  "ats": "eightfold",
+  "host": "careers.lamresearch.com",
+  "domain": "lamresearch.com",
+  "api": "pcsx",
+  "min_interval": 3600,
+  "company_key": "lam_research",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "globalfoundries": {
+  "ats": "eightfold",
+  "host": "careers.gf.com",
+  "domain": "globalfoundries.com",
+  "api": "pcsx",
+  "min_interval": 1800,
+  "company_key": "globalfoundries",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "amd": {
+  "ats": "jibe",
+  "host": "careers.amd.com",
+  "min_interval": 3600,
+  "company_key": "amd",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "qualcomm_finance": {
+  "ats": "eightfold",
+  "host": "careers.qualcomm.com",
+  "domain": "qualcomm.com",
+  "api": "pcsx",
+  "query": "finance",
+  "min_interval": 3600,
+  "company_key": "qualcomm",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global",
+  "label": "Qualcomm finance roles"
+ },
+ "western_digital": {
+  "ats": "smartrecruiters",
+  "token": "WesternDigital",
+  "min_interval": 1800,
+  "company_key": "western_digital",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "speedy_swe": {
+  "ats": "github_md",
+  "repo": "speedyapply/2027-SWE-College-Jobs",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "salary": 3,
+   "url": 4
+  }
+ },
+ "zapply_swe_newgrad": {
+  "ats": "github_md",
+  "repo": "zapplyjobs/New-Grad-Software-Engineering-Jobs-2027",
+  "min_interval": 600,
+  "cols": {
+   "company": 0,
+   "title": 1,
+   "location": 2,
+   "age": 3,
+   "url": 5
+  },
+  "indirect_links": true
+ },
+ "verizon": {
+  "ats": "jobs_api",
+  "host": "mycareer.verizon.com",
+  "min_interval": 3600,
+  "company_key": "verizon",
+  "group": "Telecom & Networks",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cognition": {
+  "ats": "ashby",
+  "token": "cognition",
+  "min_interval": 1800,
+  "company_key": "cognition",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hebbia": {
+  "ats": "ashby",
+  "token": "hebbia-ai",
+  "min_interval": 1800,
+  "company_key": "hebbia",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "otter_ai": {
+  "ats": "greenhouse",
+  "token": "otterai",
+  "min_interval": 1800,
+  "company_key": "otter_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "speechify": {
+  "ats": "greenhouse",
+  "token": "speechify",
+  "min_interval": 1800,
+  "company_key": "speechify",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "exa_ai": {
+  "ats": "ashby",
+  "token": "exa",
+  "min_interval": 1800,
+  "company_key": "exa_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ideogram": {
+  "ats": "ashby",
+  "token": "ideogram",
+  "min_interval": 1800,
+  "company_key": "ideogram",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "pika_labs": {
+  "ats": "ashby",
+  "token": "pika",
+  "min_interval": 1800,
+  "company_key": "pika_labs",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "vapi_ai": {
+  "ats": "ashby",
+  "token": "vapi",
+  "min_interval": 1800,
+  "company_key": "vapi_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bland_ai": {
+  "ats": "ashby",
+  "token": "bland",
+  "min_interval": 1800,
+  "company_key": "bland_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "synthesia": {
+  "ats": "ashby",
+  "token": "synthesia",
+  "min_interval": 1800,
+  "company_key": "synthesia",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "deepl": {
+  "ats": "ashby",
+  "token": "deepl",
+  "min_interval": 1800,
+  "company_key": "deepl",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "luma_ai": {
+  "ats": "ashby",
+  "token": "lumaai",
+  "min_interval": 1800,
+  "company_key": "luma_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "inworld_ai": {
+  "ats": "ashby",
+  "token": "inworld-ai",
+  "min_interval": 1800,
+  "company_key": "inworld_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "backstory": {
+  "ats": "lever",
+  "token": "people-ai",
+  "min_interval": 1800,
+  "company_key": "backstory",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "krea_ai": {
+  "ats": "ashby",
+  "token": "krea",
+  "min_interval": 1800,
+  "company_key": "krea_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "speechmatics": {
+  "ats": "greenhouse",
+  "token": "speechmatics",
+  "min_interval": 1800,
+  "company_key": "speechmatics",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "you_com": {
+  "ats": "greenhouse",
+  "token": "youcom",
+  "min_interval": 1800,
+  "company_key": "you_com",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "gradient_ai": {
+  "ats": "greenhouse",
+  "token": "gradientai",
+  "min_interval": 1800,
+  "company_key": "gradient_ai",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tractable": {
+  "ats": "ashby",
+  "token": "tractable",
+  "min_interval": 1800,
+  "company_key": "tractable",
+  "group": "Startups",
+  "priority": 2,
+  "geography": "global"
+ },
+ "anyscale": {
+  "ats": "ashby",
+  "token": "anyscale",
+  "min_interval": 1800,
+  "company_key": "anyscale",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "pinecone": {
+  "ats": "ashby",
+  "token": "pinecone",
+  "min_interval": 1800,
+  "company_key": "pinecone",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "snorkel": {
+  "ats": "greenhouse",
+  "token": "snorkelai",
+  "min_interval": 1800,
+  "company_key": "snorkel_ai",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global",
+  "label": "Snorkel AI Careers"
+ },
+ "labelbox": {
+  "ats": "greenhouse",
+  "token": "labelbox",
+  "min_interval": 1800,
+  "company_key": "labelbox",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "weights_and_biases": {
+  "ats": "greenhouse",
+  "token": "weights_and_biases",
+  "min_interval": 1800,
+  "company_key": "weights_biases",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "langchain": {
+  "ats": "ashby",
+  "token": "langchain",
+  "min_interval": 1800,
+  "company_key": "langchain",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "deepgram": {
+  "ats": "ashby",
+  "token": "Deepgram",
+  "min_interval": 1800,
+  "company_key": "deepgram",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hugging_face": {
+  "ats": "workable",
+  "account": "huggingface",
+  "min_interval": 1800,
+  "company_key": "hugging_face",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lightning_ai": {
+  "ats": "greenhouse",
+  "token": "lightningai",
+  "min_interval": 1800,
+  "company_key": "lightning_ai",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "arize_ai": {
+  "ats": "greenhouse",
+  "token": "arizeai",
+  "min_interval": 1800,
+  "company_key": "arize_ai",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "weaviate": {
+  "ats": "ashby",
+  "token": "weaviate",
+  "min_interval": 1800,
+  "company_key": "weaviate",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "e2b": {
+  "ats": "ashby",
+  "token": "e2b",
+  "min_interval": 1800,
+  "company_key": "e2b",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "encord": {
+  "ats": "ashby",
+  "token": "encord",
+  "min_interval": 1800,
+  "company_key": "encord",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "roboflow": {
+  "ats": "ashby",
+  "token": "roboflow",
+  "min_interval": 1800,
+  "company_key": "roboflow",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "llamaindex": {
+  "ats": "ashby",
+  "token": "llamaindex",
+  "min_interval": 1800,
+  "company_key": "llamaindex",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "voxel51": {
+  "ats": "greenhouse",
+  "token": "voxel51",
+  "min_interval": 1800,
+  "company_key": "voxel51",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "d_matrix": {
+  "ats": "ashby",
+  "token": "d-matrix",
+  "min_interval": 1800,
+  "company_key": "d_matrix",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "graphcore": {
+  "ats": "greenhouse",
+  "token": "graphcore",
+  "min_interval": 1800,
+  "company_key": "graphcore",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nebius": {
+  "ats": "greenhouse",
+  "token": "nebius",
+  "min_interval": 1800,
+  "company_key": "nebius",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zilliz": {
+  "ats": "lever",
+  "token": "zilliz",
+  "min_interval": 1800,
+  "company_key": "zilliz",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "unstructured_io": {
+  "ats": "ashby",
+  "token": "unstructured",
+  "min_interval": 1800,
+  "company_key": "unstructured_io",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "twelve_labs": {
+  "ats": "ashby",
+  "token": "twelve-labs",
+  "min_interval": 1800,
+  "company_key": "twelve_labs",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "prefect": {
+  "ats": "ashby",
+  "token": "prefect",
+  "min_interval": 1800,
+  "company_key": "prefect",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "letta": {
+  "ats": "ashby",
+  "token": "letta",
+  "min_interval": 1800,
+  "company_key": "letta",
+  "group": "AI Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mistral": {
+  "ats": "ashby",
+  "token": "mistral.ai",
+  "min_interval": 1800,
+  "company_key": "mistral_ai",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "thinking_machines": {
+  "ats": "ashby",
+  "token": "ThinkingMachines",
+  "min_interval": 1800,
+  "company_key": "thinking_machines_lab",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "world_labs": {
+  "ats": "ashby",
+  "token": "worldlabs",
+  "min_interval": 1800,
+  "company_key": "world_labs",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "magic": {
+  "ats": "ashby",
+  "token": "magic.dev",
+  "min_interval": 1800,
+  "company_key": "magic",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "stability_ai": {
+  "ats": "greenhouse",
+  "token": "stabilityai",
+  "min_interval": 1800,
+  "company_key": "stability_ai",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ai2": {
+  "ats": "greenhouse",
+  "token": "thealleninstitute",
+  "min_interval": 1800,
+  "company_key": "ai2",
+  "group": "Research Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mila": {
+  "ats": "workable",
+  "account": "mila-2",
+  "min_interval": 1800,
+  "company_key": "mila",
+  "group": "Research Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "inflection_ai": {
+  "ats": "greenhouse",
+  "token": "inflectionai",
+  "min_interval": 1800,
+  "company_key": "inflection_ai",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "aleph_alpha": {
+  "ats": "ashby",
+  "token": "alephalpha",
+  "min_interval": 1800,
+  "company_key": "aleph_alpha",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sandboxaq": {
+  "ats": "ashby",
+  "token": "sandboxaq",
+  "min_interval": 1800,
+  "company_key": "sandboxaq",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "liquid_ai": {
+  "ats": "ashby",
+  "token": "liquid-ai",
+  "min_interval": 1800,
+  "company_key": "liquid_ai",
+  "group": "AI Labs",
+  "priority": 2,
+  "geography": "global"
+ },
+ "td_tech": {
+  "ats": "workday",
+  "host": "td.wd3.myworkdayjobs.com",
+  "tenant": "td",
+  "site": "TD_Bank_Careers",
+  "facets": {
+   "jobFamilyGroup": [
+    "de769652963501f2001247b507040dac",
+    "a744730d4e001001a147acd3cdc10000",
+    "de76965296350195765906b50704e3ab"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "td",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "canada",
+  "label": "TD Technology"
+ },
+ "bmo_tech": {
+  "ats": "workday",
+  "host": "bmo.wd3.myworkdayjobs.com",
+  "tenant": "bmo",
+  "site": "External",
+  "facets": {
+   "jobFamilyGroup": [
+    "c3170091f3cd01a93a216b6ad000d820",
+    "c3170091f3cd01924064646ad000c620"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "bmo",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "canada",
+  "label": "BMO Technology"
+ },
+ "cibc_tech": {
+  "ats": "workday",
+  "host": "cibc.wd3.myworkdayjobs.com",
+  "tenant": "cibc",
+  "site": "search",
+  "facets": {
+   "jobFamilyGroup": [
+    "4bbe6c74e8a70126f29430a881012510",
+    "4bbe6c74e8a7011e314d36a881013310",
+    "678f7c5a7b70100112c0e8c658a10000"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "cibc",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "canada",
+  "label": "CIBC Technology"
+ },
+ "rbc_tech": {
+  "ats": "phenom",
+  "host": "jobs.rbc.com",
+  "query": "technology",
+  "url": "https://jobs.rbc.com/ca/en/job/{id}",
+  "min_interval": 3600,
+  "company_key": "rbc",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "canada",
+  "label": "RBC Technology"
+ },
+ "morgan_stanley_tech": {
+  "ats": "workday",
+  "host": "ms.wd5.myworkdayjobs.com",
+  "tenant": "ms",
+  "site": "External",
+  "facets": {
+   "jobFamilyGroup": [
+    "e38d1cf2ff5a10014d19aa66ad230000",
+    "96af745083d401ecd47812d07856070d",
+    "9065a9a95b1a10014d20d69599ed0000",
+    "b46569570f4b10014d292e3ae0a00000",
+    "c775545e643010014d1946c1c35e0000",
+    "96af745083d4016ae83caccf7856fd0c",
+    "b46569570f4b10014d294e44a67c0000",
+    "96af745083d401edc987e2cf7856010d"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "morgan_stanley",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "Morgan Stanley Technology"
+ },
+ "citi_tech": {
+  "ats": "workday",
+  "host": "citi.wd5.myworkdayjobs.com",
+  "tenant": "citi",
+  "site": "2",
+  "facets": {
+   "jobFamilyGroup": [
+    "e32326e1708d01575bddff0c120102c1",
+    "e32326e1708d0106eb75f50c1201dac0"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "citi",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "Citi Technology"
+ },
+ "barclays_tech": {
+  "ats": "workday",
+  "host": "barclays.wd3.myworkdayjobs.com",
+  "tenant": "barclays",
+  "site": "External_Career_Site_Barclays",
+  "facets": {
+   "jobFamilyGroup": [
+    "112c054282011001e9162cfccdc10000",
+    "1ab48a98eb7c1001e8e0bdc7d4a10000"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "barclays",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "Barclays Technology"
+ },
+ "wells_fargo_tech": {
+  "ats": "workday",
+  "host": "wf.wd1.myworkdayjobs.com",
+  "tenant": "wf",
+  "site": "WellsFargoJobs",
+  "facets": {
+   "jobFamilyGroup": [
+    "b5c3287c76c20100b318a19542940001",
+    "b5c3287c76c20100b3189b6fdb430000"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "wells_fargo",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "us",
+  "label": "Wells Fargo Technology"
+ },
+ "deutsche_bank_tech": {
+  "ats": "workday",
+  "host": "db.wd3.myworkdayjobs.com",
+  "tenant": "db",
+  "site": "DBWebsite",
+  "facets": {
+   "jobFamilyGroup": [
+    "645e861bc53a0168c673f8fe073b20a8"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "deutsche_bank",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "Deutsche Bank Technology"
+ },
+ "jpmorgan_tech": {
+  "ats": "oracle_hcm",
+  "host": "jpmc.fa.oraclecloud.com",
+  "site": "CX_1001",
+  "query": "software engineer",
+  "min_interval": 3600,
+  "company_key": "jpmorgan",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "JPMorgan Chase Technology"
+ },
+ "goldman_sachs_tech": {
+  "ats": "oracle_hcm",
+  "host": "hdpc.fa.us2.oraclecloud.com",
+  "site": "LateralHiring",
+  "query": "engineering",
+  "url": "https://higher.gs.com/roles/{id}",
+  "min_interval": 3600,
+  "company_key": "goldman_sachs",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "global",
+  "label": "Goldman Sachs Technology"
+ },
+ "scotiabank_tech": {
+  "ats": "successfactors",
+  "url": "https://jobs.scotiabank.com/go/IT-%26-Digital-Banking-Jobs/2298017/",
+  "min_interval": 1800,
+  "company_key": "scotiabank",
+  "group": "Bank Technology",
+  "priority": 1,
+  "geography": "canada",
+  "label": "Scotiabank IT & Digital Banking"
+ },
+ "snap": {
+  "ats": "workday",
+  "host": "wd1.myworkdaysite.com",
+  "tenant": "snapchat",
+  "site": "snap",
+  "min_interval": 1800,
+  "company_key": "snap",
+  "group": "Consumer Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "amazon_tech": {
+  "ats": "amazon_jobs",
+  "query": "",
+  "max": 7500,
+  "categories": [
+   "software-development",
+   "machine-learning-science",
+   "data-science",
+   "research-science",
+   "hardware-development",
+   "systems-quality-security-engineering",
+   "solutions-architect",
+   "project-program-product-management-technical"
+  ],
+  "min_interval": 3600,
+  "company_key": "amazon",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global",
+  "label": "Amazon tech roles"
+ },
+ "linkedin_us_hard_to_reach": {
+  "ats": "linkedin",
+  "location": "United States",
+  "queries": [
+   ""
+  ],
+  "companies": [
+   10667,
+   15564,
+   1009,
+   784652,
+   67849,
+   88873,
+   12994410,
+   1253671
+  ],
+  "recency": "r86400",
+  "pages": 15,
+  "seed_recency": "r604800",
+  "seed_pages": 25,
+  "min_interval": 1800,
+  "group": "LinkedIn",
+  "geography": "us",
+  "priority": 1,
+  "label": "LinkedIn · United States · Meta, Tesla, IBM and others"
+ },
+ "linkedin_canada_hard_to_reach": {
+  "ats": "linkedin",
+  "location": "Canada",
+  "queries": [
+   ""
+  ],
+  "companies": [
+   10667,
+   15564,
+   1009,
+   784652,
+   67849,
+   88873,
+   12994410,
+   1253671,
+   94666
+  ],
+  "recency": "r86400",
+  "pages": 5,
+  "seed_recency": "r604800",
+  "seed_pages": 10,
+  "min_interval": 1800,
+  "group": "LinkedIn",
+  "geography": "canada",
+  "priority": 1,
+  "label": "LinkedIn · Canada · Meta, Tesla, IBM and others"
+ },
+ "apple": {
+  "ats": "apple",
+  "min_interval": 10800,
+  "company_key": "apple",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global"
+ },
+ "microsoft_careers": {
+  "ats": "eightfold",
+  "host": "apply.careers.microsoft.com",
+  "domain": "microsoft.com",
+  "api": "pcsx",
+  "min_interval": 21600,
+  "company_key": "microsoft",
+  "group": "Big Tech",
+  "priority": 1,
+  "geography": "global",
+  "label": "Microsoft"
+ },
+ "stackadapt": {
+  "ats": "greenhouse",
+  "token": "stackadapt",
+  "min_interval": 1800,
+  "company_key": "stackadapt",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "geotab": {
+  "ats": "greenhouse",
+  "token": "geotab",
+  "min_interval": 1800,
+  "company_key": "geotab",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "ritual": {
+  "ats": "greenhouse",
+  "token": "ritual",
+  "min_interval": 1800,
+  "company_key": "ritual",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "wattpad": {
+  "ats": "lever",
+  "token": "wattpad",
+  "min_interval": 1800,
+  "company_key": "wattpad",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "benevity": {
+  "ats": "ashby",
+  "token": "benevity",
+  "min_interval": 1800,
+  "company_key": "benevity",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "clio": {
+  "ats": "workday",
+  "host": "clio.wd3.myworkdayjobs.com",
+  "tenant": "clio",
+  "site": "ClioCareerSite",
+  "min_interval": 1800,
+  "company_key": "clio",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "league": {
+  "ats": "greenhouse",
+  "token": "leagueinc",
+  "min_interval": 1800,
+  "company_key": "league",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "applyboard": {
+  "ats": "workday",
+  "host": "applyboard.wd3.myworkdayjobs.com",
+  "tenant": "applyboard",
+  "site": "ApplyBoardNH",
+  "min_interval": 1800,
+  "company_key": "applyboard",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "ada": {
+  "ats": "greenhouse",
+  "token": "ada18",
+  "min_interval": 1800,
+  "company_key": "ada",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "top_hat": {
+  "ats": "ashby",
+  "token": "top-hat",
+  "min_interval": 1800,
+  "company_key": "top_hat",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "thinkific": {
+  "ats": "ashby",
+  "token": "thinkific",
+  "min_interval": 1800,
+  "company_key": "thinkific",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "d2l": {
+  "ats": "greenhouse",
+  "token": "d2l",
+  "min_interval": 1800,
+  "company_key": "d2l",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "kinaxis": {
+  "ats": "icims",
+  "host": "careers-kinaxis.icims.com",
+  "min_interval": 1800,
+  "company_key": "kinaxis",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "lightspeed_commerce": {
+  "ats": "ashby",
+  "token": "lightspeedhq",
+  "min_interval": 1800,
+  "company_key": "lightspeed_commerce",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "coveo": {
+  "ats": "greenhouse",
+  "token": "coveoen",
+  "min_interval": 1800,
+  "company_key": "coveo",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "hopper": {
+  "ats": "ashby",
+  "token": "hopper",
+  "min_interval": 1800,
+  "company_key": "hopper",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "trulioo": {
+  "ats": "ashby",
+  "token": "trulioo",
+  "min_interval": 1800,
+  "company_key": "trulioo",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "miovision": {
+  "ats": "ashby",
+  "token": "miovision",
+  "min_interval": 1800,
+  "company_key": "miovision",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "alayacare": {
+  "ats": "greenhouse",
+  "token": "alayacare",
+  "min_interval": 1800,
+  "company_key": "alayacare",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "float": {
+  "ats": "ashby",
+  "token": "float",
+  "min_interval": 1800,
+  "company_key": "float",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "absorb_lms": {
+  "ats": "ashby",
+  "token": "absorblms",
+  "min_interval": 1800,
+  "company_key": "absorb_lms",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "jobber": {
+  "ats": "ashby",
+  "token": "jobber",
+  "min_interval": 1800,
+  "company_key": "jobber",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "clearco": {
+  "ats": "ashby",
+  "token": "clearco",
+  "min_interval": 1800,
+  "company_key": "clearco",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "visier": {
+  "ats": "ashby",
+  "token": "visier",
+  "min_interval": 1800,
+  "company_key": "visier",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "nuvei": {
+  "ats": "workable",
+  "account": "nuvei",
+  "min_interval": 1800,
+  "company_key": "nuvei",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "borrowell": {
+  "ats": "workable",
+  "account": "borrowell",
+  "min_interval": 1800,
+  "company_key": "borrowell",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "telus": {
+  "ats": "successfactors",
+  "url": "https://careers.telus.com/search/",
+  "min_interval": 1800,
+  "company_key": "telus",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "bell": {
+  "ats": "phenom",
+  "host": "jobs.bell.ca",
+  "min_interval": 1800,
+  "company_key": "bell_canada",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "blackberry": {
+  "ats": "workday",
+  "host": "bb.wd3.myworkdayjobs.com",
+  "tenant": "bb",
+  "site": "BlackBerry",
+  "min_interval": 1800,
+  "company_key": "blackberry",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada"
+ },
+ "blackberry_qnx": {
+  "ats": "workday",
+  "host": "bb.wd3.myworkdayjobs.com",
+  "tenant": "bb",
+  "site": "QNX",
+  "min_interval": 1800,
+  "company_key": "blackberry",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada",
+  "label": "BlackBerry QNX"
+ },
+ "magna_international": {
+  "ats": "workday",
+  "host": "magna.wd3.myworkdayjobs.com",
+  "tenant": "magna",
+  "site": "Magna",
+  "facets": {
+   "jobFamilyGroup": [
+    "5aaaed564f430127348455ca250345df",
+    "5aaaed564f4301f4835048ca25033ddf",
+    "5aaaed564f4301993ae046ca25033bdf"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "magna",
+  "group": "Canadian Tech",
+  "priority": 2,
+  "geography": "canada",
+  "label": "Magna engineering and IT roles"
+ },
+ "commonwealth_fusion": {
+  "ats": "lever",
+  "token": "cfsenergy",
+  "min_interval": 1800,
+  "company_key": "commonwealth_fusion",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "helion_energy": {
+  "ats": "ashby",
+  "token": "helion",
+  "min_interval": 1800,
+  "company_key": "helion_energy",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "oklo": {
+  "ats": "greenhouse",
+  "token": "oklo",
+  "min_interval": 1800,
+  "company_key": "oklo",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "enovix": {
+  "ats": "workday",
+  "host": "enovix.wd12.myworkdayjobs.com",
+  "tenant": "enovix",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "enovix",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "solid_power": {
+  "ats": "greenhouse",
+  "token": "solidpower",
+  "min_interval": 1800,
+  "company_key": "solid_power",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "form_energy": {
+  "ats": "ashby",
+  "token": "formenergy",
+  "min_interval": 1800,
+  "company_key": "form_energy",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "array_technologies": {
+  "ats": "workday",
+  "host": "arraytechinc.wd5.myworkdayjobs.com",
+  "tenant": "arraytechinc",
+  "site": "Array_Careers",
+  "min_interval": 1800,
+  "company_key": "array_technologies",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "twelve_carbon": {
+  "ats": "ashby",
+  "token": "twelve",
+  "min_interval": 1800,
+  "company_key": "twelve_carbon",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "chargepoint": {
+  "ats": "greenhouse",
+  "token": "chargepoint",
+  "min_interval": 1800,
+  "company_key": "chargepoint",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kairos_power": {
+  "ats": "greenhouse",
+  "token": "kairospower",
+  "min_interval": 1800,
+  "company_key": "kairos_power",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sila_nanotechnologies": {
+  "ats": "greenhouse",
+  "token": "silananotechnologies",
+  "min_interval": 1800,
+  "company_key": "sila_nanotechnologies",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ge_vernova": {
+  "ats": "workday",
+  "host": "gevernova.wd5.myworkdayjobs.com",
+  "tenant": "gevernova",
+  "site": "Vernova_ExternalSite",
+  "facets": {
+   "jobFamilyGroup": [
+    "efb947d8be4310015d736c3065810000",
+    "efb947d8be4310015d7e5284718f0000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "ge_vernova",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global",
+  "label": "GE Vernova engineering and digital roles"
+ },
+ "first_solar": {
+  "ats": "oracle_hcm",
+  "host": "fa-esbv-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_1",
+  "min_interval": 1800,
+  "company_key": "first_solar",
+  "group": "Climate & Energy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rubrik": {
+  "ats": "greenhouse",
+  "token": "rubrik",
+  "min_interval": 1800,
+  "company_key": "rubrik",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "akamai": {
+  "ats": "oracle_hcm",
+  "host": "fa-extu-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_1",
+  "min_interval": 1800,
+  "company_key": "akamai",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "netapp": {
+  "ats": "radancy",
+  "host": "careers.netapp.com",
+  "min_interval": 1800,
+  "company_key": "netapp",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nutanix": {
+  "ats": "xml_feed",
+  "url": "https://careers.nutanix.com/en/jobs/xml/?rss=true",
+  "min_interval": 1800,
+  "company_key": "nutanix",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "railway": {
+  "ats": "ashby",
+  "token": "railway",
+  "min_interval": 1800,
+  "company_key": "railway",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nextdoor": {
+  "ats": "greenhouse",
+  "token": "nextdoor",
+  "min_interval": 1800,
+  "company_key": "nextdoor",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "roku": {
+  "ats": "greenhouse",
+  "token": "roku",
+  "min_interval": 1800,
+  "company_key": "roku",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "coursera": {
+  "ats": "greenhouse",
+  "token": "coursera",
+  "min_interval": 1800,
+  "company_key": "coursera",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "quora": {
+  "ats": "ashby",
+  "token": "quora",
+  "min_interval": 1800,
+  "company_key": "quora",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mozilla": {
+  "ats": "greenhouse",
+  "token": "mozilla",
+  "min_interval": 1800,
+  "company_key": "mozilla",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "thumbtack": {
+  "ats": "ashby",
+  "token": "thumbtack",
+  "min_interval": 1800,
+  "company_key": "thumbtack",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fanduel": {
+  "ats": "greenhouse",
+  "token": "fanduel",
+  "min_interval": 1800,
+  "company_key": "fanduel",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "udemy": {
+  "ats": "greenhouse",
+  "token": "udemy",
+  "min_interval": 1800,
+  "company_key": "udemy",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "stockx": {
+  "ats": "greenhouse",
+  "token": "stockx",
+  "min_interval": 1800,
+  "company_key": "stockx",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "patreon": {
+  "ats": "ashby",
+  "token": "patreon",
+  "min_interval": 1800,
+  "company_key": "patreon",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "substack": {
+  "ats": "ashby",
+  "token": "substack",
+  "min_interval": 1800,
+  "company_key": "substack",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "strava": {
+  "ats": "ashby",
+  "token": "strava",
+  "min_interval": 1800,
+  "company_key": "strava",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "alltrails": {
+  "ats": "lever",
+  "token": "alltrails",
+  "min_interval": 1800,
+  "company_key": "alltrails",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "match_group": {
+  "ats": "lever",
+  "token": "matchgroup",
+  "min_interval": 1800,
+  "company_key": "match_group",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "deliveroo": {
+  "ats": "greenhouse",
+  "token": "deliveroo",
+  "min_interval": 1800,
+  "company_key": "deliveroo",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "gofundme": {
+  "ats": "greenhouse",
+  "token": "gofundme",
+  "min_interval": 1800,
+  "company_key": "gofundme",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "poshmark": {
+  "ats": "ashby",
+  "token": "poshmark",
+  "min_interval": 1800,
+  "company_key": "poshmark",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bumble": {
+  "ats": "ashby",
+  "token": "bumbleinc",
+  "min_interval": 1800,
+  "company_key": "bumble",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rover": {
+  "ats": "lever",
+  "token": "rover",
+  "min_interval": 1800,
+  "company_key": "rover",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "draftkings": {
+  "ats": "workday",
+  "host": "draftkings.wd1.myworkdayjobs.com",
+  "tenant": "draftkings",
+  "site": "DraftKings",
+  "min_interval": 1800,
+  "company_key": "draftkings",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "walmart_global_tech": {
+  "ats": "workday",
+  "host": "walmart.wd504.myworkdayjobs.com",
+  "tenant": "walmart",
+  "site": "WalmartExternal",
+  "facets": {
+   "jobFamilyGroup": [
+    "e83ebdbd2a0a01e7e1477a8948e904c6",
+    "e83ebdbd2a0a01af0185848948e94dc6",
+    "e83ebdbd2a0a01ea72c2808948e924c6"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "walmart",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Walmart Global Tech"
+ },
+ "best_buy_canada": {
+  "ats": "workday",
+  "host": "bestbuycanada.wd3.myworkdayjobs.com",
+  "tenant": "bestbuycanada",
+  "site": "BestBuyCA_Career",
+  "min_interval": 1800,
+  "company_key": "best_buy_canada",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nike": {
+  "ats": "workday",
+  "host": "nike.wd1.myworkdayjobs.com",
+  "tenant": "nike",
+  "site": "nke",
+  "facets": {
+   "jobFamilyGroup": [
+    "cd128a2666561000bad382c400280000",
+    "cd128a2666561000bad388d2f6030002"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "nike",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Nike technology roles"
+ },
+ "chewy": {
+  "ats": "phenom",
+  "host": "careers.chewy.com",
+  "min_interval": 1800,
+  "company_key": "chewy",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "yelp": {
+  "ats": "phenom",
+  "host": "www.yelp.careers",
+  "min_interval": 1800,
+  "company_key": "yelp",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "compass": {
+  "ats": "greenhouse",
+  "token": "urbancompass",
+  "min_interval": 1800,
+  "company_key": "compass",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "priceline": {
+  "ats": "workday",
+  "host": "priceline.wd1.myworkdayjobs.com",
+  "tenant": "priceline",
+  "site": "Priceline",
+  "min_interval": 1800,
+  "company_key": "priceline",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tripadvisor": {
+  "ats": "greenhouse",
+  "token": "tripadvisor",
+  "min_interval": 1800,
+  "company_key": "tripadvisor",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "the_new_york_times": {
+  "ats": "greenhouse",
+  "token": "thenewyorktimes",
+  "min_interval": 1800,
+  "company_key": "the_new_york_times",
+  "group": "Consumer Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "linkedin_us_data": {
+  "ats": "linkedin",
+  "location": "United States",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "data science intern",
+   "data engineer new grad",
+   "machine learning engineer new grad",
+   "data analyst intern"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "us",
+  "label": "LinkedIn · United States · AI & Data"
+ },
+ "linkedin_canada_data": {
+  "ats": "linkedin",
+  "location": "Canada",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "data science co-op",
+   "data analyst co-op",
+   "machine learning co-op",
+   "data engineer new grad"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "canada",
+  "label": "LinkedIn · Canada · AI & Data"
+ },
+ "dataiku": {
+  "ats": "greenhouse",
+  "token": "dataiku",
+  "min_interval": 1800,
+  "company_key": "dataiku",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "singlestore": {
+  "ats": "greenhouse",
+  "token": "singlestore",
+  "min_interval": 1800,
+  "company_key": "singlestore",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sigma_computing": {
+  "ats": "greenhouse",
+  "token": "sigmacomputing",
+  "min_interval": 1800,
+  "company_key": "sigma_computing",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hex": {
+  "ats": "ashby",
+  "token": "hex",
+  "min_interval": 1800,
+  "company_key": "hex",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "airbyte": {
+  "ats": "ashby",
+  "token": "airbyte",
+  "min_interval": 1800,
+  "company_key": "airbyte",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "redis": {
+  "ats": "ashby",
+  "token": "redis",
+  "min_interval": 1800,
+  "company_key": "redis",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "yipitdata": {
+  "ats": "greenhouse",
+  "token": "yipitdata",
+  "min_interval": 1800,
+  "company_key": "yipitdata",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "neo4j": {
+  "ats": "greenhouse",
+  "token": "neo4j",
+  "min_interval": 1800,
+  "company_key": "neo4j",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "collibra": {
+  "ats": "greenhouse",
+  "token": "collibra",
+  "min_interval": 1800,
+  "company_key": "collibra",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "dremio": {
+  "ats": "greenhouse",
+  "token": "dremio",
+  "min_interval": 1800,
+  "company_key": "dremio",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "imply": {
+  "ats": "greenhouse",
+  "token": "imply",
+  "min_interval": 1800,
+  "company_key": "imply",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "yugabytedb": {
+  "ats": "greenhouse",
+  "token": "yugabyte",
+  "min_interval": 1800,
+  "company_key": "yugabytedb",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "datahub": {
+  "ats": "greenhouse",
+  "token": "acryldata",
+  "min_interval": 1800,
+  "company_key": "datahub",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "commvault": {
+  "ats": "greenhouse",
+  "token": "commvault",
+  "min_interval": 1800,
+  "company_key": "commvault",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "materialize": {
+  "ats": "ashby",
+  "token": "materialize",
+  "min_interval": 1800,
+  "company_key": "materialize",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "atlan": {
+  "ats": "ashby",
+  "token": "atlan",
+  "min_interval": 1800,
+  "company_key": "atlan",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "motherduck": {
+  "ats": "ashby",
+  "token": "motherduck",
+  "min_interval": 1800,
+  "company_key": "motherduck",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "alteryx": {
+  "ats": "workday",
+  "host": "alteryx.wd108.myworkdayjobs.com",
+  "tenant": "alteryx",
+  "site": "AlteryxCareers",
+  "min_interval": 1800,
+  "company_key": "alteryx",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "qlik": {
+  "ats": "eightfold",
+  "host": "careerhub.qlik.com",
+  "domain": "qlik.com",
+  "api": "pcsx",
+  "min_interval": 1800,
+  "company_key": "qlik",
+  "group": "Data Infrastructure",
+  "priority": 2,
+  "geography": "global"
+ },
+ "saronic": {
+  "ats": "ashby",
+  "token": "saronic",
+  "min_interval": 1800,
+  "company_key": "saronic",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "epirus": {
+  "ats": "greenhouse",
+  "token": "epirus",
+  "min_interval": 1800,
+  "company_key": "epirus",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rocket_lab": {
+  "ats": "greenhouse",
+  "token": "rocketlab",
+  "min_interval": 1800,
+  "company_key": "rocket_lab",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "relativity_space": {
+  "ats": "greenhouse",
+  "token": "relativity",
+  "min_interval": 1800,
+  "company_key": "relativity_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "astranis": {
+  "ats": "greenhouse",
+  "token": "astranis",
+  "min_interval": 1800,
+  "company_key": "astranis",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "planet": {
+  "ats": "greenhouse",
+  "token": "planetlabs",
+  "min_interval": 1800,
+  "company_key": "planet",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mda_space": {
+  "ats": "ukg",
+  "host": "recruiting.ultipro.ca",
+  "tenant": "MAC5000MCDW",
+  "board": "664818ff-3594-4bec-9f30-3394e59e19f3",
+  "min_interval": 1800,
+  "company_key": "mda_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "voyager_space": {
+  "ats": "greenhouse",
+  "token": "voyagertechnologiesinc",
+  "min_interval": 1800,
+  "company_key": "voyager_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "apex_space": {
+  "ats": "ashby",
+  "token": "apex-technology-inc",
+  "min_interval": 1800,
+  "company_key": "apex_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "vast_space": {
+  "ats": "greenhouse",
+  "token": "vast",
+  "min_interval": 1800,
+  "company_key": "vast_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "firefly_aerospace": {
+  "ats": "workday",
+  "host": "fireflyspace.wd115.myworkdayjobs.com",
+  "tenant": "fireflyspace",
+  "site": "Firefly",
+  "min_interval": 1800,
+  "company_key": "firefly_aerospace",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sierra_space": {
+  "ats": "workday",
+  "host": "sierraspace.wd1.myworkdayjobs.com",
+  "tenant": "sierraspace",
+  "site": "Sierra_Space_External_Career_Site",
+  "min_interval": 1800,
+  "company_key": "sierra_space",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "terran_orbital": {
+  "ats": "greenhouse",
+  "token": "terranorbitalcorporation",
+  "min_interval": 1800,
+  "company_key": "terran_orbital",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "northrop_grumman": {
+  "ats": "eightfold",
+  "host": "jobs.northropgrumman.com",
+  "domain": "ngc.com",
+  "api": "pcsx",
+  "min_interval": 10800,
+  "company_key": "northrop_grumman",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sierra_nevada": {
+  "ats": "workday",
+  "host": "snc.wd1.myworkdayjobs.com",
+  "tenant": "snc",
+  "site": "SNC_External_Career_Site",
+  "min_interval": 1800,
+  "company_key": "sierra_nevada",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lockheed_martin": {
+  "ats": "eightfold",
+  "host": "lockheedmartin.eightfold.ai",
+  "domain": "lockheedmartin.com",
+  "api": "pcsx",
+  "min_interval": 21600,
+  "company_key": "lockheed_martin",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global",
+  "max": 7000
+ },
+ "rtx": {
+  "ats": "workday",
+  "host": "globalhr.wd5.myworkdayjobs.com",
+  "tenant": "globalhr",
+  "site": "REC_RTX_Ext_Gateway",
+  "facets": {
+   "jobFamilyGroup": [
+    "4af3a9414ae11010c76a87724762dca7",
+    "bac5186f63f210324b590667f0243ccd"
+   ]
+  },
+  "min_interval": 3600,
+  "company_key": "rtx",
+  "group": "Defense & Aerospace",
+  "priority": 2,
+  "geography": "global",
+  "label": "RTX engineering and digital roles"
+ },
+ "replit": {
+  "ats": "ashby",
+  "token": "replit",
+  "min_interval": 1800,
+  "company_key": "replit",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sentry": {
+  "ats": "ashby",
+  "token": "sentry",
+  "min_interval": 1800,
+  "company_key": "sentry",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "temporal": {
+  "ats": "ashby",
+  "token": "temporal",
+  "min_interval": 1800,
+  "company_key": "temporal",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "posthog": {
+  "ats": "ashby",
+  "token": "posthog",
+  "min_interval": 1800,
+  "company_key": "posthog",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "grafana_labs": {
+  "ats": "greenhouse",
+  "token": "grafanalabs",
+  "min_interval": 1800,
+  "company_key": "grafana_labs",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "new_relic": {
+  "ats": "greenhouse",
+  "token": "newrelic",
+  "min_interval": 1800,
+  "company_key": "new_relic",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "pagerduty": {
+  "ats": "greenhouse",
+  "token": "pagerduty",
+  "min_interval": 1800,
+  "company_key": "pagerduty",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "netlify": {
+  "ats": "greenhouse",
+  "token": "netlify",
+  "min_interval": 1800,
+  "company_key": "netlify",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "circleci": {
+  "ats": "greenhouse",
+  "token": "circleci",
+  "min_interval": 1800,
+  "company_key": "circleci",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sourcegraph": {
+  "ats": "greenhouse",
+  "token": "sourcegraph91",
+  "min_interval": 1800,
+  "company_key": "sourcegraph",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "docker": {
+  "ats": "ashby",
+  "token": "docker",
+  "min_interval": 1800,
+  "company_key": "docker",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "render": {
+  "ats": "ashby",
+  "token": "render",
+  "min_interval": 1800,
+  "company_key": "render",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "jfrog": {
+  "ats": "greenhouse",
+  "token": "jfrog",
+  "min_interval": 1800,
+  "company_key": "jfrog",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sumo_logic": {
+  "ats": "greenhouse",
+  "token": "sumologic",
+  "min_interval": 1800,
+  "company_key": "sumo_logic",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "buildkite": {
+  "ats": "greenhouse",
+  "token": "buildkite",
+  "min_interval": 1800,
+  "company_key": "buildkite",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cortex": {
+  "ats": "greenhouse",
+  "token": "cortex",
+  "min_interval": 1800,
+  "company_key": "cortex",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "honeycomb_io": {
+  "ats": "greenhouse",
+  "token": "honeycomb",
+  "min_interval": 1800,
+  "company_key": "honeycomb_io",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cribl": {
+  "ats": "greenhouse",
+  "token": "cribl",
+  "min_interval": 1800,
+  "company_key": "cribl",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "harness": {
+  "ats": "greenhouse",
+  "token": "harnessinc",
+  "min_interval": 1800,
+  "company_key": "harness",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sonatype": {
+  "ats": "lever",
+  "token": "sonatype",
+  "min_interval": 1800,
+  "company_key": "sonatype",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kong": {
+  "ats": "ashby",
+  "token": "kong",
+  "min_interval": 1800,
+  "company_key": "kong",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "workos": {
+  "ats": "ashby",
+  "token": "workos",
+  "min_interval": 1800,
+  "company_key": "workos",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "semgrep": {
+  "ats": "ashby",
+  "token": "semgrep",
+  "min_interval": 1800,
+  "company_key": "semgrep",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "swarmia": {
+  "ats": "ashby",
+  "token": "swarmia",
+  "min_interval": 1800,
+  "company_key": "swarmia",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "coder": {
+  "ats": "ashby",
+  "token": "coder",
+  "min_interval": 1800,
+  "company_key": "coder",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tailscale": {
+  "ats": "greenhouse",
+  "token": "tailscale",
+  "min_interval": 1800,
+  "company_key": "tailscale",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "github": {
+  "ats": "jibe",
+  "host": "www.github.careers",
+  "min_interval": 1800,
+  "company_key": "github",
+  "group": "Developer Tools",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ciena": {
+  "ats": "workday",
+  "host": "ciena.wd5.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "Careers",
+  "tenant": "ciena",
+  "company_key": "ciena",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sonos": {
+  "ats": "workday",
+  "host": "sonos.wd1.myworkdayjobs.com",
+  "tenant": "sonos",
+  "site": "Sonos",
+  "min_interval": 1800,
+  "company_key": "sonos",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lucid": {
+  "ats": "greenhouse",
+  "token": "lucidmotors",
+  "min_interval": 1800,
+  "company_key": "lucid",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "garmin": {
+  "ats": "jibe",
+  "host": "careers.garmin.com",
+  "min_interval": 1800,
+  "company_key": "garmin",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zebra_technologies": {
+  "ats": "workday",
+  "host": "zebra.wd501.myworkdayjobs.com",
+  "tenant": "zebra",
+  "site": "Zebra_careers",
+  "min_interval": 1800,
+  "company_key": "zebra_technologies",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "logitech": {
+  "ats": "workday",
+  "host": "logitech.wd5.myworkdayjobs.com",
+  "tenant": "logitech",
+  "site": "Logitech",
+  "min_interval": 1800,
+  "company_key": "logitech",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "global"
+ },
+ "siemens_us": {
+  "ats": "avature",
+  "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs",
+  "location": "United States",
+  "min_interval": 21600,
+  "company_key": "siemens",
+  "group": "Devices & IoT",
+  "priority": 2,
+  "geography": "us",
+  "label": "Siemens · United States"
+ },
+ "box": {
+  "ats": "greenhouse",
+  "token": "boxinc",
+  "min_interval": 1800,
+  "company_key": "box",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "miro": {
+  "ats": "greenhouse",
+  "token": "realtimeboardglobal",
+  "min_interval": 1800,
+  "company_key": "miro",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zapier": {
+  "ats": "ashby",
+  "token": "zapier",
+  "min_interval": 1800,
+  "company_key": "zapier",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hubspot": {
+  "ats": "greenhouse",
+  "token": "hubspotjobs",
+  "min_interval": 1800,
+  "company_key": "hubspot",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zendesk": {
+  "ats": "workday",
+  "host": "zendesk.wd1.myworkdayjobs.com",
+  "tenant": "zendesk",
+  "site": "zendesk",
+  "min_interval": 1800,
+  "company_key": "zendesk",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "benchling": {
+  "ats": "ashby",
+  "token": "benchling",
+  "min_interval": 1800,
+  "company_key": "benchling",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "canva": {
+  "ats": "smartrecruiters",
+  "token": "Canva",
+  "min_interval": 1800,
+  "company_key": "canva",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "docusign": {
+  "ats": "jibe",
+  "host": "careers.docusign.com",
+  "min_interval": 1800,
+  "company_key": "docusign",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "atlassian": {
+  "ats": "atlassian",
+  "min_interval": 1800,
+  "company_key": "atlassian",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cdw": {
+  "ats": "workday",
+  "host": "cdw.wd5.myworkdayjobs.com",
+  "tenant": "cdw",
+  "site": "Careers",
+  "min_interval": 1800,
+  "company_key": "cdw",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "unisys": {
+  "ats": "workday",
+  "host": "unisys.wd5.myworkdayjobs.com",
+  "tenant": "unisys",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "unisys",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "appian": {
+  "ats": "greenhouse",
+  "token": "appian",
+  "min_interval": 1800,
+  "company_key": "appian",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "celonis": {
+  "ats": "greenhouse",
+  "token": "celonis",
+  "min_interval": 1800,
+  "company_key": "celonis",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "workato": {
+  "ats": "greenhouse",
+  "token": "workato",
+  "min_interval": 1800,
+  "company_key": "workato",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zuora": {
+  "ats": "greenhouse",
+  "token": "zuora",
+  "min_interval": 1800,
+  "company_key": "zuora",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "contentful": {
+  "ats": "greenhouse",
+  "token": "contentful",
+  "min_interval": 1800,
+  "company_key": "contentful",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "coupa_software": {
+  "ats": "lever",
+  "token": "coupa",
+  "min_interval": 1800,
+  "company_key": "coupa_software",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "snaplogic": {
+  "ats": "lever",
+  "token": "snaplogic",
+  "min_interval": 1800,
+  "company_key": "snaplogic",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "uipath": {
+  "ats": "ashby",
+  "token": "uipath",
+  "min_interval": 1800,
+  "company_key": "uipath",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "clickup": {
+  "ats": "ashby",
+  "token": "clickup",
+  "min_interval": 1800,
+  "company_key": "clickup",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "plane": {
+  "ats": "ashby",
+  "token": "plane",
+  "min_interval": 1800,
+  "company_key": "plane",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ringcentral": {
+  "ats": "workday",
+  "host": "ringcentral.wd1.myworkdayjobs.com",
+  "tenant": "ringcentral",
+  "site": "RingCentral_Careers",
+  "min_interval": 1800,
+  "company_key": "ringcentral",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "procore_technologies": {
+  "ats": "workday",
+  "host": "procore.wd12.myworkdayjobs.com",
+  "tenant": "procore",
+  "site": "Procore_External_Careers",
+  "min_interval": 1800,
+  "company_key": "procore_technologies",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "monday_com": {
+  "ats": "ashby",
+  "token": "monday.com",
+  "min_interval": 1800,
+  "company_key": "monday_com",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "medallia": {
+  "ats": "jibe",
+  "host": "jobs.medallia.com",
+  "min_interval": 1800,
+  "company_key": "medallia",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ironclad": {
+  "ats": "ashby",
+  "token": "ironcladhq",
+  "min_interval": 1800,
+  "company_key": "ironclad",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "automation_anywhere": {
+  "ats": "workday",
+  "host": "automationanywhere.wd5.myworkdayjobs.com",
+  "tenant": "automationanywhere",
+  "site": "AutomationAnywhereJobs",
+  "min_interval": 1800,
+  "company_key": "automation_anywhere",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "guidewire_software": {
+  "ats": "workday",
+  "host": "guidewire.wd5.myworkdayjobs.com",
+  "tenant": "guidewire",
+  "site": "external",
+  "min_interval": 1800,
+  "company_key": "guidewire_software",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "f5": {
+  "ats": "workday",
+  "host": "ffive.wd5.myworkdayjobs.com",
+  "tenant": "ffive",
+  "site": "f5jobs",
+  "min_interval": 1800,
+  "company_key": "f5",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ncr_voyix": {
+  "ats": "workday",
+  "host": "ncr.wd1.myworkdayjobs.com",
+  "tenant": "ncr",
+  "site": "ext_us",
+  "min_interval": 1800,
+  "company_key": "ncr_voyix",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sabre": {
+  "ats": "workday",
+  "host": "sabre.wd1.myworkdayjobs.com",
+  "tenant": "sabre",
+  "site": "SabreJobs",
+  "min_interval": 1800,
+  "company_key": "sabre",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "freshbooks": {
+  "ats": "gem",
+  "account": "freshbooks",
+  "min_interval": 1800,
+  "company_key": "freshbooks",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fico": {
+  "ats": "workday",
+  "host": "fico.wd1.myworkdayjobs.com",
+  "tenant": "fico",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "fico",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "koho": {
+  "ats": "ashby",
+  "token": "koho",
+  "min_interval": 1800,
+  "company_key": "koho",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "neo_financial": {
+  "ats": "ashby",
+  "token": "neofinancial",
+  "min_interval": 1800,
+  "company_key": "neo_financial",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "wealthfront": {
+  "ats": "lever",
+  "token": "wealthfront",
+  "min_interval": 1800,
+  "company_key": "wealthfront",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "addepar": {
+  "ats": "greenhouse",
+  "token": "addepar1",
+  "min_interval": 1800,
+  "company_key": "addepar",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "blend": {
+  "ats": "greenhouse",
+  "token": "blend",
+  "min_interval": 1800,
+  "company_key": "blend",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lemonade": {
+  "ats": "ashby",
+  "token": "lemonade",
+  "min_interval": 1800,
+  "company_key": "lemonade",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "socure": {
+  "ats": "ashby",
+  "token": "socure",
+  "min_interval": 1800,
+  "company_key": "socure",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "dave": {
+  "ats": "ashby",
+  "token": "dave",
+  "min_interval": 1800,
+  "company_key": "dave",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "paxos": {
+  "ats": "ashby",
+  "token": "Paxos",
+  "min_interval": 1800,
+  "company_key": "paxos",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bitgo": {
+  "ats": "greenhouse",
+  "token": "bitgo",
+  "min_interval": 1800,
+  "company_key": "bitgo",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "public_com": {
+  "ats": "greenhouse",
+  "token": "public",
+  "min_interval": 1800,
+  "company_key": "public_com",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "acorns": {
+  "ats": "ashby",
+  "token": "acorns",
+  "min_interval": 1800,
+  "company_key": "acorns",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nerdwallet": {
+  "ats": "ashby",
+  "token": "nerdwallet",
+  "min_interval": 1800,
+  "company_key": "nerdwallet",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "collective": {
+  "ats": "ashby",
+  "token": "collective",
+  "min_interval": 1800,
+  "company_key": "collective",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "anchorage_digital": {
+  "ats": "lever",
+  "token": "anchorage",
+  "min_interval": 1800,
+  "company_key": "anchorage_digital",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "moonpay": {
+  "ats": "lever",
+  "token": "moonpay",
+  "min_interval": 1800,
+  "company_key": "moonpay",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "apex_fintech_solutions": {
+  "ats": "workday",
+  "host": "peak6group.wd1.myworkdayjobs.com",
+  "tenant": "peak6group",
+  "site": "apexfintechsolutions",
+  "min_interval": 1800,
+  "company_key": "apex_fintech_solutions",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "worldpay": {
+  "ats": "workday",
+  "host": "worldpay.wd5.myworkdayjobs.com",
+  "tenant": "worldpay",
+  "site": "Worldpay_External_Careers_Site",
+  "min_interval": 1800,
+  "company_key": "worldpay",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "chainalysis": {
+  "ats": "ashby",
+  "token": "chainalysis-careers",
+  "min_interval": 1800,
+  "company_key": "chainalysis",
+  "group": "FinTech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "epic_games": {
+  "ats": "greenhouse",
+  "token": "epicgames",
+  "min_interval": 1800,
+  "company_key": "epic_games",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "riot_games": {
+  "ats": "greenhouse",
+  "token": "riotgames",
+  "min_interval": 1800,
+  "company_key": "riot_games",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "twitch": {
+  "ats": "greenhouse",
+  "token": "twitch",
+  "min_interval": 1800,
+  "company_key": "twitch",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ubisoft": {
+  "ats": "smartrecruiters",
+  "token": "Ubisoft2",
+  "min_interval": 1800,
+  "company_key": "ubisoft",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "unity": {
+  "ats": "workday",
+  "host": "unitytech.wd1.myworkdayjobs.com",
+  "tenant": "unitytech",
+  "site": "Unity",
+  "min_interval": 1800,
+  "company_key": "unity",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "take_two": {
+  "ats": "greenhouse",
+  "token": "taketwo",
+  "min_interval": 1800,
+  "company_key": "take_two_interactive",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rockstar_games": {
+  "ats": "greenhouse",
+  "token": "rockstargames",
+  "min_interval": 1800,
+  "company_key": "rockstar_games",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "2k": {
+  "ats": "greenhouse",
+  "token": "2k",
+  "min_interval": 1800,
+  "company_key": "2k",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "scopely": {
+  "ats": "greenhouse",
+  "token": "scopely",
+  "min_interval": 1800,
+  "company_key": "scopely",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bungie": {
+  "ats": "greenhouse",
+  "token": "bungie",
+  "min_interval": 1800,
+  "company_key": "bungie",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "behaviour_interactive": {
+  "ats": "lever",
+  "token": "bhvr",
+  "min_interval": 1800,
+  "company_key": "behaviour_interactive",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mistplay": {
+  "ats": "lever",
+  "token": "mistplay",
+  "min_interval": 1800,
+  "company_key": "mistplay",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "electronic_arts": {
+  "ats": "avature",
+  "url": "https://jobs.ea.com/en_US/careers/SearchJobs/",
+  "min_interval": 1800,
+  "company_key": "electronic_arts",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kabam": {
+  "ats": "lever",
+  "token": "kabam",
+  "min_interval": 1800,
+  "company_key": "kabam",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "jam_city": {
+  "ats": "lever",
+  "token": "jamcity",
+  "min_interval": 1800,
+  "company_key": "jam_city",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "gearbox_software": {
+  "ats": "greenhouse",
+  "token": "gearbox",
+  "min_interval": 1800,
+  "company_key": "gearbox_software",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "digital_extremes": {
+  "ats": "greenhouse",
+  "token": "digitalextremes",
+  "min_interval": 1800,
+  "company_key": "digital_extremes",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "playstation": {
+  "ats": "greenhouse",
+  "token": "sonyinteractiveentertainmentglobal",
+  "min_interval": 1800,
+  "company_key": "playstation",
+  "group": "Gaming",
+  "priority": 2,
+  "geography": "global"
+ },
+ "linkedin_us_hardware": {
+  "ats": "linkedin",
+  "location": "United States",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "hardware engineer intern",
+   "embedded software intern",
+   "electrical engineering intern",
+   "firmware engineer new grad"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "us",
+  "label": "LinkedIn · United States · Hardware"
+ },
+ "linkedin_canada_hardware": {
+  "ats": "linkedin",
+  "location": "Canada",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "electrical engineering co-op",
+   "embedded software co-op",
+   "hardware engineer intern",
+   "firmware co-op"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "canada",
+  "label": "LinkedIn · Canada · Hardware"
+ },
+ "suki": {
+  "ats": "greenhouse",
+  "token": "suki",
+  "min_interval": 1800,
+  "company_key": "suki",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "pathai": {
+  "ats": "greenhouse",
+  "token": "pathai",
+  "min_interval": 1800,
+  "company_key": "pathai",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "insitro": {
+  "ats": "ashby",
+  "token": "insitro",
+  "min_interval": 1800,
+  "company_key": "insitro",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "recursion_pharmaceuticals": {
+  "ats": "greenhouse",
+  "token": "recursionpharmaceuticals",
+  "min_interval": 1800,
+  "company_key": "recursion_pharmaceuticals",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nabla": {
+  "ats": "ashby",
+  "token": "nabla",
+  "min_interval": 1800,
+  "company_key": "nabla",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "natera": {
+  "ats": "greenhouse",
+  "token": "natera",
+  "min_interval": 1800,
+  "company_key": "natera",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "flatiron_health": {
+  "ats": "greenhouse",
+  "token": "flatironhealth",
+  "min_interval": 1800,
+  "company_key": "flatiron_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tempus_ai": {
+  "ats": "workday",
+  "host": "tempus.wd5.myworkdayjobs.com",
+  "tenant": "tempus",
+  "site": "Tempus_Careers",
+  "min_interval": 1800,
+  "company_key": "tempus_ai",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ambience_healthcare": {
+  "ats": "ashby",
+  "token": "ambiencehealthcare",
+  "min_interval": 1800,
+  "company_key": "ambience_healthcare",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "corti": {
+  "ats": "ashby",
+  "token": "corti",
+  "min_interval": 1800,
+  "company_key": "corti",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "regard": {
+  "ats": "ashby",
+  "token": "regard",
+  "min_interval": 1800,
+  "company_key": "regard",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "isomorphic_labs": {
+  "ats": "greenhouse",
+  "token": "isomorphiclabs",
+  "min_interval": 1800,
+  "company_key": "isomorphic_labs",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "veeva_systems": {
+  "ats": "lever",
+  "token": "veeva",
+  "min_interval": 1800,
+  "company_key": "veeva_systems",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zocdoc": {
+  "ats": "greenhouse",
+  "token": "zocdoc",
+  "min_interval": 1800,
+  "company_key": "zocdoc",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "omada_health": {
+  "ats": "greenhouse",
+  "token": "omadahealth",
+  "min_interval": 1800,
+  "company_key": "omada_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sword_health": {
+  "ats": "greenhouse",
+  "token": "swordhealth",
+  "min_interval": 1800,
+  "company_key": "sword_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "headway": {
+  "ats": "ashby",
+  "token": "headway",
+  "min_interval": 1800,
+  "company_key": "headway",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "talkspace": {
+  "ats": "greenhouse",
+  "token": "talkspace",
+  "min_interval": 1800,
+  "company_key": "talkspace",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "collective_health": {
+  "ats": "greenhouse",
+  "token": "collectivehealth",
+  "min_interval": 1800,
+  "company_key": "collective_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "modern_health": {
+  "ats": "greenhouse",
+  "token": "modernhealth",
+  "min_interval": 1800,
+  "company_key": "modern_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "komodo_health": {
+  "ats": "greenhouse",
+  "token": "komodohealth",
+  "min_interval": 1800,
+  "company_key": "komodo_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "devoted_health": {
+  "ats": "workday",
+  "host": "devoted.wd1.myworkdayjobs.com",
+  "tenant": "devoted",
+  "site": "Devoted",
+  "min_interval": 1800,
+  "company_key": "devoted_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cvs_health": {
+  "ats": "workday",
+  "host": "cvshealth.wd1.myworkdayjobs.com",
+  "tenant": "cvshealth",
+  "site": "CVS_Health_Careers",
+  "facets": {
+   "jobFamilyGroup": [
+    "e65dbadf6a50100168ed7f2a693c0001",
+    "e65dbadf6a50100168ed86fe4cf50001"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "cvs_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "CVS Health technology roles"
+ },
+ "humana": {
+  "ats": "workday",
+  "host": "humana.wd5.myworkdayjobs.com",
+  "tenant": "humana",
+  "site": "Humana_External_Career_Site",
+  "facets": {
+   "jobFamilyGroup": [
+    "fbb60995c999011d23ea024a15c58ec6",
+    "fbb60995c99901e15cebc24915c582c6",
+    "fbb60995c999019d8a70164a15c592c6",
+    "fbb60995c99901ebd9a7d74915c586c6",
+    "fbb60995c9990180a257d34715c522c6",
+    "fbb60995c99901ad81e1cd4915c584c6",
+    "fbb60995c999015ce05ca94715c51ac6",
+    "fbb60995c99901ef292b0c4a15c590c6",
+    "fbb60995c99901392fb3e14915c588c6",
+    "fbb60995c99901271b96764715c510c6"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "humana",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Humana technology roles"
+ },
+ "elevance_health": {
+  "ats": "workday",
+  "host": "elevancehealth.wd1.myworkdayjobs.com",
+  "tenant": "elevancehealth",
+  "site": "ANT",
+  "facets": {
+   "jobFamilyGroup": [
+    "f42bff05a414010057201f1c4a500000",
+    "f42bff05a414010057202c5662160000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "elevance_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Elevance Health technology roles"
+ },
+ "cigna": {
+  "ats": "workday",
+  "host": "cigna.wd5.myworkdayjobs.com",
+  "tenant": "cigna",
+  "site": "cignacareers",
+  "facets": {
+   "jobFamilyGroup": [
+    "b7947bbbfff20176f0ee1016390c8d16",
+    "b7947bbbfff201d41a750216390c8516"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "cigna",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "Cigna and Evernorth technology roles"
+ },
+ "ge_healthcare": {
+  "ats": "workday",
+  "host": "gehc.wd5.myworkdayjobs.com",
+  "tenant": "gehc",
+  "site": "GEHC_ExternalSite",
+  "facets": {
+   "jobFamilyGroup": [
+    "864c17d3c011100151ac102b68ea0000",
+    "864c17d3c011100151aaff090fe60000"
+   ]
+  },
+  "min_interval": 1800,
+  "company_key": "ge_healthcare",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global",
+  "label": "GE HealthCare engineering and digital roles"
+ },
+ "spring_health": {
+  "ats": "ashby",
+  "token": "deaa6ad2-d184-436b-b69e-17f761da1d94",
+  "min_interval": 1800,
+  "company_key": "spring_health",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "epic_systems": {
+  "ats": "avature",
+  "url": "https://epic.avature.net/Careers/SearchJobs",
+  "min_interval": 1800,
+  "company_key": "epic_systems",
+  "group": "Health Tech",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ionq": {
+  "ats": "greenhouse",
+  "token": "ionq",
+  "min_interval": 1800,
+  "company_key": "ionq",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rigetti_computing": {
+  "ats": "lever",
+  "token": "rigetti",
+  "min_interval": 1800,
+  "company_key": "rigetti_computing",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "quera_computing": {
+  "ats": "greenhouse",
+  "token": "queracomputinginc",
+  "min_interval": 1800,
+  "company_key": "quera_computing",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "atom_computing": {
+  "ats": "lever",
+  "token": "atomcomputing",
+  "min_interval": 1800,
+  "company_key": "atom_computing",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "quantinuum": {
+  "ats": "lever",
+  "token": "quantinuum",
+  "region": "eu",
+  "min_interval": 1800,
+  "company_key": "quantinuum",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "psiquantum": {
+  "ats": "greenhouse",
+  "token": "psiquantum",
+  "min_interval": 1800,
+  "company_key": "psiquantum",
+  "group": "Quantum Computing",
+  "priority": 2,
+  "geography": "global"
+ },
+ "applied_intuition": {
+  "ats": "ashby",
+  "token": "applied",
+  "min_interval": 1800,
+  "company_key": "applied_intuition",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "kodiak": {
+  "ats": "greenhouse",
+  "token": "kodiak",
+  "min_interval": 1800,
+  "company_key": "kodiak",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "skydio": {
+  "ats": "ashby",
+  "token": "skydio",
+  "min_interval": 1800,
+  "company_key": "skydio",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "figure": {
+  "ats": "greenhouse",
+  "token": "figureai",
+  "min_interval": 1800,
+  "company_key": "figure",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "wayve": {
+  "ats": "ashby",
+  "token": "wayve",
+  "min_interval": 1800,
+  "company_key": "wayve",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "motional": {
+  "ats": "greenhouse",
+  "token": "motional",
+  "min_interval": 1800,
+  "company_key": "motional",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zipline": {
+  "ats": "greenhouse",
+  "token": "flyzipline",
+  "min_interval": 1800,
+  "company_key": "zipline",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "physical_intelligence": {
+  "ats": "ashby",
+  "token": "physicalintelligence",
+  "min_interval": 1800,
+  "company_key": "physical_intelligence",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "boston_dynamics": {
+  "ats": "workday",
+  "host": "bostondynamics.wd1.myworkdayjobs.com",
+  "tenant": "bostondynamics",
+  "site": "Boston_Dynamics",
+  "min_interval": 1800,
+  "company_key": "boston_dynamics",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "niantic_spatial": {
+  "ats": "ashby",
+  "token": "niantic-spatial",
+  "min_interval": 1800,
+  "company_key": "niantic_spatial",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sanctuary_ai": {
+  "ats": "kula",
+  "account": "sanctuary-ai",
+  "min_interval": 1800,
+  "company_key": "sanctuary_ai",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "agility_robotics": {
+  "ats": "greenhouse",
+  "token": "agilityrobotics",
+  "min_interval": 1800,
+  "company_key": "agility_robotics",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "locus_robotics": {
+  "ats": "greenhouse",
+  "token": "locusrobotics",
+  "min_interval": 1800,
+  "company_key": "locus_robotics",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "stack_av": {
+  "ats": "greenhouse",
+  "token": "stackav",
+  "min_interval": 1800,
+  "company_key": "stack_av",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "1x_technologies": {
+  "ats": "ashby",
+  "token": "1x",
+  "min_interval": 1800,
+  "company_key": "1x_technologies",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "apptronik": {
+  "ats": "greenhouse",
+  "token": "apptronik",
+  "min_interval": 1800,
+  "company_key": "apptronik",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "viam": {
+  "ats": "greenhouse",
+  "token": "viamrobotics",
+  "min_interval": 1800,
+  "company_key": "viam",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "robust_ai": {
+  "ats": "lever",
+  "token": "robust-ai",
+  "min_interval": 1800,
+  "company_key": "robust_ai",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "serve_robotics": {
+  "ats": "ashby",
+  "token": "serverobotics",
+  "min_interval": 1800,
+  "company_key": "serve_robotics",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "general_motors": {
+  "ats": "workday",
+  "host": "generalmotors.wd5.myworkdayjobs.com",
+  "tenant": "generalmotors",
+  "site": "Careers_GM",
+  "min_interval": 1800,
+  "company_key": "general_motors",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cognex": {
+  "ats": "workday",
+  "host": "cognex.wd1.myworkdayjobs.com",
+  "tenant": "cognex",
+  "site": "External_Career_Site",
+  "min_interval": 1800,
+  "company_key": "cognex",
+  "group": "Robotics & Autonomy",
+  "priority": 2,
+  "geography": "global"
+ },
+ "salesloft": {
+  "ats": "greenhouse",
+  "token": "salesloft",
+  "min_interval": 1800,
+  "company_key": "salesloft",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "6sense": {
+  "ats": "greenhouse",
+  "token": "6sense",
+  "min_interval": 1800,
+  "company_key": "6sense",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zoominfo": {
+  "ats": "greenhouse",
+  "token": "zoominfo",
+  "min_interval": 1800,
+  "company_key": "zoominfo",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "intercom": {
+  "ats": "greenhouse",
+  "token": "intercom",
+  "min_interval": 1800,
+  "company_key": "intercom",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "outreach": {
+  "ats": "lever",
+  "token": "outreach",
+  "min_interval": 1800,
+  "company_key": "outreach",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "gong": {
+  "ats": "greenhouse",
+  "token": "gongio",
+  "min_interval": 1800,
+  "company_key": "gong",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "demandbase": {
+  "ats": "ashby",
+  "token": "demandbase",
+  "min_interval": 1800,
+  "company_key": "demandbase",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "apollo_io": {
+  "ats": "greenhouse",
+  "token": "apolloio",
+  "min_interval": 1800,
+  "company_key": "apollo_io",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cresta": {
+  "ats": "greenhouse",
+  "token": "cresta",
+  "min_interval": 1800,
+  "company_key": "cresta",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "amplemarket": {
+  "ats": "greenhouse",
+  "token": "amplemarket",
+  "min_interval": 1800,
+  "company_key": "amplemarket",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "braze": {
+  "ats": "greenhouse",
+  "token": "braze",
+  "min_interval": 1800,
+  "company_key": "braze",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "klaviyo": {
+  "ats": "greenhouse",
+  "token": "klaviyo",
+  "min_interval": 1800,
+  "company_key": "klaviyo",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "qualtrics": {
+  "ats": "greenhouse",
+  "token": "qualtrics",
+  "min_interval": 1800,
+  "company_key": "qualtrics",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "pendo": {
+  "ats": "greenhouse",
+  "token": "pendo",
+  "min_interval": 1800,
+  "company_key": "pendo",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "salsify": {
+  "ats": "greenhouse",
+  "token": "salsify",
+  "min_interval": 1800,
+  "company_key": "salsify",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sendbird": {
+  "ats": "greenhouse",
+  "token": "sendbird",
+  "min_interval": 1800,
+  "company_key": "sendbird",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "five9": {
+  "ats": "greenhouse",
+  "token": "five9",
+  "min_interval": 1800,
+  "company_key": "five9",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "dialpad": {
+  "ats": "greenhouse",
+  "token": "dialpad",
+  "min_interval": 1800,
+  "company_key": "dialpad",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "similarweb": {
+  "ats": "greenhouse",
+  "token": "similarweb",
+  "min_interval": 1800,
+  "company_key": "similarweb",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "walkme": {
+  "ats": "lever",
+  "token": "walkme",
+  "min_interval": 1800,
+  "company_key": "walkme",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "contentsquare": {
+  "ats": "lever",
+  "token": "contentsquare",
+  "min_interval": 1800,
+  "company_key": "contentsquare",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "aircall": {
+  "ats": "lever",
+  "token": "aircall",
+  "min_interval": 1800,
+  "company_key": "aircall",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "fullstory": {
+  "ats": "ashby",
+  "token": "fullstory",
+  "min_interval": 1800,
+  "company_key": "fullstory",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "freshworks": {
+  "ats": "smartrecruiters",
+  "token": "freshworks",
+  "min_interval": 1800,
+  "company_key": "freshworks",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "klue": {
+  "ats": "ashby",
+  "token": "klue",
+  "min_interval": 1800,
+  "company_key": "klue",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "loopio": {
+  "ats": "ashby",
+  "token": "loopio",
+  "min_interval": 1800,
+  "company_key": "loopio",
+  "group": "Enterprise Software",
+  "priority": 2,
+  "geography": "global"
+ },
+ "zscaler": {
+  "ats": "greenhouse",
+  "token": "zscaler",
+  "min_interval": 1800,
+  "company_key": "zscaler",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "crowdstrike": {
+  "ats": "workday",
+  "host": "crowdstrike.wd5.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "crowdstrikecareers",
+  "tenant": "crowdstrike",
+  "company_key": "crowdstrike",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tenable": {
+  "ats": "greenhouse",
+  "token": "tenableinc",
+  "min_interval": 1800,
+  "company_key": "tenable",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "wiz": {
+  "ats": "greenhouse",
+  "token": "wizinc",
+  "min_interval": 1800,
+  "company_key": "wiz",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "snyk": {
+  "ats": "ashby",
+  "token": "Snyk",
+  "min_interval": 1800,
+  "company_key": "snyk",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sentinelone": {
+  "ats": "greenhouse",
+  "token": "sentinellabs",
+  "min_interval": 1800,
+  "company_key": "sentinelone",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "arctic_wolf": {
+  "ats": "workday",
+  "host": "arcticwolf.wd1.myworkdayjobs.com",
+  "tenant": "arcticwolf",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "arctic_wolf",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "abnormal_security": {
+  "ats": "greenhouse",
+  "token": "abnormalsecurity",
+  "min_interval": 1800,
+  "company_key": "abnormal_security",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "chainguard": {
+  "ats": "greenhouse",
+  "token": "chainguard",
+  "min_interval": 1800,
+  "company_key": "chainguard",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tanium": {
+  "ats": "greenhouse",
+  "token": "tanium",
+  "min_interval": 1800,
+  "company_key": "tanium",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "knowbe4": {
+  "ats": "greenhouse",
+  "token": "knowbe4",
+  "min_interval": 1800,
+  "company_key": "knowbe4",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "beyondtrust": {
+  "ats": "greenhouse",
+  "token": "beyondtrust",
+  "min_interval": 1800,
+  "company_key": "beyondtrust",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "dragos": {
+  "ats": "greenhouse",
+  "token": "dragos",
+  "min_interval": 1800,
+  "company_key": "dragos",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "nozomi_networks": {
+  "ats": "greenhouse",
+  "token": "nozominetworks",
+  "min_interval": 1800,
+  "company_key": "nozomi_networks",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "securityscorecard": {
+  "ats": "greenhouse",
+  "token": "securityscorecard",
+  "min_interval": 1800,
+  "company_key": "securityscorecard",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "bugcrowd": {
+  "ats": "greenhouse",
+  "token": "bugcrowd",
+  "min_interval": 1800,
+  "company_key": "bugcrowd",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ping_identity": {
+  "ats": "greenhouse",
+  "token": "pingidentity",
+  "min_interval": 1800,
+  "company_key": "ping_identity",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "corelight": {
+  "ats": "greenhouse",
+  "token": "corelight",
+  "min_interval": 1800,
+  "company_key": "corelight",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "recorded_future": {
+  "ats": "greenhouse",
+  "token": "recordedfuture",
+  "min_interval": 1800,
+  "company_key": "recorded_future",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tines": {
+  "ats": "greenhouse",
+  "token": "tines",
+  "min_interval": 1800,
+  "company_key": "tines",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "torq": {
+  "ats": "greenhouse",
+  "token": "torq",
+  "min_interval": 1800,
+  "company_key": "torq",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "axonius": {
+  "ats": "greenhouse",
+  "token": "axonius",
+  "min_interval": 1800,
+  "company_key": "axonius",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "orca_security": {
+  "ats": "greenhouse",
+  "token": "orcasecurity",
+  "min_interval": 1800,
+  "company_key": "orca_security",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cato_networks": {
+  "ats": "greenhouse",
+  "token": "catonetworks",
+  "min_interval": 1800,
+  "company_key": "cato_networks",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "netskope": {
+  "ats": "greenhouse",
+  "token": "netskope",
+  "min_interval": 1800,
+  "company_key": "netskope",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sophos": {
+  "ats": "lever",
+  "token": "sophos",
+  "min_interval": 1800,
+  "company_key": "sophos",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "illumio": {
+  "ats": "ashby",
+  "token": "illumio",
+  "min_interval": 1800,
+  "company_key": "illumio",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "delinea": {
+  "ats": "ashby",
+  "token": "delinea",
+  "min_interval": 1800,
+  "company_key": "delinea",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "hackerone": {
+  "ats": "ashby",
+  "token": "hackerone",
+  "min_interval": 1800,
+  "company_key": "hackerone",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "material_security": {
+  "ats": "ashby",
+  "token": "materialsecurity",
+  "min_interval": 1800,
+  "company_key": "material_security",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sailpoint": {
+  "ats": "workday",
+  "host": "sailpoint.wd1.myworkdayjobs.com",
+  "tenant": "sailpoint",
+  "site": "SailPoint",
+  "min_interval": 1800,
+  "company_key": "sailpoint",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "proofpoint": {
+  "ats": "workday",
+  "host": "proofpoint.wd5.myworkdayjobs.com",
+  "tenant": "proofpoint",
+  "site": "ProofpointCareers",
+  "min_interval": 1800,
+  "company_key": "proofpoint",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "armis": {
+  "ats": "smartrecruiters",
+  "token": "Armis",
+  "min_interval": 1800,
+  "company_key": "armis",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "rapid7": {
+  "ats": "workday",
+  "host": "mymoose.wd1.myworkdayjobs.com",
+  "tenant": "mymoose",
+  "site": "careers",
+  "min_interval": 1800,
+  "company_key": "rapid7",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "darktrace": {
+  "ats": "workday",
+  "host": "darktrace.wd3.myworkdayjobs.com",
+  "tenant": "darktrace",
+  "site": "DarktaceExternal",
+  "min_interval": 1800,
+  "company_key": "darktrace",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "check_point_software": {
+  "ats": "smartrecruiters",
+  "token": "CheckPointSoftwareTechnologies2",
+  "min_interval": 1800,
+  "company_key": "check_point_software",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "mimecast": {
+  "ats": "workday",
+  "host": "mimecast.wd5.myworkdayjobs.com",
+  "tenant": "mimecast",
+  "site": "Mimecast-Careers",
+  "min_interval": 1800,
+  "company_key": "mimecast",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "exabeam": {
+  "ats": "jobvite",
+  "account": "q31bVfwU",
+  "min_interval": 1800,
+  "company_key": "exabeam",
+  "group": "Cybersecurity",
+  "priority": 2,
+  "geography": "global"
+ },
+ "broadcom": {
+  "ats": "workday",
+  "host": "broadcom.wd1.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "External_Career",
+  "tenant": "broadcom",
+  "company_key": "broadcom",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "marvell": {
+  "ats": "workday",
+  "host": "marvell.wd1.myworkdayjobs.com",
+  "min_interval": 1800,
+  "search": "",
+  "site": "MarvellCareers",
+  "tenant": "marvell",
+  "company_key": "marvell",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "microchip": {
+  "ats": "workday",
+  "host": "microchiphr.wd5.myworkdayjobs.com",
+  "tenant": "microchiphr",
+  "site": "External",
+  "min_interval": 1800,
+  "company_key": "microchip_technology",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "synopsys": {
+  "ats": "radancy",
+  "host": "careers.synopsys.com",
+  "min_interval": 1800,
+  "company_key": "synopsys",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "tenstorrent": {
+  "ats": "greenhouse",
+  "token": "tenstorrent",
+  "min_interval": 1800,
+  "company_key": "tenstorrent",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "sambanova": {
+  "ats": "greenhouse",
+  "token": "sambanovasystems",
+  "min_interval": 1800,
+  "company_key": "sambanova_systems",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lightmatter": {
+  "ats": "greenhouse",
+  "token": "lightmatter",
+  "min_interval": 1800,
+  "company_key": "lightmatter",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "etched": {
+  "ats": "ashby",
+  "token": "etched",
+  "min_interval": 1800,
+  "company_key": "etched",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "arm": {
+  "ats": "radancy",
+  "host": "careers.arm.com",
+  "min_interval": 1800,
+  "company_key": "arm",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "cerebras": {
+  "ats": "ashby",
+  "token": "cerebras",
+  "min_interval": 1800,
+  "company_key": "cerebras",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "qualcomm": {
+  "ats": "eightfold",
+  "host": "careers.qualcomm.com",
+  "domain": "qualcomm.com",
+  "api": "pcsx",
+  "min_interval": 3600,
+  "company_key": "qualcomm",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lumentum": {
+  "ats": "workday",
+  "host": "lumentum.wd5.myworkdayjobs.com",
+  "tenant": "lumentum",
+  "site": "LITE",
+  "min_interval": 1800,
+  "company_key": "lumentum",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "lattice_semiconductor": {
+  "ats": "workday",
+  "host": "latticesemi.wd5.myworkdayjobs.com",
+  "tenant": "latticesemi",
+  "site": "latticesemiconductorscareers",
+  "min_interval": 1800,
+  "company_key": "lattice_semiconductor",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "allegro_microsystems": {
+  "ats": "workday",
+  "host": "allegromicro.wd5.myworkdayjobs.com",
+  "tenant": "allegromicro",
+  "site": "AllegroCareers",
+  "min_interval": 1800,
+  "company_key": "allegro_microsystems",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "semtech": {
+  "ats": "workday",
+  "host": "semtech.wd1.myworkdayjobs.com",
+  "tenant": "semtech",
+  "site": "SemtechCareers",
+  "min_interval": 1800,
+  "company_key": "semtech",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "ambarella": {
+  "ats": "workday",
+  "host": "ambarella.wd108.myworkdayjobs.com",
+  "tenant": "ambarella",
+  "site": "Ambarella",
+  "min_interval": 1800,
+  "company_key": "ambarella",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "viavi_solutions": {
+  "ats": "workday",
+  "host": "viavisolutions.wd1.myworkdayjobs.com",
+  "tenant": "viavisolutions",
+  "site": "Careers",
+  "min_interval": 1800,
+  "company_key": "viavi_solutions",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "samsung_semiconductor": {
+  "ats": "greenhouse",
+  "token": "samsungsemiconductor",
+  "min_interval": 1800,
+  "company_key": "samsung_semiconductor",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "onto_innovation": {
+  "ats": "workday",
+  "host": "onto.wd1.myworkdayjobs.com",
+  "tenant": "onto",
+  "site": "ONTO_Careers",
+  "min_interval": 1800,
+  "company_key": "onto_innovation",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "qorvo": {
+  "ats": "successfactors",
+  "url": "https://careers.qorvo.com/search/",
+  "min_interval": 1800,
+  "company_key": "qorvo",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "monolithic_power_systems": {
+  "ats": "workday",
+  "host": "monolithicpower.wd12.myworkdayjobs.com",
+  "tenant": "monolithicpower",
+  "site": "MPS_Careers",
+  "min_interval": 1800,
+  "company_key": "monolithic_power_systems",
+  "group": "Semiconductors",
+  "priority": 2,
+  "geography": "global"
+ },
+ "linkedin_us_software": {
+  "ats": "linkedin",
+  "location": "United States",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "software developer intern",
+   "backend engineer new grad",
+   "full stack engineer intern",
+   "site reliability engineer new grad"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "us",
+  "label": "LinkedIn · United States · Software"
+ },
+ "linkedin_canada_software": {
+  "ats": "linkedin",
+  "location": "Canada",
+  "recency": "r2592000",
+  "pages": 5,
+  "seed_recency": "r7776000",
+  "seed_pages": 8,
+  "min_interval": 1800,
+  "queries": [
+   "software developer co-op",
+   "software developer intern",
+   "software engineer new graduate",
+   "full stack developer co-op"
+  ],
+  "group": "LinkedIn",
+  "priority": 1,
+  "geography": "canada",
+  "label": "LinkedIn · Canada · Software"
+ },
+ "at_t": {
+  "ats": "workday",
+  "host": "att.wd1.myworkdayjobs.com",
+  "tenant": "att",
+  "site": "ATTGeneral",
+  "min_interval": 3600,
+  "company_key": "at_t",
+  "group": "Telecom & Networks",
+  "priority": 2,
+  "geography": "global"
+ }
+}

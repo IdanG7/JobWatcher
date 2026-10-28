@@ -37,7 +37,9 @@ BOARD_FIELDS = {"ats", "token", "tenant", "site", "host", "domain", "url", "repo
                 "query", "queries", "search", "location", "facets", "cols", "group",
                 "min_interval", "disabled", "company_key", "company_type", "geography",
                 "priority", "complete_listing", "indirect_links", "path", "branch", "max", "size", "pages", "recency", "seed_pages", "seed_recency",
-                "feed", "servlet", "lang", "label", "api", "account", "board", "categories", "companies", "region"}
+                "feed", "servlet", "lang", "label", "api", "account", "board", "categories", "companies", "region",
+                "client", "culture", "cid", "ccid", "section", "page_size", "departments", "facility", "passes",
+                "place", "dmy"}
 
 QUICK_START = """FOOTHOLD - Windows 10/11, 64-bit
 
@@ -112,7 +114,7 @@ def clean_config(source: dict) -> dict:
                    target_cycles=[], target_locations=[], target_company_types=[],
                    skills=[], languages=[], work_authorization={"CA": "unknown", "US": "unknown"})
     return {
-        "sources_version": 10,
+        "sources_version": 11,
         "interval_seconds": 300, "feed_flush_minutes": 90, "digest_hour_utc": None,
         "healthcheck_url": "", "dashboard_url": "", "description_budget": 60,
         "description_per_board": 12, "facts_per_cycle": 5000, "profile": profile,

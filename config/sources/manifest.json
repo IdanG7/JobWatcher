@@ -1,15 +1,18 @@
 {
-  "_readme": "Which boards (the fields picked in onboarding) poll which sources. A source's folder decides the boards allowed to poll it: finance/ only Finance, tech/ only the tech boards, shared/ both. The Finance board polls every finance/ and shared/ pack: every source it polled in 0.3.7, settings unchanged, plus the shared/ employers whose feeds also carry finance roles (a finance firm's tech feed, a tech firm's whole feed); an employer with no finance roles goes in tech/. The finance firms' shared groups sit in the tech filters beside bank_technology. Every other board names the pack groups (file names) it polls: core always, plus the groups of the filters picked (Software, Backend), or of every filter when none is picked. 'everything' polls every pack. A source in no pack (one the user added) is always polled.",
+  "_readme": "Which boards (the fields picked in onboarding) poll which sources. A source's folder decides the boards allowed to poll it: finance/ only Finance, tech/ only the tech boards and Healthcare, shared/ all of them, health/ only Healthcare. A board polls only the groups it names, so adding a board to a folder's audience changes no other board. The Finance board polls every finance/ and shared/ pack: every source it polled in 0.3.7, settings unchanged, plus the shared/ employers whose feeds also carry finance roles (a finance firm's tech feed, a tech firm's whole feed); an employer with no finance roles goes in tech/. The finance firms' shared groups sit in the tech filters beside bank_technology. Every other board names the pack groups (file names) it polls: core always, plus the groups of the filters picked (Software, Backend), or of every filter when none is picked. 'everything' polls every pack. A source in no pack (one the user added) is always polled.",
   "version": 1,
   "folders": {
     "finance": {
       "fields": ["finance"]
     },
     "shared": {
-      "fields": ["finance", "software", "data_ml", "hardware", "product", "design"]
+      "fields": ["finance", "software", "data_ml", "hardware", "product", "design", "healthcare"]
     },
     "tech": {
-      "fields": ["software", "data_ml", "hardware", "product", "design"]
+      "fields": ["software", "data_ml", "hardware", "product", "design", "healthcare"]
+    },
+    "health": {
+      "fields": ["healthcare"]
     }
   },
   "fields": {
@@ -66,7 +69,18 @@
       "everything": true
     },
     "healthcare": {
-      "everything": true
+      "core": ["lists", "health_tech", "health_core"],
+      "filters": {
+        "clinical_care": ["hospitals_canada", "hospitals_us", "pharmacy_consumer", "payers"],
+        "clinical_research": ["cro_cdmo", "pharma", "biotech", "research_institutes", "hospitals_canada", "hospitals_us"],
+        "lab_research": ["biotech", "pharma", "research_institutes", "diagnostics_labs", "cro_cdmo"],
+        "bioinformatics": ["biotech", "research_institutes", "diagnostics_labs", "pharma"],
+        "regulatory_quality": ["pharma", "biotech", "medtech", "cro_cdmo", "diagnostics_labs"],
+        "medical_devices": ["medtech", "diagnostics_labs"],
+        "public_health": ["public_health", "research_institutes", "hospitals_canada"],
+        "health_admin": ["hospitals_canada", "hospitals_us", "payers", "pharmacy_consumer"],
+        "medical_affairs": ["pharma", "biotech", "medtech"]
+      }
     }
   }
 }

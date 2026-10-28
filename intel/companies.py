@@ -47,13 +47,15 @@ def resolve_company(name: str, kn: Knowledge, board: str = "",
         company = kn.match_company(board.replace("_", " "))
 
     if company is not None:
-        # The country stands in for a posting's location when it names none. Tech employers
-        # hire worldwide, so their HQ doesn't (and finance postings there keep their place).
-        tech = (kn.company_types.get(company.type) or {}).get("track") == "tech"
+        # The country stands in for a posting's location when it names none. Employers off the
+        # finance track (tech) hire worldwide, so their HQ doesn't (and finance postings there
+        # keep their place).
+        tracks = kn.type_tracks(company.type)
+        worldwide = bool(tracks) and "finance" not in tracks
         return {
             "key": company.key, "name": company.name, "type": company.type,
             "type_label": kn.type_label(company.type), "known": True,
-            "country": "" if tech else company.country, "hq": company.hq,
+            "country": "" if worldwide else company.country, "hq": company.hq,
         }
 
     ctype = board_cfg.get("company_type") or "unknown"

@@ -36,6 +36,7 @@ import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
+from intel.programs import program_windows
 from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
@@ -1333,6 +1334,7 @@ class JobwatchService:
                 items.append({"date": r["date"], "time": r["time"], "kind": r["kind"] or "event", "source": "event",
                               "event_id": r["id"], "title": r["title"], "company": r["company"],
                               "notes": r["notes"], "job_key": r["job_key"], "manual": True})
+            items += program_windows(profile, self.kn, start, end)
         finally:
             if own:
                 con.close()
@@ -1710,7 +1712,8 @@ class JobwatchService:
 
     def put_profile(self, payload: dict) -> dict:
         incoming = payload.get("profile") or payload
-        allowed = set(merge_profile({}).keys()) | {"role_weights", "fields"}
+        # Keys beyond the defaults: fields, licences (D16) and the hours preference (D15), absent until set.
+        allowed = set(merge_profile({}).keys()) | {"role_weights", "fields", "licences", "hours"}
         cleaned = {k: v for k, v in incoming.items() if k in allowed}
         profile = merge_profile(self.config.get("profile"), cleaned)
         gpa = (profile.get("education") or {}).get("gpa")
@@ -2360,6 +2363,10 @@ class JobwatchService:
         return {
             "taxonomy": self.kn.taxonomy_tree(),
             "families": self.kn.family_tree(),
+            "finance": {"skill_groups": self.kn.finance_skill_groups},
+            # Each track's employer types are shown to its boards in Settings.
+            "tracks": [{"key": t.key, "label": t.label, "employer_heading": t.employer_heading,
+                        "boards": self.kn.track_boards.get(t.key, [])} for t in self.kn.tracks.values()],
             "company_types": [{"key": k, **v} for k, v in self.kn.company_types.items()],
             "cities": [{"key": c["key"], "label": c["label"], "country": c["country"], "target": bool(c.get("target"))}
                        for c in self.kn.cities],
@@ -2367,6 +2374,9 @@ class JobwatchService:
             "languages": sorted(lang.title() for lang in KNOWN_LANGUAGES),
             "skills": [{"key": s.key, "label": s.label, "group": s.group} for s in self.kn.skills],
             "skill_groups": self.kn.skill_groups,
+            # Licences & certifications a board's postings may ask for (D16).
+            "licences": [{"key": l.key, "label": l.label, "kind": l.kind, "board": board}
+                         for board, board_licences in self.kn.licences.items() for l in board_licences.items],
             "statuses": [{"key": s, "label": STATUS_LABELS[s]} for s in APP_STATUSES],
             "relationships": RELATIONSHIPS,
             "cycles": [{"key": c, "label": cycle_label(c)} for c in cycles],

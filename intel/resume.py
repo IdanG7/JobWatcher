@@ -20,9 +20,10 @@ from datetime import date
 from xml.etree import ElementTree
 
 from .knowledge import Knowledge
+from .licences import resume_licences
 from .locations import parse_location
 from .skills import extract_skills
-from .sources import TECH_FIELDS, profile_fields, role_field
+from .sources import profile_fields, role_field
 from .taxonomy import classify
 from . import resume_insights as insights
 
@@ -203,17 +204,20 @@ _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _PHONE = re.compile(r"(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}")
 _LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?|(?<![\w/])in/[\w-]{3,}", re.I)
 _SECTION = re.compile(
-    r"^\s*(education|academic|experience|work experience|professional experience|employment|"
+    r"^\s*(education|academic|experience|work experience|professional experience|clinical experience|employment|"
     r"skills|technical skills(?:\s*(?:&|and)\s*interests)?|skills\s*(?:&|and)\s*interests|leadership(?:\s*(?:&|and)\s*activities)?|activities|extracurricular|"
     r"projects|interests|languages|certifications|awards|summary|profile|objective)\s*:?\s*$", re.I)
 _SCHOOL = re.compile(r"\b(?:university|université|universite|college|école|ecole|institute|school of|"
                      r"polytechnic|business school)\b", re.I)
 _DEGREES = [
-    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of)\b", re.I)),
+    # A PharmD or an MD sets no level: they are neither a PhD nor a master's.
+    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of(?! (?:pharmacy|medicine|dental|optometry|veterinary)))\b", re.I)),
     ("mba", re.compile(r"\bm\.?b\.?a\b", re.I)),
-    ("masters", re.compile(r"\b(?:master(?:'?s)? of|m\.?sc|m\.?fin|m\.?eng|mmf|mfe|mmath|m\.?a\.? in|msf|master'?s)\b", re.I)),
+    ("masters", re.compile(r"\b(?:master(?:'?s)? of|m\.?sc|m\.?fin|m\.?eng|mmf|mfe|mmath|m\.?a\.? in|msf|master'?s|"
+                           r"m\.?p\.?h|msn)\b", re.I)),
     ("undergraduate", re.compile(r"\b(?:bachelor(?:'?s)?(?: of)?|b\.?com|bba|b\.?sc|b\.?a\.?(?: in| of|\b)|b\.?eng|b\.?math|"
-                                 r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate)\b", re.I)),
+                                 r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate|b\.?sc\.?n|bsn|b\.?h\.?sc|"
+                                 r"b\.?kin)\b", re.I)),
 ]
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
@@ -330,10 +334,13 @@ def _education(edu_lines: list[str], full: str) -> dict:
             "graduation_text": grad_text}
 
 
-def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[list[dict], list[str]]:
+def _experience(lines: list[str], kn: Knowledge,
+                tracks: frozenset[str] = frozenset()) -> tuple[list[dict], list[str]]:
     """Role-like lines (classified with the job taxonomy) and achievement bullets.
-    Finance roles, and with ``tech`` also Software, AI & Data, Hardware, Product and Design ones."""
+    Finance roles, and those on the boards of ``tracks`` (tech: Software, AI & Data, Hardware…)."""
     roles, bullets = [], []
+    # An open track's role words ("nurse", "technologist") also mark a role line; a finance resume's are as before.
+    track_words = [kn.tracks[t].role_words for t in sorted(tracks) if kn.tracks[t].role_words]
     for raw in lines:
         line = raw.strip()
         if not line:
@@ -351,7 +358,7 @@ def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[li
             # firm name ("… Asset Management") never stands in for the role.
             title_line = _RANGE.sub("", line).strip(" ,|–—-()")
             segments = [s.strip() for s in re.split(r"\s{2,}|\t|\s[|–—-]\s|,\s", title_line) if s.strip()]
-            titled = [s for s in segments if _ROLE_WORD.search(s)]
+            titled = [s for s in segments if _ROLE_WORD.search(s) or any(w.search(s) for w in track_words)]
             best = None
             for seg in titled:
                 cls = classify(seg, kn)
@@ -360,7 +367,7 @@ def _experience(lines: list[str], kn: Knowledge, tech: bool = False) -> tuple[li
                 # inference from "capital markets" or the employer's name.
                 if re.search(r"\btreasury\b", seg, re.I):
                     cls = classify("Treasury Analyst", kn)
-                if ((cls["is_finance"] or (tech and cls.get("family") in TECH_FIELDS))
+                if ((cls["is_finance"] or kn.board_track.get(cls.get("family")) in tracks)
                         and (best is None or cls["confidence"] > best[1]["confidence"])):
                     best = (seg, cls)
             if best and best[1]["confidence"] >= 0.45:
@@ -398,13 +405,14 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
     entries = insights.experience_entries(sections)
-    # A resume with no tech title or degree is read with the finance vocabulary alone.
-    tech = insights.tech_resume(entries, education, kn)
-    roles, bullets = _experience(exp_lines or lines, kn, tech)
+    # A resume that opens no track (no tech title or degree) is read with the finance vocabulary alone.
+    tracks = insights.resume_tracks(entries, education, kn)
+    roles, bullets = _experience(exp_lines or lines, kn, tracks)
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
-    interests = insights.role_interests(entries, edu_text, kn, tech)
+    interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))
-    skills = extract_skills(text, kn, limit=60, tech=tech)
+    skills = extract_skills(text, kn, limit=60, tracks=tracks)
+    licences = resume_licences(sections, entries, education, tracks, kn)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference
     for line in top[:6] + exp_lines:
@@ -418,7 +426,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     email = _EMAIL.search("\n".join(top[:8]) or text)
     phone = _PHONE.search("\n".join(top[:8]) or text)
     linkedin = _LINKEDIN.search(text)
-    return {
+    parsed = {
         "name": _guess_name(top),
         "email": email.group(0) if email else None,
         "phone": phone.group(0).strip() if phone else None,
@@ -431,7 +439,7 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "role_categories": [i["key"] for i in interests],
         "role_interests": interests,
         "career": career,
-        "company_types": insights.company_types(interests),
+        "company_types": insights.company_types(interests, kn),
         "entries": [{k: e[k] for k in ("block", "company", "title", "end")} for e in entries],
         "cities": [c for c, _ in cities.most_common(6)],
         "languages": _languages(text),
@@ -439,6 +447,10 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
         "internships": insights.student_roles(entries),
         "chars": len(text),
     }
+    if licences:
+        # Only a resume track whose boards define licences reads them: finance and tech resumes are as before.
+        parsed["licences"] = licences
+    return parsed
 
 
 def profile_suggestions(parsed: dict, profile: dict, kn: Knowledge) -> dict:
@@ -469,6 +481,10 @@ def profile_suggestions(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     cities = [c for c in parsed.get("cities") or [] if c in kn.city_by_key and c not in (profile.get("target_locations") or [])]
     if cities:
         out["target_locations"] = cities[:4]
+    licences = [l["key"] for l in parsed.get("licences") or [] if l["key"] in kn.licence_by_key
+                and l["key"] not in (profile.get("licences") or [])]
+    if licences:
+        out["licences"] = licences
     langs = [l for l in parsed.get("languages") or [] if l not in (profile.get("languages") or [])]
     if langs:
         out["languages"] = langs
@@ -509,8 +525,10 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
         before = {**before, "program": "", "gpa": None}
     result["education"] = {**before, **found}
     result["skills"] = [s["key"] for s in parsed.get("skills", []) if s["key"] in kn.skill_by_key]
-    # Specialties and finance subcategories, or a whole tech family ("Software Engineer").
-    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | (TECH_FIELDS & set(kn.families))
+    # Specialties and finance subcategories, or a whole family on a resume track ("Software Engineer").
+    valid = {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | {
+        board for key, track in kn.tracks.items() if track.resume
+        for board in kn.track_boards.get(key, []) if board in kn.families}
     interests = [i for i in parsed.get("role_interests") or [] if i["key"] in valid]
     if interests:
         # The resume adds graded targets (strongest = 1.0). Targets picked in a chosen board stay
@@ -543,6 +561,9 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
         result["target_countries"] = list(dict.fromkeys(c for c in countries if c))
     if parsed.get("languages"):
         result["languages"] = list(parsed["languages"])
+    licences = [l["key"] for l in parsed.get("licences") or [] if l["key"] in kn.licence_by_key]
+    if licences:
+        result["licences"] = list(dict.fromkeys([*(profile.get("licences") or []), *licences]))
     if edu.get("graduation_year"):
         year = edu["graduation_year"]
         result["graduation_year"] = year

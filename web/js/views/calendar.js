@@ -6,7 +6,7 @@ import {eventForm} from '../forms.js';
 import {bindTooltips, confirmDialog, emptyState, errorState, icon, skeletonRows, toast} from '../ui.js';
 
 const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const KIND_LABEL = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up'};
+const KIND_LABEL = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up', program: 'Program window'};
 const VIEW_KEYS = {m: 'month', w: 'week', l: 'list'};
 const STEP_LABEL = {month: 'month', week: 'week', list: '60 days'};
 
@@ -34,7 +34,7 @@ export async function render(root, ctx) {
   </div>
   <section class="cal-sheet" data-body>${skeletonRows(8)}</section>
   <footer class="cal-foot">
-    <div class="legend cal-legend" aria-label="Legend"><span><i class="k-deadline"></i>Deadline</span><span><i class="k-interview"></i>Interview</span><span><i class="k-follow_up"></i>Follow-up</span><span><i class="k-next_action"></i>Next step or event</span><span><i class="k-extracted"></i>Extracted from a posting</span></div>
+    <div class="legend cal-legend" aria-label="Legend"><span><i class="k-deadline"></i>Deadline</span><span><i class="k-interview"></i>Interview</span><span><i class="k-follow_up"></i>Follow-up</span><span><i class="k-next_action"></i>Next step or event</span><span><i class="k-extracted"></i>Extracted from a posting</span><span data-program-legend hidden><i class="k-program"></i>Program window (typical dates)</span></div>
     <p>Extracted deadlines come from posting text: open the job to confirm or correct them. Deadlines you set yourself always win. Double-click a day to add an event.</p>
   </footer>`;
   const $ = s => root.querySelector(s);
@@ -60,7 +60,7 @@ export async function render(root, ctx) {
     } catch (err) { if (ticket === latest) $('[data-body]').innerHTML = errorState(err); }
   }
 
-  const tipFor = it => `<b>${esc(KIND_LABEL[it.kind] || it.kind)}</b> · ${esc(it.company || '')} ${esc(it.title)}${it.source === 'extracted' ? ` · extracted (${esc(it.confidence || '')} confidence)` : ''}`;
+  const tipFor = it => `<b>${esc(KIND_LABEL[it.kind] || it.kind)}</b> · ${esc(it.company || '')} ${esc(it.title)}${it.source === 'extracted' ? ` · extracted (${esc(it.confidence || '')} confidence)` : ''}${it.when ? ` · ${esc(it.when)}. ${esc(it.notes || '')}` : ''}`;
   const evHtml = it => `<span class="ev ${esc(it.kind)}${it.source === 'extracted' ? ' extracted' : ''}" data-ev="${state.items.indexOf(it)}" data-tip="${esc(tipFor(it))}" title="${esc(`${KIND_LABEL[it.kind] || it.kind}: ${it.company ? `${it.company} — ` : ''}${it.title}`)}">${it.time ? `<time>${esc(it.time)}</time> ` : ''}${esc(it.company ? `${it.company} · ` : '')}${esc(it.title)}</span>`;
 
   // Title, view switch and step labels: these follow the view even before the data arrives.
@@ -79,6 +79,7 @@ export async function render(root, ctx) {
 
   function draw() {
     drawChrome();
+    $('[data-program-legend]').hidden = !state.items.some(it => it.kind === 'program');
     const [s] = range();
     const today = isoDay(new Date());
     const byDay = {};
@@ -89,7 +90,7 @@ export async function render(root, ctx) {
         const date = parseDay(d);
         return `<li class="agenda-day${d === today ? ' today' : ''}"><div class="agenda-date"><small>${date.toLocaleDateString(undefined, {weekday: 'short'})}</small><b>${date.getDate()}</b><small>${date.toLocaleDateString(undefined, {month: 'short'})}</small></div>
           <ul class="agenda-items">${byDay[d].map(it => `<li class="agenda-item ${esc(it.kind)}${it.source === 'extracted' ? ' extracted' : ''}" data-ev="${state.items.indexOf(it)}">
-            <i aria-hidden="true"></i><div class="grow"><div class="t">${esc(it.company ? `${it.company} — ` : '')}${esc(it.title)}</div><div class="s">${esc(KIND_LABEL[it.kind] || it.kind)}${it.source === 'extracted' ? ` · extracted from posting${it.fit ? ` · fit ${it.fit}` : ''}` : ''}${it.time ? ` · ${esc(it.time)}` : ''}${it.notes ? ` · ${esc(it.notes)}` : ''}</div></div>
+            <i aria-hidden="true"></i><div class="grow"><div class="t">${esc(it.company ? `${it.company} — ` : '')}${esc(it.title)}</div><div class="s">${esc(KIND_LABEL[it.kind] || it.kind)}${it.when ? ` · ${esc(it.when)}` : ''}${it.source === 'extracted' ? ` · extracted from posting${it.fit ? ` · fit ${it.fit}` : ''}` : ''}${it.time ? ` · ${esc(it.time)}` : ''}${it.notes ? ` · ${esc(it.notes)}` : ''}</div></div>
             ${it.event_id ? `<button type="button" class="btn ghost xs icon row-action" data-del="${it.event_id}" title="Delete event" aria-label="Delete event">${icon('trash', 13)}</button>` : ''}</li>`).join('')}</ul></li>`;
       }).join('')}</ol>` : emptyState('Nothing in the next 60 days', 'Save roles with deadlines, schedule interviews or add networking events.');
       return;

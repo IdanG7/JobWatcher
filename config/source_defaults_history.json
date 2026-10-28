@@ -1,4 +1,27 @@
 {
+ "10x_genomics": {
+  "account": [
+   "10xgenomics"
+  ],
+  "ats": [
+   "kula"
+  ],
+  "company_key": [
+   "10x_genomics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "1password": {
   "ats": [
    "ashby"
@@ -77,15 +100,20 @@
   ]
  },
  "__shipped__": {
-  "hash": "99184ec16a625ce7",
+  "hash": "cb2c364bc47e30a1",
   "names": [
+   "10x_genomics",
    "1password",
    "1x_technologies",
    "2k",
    "6sense",
+   "abbott_medtech",
+   "abcellera",
    "abnormal_security",
    "abridge",
+   "absci",
    "absorb_lms",
+   "abt_global",
    "acorns",
    "ada",
    "addepar",
@@ -93,6 +121,7 @@
    "adobe_university",
    "adp",
    "affirm",
+   "agilent_technologies",
    "agility_robotics",
    "ai2",
    "airbnb",
@@ -102,12 +131,19 @@
    "akamai",
    "akuna",
    "alayacare",
+   "alberta_innovates",
+   "alcami",
    "aleph_alpha",
+   "alignment_health",
    "allegro_microsystems",
    "alloy",
    "alltrails",
+   "allucent",
+   "alnylam_pharmaceuticals",
    "alphasense",
+   "altasciences",
    "alteryx",
+   "altos_labs",
    "amazon",
    "amazon_finance",
    "amazon_newgrad",
@@ -115,7 +151,10 @@
    "ambarella",
    "ambience_healthcare",
    "amd",
+   "american_cancer_society",
    "american_express",
+   "american_heart_association",
+   "amgen",
    "amplemarket",
    "amplitude",
    "analog_devices",
@@ -127,6 +166,7 @@
    "apex_space",
    "apollo",
    "apollo_io",
+   "apotex",
    "appian",
    "apple",
    "apple_finance",
@@ -136,16 +176,20 @@
    "apptronik",
    "aptiv",
    "aqr",
+   "arc_institute",
    "arctic_wolf",
    "arize_ai",
    "arm",
    "armis",
    "array_technologies",
+   "arsenal_bio",
    "asana",
+   "aspect_biosystems",
    "assemblyai",
    "astranis",
    "at_t",
    "atlan",
+   "atlantic_health_system",
    "atlassian",
    "atom_computing",
    "attio",
@@ -159,13 +203,22 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "bausch_lomb",
+   "baxter_international",
+   "bayer",
+   "beam_therapeutics",
+   "becton_dickinson",
    "behaviour_interactive",
    "bell",
    "benchling",
+   "benchsci",
    "benevity",
    "best_buy_canada",
+   "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
+   "biogen",
+   "biontech",
    "bitgo",
    "blackbaud",
    "blackberry",
@@ -177,7 +230,9 @@
    "blend",
    "block",
    "bloomberg",
+   "blue_cross_blue_shield_of_massachusetts",
    "blue_origin",
+   "blue_shield_of_california",
    "bmo",
    "bmo_students",
    "bmo_tech",
@@ -185,13 +240,18 @@
    "booz_allen_hamilton",
    "borrowell",
    "boston_dynamics",
+   "boston_scientific",
    "box",
    "braintrust",
    "braze",
    "brex",
+   "bristol_myers_squibb",
+   "broad_institute",
    "broadcom",
    "brookfield",
    "browserbase",
+   "bruker",
+   "bruker_international",
    "bugcrowd",
    "buildkite",
    "bumble",
@@ -199,33 +259,46 @@
    "caci_international",
    "cadence",
    "calendly",
+   "calico",
+   "cambrex",
+   "camh",
    "canada_intern26",
+   "canadian_blood_services",
+   "canadian_cancer_society",
    "canadian_tire",
    "canva",
    "capital_one",
    "capital_one_early",
+   "caris_life_sciences",
    "carlyle",
    "carta",
    "cartesia",
+   "catalent",
    "cato_networks",
+   "cdc_foundation",
    "cdpq",
    "cdpq_students",
    "cdw",
    "celonis",
+   "centene",
    "cerebras",
    "chainalysis",
    "chainguard",
    "character_ai",
    "chargepoint",
+   "charles_river_laboratories",
    "check_point_software",
    "checkr",
+   "cheo",
    "chewy",
+   "children_s_hospital_of_philadelphia",
    "chime",
    "cibc",
    "cibc_students",
    "cibc_tech",
    "ciena",
    "cigna",
+   "cigna_clinical",
    "cigna_finance",
    "circleci",
    "cisco",
@@ -237,8 +310,10 @@
    "clearco",
    "clickhouse",
    "clickup",
+   "clinton_health_access_initiative",
    "clio",
    "cloudflare",
+   "clover_health",
    "cockroach_labs",
    "coder",
    "cognex",
@@ -248,6 +323,7 @@
    "collective",
    "collective_health",
    "collibra",
+   "colorado_public_health",
    "comcast",
    "commonwealth_fusion",
    "commure",
@@ -265,15 +341,19 @@
    "cpp_investments",
    "cresta",
    "cribl",
+   "crispr_therapeutics",
    "crowdstrike",
    "crusoe",
    "cursor",
    "curtiss_wright",
    "cvrve_newgrad",
    "cvs_health",
+   "cvs_health_clinical",
    "cvs_health_finance",
    "d2l",
    "d_matrix",
+   "dana_farber_cancer_institute",
+   "danaher",
    "darktrace",
    "databricks",
    "datadog",
@@ -281,6 +361,7 @@
    "dataiku",
    "dave",
    "decagon",
+   "deep_genomics",
    "deepgram",
    "deepl",
    "deepmind",
@@ -288,11 +369,15 @@
    "deliveroo",
    "dell",
    "demandbase",
+   "denali_therapeutics",
    "derec4_newgrad27",
    "descript",
    "deutsche_bank",
    "deutsche_bank_tech",
    "devoted_health",
+   "dewpoint_therapeutics",
+   "dexcom",
+   "diabetes_canada",
    "dialpad",
    "digital_extremes",
    "digitalocean",
@@ -307,13 +392,20 @@
    "dremio",
    "dropbox",
    "drw",
+   "duke_health",
    "duolingo",
+   "dynacare",
+   "dyno_therapeutics",
    "e2b",
    "ebay",
+   "edwards_lifesciences",
+   "eikon_therapeutics",
    "elastic",
    "electronic_arts",
    "elevance_health",
+   "elevance_health_clinical",
    "elevenlabs",
+   "eli_lilly",
    "encord",
    "enovix",
    "epic_games",
@@ -323,6 +415,7 @@
    "etched",
    "evercore",
    "evercore_students",
+   "evotec",
    "exa_ai",
    "exabeam",
    "expedia_group",
@@ -330,6 +423,7 @@
    "faire",
    "fanduel",
    "fastly",
+   "fhi_360",
    "fico",
    "fidelity",
    "figma",
@@ -347,27 +441,38 @@
    "flex",
    "flexport",
    "float",
+   "florida_blue",
    "flow_traders",
    "ford_motor_company",
    "form_energy",
    "fortinet",
+   "fortrea",
+   "fraser_health",
+   "freenome",
    "freshbooks",
    "freshworks",
    "fullstory",
    "garmin",
+   "gates_foundation",
    "gdit",
    "ge_aerospace",
    "ge_healthcare",
    "ge_healthcare_finance",
+   "ge_healthcare_medtech",
    "ge_vernova",
    "ge_vernova_finance",
    "gearbox_software",
    "gemini",
+   "genentech",
    "general_motors",
+   "generate_biomedicines",
    "geneva_trading",
    "geotab",
+   "gilead_sciences",
+   "ginkgo_bioworks",
    "github",
    "gitlab",
+   "glaukos",
    "glean",
    "global_payments",
    "globalfoundries",
@@ -380,18 +485,27 @@
    "gopuff",
    "gradient_ai",
    "grafana_labs",
+   "grail",
    "graphcore",
+   "gsk",
    "gts",
    "guidewire_software",
    "gusto",
+   "hackensack_meridian_health",
    "hackerone",
+   "halton_healthcare",
+   "hamilton_health_sciences",
    "harness",
+   "harvard_university",
    "harvey",
    "headway",
+   "health_canada",
+   "health_standards_organization",
    "hebbia",
    "helion_energy",
    "hex",
    "heygen",
+   "hhmi",
    "hightouch",
    "hinge_health",
    "honeycomb_io",
@@ -405,34 +519,48 @@
    "hubspot",
    "hugging_face",
    "humana",
+   "humana_clinical",
+   "humber_river_health",
+   "icf",
    "ideogram",
+   "illumina",
    "illumio",
    "imbue",
    "imc",
    "imply",
+   "inceptive",
    "inflection_ai",
    "insitro",
    "instacart",
+   "insulet",
    "intel",
    "intel_early",
+   "intellia_therapeutics",
    "intercom",
    "intuit",
    "intuitive_surgical",
    "inworld_ai",
    "ionq",
+   "iqvia",
+   "irhythm_technologies",
    "ironclad",
    "isomorphic_labs",
+   "jackson_laboratory",
    "jam_city",
    "jane_street",
    "jefferies_campus",
    "jfrog",
    "jobber",
+   "johns_hopkins_university",
+   "johnson_johnson",
    "jpmorgan",
    "jpmorgan_early",
    "jpmorgan_tech",
    "jump_trading",
    "kabam",
    "kairos_power",
+   "kardium",
+   "kenvue",
    "keysight_technologies",
    "kinaxis",
    "kkr",
@@ -445,8 +573,11 @@
    "komodo_health",
    "kong",
    "krea_ai",
+   "kymera_therapeutics",
    "kyndryl",
    "l3harris_technologies",
+   "la_county_public_health",
+   "labcorp",
    "labelbox",
    "lam_research",
    "lambda_labs",
@@ -460,6 +591,7 @@
    "lenovo_canada",
    "lenovo_us",
    "letta",
+   "lifelabs",
    "lightmatter",
    "lightning_ai",
    "lightspeed_commerce",
@@ -468,40 +600,55 @@
    "linkedin_canada_data",
    "linkedin_canada_hard_to_reach",
    "linkedin_canada_hardware",
+   "linkedin_canada_health",
    "linkedin_canada_software",
    "linkedin_quant",
    "linkedin_us",
    "linkedin_us_data",
    "linkedin_us_hard_to_reach",
    "linkedin_us_hardware",
+   "linkedin_us_health",
    "linkedin_us_software",
    "liquid_ai",
    "lithic",
    "llamaindex",
+   "loblaw_pharmacy",
    "lockheed_martin",
    "lockheed_martin_finance",
    "locus_robotics",
    "logitech",
+   "london_health_sciences_centre",
+   "lonza",
    "loopio",
    "lowe_s",
    "lucid",
    "luma_ai",
    "lumentum",
    "lyft",
+   "mackenzie_health",
    "magic",
    "magna_finance",
    "magna_international",
+   "mammoth_biosciences",
    "man_group",
    "manulife",
+   "march_of_dimes",
    "marqeta",
    "marvell",
+   "mass_general_brigham",
+   "mass_general_brigham_students",
    "mastercard",
    "mastercard_early",
    "match_group",
    "material_security",
    "materialize",
+   "mayo_clinic",
+   "mcgill_university",
    "mda_space",
    "medallia",
+   "medavie_health_services",
+   "medtronic",
+   "merck",
    "mercor",
    "mercury",
    "microchip",
@@ -519,7 +666,9 @@
    "mixpanel",
    "modal",
    "modern_health",
+   "moderna",
    "moelis",
+   "molina_healthcare",
    "monday_com",
    "mongodb",
    "monolithic_power_systems",
@@ -531,9 +680,11 @@
    "motherduck",
    "motional",
    "motorola_solutions",
+   "mount_sinai_health_system",
    "mozilla",
    "msci",
    "msci_us",
+   "myriad_genetics",
    "nabla",
    "nasdaq",
    "natera",
@@ -542,6 +693,7 @@
    "nebius",
    "neo4j",
    "neo_financial",
+   "neogenomics",
    "nerdwallet",
    "netapp",
    "netflix",
@@ -549,6 +701,7 @@
    "netskope",
    "neuralink",
    "new_relic",
+   "newyork_presbyterian",
    "nextdoor",
    "nextracker",
    "niantic_spatial",
@@ -558,7 +711,11 @@
    "northrop_grumman",
    "northrop_grumman_finance",
    "notion",
+   "nova_scotia_health",
+   "novartis",
+   "novo_nordisk",
    "nozomi_networks",
+   "nurix_therapeutics",
    "nuro",
    "nutanix",
    "nuvei",
@@ -566,10 +723,13 @@
    "nwfintech_quant27",
    "nxp",
    "offseason_fall26",
+   "oicr",
    "oklo",
    "okta",
    "old_mission",
+   "olympus_americas",
    "omada_health",
+   "ontario_health",
    "onto_innovation",
    "openai",
    "openevidence",
@@ -582,9 +742,12 @@
    "otter_ai",
    "oura",
    "outreach",
+   "pacbio",
    "pagerduty",
    "palantir",
    "palo_alto_networks",
+   "parexel",
+   "path",
    "pathai",
    "patreon",
    "paxos",
@@ -593,7 +756,10 @@
    "pdt_partners",
    "peloton",
    "pendo",
+   "penumbra",
    "perplexity",
+   "pfizer",
+   "philips",
    "physical_intelligence",
    "pika_labs",
    "pinecone",
@@ -611,14 +777,22 @@
    "poshmark",
    "posthog",
    "postman",
+   "precision_for_medicine",
    "prefect",
+   "premier_research",
    "priceline",
    "procore_technologies",
+   "profound_medical",
    "proofpoint",
+   "providence",
+   "providence_health_care",
    "psiquantum",
    "ptc",
    "public_com",
+   "public_health_agency_of_canada",
+   "public_health_ontario",
    "pure_storage",
+   "qiagen",
    "qlik",
    "qorvo",
    "qualcomm",
@@ -627,7 +801,9 @@
    "quantinuum",
    "qube_rt",
    "quera_computing",
+   "quest_diagnostics",
    "quora",
+   "rady_children_s_hospital",
    "railway",
    "ramp",
    "rapid7",
@@ -640,10 +816,15 @@
    "reddit",
    "redis",
    "regard",
+   "regeneron",
    "relativity_space",
+   "relay_therapeutics",
    "render",
    "replit",
+   "resmed",
    "retool",
+   "revvity",
+   "rexall",
    "rigetti_computing",
    "ringcentral",
    "riot_games",
@@ -654,12 +835,14 @@
    "roblox",
    "roboflow",
    "robust_ai",
+   "roche",
    "rocket_lab",
    "rockstar_games",
    "rockwell_automation",
    "rogers_communications",
    "roku",
    "rover",
+   "rti_international",
    "rtx",
    "rtx_finance",
    "rubrik",
@@ -670,20 +853,27 @@
    "salesforce",
    "salesforce_early",
    "salesloft",
+   "salk_institute",
    "salsify",
    "sambanova",
    "samsara",
    "samsung_semiconductor",
+   "sana_biotechnology",
    "sanctuary_ai",
    "sandboxaq",
+   "sandoz",
+   "sanofi",
    "sap",
    "saronic",
    "scale_ai",
+   "scarborough_health_network",
    "schonfeld",
    "scopely",
    "scotiabank_students",
    "scotiabank_tech",
+   "scripps_research",
    "seatgeek",
+   "seattle_children_s",
    "securityscorecard",
    "semgrep",
    "semtech",
@@ -692,9 +882,13 @@
    "sentry",
    "serve_robotics",
    "servicenow",
+   "shared_health_manitoba",
    "shield_ai",
+   "shoppers_drug_mart",
+   "sickkids",
    "siemens_canada",
    "siemens_finance",
+   "siemens_healthineers",
    "siemens_us",
    "sierra",
    "sierra_nevada",
@@ -706,9 +900,11 @@
    "simplify_intern26",
    "simplify_intern27",
    "simplify_newgrad",
+   "sinai_health",
    "singlestore",
    "skydio",
    "smartsheet",
+   "smith_nephew",
    "snap",
    "snaplogic",
    "sndsh_intern27",
@@ -723,6 +919,7 @@
    "sony",
    "sophos",
    "sourcegraph",
+   "southlake_health",
    "sp_global",
    "spacex",
    "speechify",
@@ -734,14 +931,21 @@
    "squarepoint",
    "squarespace",
    "ss_c_technologies",
+   "st_joseph_s_healthcare_hamilton",
+   "st_jude_children_s_research_hospital",
    "stability_ai",
    "stack_av",
    "stackadapt",
+   "standard_biotools",
+   "stanford_children_s_health",
+   "stanford_health_care",
    "starburst",
    "stepstone",
+   "steris",
    "stockx",
    "strava",
    "stripe",
+   "stryker",
    "substack",
    "suki",
    "sumo_logic",
@@ -752,16 +956,21 @@
    "swarmia",
    "sweetgreen",
    "sword_health",
+   "synaptive_medical",
    "synopsys",
    "synthesia",
+   "sysmex_america",
    "tailscale",
    "take_two",
+   "takeda",
    "talkspace",
+   "tandem_diabetes_care",
    "tanium",
    "target",
    "td",
    "td_students",
    "td_tech",
+   "teleflex",
    "telus",
    "temporal",
    "tempus_ai",
@@ -769,10 +978,13 @@
    "tenstorrent",
    "terran_orbital",
    "terrapower",
+   "teva",
    "texas_instruments",
    "the_aerospace",
    "the_home_depot",
    "the_new_york_times",
+   "the_ottawa_hospital",
+   "thermo_fisher_scientific",
    "thinkific",
    "thinking_machines",
    "thomson_reuters",
@@ -785,39 +997,51 @@
    "tower_research",
    "tractable",
    "transunion",
+   "trillium_health_partners",
    "trimble",
    "tripadvisor",
    "trulioo",
    "twelve_carbon",
    "twelve_labs",
    "twilio",
+   "twist_bioscience",
    "twitch",
    "two_sigma",
    "typeface",
    "uber",
    "ubisoft",
+   "uc_san_diego_health",
+   "ucsf",
    "udemy",
    "uipath",
    "ukg",
    "unisys",
    "unitedhealth_group",
    "unity",
+   "university_of_alberta",
+   "university_of_british_columbia",
+   "university_of_toronto",
+   "university_of_washington",
    "unstructured_io",
    "upstart",
+   "vancouver_coastal_health",
    "vanguard",
    "vansh_intern26",
    "vansh_intern27",
    "vansh_newgrad27",
    "vanta",
    "vapi_ai",
+   "variational_ai",
    "vast_space",
    "vatic_labs",
+   "vector_institute",
    "veeva_systems",
    "vercel",
    "verizon",
    "verkada",
    "viam",
    "viavi_solutions",
+   "vir_biotechnology",
    "virtu",
    "visa",
    "visier",
@@ -830,6 +1054,8 @@
    "walmart_global_tech",
    "warner_bros_discovery",
    "warp",
+   "waters",
+   "waters_international",
    "wattpad",
    "waymo",
    "wayve",
@@ -843,7 +1069,9 @@
    "western_digital",
    "whoop",
    "william_blair",
+   "william_osler_health_system",
    "wiz",
+   "womens_college_hospital",
    "workato",
    "workday_hq",
    "workiva",
@@ -851,8 +1079,12 @@
    "world_labs",
    "worldpay",
    "worldquant",
+   "worldwide_clinical_trials",
    "writer",
+   "wuxi_apptec",
    "xai",
+   "xaira_therapeutics",
+   "yale_university",
    "yelp",
    "yipitdata",
    "you_com",
@@ -867,6 +1099,7 @@
    "zendesk",
    "zilliz",
    "zillow",
+   "zimmer_biomet_holdings",
    "zipline",
    "zocdoc",
    "zoom",
@@ -875,16 +1108,21 @@
    "zscaler",
    "zuora"
   ],
-  "version": 10
+  "version": 11
  },
  "__since__": {
+  "10x_genomics": 11,
   "1password": 1,
   "1x_technologies": 10,
   "2k": 10,
   "6sense": 10,
+  "abbott_medtech": 11,
+  "abcellera": 11,
   "abnormal_security": 10,
   "abridge": 1,
+  "absci": 11,
   "absorb_lms": 10,
+  "abt_global": 11,
   "acorns": 10,
   "ada": 10,
   "addepar": 10,
@@ -892,6 +1130,7 @@
   "adobe_university": 1,
   "adp": 10,
   "affirm": 1,
+  "agilent_technologies": 11,
   "agility_robotics": 10,
   "ai2": 10,
   "airbnb": 1,
@@ -901,12 +1140,19 @@
   "akamai": 10,
   "akuna": 1,
   "alayacare": 10,
+  "alberta_innovates": 11,
+  "alcami": 11,
   "aleph_alpha": 10,
+  "alignment_health": 11,
   "allegro_microsystems": 10,
   "alloy": 1,
   "alltrails": 10,
+  "allucent": 11,
+  "alnylam_pharmaceuticals": 11,
   "alphasense": 10,
+  "altasciences": 11,
   "alteryx": 10,
+  "altos_labs": 11,
   "amazon": 1,
   "amazon_finance": 10,
   "amazon_newgrad": 1,
@@ -914,7 +1160,10 @@
   "ambarella": 10,
   "ambience_healthcare": 10,
   "amd": 10,
+  "american_cancer_society": 11,
   "american_express": 10,
+  "american_heart_association": 11,
+  "amgen": 11,
   "amplemarket": 10,
   "amplitude": 1,
   "analog_devices": 10,
@@ -926,6 +1175,7 @@
   "apex_space": 10,
   "apollo": 6,
   "apollo_io": 10,
+  "apotex": 11,
   "appian": 10,
   "apple": 10,
   "apple_finance": 10,
@@ -935,16 +1185,20 @@
   "apptronik": 10,
   "aptiv": 10,
   "aqr": 1,
+  "arc_institute": 11,
   "arctic_wolf": 10,
   "arize_ai": 10,
   "arm": 10,
   "armis": 10,
   "array_technologies": 10,
+  "arsenal_bio": 11,
   "asana": 1,
+  "aspect_biosystems": 11,
   "assemblyai": 1,
   "astranis": 10,
   "at_t": 10,
   "atlan": 10,
+  "atlantic_health_system": 11,
   "atlassian": 10,
   "atom_computing": 10,
   "attio": 1,
@@ -958,13 +1212,22 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "bausch_lomb": 11,
+  "baxter_international": 11,
+  "bayer": 11,
+  "beam_therapeutics": 11,
+  "becton_dickinson": 11,
   "behaviour_interactive": 10,
   "bell": 10,
   "benchling": 10,
+  "benchsci": 11,
   "benevity": 10,
   "best_buy_canada": 10,
+  "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
+  "biogen": 11,
+  "biontech": 11,
   "bitgo": 10,
   "blackbaud": 10,
   "blackberry": 10,
@@ -976,7 +1239,9 @@
   "blend": 10,
   "block": 1,
   "bloomberg": 10,
+  "blue_cross_blue_shield_of_massachusetts": 11,
   "blue_origin": 10,
+  "blue_shield_of_california": 11,
   "bmo": 1,
   "bmo_students": 2,
   "bmo_tech": 10,
@@ -984,13 +1249,18 @@
   "booz_allen_hamilton": 10,
   "borrowell": 10,
   "boston_dynamics": 10,
+  "boston_scientific": 11,
   "box": 10,
   "braintrust": 1,
   "braze": 10,
   "brex": 1,
+  "bristol_myers_squibb": 11,
+  "broad_institute": 11,
   "broadcom": 10,
   "brookfield": 6,
   "browserbase": 1,
+  "bruker": 11,
+  "bruker_international": 11,
   "bugcrowd": 10,
   "buildkite": 10,
   "bumble": 10,
@@ -998,33 +1268,46 @@
   "caci_international": 10,
   "cadence": 10,
   "calendly": 1,
+  "calico": 11,
+  "cambrex": 11,
+  "camh": 11,
   "canada_intern26": 1,
+  "canadian_blood_services": 11,
+  "canadian_cancer_society": 11,
   "canadian_tire": 10,
   "canva": 10,
   "capital_one": 1,
   "capital_one_early": 1,
+  "caris_life_sciences": 11,
   "carlyle": 6,
   "carta": 10,
   "cartesia": 1,
+  "catalent": 11,
   "cato_networks": 10,
+  "cdc_foundation": 11,
   "cdpq": 6,
   "cdpq_students": 6,
   "cdw": 10,
   "celonis": 10,
+  "centene": 11,
   "cerebras": 10,
   "chainalysis": 10,
   "chainguard": 10,
   "character_ai": 1,
   "chargepoint": 10,
+  "charles_river_laboratories": 11,
   "check_point_software": 10,
   "checkr": 1,
+  "cheo": 11,
   "chewy": 10,
+  "children_s_hospital_of_philadelphia": 11,
   "chime": 1,
   "cibc": 1,
   "cibc_students": 2,
   "cibc_tech": 10,
   "ciena": 10,
   "cigna": 10,
+  "cigna_clinical": 11,
   "cigna_finance": 10,
   "circleci": 10,
   "cisco": 10,
@@ -1036,8 +1319,10 @@
   "clearco": 10,
   "clickhouse": 1,
   "clickup": 10,
+  "clinton_health_access_initiative": 11,
   "clio": 10,
   "cloudflare": 1,
+  "clover_health": 11,
   "cockroach_labs": 1,
   "coder": 10,
   "cognex": 10,
@@ -1047,6 +1332,7 @@
   "collective": 10,
   "collective_health": 10,
   "collibra": 10,
+  "colorado_public_health": 11,
   "comcast": 1,
   "commonwealth_fusion": 10,
   "commure": 1,
@@ -1064,15 +1350,19 @@
   "cpp_investments": 6,
   "cresta": 10,
   "cribl": 10,
+  "crispr_therapeutics": 11,
   "crowdstrike": 10,
   "crusoe": 1,
   "cursor": 1,
   "curtiss_wright": 10,
   "cvrve_newgrad": 1,
   "cvs_health": 10,
+  "cvs_health_clinical": 11,
   "cvs_health_finance": 10,
   "d2l": 10,
   "d_matrix": 10,
+  "dana_farber_cancer_institute": 11,
+  "danaher": 11,
   "darktrace": 10,
   "databricks": 1,
   "datadog": 1,
@@ -1080,6 +1370,7 @@
   "dataiku": 10,
   "dave": 10,
   "decagon": 1,
+  "deep_genomics": 11,
   "deepgram": 10,
   "deepl": 10,
   "deepmind": 1,
@@ -1087,11 +1378,15 @@
   "deliveroo": 10,
   "dell": 10,
   "demandbase": 10,
+  "denali_therapeutics": 11,
   "derec4_newgrad27": 1,
   "descript": 1,
   "deutsche_bank": 6,
   "deutsche_bank_tech": 10,
   "devoted_health": 10,
+  "dewpoint_therapeutics": 11,
+  "dexcom": 11,
+  "diabetes_canada": 11,
   "dialpad": 10,
   "digital_extremes": 10,
   "digitalocean": 10,
@@ -1106,13 +1401,20 @@
   "dremio": 10,
   "dropbox": 1,
   "drw": 1,
+  "duke_health": 11,
   "duolingo": 1,
+  "dynacare": 11,
+  "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
+  "edwards_lifesciences": 11,
+  "eikon_therapeutics": 11,
   "elastic": 1,
   "electronic_arts": 10,
   "elevance_health": 10,
+  "elevance_health_clinical": 11,
   "elevenlabs": 1,
+  "eli_lilly": 11,
   "encord": 10,
   "enovix": 10,
   "epic_games": 10,
@@ -1122,6 +1424,7 @@
   "etched": 10,
   "evercore": 6,
   "evercore_students": 6,
+  "evotec": 11,
   "exa_ai": 10,
   "exabeam": 10,
   "expedia_group": 10,
@@ -1129,6 +1432,7 @@
   "faire": 1,
   "fanduel": 10,
   "fastly": 1,
+  "fhi_360": 11,
   "fico": 10,
   "fidelity": 6,
   "figma": 1,
@@ -1146,27 +1450,38 @@
   "flex": 10,
   "flexport": 1,
   "float": 10,
+  "florida_blue": 11,
   "flow_traders": 1,
   "ford_motor_company": 10,
   "form_energy": 10,
   "fortinet": 10,
+  "fortrea": 11,
+  "fraser_health": 11,
+  "freenome": 11,
   "freshbooks": 10,
   "freshworks": 10,
   "fullstory": 10,
   "garmin": 10,
+  "gates_foundation": 11,
   "gdit": 10,
   "ge_aerospace": 10,
   "ge_healthcare": 10,
   "ge_healthcare_finance": 10,
+  "ge_healthcare_medtech": 11,
   "ge_vernova": 10,
   "ge_vernova_finance": 10,
   "gearbox_software": 10,
   "gemini": 1,
+  "genentech": 11,
   "general_motors": 10,
+  "generate_biomedicines": 11,
   "geneva_trading": 1,
   "geotab": 10,
+  "gilead_sciences": 11,
+  "ginkgo_bioworks": 11,
   "github": 10,
   "gitlab": 1,
+  "glaukos": 11,
   "glean": 1,
   "global_payments": 10,
   "globalfoundries": 10,
@@ -1179,18 +1494,27 @@
   "gopuff": 1,
   "gradient_ai": 10,
   "grafana_labs": 10,
+  "grail": 11,
   "graphcore": 10,
+  "gsk": 11,
   "gts": 1,
   "guidewire_software": 10,
   "gusto": 1,
+  "hackensack_meridian_health": 11,
   "hackerone": 10,
+  "halton_healthcare": 11,
+  "hamilton_health_sciences": 11,
   "harness": 10,
+  "harvard_university": 11,
   "harvey": 1,
   "headway": 10,
+  "health_canada": 11,
+  "health_standards_organization": 11,
   "hebbia": 10,
   "helion_energy": 10,
   "hex": 10,
   "heygen": 1,
+  "hhmi": 11,
   "hightouch": 1,
   "hinge_health": 1,
   "honeycomb_io": 10,
@@ -1204,34 +1528,48 @@
   "hubspot": 10,
   "hugging_face": 10,
   "humana": 10,
+  "humana_clinical": 11,
+  "humber_river_health": 11,
+  "icf": 11,
   "ideogram": 10,
+  "illumina": 11,
   "illumio": 10,
   "imbue": 1,
   "imc": 1,
   "imply": 10,
+  "inceptive": 11,
   "inflection_ai": 10,
   "insitro": 10,
   "instacart": 1,
+  "insulet": 11,
   "intel": 1,
   "intel_early": 1,
+  "intellia_therapeutics": 11,
   "intercom": 10,
   "intuit": 10,
   "intuitive_surgical": 10,
   "inworld_ai": 10,
   "ionq": 10,
+  "iqvia": 11,
+  "irhythm_technologies": 11,
   "ironclad": 10,
   "isomorphic_labs": 10,
+  "jackson_laboratory": 11,
   "jam_city": 10,
   "jane_street": 1,
   "jefferies_campus": 6,
   "jfrog": 10,
   "jobber": 10,
+  "johns_hopkins_university": 11,
+  "johnson_johnson": 11,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
   "jpmorgan_tech": 10,
   "jump_trading": 1,
   "kabam": 10,
   "kairos_power": 10,
+  "kardium": 11,
+  "kenvue": 11,
   "keysight_technologies": 10,
   "kinaxis": 10,
   "kkr": 6,
@@ -1244,8 +1582,11 @@
   "komodo_health": 10,
   "kong": 10,
   "krea_ai": 10,
+  "kymera_therapeutics": 11,
   "kyndryl": 10,
   "l3harris_technologies": 10,
+  "la_county_public_health": 11,
+  "labcorp": 11,
   "labelbox": 10,
   "lam_research": 10,
   "lambda_labs": 1,
@@ -1259,6 +1600,7 @@
   "lenovo_canada": 10,
   "lenovo_us": 10,
   "letta": 10,
+  "lifelabs": 11,
   "lightmatter": 10,
   "lightning_ai": 10,
   "lightspeed_commerce": 10,
@@ -1267,6 +1609,7 @@
   "linkedin_canada_data": 10,
   "linkedin_canada_hard_to_reach": 10,
   "linkedin_canada_hardware": 10,
+  "linkedin_canada_health": 11,
   "linkedin_canada_software": 10,
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
@@ -1274,35 +1617,49 @@
   "linkedin_us_data": 10,
   "linkedin_us_hard_to_reach": 10,
   "linkedin_us_hardware": 10,
+  "linkedin_us_health": 11,
   "linkedin_us_software": 10,
   "linkedin_us_tech": 7,
   "liquid_ai": 10,
   "lithic": 1,
   "llamaindex": 10,
+  "loblaw_pharmacy": 11,
   "lockheed_martin": 10,
   "lockheed_martin_finance": 10,
   "locus_robotics": 10,
   "logitech": 10,
+  "london_health_sciences_centre": 11,
+  "lonza": 11,
   "loopio": 10,
   "lowe_s": 10,
   "lucid": 10,
   "luma_ai": 10,
   "lumentum": 10,
   "lyft": 1,
+  "mackenzie_health": 11,
   "magic": 10,
   "magna_finance": 10,
   "magna_international": 10,
+  "mammoth_biosciences": 11,
   "man_group": 1,
   "manulife": 6,
+  "march_of_dimes": 11,
   "marqeta": 1,
   "marvell": 10,
+  "mass_general_brigham": 11,
+  "mass_general_brigham_students": 11,
   "mastercard": 1,
   "mastercard_early": 1,
   "match_group": 10,
   "material_security": 10,
   "materialize": 10,
+  "mayo_clinic": 11,
+  "mcgill_university": 11,
   "mda_space": 10,
   "medallia": 10,
+  "medavie_health_services": 11,
+  "medtronic": 11,
+  "merck": 11,
   "mercor": 1,
   "mercury": 1,
   "microchip": 10,
@@ -1320,7 +1677,9 @@
   "mixpanel": 1,
   "modal": 1,
   "modern_health": 10,
+  "moderna": 11,
   "moelis": 1,
+  "molina_healthcare": 11,
   "monday_com": 10,
   "mongodb": 1,
   "monolithic_power_systems": 10,
@@ -1332,9 +1691,11 @@
   "motherduck": 10,
   "motional": 10,
   "motorola_solutions": 10,
+  "mount_sinai_health_system": 11,
   "mozilla": 10,
   "msci": 6,
   "msci_us": 6,
+  "myriad_genetics": 11,
   "nabla": 10,
   "nasdaq": 1,
   "natera": 10,
@@ -1343,6 +1704,7 @@
   "nebius": 10,
   "neo4j": 10,
   "neo_financial": 10,
+  "neogenomics": 11,
   "nerdwallet": 10,
   "netapp": 10,
   "netflix": 1,
@@ -1350,6 +1712,7 @@
   "netskope": 10,
   "neuralink": 1,
   "new_relic": 10,
+  "newyork_presbyterian": 11,
   "nextdoor": 10,
   "nextracker": 10,
   "niantic_spatial": 10,
@@ -1359,7 +1722,11 @@
   "northrop_grumman": 10,
   "northrop_grumman_finance": 10,
   "notion": 1,
+  "nova_scotia_health": 11,
+  "novartis": 11,
+  "novo_nordisk": 11,
   "nozomi_networks": 10,
+  "nurix_therapeutics": 11,
   "nuro": 1,
   "nutanix": 10,
   "nuvei": 10,
@@ -1367,10 +1734,13 @@
   "nwfintech_quant27": 1,
   "nxp": 10,
   "offseason_fall26": 1,
+  "oicr": 11,
   "oklo": 10,
   "okta": 10,
   "old_mission": 1,
+  "olympus_americas": 11,
   "omada_health": 10,
+  "ontario_health": 11,
   "onto_innovation": 10,
   "openai": 1,
   "openevidence": 1,
@@ -1383,9 +1753,12 @@
   "otter_ai": 10,
   "oura": 10,
   "outreach": 10,
+  "pacbio": 11,
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
+  "parexel": 11,
+  "path": 11,
   "pathai": 10,
   "patreon": 10,
   "paxos": 10,
@@ -1394,7 +1767,10 @@
   "pdt_partners": 1,
   "peloton": 1,
   "pendo": 10,
+  "penumbra": 11,
   "perplexity": 1,
+  "pfizer": 11,
+  "philips": 11,
   "physical_intelligence": 10,
   "pika_labs": 10,
   "pinecone": 10,
@@ -1412,14 +1788,22 @@
   "poshmark": 10,
   "posthog": 10,
   "postman": 1,
+  "precision_for_medicine": 11,
   "prefect": 10,
+  "premier_research": 11,
   "priceline": 10,
   "procore_technologies": 10,
+  "profound_medical": 11,
   "proofpoint": 10,
+  "providence": 11,
+  "providence_health_care": 11,
   "psiquantum": 10,
   "ptc": 10,
   "public_com": 10,
+  "public_health_agency_of_canada": 11,
+  "public_health_ontario": 11,
   "pure_storage": 10,
+  "qiagen": 11,
   "qlik": 10,
   "qorvo": 10,
   "qualcomm": 10,
@@ -1428,7 +1812,9 @@
   "quantinuum": 10,
   "qube_rt": 1,
   "quera_computing": 10,
+  "quest_diagnostics": 11,
   "quora": 10,
+  "rady_children_s_hospital": 11,
   "railway": 10,
   "ramp": 1,
   "rapid7": 10,
@@ -1441,10 +1827,15 @@
   "reddit": 1,
   "redis": 10,
   "regard": 10,
+  "regeneron": 11,
   "relativity_space": 10,
+  "relay_therapeutics": 11,
   "render": 10,
   "replit": 10,
+  "resmed": 11,
   "retool": 1,
+  "revvity": 11,
+  "rexall": 11,
   "rigetti_computing": 10,
   "ringcentral": 10,
   "riot_games": 10,
@@ -1455,12 +1846,14 @@
   "roblox": 1,
   "roboflow": 10,
   "robust_ai": 10,
+  "roche": 11,
   "rocket_lab": 10,
   "rockstar_games": 10,
   "rockwell_automation": 10,
   "rogers_communications": 10,
   "roku": 10,
   "rover": 10,
+  "rti_international": 11,
   "rtx": 10,
   "rtx_finance": 10,
   "rubrik": 10,
@@ -1471,20 +1864,27 @@
   "salesforce": 1,
   "salesforce_early": 1,
   "salesloft": 10,
+  "salk_institute": 11,
   "salsify": 10,
   "sambanova": 10,
   "samsara": 1,
   "samsung_semiconductor": 10,
+  "sana_biotechnology": 11,
   "sanctuary_ai": 10,
   "sandboxaq": 10,
+  "sandoz": 11,
+  "sanofi": 11,
   "sap": 10,
   "saronic": 10,
   "scale_ai": 1,
+  "scarborough_health_network": 11,
   "schonfeld": 1,
   "scopely": 10,
   "scotiabank_students": 2,
   "scotiabank_tech": 10,
+  "scripps_research": 11,
   "seatgeek": 1,
+  "seattle_children_s": 11,
   "securityscorecard": 10,
   "semgrep": 10,
   "semtech": 10,
@@ -1493,9 +1893,13 @@
   "sentry": 10,
   "serve_robotics": 10,
   "servicenow": 1,
+  "shared_health_manitoba": 11,
   "shield_ai": 1,
+  "shoppers_drug_mart": 11,
+  "sickkids": 11,
   "siemens_canada": 10,
   "siemens_finance": 10,
+  "siemens_healthineers": 11,
   "siemens_us": 10,
   "sierra": 1,
   "sierra_nevada": 10,
@@ -1507,9 +1911,11 @@
   "simplify_intern26": 1,
   "simplify_intern27": 1,
   "simplify_newgrad": 1,
+  "sinai_health": 11,
   "singlestore": 10,
   "skydio": 10,
   "smartsheet": 1,
+  "smith_nephew": 11,
   "snap": 10,
   "snaplogic": 10,
   "sndsh_intern27": 1,
@@ -1524,6 +1930,7 @@
   "sony": 10,
   "sophos": 10,
   "sourcegraph": 10,
+  "southlake_health": 11,
   "sp_global": 6,
   "spacex": 1,
   "speechify": 10,
@@ -1535,14 +1942,21 @@
   "squarepoint": 1,
   "squarespace": 1,
   "ss_c_technologies": 10,
+  "st_joseph_s_healthcare_hamilton": 11,
+  "st_jude_children_s_research_hospital": 11,
   "stability_ai": 10,
   "stack_av": 10,
   "stackadapt": 10,
+  "standard_biotools": 11,
+  "stanford_children_s_health": 11,
+  "stanford_health_care": 11,
   "starburst": 1,
   "stepstone": 1,
+  "steris": 11,
   "stockx": 10,
   "strava": 10,
   "stripe": 1,
+  "stryker": 11,
   "substack": 10,
   "suki": 10,
   "sumo_logic": 10,
@@ -1553,16 +1967,21 @@
   "swarmia": 10,
   "sweetgreen": 1,
   "sword_health": 10,
+  "synaptive_medical": 11,
   "synopsys": 10,
   "synthesia": 10,
+  "sysmex_america": 11,
   "tailscale": 10,
   "take_two": 10,
+  "takeda": 11,
   "talkspace": 10,
+  "tandem_diabetes_care": 11,
   "tanium": 10,
   "target": 1,
   "td": 1,
   "td_students": 2,
   "td_tech": 10,
+  "teleflex": 11,
   "telus": 10,
   "temporal": 10,
   "tempus_ai": 10,
@@ -1570,10 +1989,13 @@
   "tenstorrent": 10,
   "terran_orbital": 10,
   "terrapower": 10,
+  "teva": 11,
   "texas_instruments": 10,
   "the_aerospace": 10,
   "the_home_depot": 10,
   "the_new_york_times": 10,
+  "the_ottawa_hospital": 11,
+  "thermo_fisher_scientific": 11,
   "thinkific": 10,
   "thinking_machines": 10,
   "thomson_reuters": 10,
@@ -1586,39 +2008,51 @@
   "tower_research": 1,
   "tractable": 10,
   "transunion": 10,
+  "trillium_health_partners": 11,
   "trimble": 10,
   "tripadvisor": 10,
   "trulioo": 10,
   "twelve_carbon": 10,
   "twelve_labs": 10,
   "twilio": 1,
+  "twist_bioscience": 11,
   "twitch": 10,
   "two_sigma": 1,
   "typeface": 1,
   "uber": 10,
   "ubisoft": 10,
+  "uc_san_diego_health": 11,
+  "ucsf": 11,
   "udemy": 10,
   "uipath": 10,
   "ukg": 10,
   "unisys": 10,
   "unitedhealth_group": 10,
   "unity": 10,
+  "university_of_alberta": 11,
+  "university_of_british_columbia": 11,
+  "university_of_toronto": 11,
+  "university_of_washington": 11,
   "unstructured_io": 10,
   "upstart": 1,
+  "vancouver_coastal_health": 11,
   "vanguard": 6,
   "vansh_intern26": 1,
   "vansh_intern27": 1,
   "vansh_newgrad27": 1,
   "vanta": 1,
   "vapi_ai": 10,
+  "variational_ai": 11,
   "vast_space": 10,
   "vatic_labs": 1,
+  "vector_institute": 11,
   "veeva_systems": 10,
   "vercel": 1,
   "verizon": 10,
   "verkada": 1,
   "viam": 10,
   "viavi_solutions": 10,
+  "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
   "visier": 10,
@@ -1631,6 +2065,8 @@
   "walmart_global_tech": 10,
   "warner_bros_discovery": 10,
   "warp": 1,
+  "waters": 11,
+  "waters_international": 11,
   "wattpad": 10,
   "waymo": 1,
   "wayve": 10,
@@ -1644,7 +2080,9 @@
   "western_digital": 10,
   "whoop": 10,
   "william_blair": 1,
+  "william_osler_health_system": 11,
   "wiz": 10,
+  "womens_college_hospital": 11,
   "workato": 10,
   "workday_hq": 1,
   "workiva": 10,
@@ -1652,8 +2090,12 @@
   "world_labs": 10,
   "worldpay": 10,
   "worldquant": 1,
+  "worldwide_clinical_trials": 11,
   "writer": 1,
+  "wuxi_apptec": 11,
   "xai": 1,
+  "xaira_therapeutics": 11,
+  "yale_university": 11,
   "yelp": 10,
   "yipitdata": 10,
   "you_com": 10,
@@ -1668,6 +2110,7 @@
   "zendesk": 10,
   "zilliz": 10,
   "zillow": 10,
+  "zimmer_biomet_holdings": 11,
   "zipline": 10,
   "zocdoc": 10,
   "zoom": 1,
@@ -1675,6 +2118,72 @@
   "zoox": 1,
   "zscaler": 10,
   "zuora": 10
+ },
+ "abbott_medtech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "abbott"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "77166004ab82108dbc36d45444ea5319",
+     "77166004ab82108dbc36ddc1741b531d",
+     "77166004ab82108dbc36c663b1735313",
+     "77166004ab82108dbc36d8a13149531b",
+     "77166004ab82108dbc36ca9a7bcb5315"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "abbott.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Abbott quality, R&D, field clinical and technical support, medical and clinical affairs and regulatory roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "abbottcareers"
+  ],
+  "tenant": [
+   "abbott"
+  ]
+ },
+ "abcellera": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "abcellera"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "abcellera"
+  ]
  },
  "abnormal_security": {
   "ats": [
@@ -1707,6 +2216,29 @@
    "abridge"
   ]
  },
+ "absci": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "absci"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "absci"
+  ]
+ },
  "absorb_lms": {
   "ats": [
    "ashby"
@@ -1728,6 +2260,32 @@
   ],
   "token": [
    "absorblms"
+  ]
+ },
+ "abt_global": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "abt_global"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "egpy.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "JoinAbt"
   ]
  },
  "acorns": {
@@ -1869,6 +2427,35 @@
   ],
   "token": [
    "affirm"
+  ]
+ },
+ "agilent_technologies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "agilent_technologies"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "agilent.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Agilent_Careers"
+  ],
+  "tenant": [
+   "agilent"
   ]
  },
  "agility_robotics": {
@@ -2036,6 +2623,56 @@
    "alayacare"
   ]
  },
+ "alberta_innovates": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "innovates"
+  ],
+  "company_key": [
+   "alberta_innovates"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "InnoTech"
+  ]
+ },
+ "alcami": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "alcami"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers-alcami.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "aleph_alpha": {
   "ats": [
    "ashby"
@@ -2057,6 +2694,35 @@
   ],
   "token": [
    "alephalpha"
+  ]
+ },
+ "alignment_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "alignment_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "alignmenthealthcare.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ahc_external"
+  ],
+  "tenant": [
+   "alignmenthealthcare"
   ]
  },
  "allegro_microsystems": {
@@ -2119,6 +2785,52 @@
    "alltrails"
   ]
  },
+ "allucent": {
+  "account": [
+   "allucent"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "allucent"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "alnylam_pharmaceuticals": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "alnylam_pharmaceuticals"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "alnylampharmaceuticals"
+  ]
+ },
  "alphasense": {
   "ats": [
    "greenhouse"
@@ -2140,6 +2852,35 @@
   ],
   "token": [
    "alphasense"
+  ]
+ },
+ "altasciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "altasciences"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "altasciences.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "altasciences"
   ]
  },
  "alteryx": {
@@ -2169,6 +2910,29 @@
   ],
   "tenant": [
    "alteryx"
+  ]
+ },
+ "altos_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "altos_labs"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "altoslabs"
   ]
  },
  "amazon": {
@@ -2350,6 +3114,32 @@
    2
   ]
  },
+ "american_cancer_society": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "american_cancer_society"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "jobs.cancer.org"
+  ],
+  "lang": [
+   ""
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "american_express": {
   "ats": [
    "oracle_hcm"
@@ -2374,6 +3164,55 @@
   ],
   "site": [
    "CX_1"
+  ]
+ },
+ "american_heart_association": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "american_heart_association"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers-heart.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "amgen": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "amgen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.amgen.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "amplemarket": {
@@ -2625,6 +3464,29 @@
    "apolloio"
   ]
  },
+ "apotex": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "apotex"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.apotex.com/search/"
+  ]
+ },
  "appian": {
   "ats": [
    "greenhouse"
@@ -2846,6 +3708,29 @@
    "aqr"
   ]
  },
+ "arc_institute": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "arc_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arcinstitute"
+  ]
+ },
  "arctic_wolf": {
   "ats": [
    "workday"
@@ -2973,12 +3858,58 @@
    "arraytechinc"
   ]
  },
+ "arsenal_bio": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "arsenal_bio"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arsenalbio"
+  ]
+ },
  "asana": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "asana"
+  ]
+ },
+ "aspect_biosystems": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "aspect_biosystems"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "aspectbiosystems"
   ]
  },
  "assemblyai": {
@@ -3062,6 +3993,32 @@
   ],
   "token": [
    "atlan"
+  ]
+ },
+ "atlantic_health_system": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "atlantic_health_system"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "erqh.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1001"
   ]
  },
  "atlassian": {
@@ -3350,6 +4307,136 @@
    "baseten"
   ]
  },
+ "bausch_lomb": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "bausch_lomb"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.bauschlomb.com/search/"
+  ]
+ },
+ "baxter_international": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "baxter_international"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "baxter.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "baxter"
+  ],
+  "tenant": [
+   "baxter"
+  ]
+ },
+ "bayer": {
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "bayer"
+  ],
+  "domain": [
+   "bayer.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "talent.bayer.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "beam_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "beam_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "beamtherapeutics"
+  ]
+ },
+ "becton_dickinson": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "becton_dickinson"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "bdx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "EXTERNAL_CAREER_SITE_USA"
+  ],
+  "tenant": [
+   "bdx"
+  ]
+ },
  "behaviour_interactive": {
   "ats": [
    "lever"
@@ -3419,6 +4506,29 @@
    "benchling"
   ]
  },
+ "benchsci": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "benchsci"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "benchsci"
+  ]
+ },
  "benevity": {
   "ats": [
    "ashby"
@@ -3480,6 +4590,49 @@
    "bestbuycanada"
   ]
  },
+ "beth_israel_lahey_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "beth_israel_lahey_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e1b310fe489e100e602849cc3ef00000",
+     "e1b310fe489e100e602474455a270000",
+     "e1b310fe489e100e6026855b26970000",
+     "e1b310fe489e100e6026e48cb68c0000",
+     "e1b310fe489e100e6022c2898a0f0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "bilh.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Beth Israel Lahey Health clinical and research roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "bilh"
+  ]
+ },
  "betterment": {
   "ats": [
    "greenhouse"
@@ -3509,6 +4662,58 @@
   ],
   "token": [
    "beyondtrust"
+  ]
+ },
+ "biogen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "biogen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "biibhr.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "external"
+  ],
+  "tenant": [
+   "biibhr"
+  ]
+ },
+ "biontech": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "biontech"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.biontech.com/search/"
   ]
  },
  "bitgo": {
@@ -3797,6 +5002,35 @@
    "https://bloomberg.avature.net/careers/SearchJobs/"
   ]
  },
+ "blue_cross_blue_shield_of_massachusetts": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "blue_cross_blue_shield_of_massachusetts"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "bcbsma.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BCBSMA"
+  ],
+  "tenant": [
+   "bcbsma"
+  ]
+ },
  "blue_origin": {
   "ats": [
    "workday"
@@ -3824,6 +5058,32 @@
   ],
   "tenant": [
    "blueorigin"
+  ]
+ },
+ "blue_shield_of_california": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "blue_shield_of_california"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "ecge.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1003"
   ]
  },
  "bmo": {
@@ -4046,6 +5306,35 @@
    "bostondynamics"
   ]
  },
+ "boston_scientific": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "boston_scientific"
+  ],
+  "domain": [
+   "bostonscientific.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "bostonscientific.eightfold.ai"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "box": {
   "ats": [
    "greenhouse"
@@ -4115,6 +5404,58 @@
   ],
   "token": [
    "brex"
+  ]
+ },
+ "bristol_myers_squibb": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bristol_myers_squibb"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "bristolmyerssquibb.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BMS"
+  ],
+  "tenant": [
+   "bristolmyerssquibb"
+  ]
+ },
+ "broad_institute": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "broad_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://broadinstitute.avature.net/careers/SearchJobs"
   ]
  },
  "broadcom": {
@@ -4195,6 +5536,52 @@
   ],
   "token": [
    "browserbase"
+  ]
+ },
+ "bruker": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "bruker"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "uscareers-bruker.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "bruker_international": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "bruker"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "internationalcareers-bruker.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "bugcrowd": {
@@ -4366,6 +5753,78 @@
    "calendly"
   ]
  },
+ "calico": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "calico"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "calicolabs"
+  ]
+ },
+ "cambrex": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "cambrex"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.cambrex.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "camh": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "camh"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "iaemup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CAMH"
+  ]
+ },
  "canada_intern26": {
   "ats": [
    "github_md"
@@ -4387,6 +5846,60 @@
   "track": [
    "__missing__",
    "tech"
+  ]
+ },
+ "canadian_blood_services": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "canadian_blood_services"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.blood.ca/search/"
+  ]
+ },
+ "canadian_cancer_society": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "7da0a9eb-c7f2-490d-a0f7-779c58f6fd8b"
+  ],
+  "company_key": [
+   "canadian_cancer_society"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "lang": [
+   "en_CA"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "canadian_tire": {
@@ -4493,6 +6006,35 @@
    "both"
   ]
  },
+ "caris_life_sciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "caris_life_sciences"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "wd12.myworkdaysite.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CLS"
+  ],
+  "tenant": [
+   "carislifesciences"
+  ]
+ },
  "carlyle": {
   "ats": [
    "workday"
@@ -4556,6 +6098,29 @@
    "cartesia"
   ]
  },
+ "catalent": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "catalent"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.catalent.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "cato_networks": {
   "ats": [
    "greenhouse"
@@ -4577,6 +6142,37 @@
   ],
   "token": [
    "catonetworks"
+  ]
+ },
+ "cdc_foundation": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "014dfa20-d261-4f83-8d77-5edb4e15f0f8"
+  ],
+  "company_key": [
+   "cdc_foundation"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "cdpq": {
@@ -4689,6 +6285,35 @@
    "celonis"
   ]
  },
+ "centene": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "centene"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "centene.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "centene_external"
+  ],
+  "tenant": [
+   "centene"
+  ]
+ },
  "cerebras": {
   "ats": [
    "ashby"
@@ -4789,6 +6414,29 @@
    "chargepoint"
   ]
  },
+ "charles_river_laboratories": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "charles_river_laboratories"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.criver.com/search/"
+  ]
+ },
  "check_point_software": {
   "ats": [
    "smartrecruiters"
@@ -4820,6 +6468,35 @@
    "checkr"
   ]
  },
+ "cheo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cheo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "cheo.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External_Site"
+  ],
+  "tenant": [
+   "cheo"
+  ]
+ },
  "chewy": {
   "ats": [
    "phenom"
@@ -4841,6 +6518,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "children_s_hospital_of_philadelphia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "children_s_hospital_of_philadelphia"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "chop.wd108.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CHOPExternalCareers"
+  ],
+  "tenant": [
+   "chop"
   ]
  },
  "chime": {
@@ -5028,6 +6734,47 @@
   ],
   "label": [
    "Cigna and Evernorth technology roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "cignacareers"
+  ],
+  "tenant": [
+   "cigna"
+  ]
+ },
+ "cigna_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cigna"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "b7947bbbfff201ef25630616390c8716",
+     "b7947bbbfff2013bd2441e16390c9516",
+     "b7947bbbfff201aa2a7e2916390c9916"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "cigna.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Cigna clinical roles"
   ],
   "min_interval": [
    1800
@@ -5314,6 +7061,29 @@
    "clickup"
   ]
  },
+ "clinton_health_access_initiative": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "clinton_health_access_initiative"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers-chai.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "clio": {
   "ats": [
    "workday"
@@ -5349,6 +7119,29 @@
   ],
   "token": [
    "cloudflare"
+  ]
+ },
+ "clover_health": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "clover_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "cloverhealth"
   ]
  },
  "cockroach_labs": {
@@ -5517,6 +7310,36 @@
   ],
   "token": [
    "collibra"
+  ]
+ },
+ "colorado_public_health": {
+  "account": [
+   "__missing__",
+   "colorado"
+  ],
+  "ats": [
+   "neogov"
+  ],
+  "company_key": [
+   "colorado_public_health"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    "Department of Public Health & Environment"
+   ]
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "comcast": {
@@ -5916,6 +7739,35 @@
    "cribl"
   ]
  },
+ "crispr_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "crispr_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "crisprtx.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "careers"
+  ],
+  "tenant": [
+   "crisprtx"
+  ]
+ },
  "crowdstrike": {
   "ats": [
    "workday"
@@ -6056,6 +7908,47 @@
    "cvshealth"
   ]
  },
+ "cvs_health_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cvs_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e65dbadf6a50100168ed8361150c0000",
+     "e65dbadf6a50100168ed7df44fa00000",
+     "e65dbadf6a50100168ed7d5902dc0001"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "cvshealth.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "CVS Health pharmacy and clinical roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CVS_Health_Careers"
+  ],
+  "tenant": [
+   "cvshealth"
+  ]
+ },
  "cvs_health_finance": {
   "ats": [
    "workday"
@@ -6139,6 +8032,78 @@
   ],
   "token": [
    "d-matrix"
+  ]
+ },
+ "dana_farber_cancer_institute": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "dana_farber_cancer_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "danafarber.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "dana-farber"
+  ],
+  "tenant": [
+   "danafarber"
+  ]
+ },
+ "danaher": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "danaher"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "d6411cefd940108622dfeea86884f921",
+     "d6411cefd940108622dfefeefae7f927",
+     "d6411cefd940108622dfd5ac4243f89b",
+     "d6411cefd940108622dfe9fdf3bbf913",
+     "d6411cefd940108622dfdb3ed909f8a9"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "danaher.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Danaher (Cytiva, Beckman Coulter, Leica, Cepheid and its other companies) science, engineering, manufacturing, quality and intern roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "DanaherJobs"
+  ],
+  "tenant": [
+   "danaher"
   ]
  },
  "darktrace": {
@@ -6270,6 +8235,29 @@
   ],
   "token": [
    "decagon"
+  ]
+ },
+ "deep_genomics": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "deep_genomics"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "deepgenomics"
   ]
  },
  "deepgram": {
@@ -6424,6 +8412,35 @@
    "demandbase"
   ]
  },
+ "denali_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "denali_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "dnli.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Discovery"
+  ],
+  "tenant": [
+   "dnli"
+  ]
+ },
  "derec4_newgrad27": {
   "ats": [
    "github_md"
@@ -6556,6 +8573,93 @@
   ],
   "tenant": [
    "devoted"
+  ]
+ },
+ "dewpoint_therapeutics": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "a792b9db-fd47-4cf3-a0ab-207c735e407c"
+  ],
+  "company_key": [
+   "dewpoint_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "dexcom": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "dexcom"
+  ],
+  "domain": [
+   "dexcom.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.dexcom.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "diabetes_canada": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "diabetescanada"
+  ],
+  "company_key": [
+   "diabetes_canada"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "DiabetesCanada"
   ]
  },
  "dialpad": {
@@ -6824,12 +8928,84 @@
    "drweng"
   ]
  },
+ "duke_health": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "duke_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.dukehealth.org"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.dukehealth.org/us/en/job/{id}"
+  ]
+ },
  "duolingo": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "duolingo"
+  ]
+ },
+ "dynacare": {
+  "account": [
+   "qiFaVfwM"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "dynacare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "dyno_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "dyno_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dynotherapeutics"
   ]
  },
  "e2b": {
@@ -6873,6 +9049,58 @@
   ],
   "tenant": [
    "ebay"
+  ]
+ },
+ "edwards_lifesciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "edwards_lifesciences"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "edwards.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "edwardscareers"
+  ],
+  "tenant": [
+   "edwards"
+  ]
+ },
+ "eikon_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "eikon_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "eikontherapeutics"
   ]
  },
  "elastic": {
@@ -6946,12 +9174,77 @@
    "elevancehealth"
   ]
  },
+ "elevance_health_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "elevance_health"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "f42bff05a414010057202352de780000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "elevancehealth.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Elevance Health medical roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ANT"
+  ],
+  "tenant": [
+   "elevancehealth"
+  ]
+ },
  "elevenlabs": {
   "ats": [
    "ashby"
   ],
   "token": [
    "elevenlabs"
+  ]
+ },
+ "eli_lilly": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "eli_lilly"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.lilly.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.lilly.com/us/en/job/{id}"
   ]
  },
  "encord": {
@@ -7182,6 +9475,32 @@
    1
   ]
  },
+ "evotec": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "evotec"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.evotec.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "exa_ai": {
   "ats": [
    "ashby"
@@ -7323,6 +9642,35 @@
   ],
   "token": [
    "fastly"
+  ]
+ },
+ "fhi_360": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "fhi_360"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "fhi.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "FHI_360_External_Career_Portal"
+  ],
+  "tenant": [
+   "fhi"
   ]
  },
  "fico": {
@@ -7680,6 +10028,32 @@
    "float"
   ]
  },
+ "florida_blue": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "florida_blue"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "fa-etum-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
  "flow_traders": {
   "ats": [
    "greenhouse"
@@ -7758,6 +10132,75 @@
   ],
   "site": [
    "CX_2001"
+  ]
+ },
+ "fortrea": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "fortrea"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers.fortrea.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "fraser_health": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "fraser_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.fraserhealth.ca"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "freenome": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "freenome"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "freenome"
   ]
  },
  "freshbooks": {
@@ -7850,6 +10293,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "gates_foundation": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "gates_foundation"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "gatesfoundation.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Gates"
+  ],
+  "tenant": [
+   "gatesfoundation"
   ]
  },
  "gdit": {
@@ -7984,6 +10456,47 @@
    "gehc"
   ]
  },
+ "ge_healthcare_medtech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ge_healthcare"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "864c17d3c011100151ac11f872420000",
+     "85e6093984ac1025dddec0e260ae0000",
+     "85e6093984ac1025ddde9263cac80000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "gehc.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "GE HealthCare service, quality and manufacturing roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "GEHC_ExternalSite"
+  ],
+  "tenant": [
+   "gehc"
+  ]
+ },
  "ge_vernova": {
   "ats": [
    "workday"
@@ -8094,6 +10607,32 @@
    "gemini"
   ]
  },
+ "genentech": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "genentech"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.gene.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.gene.com/us/en/job/{id}"
+  ]
+ },
  "general_motors": {
   "ats": [
    "workday"
@@ -8121,6 +10660,29 @@
   ],
   "tenant": [
    "generalmotors"
+  ]
+ },
+ "generate_biomedicines": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "generate_biomedicines"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "generatebiomedicines"
   ]
  },
  "geneva_trading": {
@@ -8163,6 +10725,58 @@
    "geotab"
   ]
  },
+ "gilead_sciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "gilead_sciences"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "gilead.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "gileadcareers"
+  ],
+  "tenant": [
+   "gilead"
+  ]
+ },
+ "ginkgo_bioworks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ginkgo_bioworks"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ginkgobioworks"
+  ]
+ },
  "github": {
   "ats": [
    "jibe"
@@ -8192,6 +10806,32 @@
   ],
   "token": [
    "gitlab"
+  ]
+ },
+ "glaukos": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "glaukos"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "ekpl.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_3001"
   ]
  },
  "glean": {
@@ -8464,6 +11104,29 @@
    "grafanalabs"
   ]
  },
+ "grail": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "grail"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "grailbio"
+  ]
+ },
  "graphcore": {
   "ats": [
    "greenhouse"
@@ -8485,6 +11148,32 @@
   ],
   "token": [
    "graphcore"
+  ]
+ },
+ "gsk": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "gsk"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.gsk.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.gsk.com/global/en/job/{id}"
   ]
  },
  "gts": {
@@ -8535,6 +11224,29 @@
    "gusto"
   ]
  },
+ "hackensack_meridian_health": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "hackensack_meridian_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.hackensackmeridianhealth.org"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "hackerone": {
   "ats": [
    "ashby"
@@ -8558,6 +11270,56 @@
    "hackerone"
   ]
  },
+ "halton_healthcare": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "halton_healthcare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "HaltonHealthcare1"
+  ]
+ },
+ "hamilton_health_sciences": {
+  "ats": [
+   "taleo"
+  ],
+  "company_key": [
+   "hamilton_health_sciences"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "hhsc.taleo.net"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "section": [
+   "__missing__",
+   "2"
+  ]
+ },
  "harness": {
   "ats": [
    "greenhouse"
@@ -8579,6 +11341,29 @@
   ],
   "token": [
    "harnessinc"
+  ]
+ },
+ "harvard_university": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "harvard_university"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "HarvardUniversity"
   ]
  },
  "harvey": {
@@ -8610,6 +11395,59 @@
   ],
   "token": [
    "headway"
+  ]
+ },
+ "health_canada": {
+  "ats": [
+   "gc_jobs"
+  ],
+  "company_key": [
+   "health_canada"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    117
+   ]
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "health_standards_organization": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "healthstandards"
+  ],
+  "company_key": [
+   "health_standards_organization"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "hebbia": {
@@ -8687,6 +11525,35 @@
   ],
   "token": [
    "heygen"
+  ]
+ },
+ "hhmi": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hhmi"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "hhmi.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "hhmi"
   ]
  },
  "hightouch": {
@@ -9015,6 +11882,105 @@
    "humana"
   ]
  },
+ "humana_clinical": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "humana"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "fbb60995c99901824e53604715c50cc6",
+     "fbb60995c999018c18a3114915c560c6",
+     "fbb60995c99901cf7326824815c544c6",
+     "fbb60995c99901b8664ca14815c54ac6",
+     "fbb60995c99901c52b0c6e4815c540c6",
+     "fbb60995c99901fcbf27214a15c594c6",
+     "fbb60995c99901c3e10c5b4915c56ec6",
+     "fbb60995c999018598bab34715c51cc6",
+     "a0509a3e91730101b6c5e991a3950000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "humana.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Humana clinical and care roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Humana_External_Career_Site"
+  ],
+  "tenant": [
+   "humana"
+  ]
+ },
+ "humber_river_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "humber_river_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careersen-hrrh.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "icf": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "icf"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers.icf.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "query": [
+   "health"
+  ],
+  "url": [
+   "https://careers.icf.com/us/en/job/{id}"
+  ]
+ },
  "ideogram": {
   "ats": [
    "ashby"
@@ -9036,6 +12002,35 @@
   ],
   "token": [
    "ideogram"
+  ]
+ },
+ "illumina": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "illumina"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "illumina.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "illumina-careers"
+  ],
+  "tenant": [
+   "illumina"
   ]
  },
  "illumio": {
@@ -9100,6 +12095,29 @@
    "imply"
   ]
  },
+ "inceptive": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "inceptive"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "inceptive"
+  ]
+ },
  "inflection_ai": {
   "ats": [
    "greenhouse"
@@ -9154,6 +12172,35 @@
    "instacart"
   ]
  },
+ "insulet": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "insulet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "insulet.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "insuletcareers"
+  ],
+  "tenant": [
+   "insulet"
+  ]
+ },
  "intel": {
   "ats": [
    "workday"
@@ -9196,6 +12243,35 @@
   ],
   "tenant": [
    "intel"
+  ]
+ },
+ "intellia_therapeutics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "intellia_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "host": [
+   "intelliatx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "intelliatxcareers"
+  ],
+  "tenant": [
+   "intelliatx"
   ]
  },
  "intercom": {
@@ -9313,6 +12389,88 @@
    "ionq"
   ]
  },
+ "iqvia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "iqvia"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "9c1453f3b592011252b4096aaf63323a",
+     "9c1453f3b59201355bde7e6aaf63623a",
+     "9c1453f3b59201febe7b0d6aaf63343a",
+     "9c1453f3b592010170c9fd69af632c3a",
+     "9c1453f3b59201fcb668566aaf634e3a",
+     "9c1453f3b59201efe9625a6aaf63503a",
+     "9c1453f3b59201d042dd866aaf63663a",
+     "9c1453f3b59201451c1f5e6aaf63523a",
+     "9c1453f3b59201510804026aaf632e3a",
+     "9c1453f3b5920136666e936aaf636c3a",
+     "e8eee94a2f42016151d88be319019b51",
+     "c7740098347f01815529c395aa015970",
+     "7e40bfbe6f760111b4ed73c0aa015f6e",
+     "0d5fc04e42d21002006fbd910aca0000",
+     "c572730e2c27011bec84f4e3fc009cdb"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "iqvia.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "IQVIA clinical, lab and quality roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "IQVIA"
+  ],
+  "tenant": [
+   "iqvia"
+  ]
+ },
+ "irhythm_technologies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "irhythm_technologies"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "irhythmtech.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "irhythm"
+  ],
+  "tenant": [
+   "irhythmtech"
+  ]
+ },
  "ironclad": {
   "ats": [
    "ashby"
@@ -9357,6 +12515,29 @@
   ],
   "token": [
    "isomorphiclabs"
+  ]
+ },
+ "jackson_laboratory": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "jackson_laboratory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "careers-jax.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "jam_city": {
@@ -9457,6 +12638,67 @@
   ],
   "token": [
    "jobber"
+  ]
+ },
+ "johns_hopkins_university": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "johns_hopkins_university"
+  ],
+  "domain": [
+   "jhu.edu"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "hiring.jhu.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "johnson_johnson": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "johnson_johnson"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jnjcareers.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Johnson & Johnson"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "JJ"
+  ],
+  "tenant": [
+   "jj"
   ]
  },
  "jpmorgan": {
@@ -9603,6 +12845,66 @@
   ],
   "token": [
    "kairospower"
+  ]
+ },
+ "kardium": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "kardium"
+  ],
+  "company_key": [
+   "kardium"
+  ],
+  "culture": [
+   "__missing__",
+   "en-CA"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
+ "kenvue": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "kenvue"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "kenvue.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "kenvue"
+  ],
+  "tenant": [
+   "kenvue"
   ]
  },
  "keysight_technologies": {
@@ -9896,6 +13198,29 @@
    "krea"
   ]
  },
+ "kymera_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "kymera_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "kymeratherapeutics"
+  ]
+ },
  "kyndryl": {
   "ats": [
    "workday"
@@ -9946,6 +13271,79 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "la_county_public_health": {
+  "account": [
+   "__missing__",
+   "lacounty"
+  ],
+  "ats": [
+   "neogov"
+  ],
+  "company_key": [
+   "la_county_public_health"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    "PUBLIC HEALTH"
+   ]
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "labcorp": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "labcorp"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "4a6c2a97581e01007f4f6a14064c0000",
+     "4a6c2a97581e01007f4f6a14064c0002",
+     "4a6c2a97581e01007f4f68dd6f9e0000",
+     "4a6c2a97581e01007f4f67a6fd370002",
+     "4a6c2a97581e01007f4f670d0f060000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "labcorp.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Labcorp patient service, lab, clinical, R&D and regulatory roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "labcorp"
   ]
  },
  "labelbox": {
@@ -10253,6 +13651,33 @@
    "letta"
   ]
  },
+ "lifelabs": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "lifelabs"
+  ],
+  "company_key": [
+   "lifelabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
  "lightmatter": {
   "ats": [
    "greenhouse"
@@ -10523,6 +13948,51 @@
     "embedded software co-op",
     "hardware engineer intern",
     "firmware co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_canada_health": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Healthcare"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "nursing co-op",
+    "pharmacy student",
+    "clinical research coordinator",
+    "research assistant",
+    "regulatory affairs co-op",
+    "biomedical engineering co-op"
    ]
   ],
   "recency": [
@@ -10839,6 +14309,51 @@
    "r7776000"
   ]
  },
+ "linkedin_us_health": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Healthcare"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "nursing student",
+    "pharmacy intern",
+    "clinical research coordinator",
+    "research assistant biology",
+    "regulatory affairs intern",
+    "public health intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_us_software": {
   "ats": [
    "linkedin"
@@ -10977,6 +14492,38 @@
    "llamaindex"
   ]
  },
+ "loblaw_pharmacy": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "loblaw_companies"
+  ],
+  "facets": [
+   "__missing__",
+   {
+    "category": [
+     "Pharmacy",
+     "Healthcare"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.loblaw.ca"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "lockheed_martin": {
   "api": [
    "pcsx"
@@ -11094,6 +14641,61 @@
   ],
   "tenant": [
    "logitech"
+  ]
+ },
+ "london_health_sciences_centre": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "london_health_sciences_centre"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "1"
+  ],
+  "url": [
+   "https://careers.lhsc.on.ca/psc/LHCGWPRD/EMPLOYEE/CAREERS_EXT/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
+  ]
+ },
+ "lonza": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "lonza"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "lonza.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Lonza_Careers"
+  ],
+  "tenant": [
+   "lonza"
   ]
  },
  "loopio": {
@@ -11234,6 +14836,29 @@
    "lyft"
   ]
  },
+ "mackenzie_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "mackenzie_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "employment-mackenziehealth.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "magic": {
   "ats": [
    "ashby"
@@ -11337,6 +14962,29 @@
    "magna"
   ]
  },
+ "mammoth_biosciences": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "mammoth_biosciences"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mammothbiosci"
+  ]
+ },
  "man_group": {
   "ats": [
    "greenhouse"
@@ -11389,6 +15037,35 @@
    "manulife"
   ]
  },
+ "march_of_dimes": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "e2a89250-2962-4e67-ac8a-28b568062a9d"
+  ],
+  "company_key": [
+   "march_of_dimes"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "recruiting.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "MAR1021"
+  ]
+ },
  "marqeta": {
   "ats": [
    "marqeta"
@@ -11435,6 +15112,85 @@
   ],
   "tenant": [
    "marvell"
+  ]
+ },
+ "mass_general_brigham": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mass_general_brigham"
+  ],
+  "facets": [
+   {
+    "jobFamily": [
+     "1856eb1940d51000cc9eca3589210002",
+     "1856eb1940d51000cc9eefa186960001",
+     "1856eb1940d51000cc9ed811a7df0000",
+     "1856eb1940d51000cc9ee68cab150000",
+     "1856eb1940d51000cc9edf4bccc10000",
+     "1856eb1940d51000cc9ee7bfd83d0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "massgeneralbrigham.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mass General Brigham nursing, rehab and research roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MGBExternal"
+  ],
+  "tenant": [
+   "massgeneralbrigham"
+  ]
+ },
+ "mass_general_brigham_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mass_general_brigham"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "massgeneralbrigham.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mass General Brigham student roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "student"
+  ],
+  "site": [
+   "MGBExternal"
+  ],
+  "tenant": [
+   "massgeneralbrigham"
   ]
  },
  "mastercard": {
@@ -11550,6 +15306,61 @@
    "materialize"
   ]
  },
+ "mayo_clinic": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "mayo_clinic"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "fa-euwp-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
+ "mcgill_university": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mcgill_university"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "mcgill.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "mcgill_careers"
+  ],
+  "tenant": [
+   "mcgill"
+  ]
+ },
  "mda_space": {
   "ats": [
    "ukg"
@@ -11600,6 +15411,93 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "medavie_health_services": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "medavie_health_services"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "medaviehs.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Medavie_External"
+  ],
+  "tenant": [
+   "medaviehs"
+  ]
+ },
+ "medtronic": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "medtronic"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "medtronic.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MedtronicCareers"
+  ],
+  "tenant": [
+   "medtronic"
+  ]
+ },
+ "merck": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "merck"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "msd.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SearchJobs"
+  ],
+  "tenant": [
+   "msd"
   ]
  },
  "mercor": {
@@ -11968,6 +15866,35 @@
    "modernhealth"
   ]
  },
+ "moderna": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "moderna"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "modernatx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "M_tx"
+  ],
+  "tenant": [
+   "modernatx"
+  ]
+ },
  "moelis": {
   "ats": [
    "workday"
@@ -12001,6 +15928,32 @@
   ],
   "tenant": [
    "moelis"
+  ]
+ },
+ "molina_healthcare": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "molina_healthcare"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Health Insurers"
+  ],
+  "host": [
+   "hckd.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
   ]
  },
  "monday_com": {
@@ -12311,6 +16264,32 @@
    "motorolasolutions"
   ]
  },
+ "mount_sinai_health_system": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "mount_sinai_health_system"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "ejis.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
+  ]
+ },
  "mozilla": {
   "ats": [
    "greenhouse"
@@ -12393,6 +16372,32 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "myriad_genetics": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "myriad_genetics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "ekgn.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_2001"
   ]
  },
  "nabla": {
@@ -12591,6 +16596,29 @@
    "neofinancial"
   ]
  },
+ "neogenomics": {
+  "account": [
+   "qolaVfwy"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "neogenomics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "nerdwallet": {
   "ats": [
    "ashby"
@@ -12735,6 +16763,32 @@
   ],
   "token": [
    "newrelic"
+  ]
+ },
+ "newyork_presbyterian": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "newyork_presbyterian"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.nyp.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.nyp.org/us/en/job/{id}"
   ]
  },
  "nextdoor": {
@@ -12998,6 +17052,85 @@
    "notion"
   ]
  },
+ "nova_scotia_health": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "nova_scotia_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.nshealth.ca/search/"
+  ]
+ },
+ "novartis": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "novartis"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "novartis.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Novartis_Careers"
+  ],
+  "tenant": [
+   "novartis"
+  ]
+ },
+ "novo_nordisk": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "novo_nordisk"
+  ],
+  "facility": [
+   "__missing__",
+   "department"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.novonordisk.com/search/"
+  ]
+ },
  "nozomi_networks": {
   "ats": [
    "greenhouse"
@@ -13019,6 +17152,29 @@
   ],
   "token": [
    "nozominetworks"
+  ]
+ },
+ "nurix_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "nurix_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "nurix"
   ]
  },
  "nuro": {
@@ -13176,6 +17332,30 @@
    "tech"
   ]
  },
+ "oicr": {
+  "account": [
+   "__missing__",
+   "oicr"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "oicr"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "oklo": {
   "ats": [
    "greenhouse"
@@ -13239,6 +17419,29 @@
    "oldmissioncapital"
   ]
  },
+ "olympus_americas": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "olympus_americas"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.olympusamerica.com/search/"
+  ]
+ },
  "omada_health": {
   "ats": [
    "greenhouse"
@@ -13260,6 +17463,35 @@
   ],
   "token": [
    "omadahealth"
+  ]
+ },
+ "ontario_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ontario_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "oh.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "OH"
+  ],
+  "tenant": [
+   "oh"
   ]
  },
  "onto_innovation": {
@@ -13497,6 +17729,35 @@
    "outreach"
   ]
  },
+ "pacbio": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pacbio"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "pacbio.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PacBio-"
+  ],
+  "tenant": [
+   "pacbio"
+  ]
+ },
  "pagerduty": {
   "ats": [
    "greenhouse"
@@ -13564,6 +17825,64 @@
   ],
   "tenant": [
    "paloaltonetworks"
+  ]
+ },
+ "parexel": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "parexel"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "parexel.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Parexel_External_Careers"
+  ],
+  "tenant": [
+   "parexel"
+  ]
+ },
+ "path": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "path"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "path.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "path"
   ]
  },
  "pathai": {
@@ -13717,12 +18036,93 @@
    "pendo"
   ]
  },
+ "penumbra": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "penumbra"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "penumbrainc"
+  ]
+ },
  "perplexity": {
   "ats": [
    "ashby"
   ],
   "token": [
    "perplexity"
+  ]
+ },
+ "pfizer": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pfizer"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "pfizer.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PfizerCareers"
+  ],
+  "tenant": [
+   "pfizer"
+  ]
+ },
+ "philips": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "philips"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "philips.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "jobs-and-careers"
+  ],
+  "tenant": [
+   "philips"
   ]
  },
  "physical_intelligence": {
@@ -14081,6 +18481,29 @@
    "postman"
   ]
  },
+ "precision_for_medicine": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "precision_for_medicine"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "pfm"
+  ]
+ },
  "prefect": {
   "ats": [
    "ashby"
@@ -14102,6 +18525,35 @@
   ],
   "token": [
    "prefect"
+  ]
+ },
+ "premier_research": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "premier_research"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "premierresearch.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PremierResearch"
+  ],
+  "tenant": [
+   "premierresearch"
   ]
  },
  "priceline": {
@@ -14162,6 +18614,30 @@
    "procore"
   ]
  },
+ "profound_medical": {
+  "account": [
+   "__missing__",
+   "profoundmedical"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "profound_medical"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "proofpoint": {
   "ats": [
    "workday"
@@ -14189,6 +18665,55 @@
   ],
   "tenant": [
    "proofpoint"
+  ]
+ },
+ "providence": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "providence"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "evac.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
+ "providence_health_care": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "providence_health_care"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers-phc.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "psiquantum": {
@@ -14266,6 +18791,61 @@
    "public"
   ]
  },
+ "public_health_agency_of_canada": {
+  "ats": [
+   "gc_jobs"
+  ],
+  "company_key": [
+   "public_health_agency_of_canada"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    1094
+   ]
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "public_health_ontario": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "public_health_ontario"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "publichealthontario.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PHOCareerSite"
+  ],
+  "tenant": [
+   "publichealthontario"
+  ]
+ },
  "pure_storage": {
   "ats": [
    "greenhouse"
@@ -14296,6 +18876,35 @@
   ],
   "token": [
    "purestorage"
+  ]
+ },
+ "qiagen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "qiagen"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "qiagen.wd502.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "QIAGEN"
+  ],
+  "tenant": [
+   "qiagen"
   ]
  },
  "qlik": {
@@ -14498,6 +19107,32 @@
    "queracomputinginc"
   ]
  },
+ "quest_diagnostics": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "quest_diagnostics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "careers.questdiagnostics.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "quora": {
   "ats": [
    "ashby"
@@ -14528,6 +19163,29 @@
   ],
   "token": [
    "quora"
+  ]
+ },
+ "rady_children_s_hospital": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "rady_children_s_hospital"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "jobs.rchsd.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "railway": {
@@ -14815,6 +19473,35 @@
    "regard"
   ]
  },
+ "regeneron": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "regeneron"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "regeneron.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "regeneron"
+  ]
+ },
  "relativity_space": {
   "ats": [
    "greenhouse"
@@ -14836,6 +19523,29 @@
   ],
   "token": [
    "relativity"
+  ]
+ },
+ "relay_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "relay_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "relaytherapeutics"
   ]
  },
  "render": {
@@ -14893,6 +19603,35 @@
    "replit"
   ]
  },
+ "resmed": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "resmed"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "resmed.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Resmed_External_Careers"
+  ],
+  "tenant": [
+   "resmed"
+  ]
+ },
  "retool": {
   "ats": [
    "ashby"
@@ -14902,6 +19641,55 @@
   ],
   "token": [
    "retool"
+  ]
+ },
+ "revvity": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "revvity"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "jobs.revvity.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "rexall": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "rexall"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.rexall.ca"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "rigetti_computing": {
@@ -15116,6 +19904,32 @@
    "robust-ai"
   ]
  },
+ "roche": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "roche"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "careers.roche.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.roche.com/global/en/job/{id}"
+  ]
+ },
  "rocket_lab": {
   "ats": [
    "greenhouse"
@@ -15267,6 +20081,29 @@
   ],
   "token": [
    "rover"
+  ]
+ },
+ "rti_international": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "rti_international"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "host": [
+   "careers.rti.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "rtx": {
@@ -15521,6 +20358,35 @@
    "salesloft"
   ]
  },
+ "salk_institute": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "e9f055e1-a105-4f91-9a67-21aea61655fa"
+  ],
+  "company_key": [
+   "salk_institute"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "recruiting2.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "SAL1013SIBS"
+  ]
+ },
  "salsify": {
   "ats": [
    "greenhouse"
@@ -15598,6 +20464,29 @@
    "samsungsemiconductor"
   ]
  },
+ "sana_biotechnology": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sana_biotechnology"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sanabiotech"
+  ]
+ },
  "sanctuary_ai": {
   "account": [
    "sanctuary-ai"
@@ -15642,6 +20531,61 @@
   ],
   "token": [
    "sandboxaq"
+  ]
+ },
+ "sandoz": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "sandoz"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "sandoz.wd103.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "sandoz_careers"
+  ],
+  "tenant": [
+   "sandoz"
+  ]
+ },
+ "sanofi": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "sanofi"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.sanofi.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "sap": {
@@ -15696,6 +20640,35 @@
   ],
   "token": [
    "scaleai"
+  ]
+ },
+ "scarborough_health_network": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "scarborough_health_network"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "shn.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SHN_External_Career_Site"
+  ],
+  "tenant": [
+   "shn"
   ]
  },
  "schonfeld": {
@@ -15782,12 +20755,67 @@
    "https://jobs.scotiabank.com/go/IT-%26-Digital-Banking-Jobs/2298017/"
   ]
  },
+ "scripps_research": {
+  "ats": [
+   "ukg"
+  ],
+  "board": [
+   "98759e7d-7ede-4c0b-ac7b-2c6293c7b522"
+  ],
+  "company_key": [
+   "scripps_research"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "recruiting2.ultipro.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "tenant": [
+   "SCR1003TSRI"
+  ]
+ },
  "seatgeek": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "seatgeek"
+  ]
+ },
+ "seattle_children_s": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "seattle_children_s"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.seattlechildrens.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.seattlechildrens.org/us/en/job/{id}"
   ]
  },
  "securityscorecard": {
@@ -15974,12 +21002,93 @@
    "ServiceNow"
   ]
  },
+ "shared_health_manitoba": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "shared_health_manitoba"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.wrha.mb.ca/search/"
+  ]
+ },
  "shield_ai": {
   "ats": [
    "lever"
   ],
   "token": [
    "shieldai"
+  ]
+ },
+ "shoppers_drug_mart": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "shoppers_drug_mart"
+  ],
+  "facets": [
+   "__missing__",
+   {
+    "category": [
+     "Pharmacy",
+     "Healthcare"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.shoppersdrugmart.ca"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "sickkids": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "sickkids"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "1"
+  ],
+  "url": [
+   "https://career.sickkids.ca:8001/psc/CRHCMPRD/CAREER/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
   ]
  },
  "siemens_canada": {
@@ -16041,6 +21150,32 @@
   ],
   "url": [
    "https://jobs.siemens.com/en_US/externaljobs/SearchJobs"
+  ]
+ },
+ "siemens_healthineers": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "siemens_healthineers"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.siemens-healthineers.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.siemens-healthineers.com/global/en/job/{id}/"
   ]
  },
  "siemens_us": {
@@ -16281,6 +21416,37 @@
    "both"
   ]
  },
+ "sinai_health": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "sinaihealth"
+  ],
+  "company_key": [
+   "sinai_health"
+  ],
+  "culture": [
+   "__missing__",
+   "en-CA"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "sinaihealthcareers"
+  ]
+ },
  "singlestore": {
   "ats": [
    "greenhouse"
@@ -16333,6 +21499,35 @@
   ],
   "token": [
    "smartsheet"
+  ]
+ },
+ "smith_nephew": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "smith_nephew"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "smithnephew.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "smithnephew"
   ]
  },
  "snap": {
@@ -16672,6 +21867,35 @@
    "sourcegraph91"
   ]
  },
+ "southlake_health": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "southlake_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "southlake.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Southlake"
+  ],
+  "tenant": [
+   "southlake"
+  ]
+ },
  "sp_global": {
   "ats": [
    "workday"
@@ -16885,6 +22109,64 @@
    "ssctech"
   ]
  },
+ "st_joseph_s_healthcare_hamilton": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "st_joseph_s_healthcare_hamilton"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "stjoes.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "STJOESHAM"
+  ],
+  "tenant": [
+   "stjoes"
+  ]
+ },
+ "st_jude_children_s_research_hospital": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "st_jude_children_s_research_hospital"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "stjude.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "StJude"
+  ],
+  "tenant": [
+   "stjude"
+  ]
+ },
  "stability_ai": {
   "ats": [
    "greenhouse"
@@ -16963,6 +22245,84 @@
    "stackadapt"
   ]
  },
+ "standard_biotools": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "standard_biotools"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "standardbiotools.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "standardbiotools"
+  ]
+ },
+ "stanford_children_s_health": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "stanford_children_s_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.stanfordchildrens.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "stanford_health_care": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "stanford_health_care"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers.stanfordhealthcare.org"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.stanfordhealthcare.org/us/en/job/{id}"
+  ]
+ },
  "starburst": {
   "ats": [
    "greenhouse"
@@ -16989,6 +22349,32 @@
   ],
   "token": [
    "stepstone"
+  ]
+ },
+ "steris": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "steris"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.steris.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.steris.com/us/en/job/{id}/"
   ]
  },
  "stockx": {
@@ -17043,6 +22429,35 @@
   ],
   "token": [
    "stripe"
+  ]
+ },
+ "stryker": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "stryker"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "stryker.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "StrykerCareers"
+  ],
+  "tenant": [
+   "stryker"
   ]
  },
  "substack": {
@@ -17245,6 +22660,33 @@
    "swordhealth"
   ]
  },
+ "synaptive_medical": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "pp4h663"
+  ],
+  "company_key": [
+   "synaptive_medical"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
  "synopsys": {
   "ats": [
    "radancy"
@@ -17289,6 +22731,29 @@
   ],
   "token": [
    "synthesia"
+  ]
+ },
+ "sysmex_america": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "sysmex_america"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "careers-sysmex.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "tailscale": {
@@ -17337,6 +22802,32 @@
    "taketwo"
   ]
  },
+ "takeda": {
+  "ats": [
+   "radancy"
+  ],
+  "company_key": [
+   "takeda"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "jobs.takeda.com"
+  ],
+  "lang": [
+   "en"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "talkspace": {
   "ats": [
    "greenhouse"
@@ -17358,6 +22849,35 @@
   ],
   "token": [
    "talkspace"
+  ]
+ },
+ "tandem_diabetes_care": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "tandem_diabetes_care"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "tandemdiabetes.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "tandemdiabetes"
+  ],
+  "tenant": [
+   "tandemdiabetes"
   ]
  },
  "tanium": {
@@ -17513,6 +23033,29 @@
   ],
   "tenant": [
    "td"
+  ]
+ },
+ "teleflex": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "teleflex"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.teleflex.com/search/"
   ]
  },
  "telus": {
@@ -17691,6 +23234,32 @@
    "terrapowerllc"
   ]
  },
+ "teva": {
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "teva"
+  ],
+  "domain": [
+   "tevapharm.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "www.careers.teva"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "texas_instruments": {
   "ats": [
    "oracle_hcm"
@@ -17796,6 +23365,77 @@
   ],
   "token": [
    "thenewyorktimes"
+  ]
+ },
+ "the_ottawa_hospital": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "the_ottawa_hospital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "2"
+  ],
+  "url": [
+   "https://jobposting.ottawahospital.on.ca/psc/jobposting/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
+  ]
+ },
+ "thermo_fisher_scientific": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "thermo_fisher_scientific"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "8a2797301f6510019d769e3956f40000",
+     "8a2797301f6510019d76a13f41330000",
+     "8a2797301f6510019d76a1da42ea0000",
+     "cca9477dcbc410002fb142e7c3cf0000",
+     "8a2797301f6510019d76a30f4b8b0000",
+     "306eda38c1081005308ae0abc9517d53",
+     "cfd97197b02d01e37cc6e8156d5cc6d9"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "thermofisher.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Thermo Fisher Scientific clinical lab, clinical trial, pre-clinical, R&D, medical affairs and intern roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ThermoFisherCareers"
+  ],
+  "tenant": [
+   "thermofisher"
   ]
  },
  "thinkific": {
@@ -18076,6 +23716,32 @@
    "transunion"
   ]
  },
+ "trillium_health_partners": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "trillium_health_partners"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "iadyup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "trimble": {
   "ats": [
    "workday"
@@ -18205,6 +23871,29 @@
    "twilio"
   ]
  },
+ "twist_bioscience": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "twist_bioscience"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "twistbioscience"
+  ]
+ },
  "twitch": {
   "ats": [
    "greenhouse"
@@ -18300,6 +23989,58 @@
   ],
   "token": [
    "Ubisoft2"
+  ]
+ },
+ "uc_san_diego_health": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "uc_san_diego_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "employment.ucsd.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "path": [
+   "uc-san-diego-health"
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "ucsf": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "ucsf"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "iazuqy.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
   ]
  },
  "udemy": {
@@ -18458,6 +24199,113 @@
    "unitytech"
   ]
  },
+ "university_of_alberta": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "university_of_alberta"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "iaejup.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "UOA-Careers"
+  ]
+ },
+ "university_of_british_columbia": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "university_of_british_columbia"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "ubc.wd10.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ubcstaffjobs"
+  ],
+  "tenant": [
+   "ubc"
+  ]
+ },
+ "university_of_toronto": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "university_of_toronto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.utoronto.ca/search/"
+  ]
+ },
+ "university_of_washington": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "university_of_washington"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "uw.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "UWHires"
+  ],
+  "tenant": [
+   "uw"
+  ]
+ },
  "unstructured_io": {
   "ats": [
    "ashby"
@@ -18487,6 +24335,29 @@
   ],
   "token": [
    "upstart"
+  ]
+ },
+ "vancouver_coastal_health": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "vancouver_coastal_health"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "careers-vch.icims.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "vanguard": {
@@ -18600,6 +24471,30 @@
    "vapi"
   ]
  },
+ "variational_ai": {
+  "account": [
+   "__missing__",
+   "variationalai"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "variational_ai"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "vast_space": {
   "ats": [
    "greenhouse"
@@ -18629,6 +24524,37 @@
   ],
   "token": [
    "vaticlabs"
+  ]
+ },
+ "vector_institute": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "4ed2be93-8bc5-40e2-915f-931884eac404"
+  ],
+  "company_key": [
+   "vector_institute"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "lang": [
+   "en_CA"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "veeva_systems": {
@@ -18743,6 +24669,29 @@
   ],
   "tenant": [
    "viavisolutions"
+  ]
+ },
+ "vir_biotechnology": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "vir_biotechnology"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "virbiotechnologyinc"
   ]
  },
  "virtu": {
@@ -18999,6 +24948,52 @@
   ],
   "token": [
    "warp"
+  ]
+ },
+ "waters": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "waters"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "uscareers-waters.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "waters_international": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "waters"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "host": [
+   "internationalcareers-waters.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "wattpad": {
@@ -19287,6 +25282,29 @@
    "williamblair"
   ]
  },
+ "william_osler_health_system": {
+  "ats": [
+   "smartrecruiters"
+  ],
+  "company_key": [
+   "william_osler_health_system"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "WilliamOslerHealthSystem1"
+  ]
+ },
  "wiz": {
   "ats": [
    "greenhouse"
@@ -19308,6 +25326,33 @@
   ],
   "token": [
    "wizinc"
+  ]
+ },
+ "womens_college_hospital": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "wch"
+  ],
+  "company_key": [
+   "womens_college_hospital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "workato": {
@@ -19465,6 +25510,35 @@
    "worldquant"
   ]
  },
+ "worldwide_clinical_trials": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "worldwide_clinical_trials"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "worldwide.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "worldwide"
+  ]
+ },
  "writer": {
   "ats": [
    "ashby"
@@ -19473,12 +25547,81 @@
    "writer"
   ]
  },
+ "wuxi_apptec": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "wuxi_apptec"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "CROs & CDMOs"
+  ],
+  "host": [
+   "careers-wuxiapptec.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "xai": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "xai"
+  ]
+ },
+ "xaira_therapeutics": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "xaira_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "xairatherapeutics"
+  ]
+ },
+ "yale_university": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "yale_university"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "careers.yale.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "yelp": {
@@ -19906,6 +26049,32 @@
   ],
   "tenant": [
    "zillow"
+  ]
+ },
+ "zimmer_biomet_holdings": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "zimmer_biomet_holdings"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.zimmerbiomet.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.zimmerbiomet.com/us/en/job/{id}/"
   ]
  },
  "zipline": {

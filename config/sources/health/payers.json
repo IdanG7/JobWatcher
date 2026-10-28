@@ -1,0 +1,17 @@
+{
+  "title": "Health insurers",
+  "verified": "2026-10-27",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. Humana, Elevance Health and Cigna are also polled for tech and finance (tech/ and shared/ health_tech); these sources read only their clinical, care management and pharmacy job families. Blue Cross Blue Shield of Massachusetts lists on a Phenom site whose postings link to this Workday board.",
+  "boards": {
+    "centene": {"ats": "workday", "host": "centene.wd5.myworkdayjobs.com", "tenant": "centene", "site": "centene_external", "min_interval": 1800, "company_key": "centene", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "molina_healthcare": {"ats": "oracle_hcm", "host": "hckd.fa.us2.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "molina_healthcare", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "blue_shield_of_california": {"ats": "oracle_hcm", "host": "ecge.fa.us2.oraclecloud.com", "site": "CX_1003", "min_interval": 1800, "company_key": "blue_shield_of_california", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "blue_cross_blue_shield_of_massachusetts": {"ats": "workday", "host": "bcbsma.wd5.myworkdayjobs.com", "tenant": "bcbsma", "site": "BCBSMA", "min_interval": 1800, "company_key": "blue_cross_blue_shield_of_massachusetts", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "florida_blue": {"ats": "oracle_hcm", "host": "fa-etum-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1001", "min_interval": 1800, "company_key": "florida_blue", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "clover_health": {"ats": "greenhouse", "token": "cloverhealth", "min_interval": 1800, "company_key": "clover_health", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "alignment_health": {"ats": "workday", "host": "alignmenthealthcare.wd12.myworkdayjobs.com", "tenant": "alignmenthealthcare", "site": "ahc_external", "min_interval": 1800, "company_key": "alignment_health", "group": "Health Insurers", "priority": 2, "geography": "us"},
+    "humana_clinical": {"ats": "workday", "host": "humana.wd5.myworkdayjobs.com", "tenant": "humana", "site": "Humana_External_Career_Site", "facets": {"jobFamilyGroup": ["fbb60995c99901824e53604715c50cc6", "fbb60995c999018c18a3114915c560c6", "fbb60995c99901cf7326824815c544c6", "fbb60995c99901b8664ca14815c54ac6", "fbb60995c99901c52b0c6e4815c540c6", "fbb60995c99901fcbf27214a15c594c6", "fbb60995c99901c3e10c5b4915c56ec6", "fbb60995c999018598bab34715c51cc6", "a0509a3e91730101b6c5e991a3950000"]}, "min_interval": 1800, "company_key": "humana", "group": "Health Insurers", "priority": 2, "geography": "us", "label": "Humana clinical and care roles"},
+    "elevance_health_clinical": {"ats": "workday", "host": "elevancehealth.wd1.myworkdayjobs.com", "tenant": "elevancehealth", "site": "ANT", "facets": {"jobFamilyGroup": ["f42bff05a414010057202352de780000"]}, "min_interval": 1800, "company_key": "elevance_health", "group": "Health Insurers", "priority": 2, "geography": "us", "label": "Elevance Health medical roles"},
+    "cigna_clinical": {"ats": "workday", "host": "cigna.wd5.myworkdayjobs.com", "tenant": "cigna", "site": "cignacareers", "facets": {"jobFamilyGroup": ["b7947bbbfff201ef25630616390c8716", "b7947bbbfff2013bd2441e16390c9516", "b7947bbbfff201aa2a7e2916390c9916"]}, "min_interval": 1800, "company_key": "cigna", "group": "Health Insurers", "priority": 2, "geography": "us", "label": "Cigna clinical roles"}
+  }
+}

@@ -12,6 +12,8 @@ import copy
 import hashlib
 import json
 
+from .hours import EMPLOYMENT
+
 WORK_AUTH_VALUES = ("citizen", "permanent_resident", "authorized", "needs_sponsorship", "unknown")
 STAGES = ("internship", "new_grad", "entry", "experienced", "senior")
 
@@ -78,7 +80,7 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
     if month is not None and (not isinstance(month, int) or not 1 <= month <= 12):
         problems.append("graduation_month must be 1–12")
     for key in ("target_roles", "target_stages", "target_cycles", "target_locations",
-                "target_countries", "target_company_types", "languages", "skills", "fields"):
+                "target_countries", "target_company_types", "languages", "skills", "fields", "licences"):
         if not isinstance(profile.get(key, []), list):
             problems.append(f"{key} must be a list")
     bad_stages = set(profile.get("target_stages") or []) - set(STAGES)
@@ -90,6 +92,17 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
     for country, value in (profile.get("work_authorization") or {}).items():
         if value not in WORK_AUTH_VALUES:
             problems.append(f"work_authorization.{country} must be one of {', '.join(WORK_AUTH_VALUES)}")
+    # Hours I can work and No night shifts (D15); absent means no preference.
+    hours = profile.get("hours", {})
+    if not isinstance(hours, dict):
+        problems.append("hours must be an object")
+    else:
+        if not isinstance(hours.get("employment", []), list):
+            problems.append("hours.employment must be a list")
+        elif unknown := [k for k in hours.get("employment", []) if k not in EMPLOYMENT]:
+            problems.append(f"unknown hours.employment: {', '.join(map(str, unknown))}")   # a stored value may be any type
+        if not isinstance(hours.get("no_nights", False), bool):
+            problems.append("hours.no_nights must be true or false")
     if kn is not None:
         valid_roles = set(kn.categories) | {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | set(kn.families)
         unknown = [r for r in profile.get("target_roles") or [] if r not in valid_roles]
@@ -108,6 +121,10 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
         unknown = [f for f in profile.get("fields") or [] if f != "finance" and f not in kn.families]
         if unknown:
             problems.append(f"unknown fields: {', '.join(unknown)}")
+        # Licences & certifications held or expected (D16); absent means none.
+        unknown = [k for k in profile.get("licences") or [] if k not in kn.licence_by_key]
+        if unknown:
+            problems.append(f"unknown licences: {', '.join(unknown)}")
     return problems
 
 
@@ -138,7 +155,7 @@ def prune_profile(profile: dict, kn) -> dict:
     return out
 
 
-RULES_VERSION = 2      # raise when scoring or resume-match rules change, so installs rescore once
+RULES_VERSION = 3      # raise when scoring or resume-match rules change, so installs rescore once
 
 
 def profile_version(profile: dict, watched: list[str] | tuple[str, ...] = ()) -> str:

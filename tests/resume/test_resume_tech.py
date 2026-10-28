@@ -152,7 +152,7 @@ class CsResumeTests(unittest.TestCase):
         self.assertTrue(all(field_of(r) in {"hardware", "software"} for r in profile["target_roles"]))
         self.assertEqual(1.0, max(profile["role_weights"].values()))
         self.assertTrue(profile["target_company_types"])
-        self.assertTrue(all(KN.company_types[t].get("track") == "tech" for t in profile["target_company_types"]))
+        self.assertTrue(all(KN.type_tracks(t) == ["tech"] for t in profile["target_company_types"]))
         self.assertIn("embedded_systems", profile["skills"])
         # Another school: the old program and GPA don't carry over.
         self.assertEqual({"level": "undergraduate", "school": "Toronto Lakeshore University", "program": "Computer Science",
@@ -242,8 +242,8 @@ class FinanceUnchangedTests(unittest.TestCase):
     def test_finance_resume_is_read_with_the_finance_vocabulary(self):
         parsed = parse_resume(FINANCE_RESUME, KN)
         sections = {"experience": FINANCE_RESUME.splitlines()}
-        self.assertFalse(insights.tech_resume(insights.experience_entries(sections), parsed["education"], KN))
-        self.assertFalse({s["key"] for s in parsed["skills"]} & {s.key for s in KN.skills if s.tech})
+        self.assertFalse(insights.resume_tracks(insights.experience_entries(sections), parsed["education"], KN))
+        self.assertFalse({s["key"] for s in parsed["skills"]} & {s.key for s in KN.skills if s.track == "tech"})
         profile = profile_from_resume(parsed, merge_profile(), KN)
         self.assertNotIn("fields", {k for k in profile if profile[k] != merge_profile().get(k)})
 
