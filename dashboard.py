@@ -40,6 +40,7 @@ from intel import cover_letter, hardware, letterhead, pdf_tools
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, utcnow, watched_companies
+from intel_worker import WorkerProcess, count_pending_facts, refresh_database
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
                        SELECT_COLUMNS, build_order, build_where, flatten, page_args, resume_params)
@@ -276,6 +277,11 @@ class JobwatchService:
         self.desktop = False
         self._wake = threading.Event()
         self._stop = threading.Event()
+        # Facts, scoring and polls run in a worker process (intel_worker.py) once start_background() has
+        # started it; without it, in this process's threads, as tests and refresh_now() do.
+        self._worker: WorkerProcess | None = None
+        self._worker_poll = False         # a poll sent to the worker that hasn't ended
+        self.worker_pid_path: Path | None = None    # set by the portable launcher, for --stop
         self._pending_cache: tuple[float, int] | None = None
         self._resume_pending: tuple[tuple, int] | None = None   # (data version, resume version) -> count
         self.status = {"indexing": False, "last_refresh": None, "last_stats": None,
@@ -365,7 +371,7 @@ class JobwatchService:
 
     def close(self) -> None:
         """Let go of the database file (Windows can't delete or move a file that is open)."""
-        self._stop.set()
+        self.stop_background()
         self._ready.set()
         with self._version_lock:
             if self._version_con is not None:
@@ -477,25 +483,14 @@ class JobwatchService:
 
     # ------------------------------------------------------------ intelligence refresh
     def refresh_now(self, force_score: bool = False) -> dict:
+        """One facts and scoring pass in this process (the worker runs the same refresh_database)."""
         with self._refresh_lock:
             self.status["indexing"] = True
             try:
-                con = sqlite3.connect(self.db_path, timeout=30)
-                con.execute("PRAGMA busy_timeout=15000")
-                con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
-                con.execute(f"PRAGMA mmap_size={watcher.MMAP_SIZE}")
-                try:
-                    backlog = self.pending_facts(con)
-                    store = IntelStore(con, self.config)
-                    # Count down as batches land, so a long re-rank after an update shows what's left.
-                    stats = store.refresh(force_score=force_score, on_progress=lambda done: setattr(
-                        self, "_pending_cache", (time.time(), max(0, backlog - done))))
-                finally:
-                    con.close()
-                self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)
-                self._pending_cache = None
-                if stats.get("facts") or stats.get("scored"):
-                    self.data_changed()
+                # Count down as batches land, so a long re-rank after an update shows what's left.
+                stats = refresh_database(self.db_path, self.config, force_score, backlog=self.pending_facts,
+                                         on_remaining=lambda n: setattr(self, "_pending_cache", (time.time(), n)))
+                self._refreshed(stats)
                 return stats
             except Exception as exc:   # surfaced in /api/status, never crashes the server
                 self.status["error"] = f"{type(exc).__name__}: {exc}"
@@ -503,8 +498,31 @@ class JobwatchService:
             finally:
                 self.status["indexing"] = False
 
+    def _refreshed(self, stats: dict) -> None:
+        self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)
+        self._pending_cache = None
+        if stats.get("facts") or stats.get("scored"):
+            self.data_changed()
+
     def start_background(self, interval: int = 60) -> None:
+        """Facts, scoring and polls start in the worker process, so they never hold this process's GIL
+        while pages are asked for; if it can't run, they run in threads here, as they used to."""
         self.fetch_on_open = True
+        threading.Thread(target=self.keep_ready, name="jobwatch-pages", daemon=True).start()
+        python = Path(sys.executable).with_name("python.exe")    # pythonw.exe's twin; started without a window
+        command = [str(python if python.exists() else sys.executable),
+                   "-X", "utf8", str(HERE / "intel_worker.py"), "--db", str(self.db_path),
+                   "--config", str(self.config_path), "--subscribers", str(self.subscribers_path),
+                   "--state", str(watcher.STATE_JSON), "--dashboard-url", self.config.get("dashboard_url", ""),
+                   "--interval", str(interval)]
+        self._worker = WorkerProcess(command, on_event=self._worker_event, on_exit=self._worker_exited,
+                                     on_give_up=lambda: self._work_here(interval), pid_path=self.worker_pid_path)
+        if not self._worker.start():
+            self._work_here(interval)
+
+    def _work_here(self, interval: int) -> None:
+        """The background loop in this process: the worker's fallback."""
+        self._worker = None
 
         def loop():
             while not self._stop.is_set():
@@ -515,22 +533,50 @@ class JobwatchService:
                 self._wake.wait(interval)
                 self._wake.clear()
         threading.Thread(target=loop, name="jobwatch-intel", daemon=True).start()
-        threading.Thread(target=self.keep_ready, name="jobwatch-pages", daemon=True).start()
+
+    def stop_background(self) -> None:
+        """Stop the background work, and wait until the worker process has ended: its files (the runtime
+        Setup replaces) are free before this process exits."""
+        self._stop.set()
+        self._wake.set()
+        worker, self._worker = self._worker, None
+        if worker is not None:
+            worker.stop()
+
+    def _worker_event(self, kind: str, data: dict) -> None:
+        """What the worker reports sets what refresh_now() and polls in this process set."""
+        if kind == "indexing":
+            self.status["indexing"] = data["on"]
+        elif kind == "pending":
+            self._pending_cache = (time.time(), data["n"])
+        elif kind == "done":
+            self.status["indexing"] = False
+            self._refreshed(data["stats"])
+        elif kind == "error":
+            self.status.update(error=data["text"], indexing=False)
+        elif kind == "progress":
+            self._poll_progress(data["event"], **data["data"])
+        elif kind == "poll_end":
+            self._worker_poll = False
+            self._poll_finished(data["error"])
+
+    def _worker_exited(self, code) -> None:
+        self.status["indexing"] = False
+        if self._worker_poll:
+            self._worker_poll = False
+            self._poll_finished(f"poll failed: the background process stopped (exit code {code})")
 
     def kick(self) -> None:
-        self._wake.set()
+        worker = self._worker
+        if worker is None or not worker.send("kick"):
+            self._wake.set()
 
     def pending_facts(self, con) -> int:
         """Backlog size; cached briefly because /api/status polls it."""
         cached = self._pending_cache
         if cached and time.time() - cached[0] < 15:
             return cached[1]
-        from intel import FACTS_VERSION, config_fingerprint
-        count = con.execute(
-            """SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
-               WHERE j.title != '' AND (i.board IS NULL OR i.input_hash IS NULL OR i.facts_version != ?
-                                        OR i.kb_version != ? OR i.fit_detail IS NULL)""",
-            (FACTS_VERSION, config_fingerprint())).fetchone()[0]
+        count = count_pending_facts(con)
         self._pending_cache = (time.time(), count)
         return count
 
@@ -2465,8 +2511,14 @@ class JobwatchService:
                 "phase": "starting", "started_at": time.time(), "finished_at": None,
                 "total": 0, "completed": 0, "failed": 0, "skipped": 0,
                 "jobs": 0, "new": 0, "sources": {}, "descriptions": None})
+        worker = self._worker
+        self._worker_poll = True      # before it is sent: the worker may finish before send() returns
+        if worker is not None and worker.send("poll"):
+            return {"ok": True, "started": True}       # its progress arrives as events
+        self._worker_poll = False
 
         def run():
+            error = None
             try:
                 con = watcher.db_open(self.db_path)
                 try:
@@ -2474,23 +2526,27 @@ class JobwatchService:
                                   ranking=lambda: self.status["indexing"])
                 finally:
                     con.close()
-                with self._status_lock:
-                    self.status["last_poll"] = utcnow()
-                    self.status["progress"]["phase"] = "complete"
             except Exception as exc:
-                with self._status_lock:
-                    self.status["error"] = f"poll failed: {type(exc).__name__}: {exc}"
-                    self.status["progress"]["error"] = self.status["error"]
-                    self.status["progress"]["phase"] = "failed"
+                error = f"poll failed: {type(exc).__name__}: {exc}"
             finally:
-                with self._status_lock:
-                    self.status["poll_running"] = False
-                    self.status["progress"]["finished_at"] = time.time()
-                self._poll_lock.release()
-                self.data_changed()
-                self.kick()
+                self._poll_finished(error)
         threading.Thread(target=run, name="jobwatch-poll", daemon=True).start()
         return {"ok": True, "started": True}
+
+    def _poll_finished(self, error: str | None) -> None:
+        with self._status_lock:
+            if error is None:
+                self.status["last_poll"] = utcnow()
+                self.status["progress"]["phase"] = "complete"
+            else:
+                self.status["error"] = error
+                self.status["progress"]["error"] = error
+                self.status["progress"]["phase"] = "failed"
+            self.status["poll_running"] = False
+            self.status["progress"]["finished_at"] = time.time()
+        self._poll_lock.release()
+        self.data_changed()
+        self.kick()
 
     def status_info(self) -> dict:
         from version import APP_VERSION
@@ -2935,6 +2991,7 @@ def serve(host="127.0.0.1", port=8787, open_browser=True, db_path=watcher.DB_PAT
     except KeyboardInterrupt:
         print("\nDashboard stopped.")
     finally:
+        service.stop_background()
         server.server_close()
 
 

@@ -16,6 +16,7 @@ from unittest.mock import patch
 import portable_start
 from portable_start import acquire_lock, bind_server, preferred_port, stop_and_wait, wait_for_exit
 from dashboard import JobwatchHTTPServer
+from intel_worker import process_created
 import updater
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -118,6 +119,24 @@ class InstalledAppTests(unittest.TestCase):
         (self.data / "server.pid").write_text(str(child.pid), encoding="utf-8")
         self.assertTrue(stop_and_wait(self.data, seconds=10, ask=False))
         self.assertIsNotNone(child.poll())
+
+    def test_stop_also_waits_for_the_recorded_worker_process(self):
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(1.5)"])
+        self.addCleanup(child.wait)
+        self.addCleanup(child.kill)
+        (self.data / "worker.pid").write_text(f"{child.pid} {process_created(child.pid)}", encoding="utf-8")
+        self.assertTrue(stop_and_wait(self.data, seconds=10, ask=False))
+        self.assertIsNotNone(child.poll())
+
+    def test_a_worker_record_of_another_process_is_neither_waited_for_nor_ended(self):
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+        self.addCleanup(child.wait)
+        self.addCleanup(child.kill)
+        other = process_created(child.pid) + 1          # the id, reused by a process started later
+        self.assertTrue(wait_for_exit(child.pid, 5, may_end=True, created=other))
+        (self.data / "worker.pid").write_text(f"{child.pid} {other}", encoding="utf-8")
+        self.assertTrue(stop_and_wait(self.data, seconds=1, ask=False))
+        self.assertIsNone(child.poll())
 
     def test_waiting_for_a_finished_process_returns_at_once(self):
         child = subprocess.Popen([sys.executable, "-c", "pass"])
