@@ -1076,3 +1076,158 @@ All sixteen were approved as recommended on 2026-10-27.
 | **D14** | On the Healthcare board, a licensed entry-to-practice occupation with no level word ("Registered Nurse") reads as Entry ("Entry to practice"), not Experienced. Years asked still decide. About 1,711 stored postings change. | **Yes**, in Phase 3 |
 | **D15** | Hours (employment type, shifts, on-call) become facts, chips and a filter, with no fit points unless you set a preference. This needs `FACTS_VERSION` 10 → 11 in the same release, so no extra recompute. | **Yes**, in Phase 3 |
 | **D16** | Licences: what a posting requires and whether it accepts pending licensees; "Licences & certifications" in the profile; a "Licence required" penalty; program windows in Calendar. | **Yes**, in Phase 5 |
+
+---
+
+## 13. Final report (2026-10-28)
+
+`feat/healthcare-board`, 27 commits on `main` (`d70bace` merged in), not pushed. 72 files changed, none
+deleted or renamed (`git diff --stat main...HEAD`).
+
+### What changed
+- **Boards in data** (§9): `intel/` (14 files), `dashboard.py` meta, `job_query.py` (Hours filter),
+  `tools/board_gate.py` (the gate), `tools/build_windows.py` (`BOARD_FIELDS`, `sources_version` 11).
+- **Healthcare's knowledge:** nine filters, claims, stage rules, licences and program windows in
+  `config/taxonomy.json`; 11 new employer types and 200 employers in `config/companies.json`, with no existing
+  employer changed; 58 Healthcare skills in `config/skills.json` (117 → 175).
+- **Adapters:** nine in `watcher.py` (Dayforce, ADP Workforce Now, BambooHR, Taleo Enterprise, PeopleSoft,
+  GC Jobs, NEOGOV, Paradox, `successfactors_portal`). No existing adapter changed.
+- **Sources:** 210 in 12 `health/` packs, from 206 employers.
+- **UI:** Healthcare's specialties and licences in setup; Licences & certifications and Hours in Settings;
+  Hours, Licence and Certifications cells on the posting; the Opportunities Hours filter; program windows in
+  Calendar and Today.
+- **Docs:** `PRODUCT.md`, `docs/ARCHITECTURE.md` and the taxonomy `_readme`; the manifest `_readme` since
+  Phase 2. A 0.3.12 What's new draft, with `version.py` unchanged.
+
+### Sources per pack (`config/sources/health/`)
+
+| Pack | Sources | Pack | Sources |
+|---|---|---|---|
+| health_core (LinkedIn) | 2 | medtech | 26 |
+| hospitals_canada | 23 | diagnostics_labs | 20 |
+| hospitals_us | 17 | public_health | 20 |
+| pharma | 22 | research_institutes | 19 |
+| biotech | 31 | payers | 10 |
+| cro_cdmo | 15 | pharmacy_consumer | 5 |
+
+### What each filter polls (`intel.sources.polled_sources` on this branch)
+
+| Filter | Polled | from `health/` | Full poll |
+|---|---|---|---|
+| Clinical Care | 110 | 57 | 278 s |
+| Clinical Research | 182 | 129 | 286 s |
+| Lab Research | 162 | 109 | 311 s |
+| Bioinformatics | 147 | 94 | 293 s |
+| Regulatory & Quality | 169 | 116 | 311 s |
+| Medical Devices | 101 | 48 | 292 s |
+| Public Health | 117 | 64 | 278 s |
+| Health Administration | 110 | 57 | 278 s |
+| Medical Affairs | 134 | 81 | 280 s |
+| No filter (whole board) | 263 | 210 | 311 s |
+
+The rest are `shared/lists` and the health tech groups, which every Healthcare profile polls.
+
+### Polled sources and poll time per sample profile, `main` → this branch
+From `E:\healthcare-gate\poll\poll_time_91b0b19.txt`: each source was fetched once, then each profile's
+cycle was simulated. Since then only ICF has been added (`public_health`, 80 postings).
+
+| Profile | Sources | Full poll |
+|---|---|---|
+| Finance (and the default profile) | 347 → 347 | 714 s → 714 s |
+| Software | 713 → 713 | 839 s → 839 s |
+| AI & Data | 524 → 524 | 568 s → 568 s |
+| Hardware | 191 → 191 | 683 s → 683 s |
+| Product, Design | 319 → 319 | 556 s → 556 s |
+| Finance + Software | 760 → 760 | 1,028 s → 1,028 s |
+| Healthcare | 785 → 263 | 1,055 s → 311 s |
+| Finance + Healthcare | 785 → 586 | 1,055 s → 867 s |
+| Software + Healthcare | 785 → 923 | 1,055 s → 915 s |
+| AI & Data + Healthcare | 785 → 734 | 1,055 s → 606 s |
+| Sales, Operations, People & Legal, Finance + Sales, the alert runner | 785 → 995 | 1,055 s → 1,162 s |
+
+Boards that poll every source gain the 210 `health/` sources (D8, D12). Every other existing board polls
+the same sources with the same settings (`tests/sources/test_board_polling.py`).
+
+### Not added
+Each pack's `note` lists them with the reason. The main ones:
+- Sites that block reading:
+  - Attrax (ICON, AbbVie): robots.txt disallows the search page. An adapter is drafted and works.
+  - Njoyn (North York General, Michael Garron, CIHI) and Ontario's public service: they answer with a
+    captcha.
+  - HCA, Syneos and Haleon block requests.
+- Sites that don't give a reliable feed:
+  - Alberta Health Services refuses its own paging call.
+  - Johns Hopkins Medicine reads 1,092 of 1,097.
+  - Jobvite feeds that don't parse (Penn Medicine, UNC Health, Arcus, Partners In Health).
+  - iCIMS portals that answer 404 (Fred Hutch, MSK).
+- Too large or not narrowed: Kaiser Permanente (Radancy, 3,208 postings), Walgreens (22,585), CVS
+  internships (about 4,000), City of Toronto (whole city).
+- Needs a key: the CDC (USAJobs API key).
+- An ATS no adapter reads: iCIMS on own domains, SilkRoad, Rippling, ClinchTalent, Pinpoint,
+  ClearCompany, Interfolio, BrassRing, PageUp, Paylocity, CareerPlug, Taleo Business Edition, and Sobeys'
+  Dayforce behind a WordPress plugin.
+- No board confirmed on the employer's own site: listed per pack.
+
+### Gate
+- Phase 5 runs: see section 11 (`compare_p5a.txt`, `compare_p5b.txt`).
+- Final run on `95f51e3` (merged `main` and Phase 6) against `main` (`E:\healthcare-gate\compare_p6.txt`):
+  - Boards without Healthcare lose only the 35 approved moves to Healthcare (Finance 19, Operations 10,
+    Software 5, Sales 1). Nothing is added or changed, and the order is kept. The rest are employer-type labels
+    at the same fit (unknown → a typed employer). Data & ML, Hardware, Product, Design and People & Legal
+    have labels only.
+  - Healthcare goes from 1,260 to 5,294 postings, with 3,285 at fit 55 or more (the gate profiles hold no
+    licences and set no hours).
+  - 4,942 of 294,571 postings change board: 4,905 from no board, and the 37 approved moves (Phase 3's 36 and
+    Moderna). Two of those are Software postings that no sample profile shows, the same as in Phase 3.
+- Against Phase 5b (`E:\healthcare-gate\p5b_vs_p6.txt`, `…\scratchpad\phase6\p5b_vs_p6.py`):
+  - Every board without Healthcare is identical.
+  - Healthcare differs on 12 postings that name two licences, and only in the detail text: "Registered Nurse
+    (RN) or Nurse Practitioner (NP) required" (ffb438d). Fit, order and facts are the same.
+  - The hours preference (Phase 6) is unset in every gate profile and changes nothing.
+
+### Upgrade
+- `tests/install/test_portable.py` `test_upgrading_a_0_3_11_install_keeps_every_source_setting_and_posting`
+  passes. A 0.3.11 install (`sources_version` 10) with a disabled source, a source of its own and an
+  application keeps every source and setting, all 796 postings and its profile. 0 sources are removed, and
+  every added source is in `health/`.
+- `record_release` accepts the bundle. The history's `__shipped__` is version 11 with a hash equal to the
+  1,005-source bundle (a dry run of `tools.source_history.record_release`, 2026-10-28).
+
+### Tests
+662 Python (`python -m unittest discover -s tests -t .`) and 83 JS
+(`node --experimental-test-isolation=none --test web/tests/*.test.js`) pass on `95f51e3`.
+- Four existing test files changed with the approved design: the Phase 2 renames (`track` → `tracks`,
+  `tech_resume` → `resume_tracks`), Healthcare's own groups, and `sources_version` 10 → 11. They check the
+  same things.
+
+### Acceptance criteria (brief, Part A)
+- Gate: see above.
+- Existing boards' polled lists and hashes unchanged:
+  `test_every_existing_board_polls_what_it_polled_in_0_3_11_with_the_same_settings`.
+- A source defined twice or a pack over 50 fails: `tests/sources/test_source_packs.py`
+  `test_a_source_defined_twice_or_a_group_without_a_pack_is_refused`.
+- Finance polls 0 Healthcare sources and Healthcare polls 0 `finance/` sources; a filter narrows polling:
+  `tests/sources/test_board_polling.py`.
+- Upgrade from v0.3.11 and `record_release`: above.
+- Every new source has the five fields and a `verified` pack date
+  (`test_sources_added_since_0_3_7_carry_their_employer_metadata`; LinkedIn searches have no employer).
+  Each was fetched in the session that added it, and descriptions and titles were checked per ATS (Phase 4
+  and the adapter notes in section 11).
+- Classifier tests per filter, and fixture resumes parse to the board's filters:
+  `tests/matching/test_health_taxonomy.py`, `tests/resume/test_resume_health.py`.
+- Finance and tech fixture resumes parse identically: `…\scratchpad\phase5\record_resumes.py` (byte-identical).
+- Both suites pass: above.
+
+### Left for you
+- **Release:** set the What's new draft's version and date and bump `version.py`. The first start then
+  recomputes facts once (D6, about 4½ h on your database; the facts speed-up is on `perf/facts-pass`).
+- **Sources to decide:**
+  - Attrax for ICON and AbbVie, against their robots.txt.
+  - A USAJobs key for the CDC.
+  - Narrowing Kaiser.
+  - City of Toronto, Johns Hopkins Medicine, Indigenous Services Canada and Sobeys.
+- **A title filter for test requisitions** ("DO NOT APPLY - TEST REQ", 42 at Thermo Fisher).
+- **Known licence extras** (section 11): Elevance's job-family line, Oscar's "Bonus points", Lockheed's
+  Firefighter EMT.
+- **Not this board's:** Lockheed Martin, Northrop Grumman, Qualcomm and UKG already use Eightfold's pcsx
+  search, and it answered 403 in the timing runs. These are existing sources this branch doesn't change.
