@@ -193,6 +193,7 @@ class Track:
     skills_from: frozenset[str]
     degree: re.Pattern | None = None
     signals: list[tuple[str, float, re.Pattern]] = field(default_factory=list)
+    role_words: re.Pattern | None = None    # words that make a resume line a role, read only while the track is open
 
     @property
     def resume(self) -> bool:
@@ -310,7 +311,8 @@ class Knowledge:
                 key, entry.get("label") or key.title(), entry.get("employer_heading") or "",
                 entry.get("employer_noun") or "", frozenset(entry.get("skills_from") or []),
                 re.compile(resume["degree"], re.I) if resume.get("degree") else None,
-                [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []])
+                [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []],
+                re.compile(resume["role_words"], re.I) if resume.get("role_words") else None)
         # Tier 2: words that place a title no board placed ('Registered Nurse'), checked after Finance and every
         # board's own title words.
         self.fallback_titles: list[tuple[str, list]] = [

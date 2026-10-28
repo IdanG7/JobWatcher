@@ -203,17 +203,20 @@ _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _PHONE = re.compile(r"(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}")
 _LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?|(?<![\w/])in/[\w-]{3,}", re.I)
 _SECTION = re.compile(
-    r"^\s*(education|academic|experience|work experience|professional experience|employment|"
+    r"^\s*(education|academic|experience|work experience|professional experience|clinical experience|employment|"
     r"skills|technical skills(?:\s*(?:&|and)\s*interests)?|skills\s*(?:&|and)\s*interests|leadership(?:\s*(?:&|and)\s*activities)?|activities|extracurricular|"
     r"projects|interests|languages|certifications|awards|summary|profile|objective)\s*:?\s*$", re.I)
 _SCHOOL = re.compile(r"\b(?:university|université|universite|college|école|ecole|institute|school of|"
                      r"polytechnic|business school)\b", re.I)
 _DEGREES = [
-    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of)\b", re.I)),
+    # A PharmD or an MD sets no level: they are neither a PhD nor a master's.
+    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of(?! (?:pharmacy|medicine|dental|optometry|veterinary)))\b", re.I)),
     ("mba", re.compile(r"\bm\.?b\.?a\b", re.I)),
-    ("masters", re.compile(r"\b(?:master(?:'?s)? of|m\.?sc|m\.?fin|m\.?eng|mmf|mfe|mmath|m\.?a\.? in|msf|master'?s)\b", re.I)),
+    ("masters", re.compile(r"\b(?:master(?:'?s)? of|m\.?sc|m\.?fin|m\.?eng|mmf|mfe|mmath|m\.?a\.? in|msf|master'?s|"
+                           r"m\.?p\.?h|msn)\b", re.I)),
     ("undergraduate", re.compile(r"\b(?:bachelor(?:'?s)?(?: of)?|b\.?com|bba|b\.?sc|b\.?a\.?(?: in| of|\b)|b\.?eng|b\.?math|"
-                                 r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate)\b", re.I)),
+                                 r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate|b\.?sc\.?n|bsn|b\.?h\.?sc|"
+                                 r"b\.?kin)\b", re.I)),
 ]
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
@@ -335,6 +338,8 @@ def _experience(lines: list[str], kn: Knowledge,
     """Role-like lines (classified with the job taxonomy) and achievement bullets.
     Finance roles, and those on the boards of ``tracks`` (tech: Software, AI & Data, Hardware…)."""
     roles, bullets = [], []
+    # An open track's role words ("nurse", "technologist") also mark a role line; a finance resume's are as before.
+    track_words = [kn.tracks[t].role_words for t in sorted(tracks) if kn.tracks[t].role_words]
     for raw in lines:
         line = raw.strip()
         if not line:
@@ -352,7 +357,7 @@ def _experience(lines: list[str], kn: Knowledge,
             # firm name ("… Asset Management") never stands in for the role.
             title_line = _RANGE.sub("", line).strip(" ,|–—-()")
             segments = [s.strip() for s in re.split(r"\s{2,}|\t|\s[|–—-]\s|,\s", title_line) if s.strip()]
-            titled = [s for s in segments if _ROLE_WORD.search(s)]
+            titled = [s for s in segments if _ROLE_WORD.search(s) or any(w.search(s) for w in track_words)]
             best = None
             for seg in titled:
                 cls = classify(seg, kn)

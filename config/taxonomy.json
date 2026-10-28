@@ -329,7 +329,27 @@
       "label": "Healthcare & Science",
       "employer_heading": "Healthcare & Science employer types",
       "employer_noun": "recognized healthcare and science employer",
-      "skills_from": ["healthcare"]
+      "skills_from": ["healthcare"],
+      "resume": {
+        "degree": "nursing|\\bb\\.?sc\\.?n\\b|\\bbsn\\b|\\bmsn\\b|pharmacy|\\bpharm\\.?\\s?d\\b|pharmaceutical sciences?|biology|biological sciences?|biochemistry|biomedical|life sciences?|health sciences?|\\bb\\.?h\\.?sc\\b|kinesiology|\\bb\\.?kin\\b|neuroscience|microbiology|immunology|genetics|public health|\\bm\\.?p\\.?h\\b|epidemiology|medical laborator(?:y|ies)|laboratory science|physiology|pharmacology|nutrition|dietetics|physiotherapy|physical therapy|occupational therapy|respiratory therap(?:y|ist)|paramedic|toxicology|biotechnology|health studies|global health|medical radiation",
+        "role_words": "\\b(?:nurses?|nursing|technicians?|technologists?|coordinators?|therapists?|externs?|externship|aides?|pharmacists?|phlebotomists?|paramedics?|epidemiologists?|attendants?|navigators?|clerks?|caregivers?|dietitians?|kinesiologists?|educators?|workers?)\\b",
+        "signals": [
+          ["healthcare.clinical_care", 2.0, "patient care|bedside|clinical (?:placements?|practicums?|rotations?)|preceptorship|consolidation placement|vital signs|medication administration|med pass|charting|wound care|care plans?|head-to-toe|patient assessments?|acute care|long[- ]term care|palliative|med[- ]surg\\w*|\\bicu\\b|emergency department|labou?r (?:and|&) delivery|activities of daily living|\\badls?\\b"],
+          ["healthcare.clinical_care", 2.0, "dispens\\w+|compounding|medication (?:reviews?|reconciliation|histor(?:y|ies)|therapy management)|prescriptions?|drug interactions?|patient counsell?ing"],
+          ["healthcare.clinical_care", 1.0, "\\bbls\\b|basic life support|\\bcpr\\b|first aid|\\bacls\\b|\\bpals\\b|\\bnrp\\b|infection control|hand hygiene"],
+          ["healthcare.clinical_research", 2.0, "good clinical practice|\\bgcp\\b|ich[- ]gcp|\\birb\\b|\\breb\\b|research ethics|informed consent|study protocols?|protocol (?:deviations?|amendments?)|case report forms?|\\bcrfs?\\b|\\bedc\\b|clinical trials?|(?:subject|participant|patient) (?:recruitment|enrol?lment|screening)|study visits?|source documents?|\\btcps ?2\\b|regulatory binders?|site (?:initiation|monitoring) visits?"],
+          ["healthcare.clinical_research", 1.0, "\\bredcap\\b|chart reviews?|research coordinat\\w+"],
+          ["healthcare.lab_research", 2.0, "\\bq?(?:rt-?)?pcr\\b|\\belisa\\b|western blot\\w*|cell culture|tissue culture|flow cytometry|gel electrophoresis|sds-page|immunohistochemistry|immunofluorescence|\\bihc\\b|confocal|crispr|cloning|transfection|aseptic technique|pipett\\w+|\\bhplc\\b|mass spectrometry|chromatography|wet[- ]lab|bench work|cell lines?|mouse models?|in vivo|in vitro|(?:dna|rna) (?:extraction|isolation)|microscopy|spectrophotometr\\w+"],
+          ["healthcare.lab_research", 1.0, "assays?|laborator(?:y|ies)|lab (?:techniques|skills|safety)|\\bwhmis\\b|biosafety|specimens?|reagents?|\\bsops?\\b"],
+          ["healthcare.bioinformatics", 2.0, "bioinformatic\\w*|genomics?|transcriptomics?|proteomics|rna-?seq|single[- ]cell|sequencing data|\\bngs\\b|variant calling|\\bgwas\\b|biostatistic\\w*|survival analysis|bioconductor|computational biology|phylogenetic\\w*|\\bblast\\b|seurat|scanpy"],
+          ["healthcare.bioinformatics", 1.0, "\\bsas\\b|\\bstata\\b|\\bspss\\b|statistical analys[ie]s|mixed[- ]effects? models?"],
+          ["healthcare.regulatory_quality", 2.0, "regulatory (?:affairs|submissions?|filings?|intelligence|strategy|documents?|dossiers?)|\\bectd\\b|\\bc?gmp\\b|\\bglp\\b|\\bgxp\\b|standard operating procedures|quality deviations?|deviation reports?|\\bcapas?\\b|change controls?|quality (?:assurance|control|management systems?)|batch records?|21 cfr|iso 13485|\\bfda\\b|health canada|pharmacovigilance|adverse events?|drug safety|product monographs?|labell?ing (?:reviews?|updates?)|validation protocols?"],
+          ["healthcare.medical_devices", 2.0, "medical devices?|design controls?|iso 14971|iec 60601|510\\(k\\)|verification (?:and|&) validation|\\bv&v\\b|biomedical (?:devices?|instrumentation|engineering)|prosthe\\w+|orthotic\\w*|implants?|ultrasound|\\becg\\b|\\bekg\\b|\\beeg\\b|\\bemg\\b|biomechanic\\w*|biosignals?|biomaterials?|medical imaging|wearables?"],
+          ["healthcare.public_health", 2.0, "public health|epidemiolog\\w+|health promotion|disease surveillance|outbreak\\w*|population health|community health|global health|health equity|social determinants|health polic(?:y|ies)|vaccinations?|immuni[sz]ations?|harm reduction|health education|needs assessments?|program evaluations?|health communications?"],
+          ["healthcare.medical_affairs", 1.5, "medical (?:affairs|information|communications|writing|education)|medical science liaisons?|\\bmsls?\\b|key opinion leaders?|\\bkols?\\b|\\bheor\\b|health economics|market access|real[- ]world evidence|medical inquir(?:y|ies)|scientific (?:communications|writing)|literature searche?s?"],
+          ["healthcare.health_admin", 1.5, "patient (?:registration|scheduling|intake|flow)|medical (?:office|records|terminology|billing|coding|administration)|health records|electronic (?:medical|health) records?|\\bemrs?\\b|\\behrs?\\b|unit clerk|ward clerk|health information management|\\bohip\\b"]
+        ]
+      }
     }
   }
 }

@@ -894,6 +894,26 @@ track's boards, skill groups and types resolve.
        Lockheed Martin, Northrop Grumman, Qualcomm and UKG; Anduril timed out; Atlassian's response was cut
        off; Old Mission's Greenhouse board answered 404.
 5. **Resume reading, matching, licences (D16) and Calendar,** with the fixtures in section 8; the gate again.
+   - **Resume reading** (2026-10-28): the Healthcare track's `resume` entry in `taxonomy.json`.
+     - It holds the degree words of section 8, 14 signals over the nine filters, and role words: nurse,
+       technician, technologist, coordinator, therapist, extern, aide, pharmacist, phlebotomist and others.
+       The role words count only while the track is open (`Track.role_words`).
+     - Degrees: BScN, BSN, BHSc and BKin read as undergraduate; MPH and MSN as masters. A Doctor of Pharmacy
+       or of Medicine no longer reads as a PhD, so it sets no level.
+     - "Clinical Experience" is now an experience heading. Other new headings, such as "Volunteer
+       Experience", would change how finance resumes are read, so they aren't added.
+     - Fixtures in `tests/resume/test_resume_health.py`: nursing → Clinical Care; biology co-op → Lab
+       Research, Bioinformatics; PharmD with regulatory co-ops → Regulatory & Quality, Medical Affairs. Each
+       reads the same as text, a PDF and a LaTeX PDF. Biomedical engineering opens Hardware and Healthcare,
+       with Medical Devices first.
+     - Matching: a Healthcare profile keeps the board's tier-2 roles ("Registered Nurse") as matches. Finance,
+       Software and unplaced roles are excluded with today's messages.
+     - **Finance and tech unchanged:** the finance, cover-letter, CS and mixed fixtures were parsed and
+       applied with `main` and with this branch, then compared. They are byte-identical
+       (`…\scratchpad\phase5\record_resumes.py`).
+     - Left as is: a title that only its bullets place ("Research Assistant Co-op" alone, "Regulatory Affairs
+       Co-op Student") isn't listed among the resume's roles, though its work still counts toward the
+       filters. "Prosthetic Hand Controller" reads as a finance Controller title, today and for any resume.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
    - What's new items drafted in `web/js/release-notes.js`, with no version bump.
