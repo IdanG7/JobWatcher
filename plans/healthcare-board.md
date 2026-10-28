@@ -1077,6 +1077,16 @@ All sixteen were approved as recommended on 2026-10-27.
 | **D15** | Hours (employment type, shifts, on-call) become facts, chips and a filter, with no fit points unless you set a preference. This needs `FACTS_VERSION` 10 → 11 in the same release, so no extra recompute. | **Yes**, in Phase 3 |
 | **D16** | Licences: what a posting requires and whether it accepts pending licensees; "Licences & certifications" in the profile; a "Licence required" penalty; program windows in Calendar. | **Yes**, in Phase 5 |
 
+Decided on 2026-10-28, after the final report. The user's words were relayed by the session that started this one.
+
+| # | Question | Decision |
+|---|---|---|
+| **D17** | ICF: keep its `health_consulting` type, which labels three Finance postings "Health Consulting" at the same fit? | **"Keep ICF"**: approved as built |
+| **D18** | A title filter for test requisitions ("DO NOT APPLY - TEST REQ") on every board. | **"yes filter"** (section 14) |
+| **D19** | The known licence extras: Elevance's job-family line, Oscar's "Bonus points", Lockheed's Firefighter EMT. | **"Do what you believe is best"**: the first two fixed narrowly; the EMT one is right as it is (section 14) |
+| **D20** | City of Toronto and Johns Hopkins Medicine, and the hospitals still worth adding. | **"Try getting the Toronto/John Hopkins"**: both added; the other hospitals are listed for approval (section 14) |
+| **D21** | The release: the What's new version and date, `version.py`. | **Wait** for the session that moves facts and scoring into a worker process |
+
 ---
 
 ## 13. Final report (2026-10-28)
@@ -1219,6 +1229,7 @@ Each pack's `note` lists them with the reason. The main ones:
 - Both suites pass: above.
 
 ### Left for you
+(Since decided: D17–D21 in section 12, done in section 14.)
 - **Release:** set the What's new draft's version and date and bump `version.py`. The first start then
   recomputes facts once (D6, about 4½ h on your database; the facts speed-up is on `perf/facts-pass`).
 - **Sources to decide:**
@@ -1231,3 +1242,137 @@ Each pack's `note` lists them with the reason. The main ones:
   Firefighter EMT.
 - **Not this board's:** Lockheed Martin, Northrop Grumman, Qualcomm and UKG already use Eightfold's pcsx
   search, and it answered 403 in the timing runs. These are existing sources this branch doesn't change.
+
+---
+
+## 14. After the final report (2026-10-28, `dc9e47c`)
+
+The branch was merged into local `main` as `22e75db`, and this work continues on `feat/healthcare-board`.
+Decisions D17–D21 are in section 12.
+
+### Test requisitions (D18)
+- **What:** `config/taxonomy.json` has `test_posting_titles`, which matches only three shapes:
+  - a title that starts with "do not apply";
+  - "test" followed by "do not apply";
+  - a title that is only "Test job", "Test posting", "Test position", "Test req" or "Test requisition".
+- **Effect:** a matching posting's facts carry `test_posting`. Scoring closes its window, with −40 "Test
+  posting", so it leaves every list, count, alert, resume match and the gate, the way a passed deadline does.
+  It still shows where closed postings are asked for. No other posting's facts change.
+- **Tests:** `tests/matching/test_test_postings.py`.
+- **Today:**
+  - Thermo Fisher's board lists 37 of 1,334. All start "DO NOT APPLY", and its Software Test roles don't
+    match. That source isn't in the stored copy, so the 37 simply never show.
+  - The stored copy holds 3: Autodesk's (closed) and OpenText's two "Test job" postings (on no board). No
+    board's view on the copy holds any of them (`…\scratchpad\phase7\test_census.py`), so no board loses a
+    posting. The gate below confirms it.
+
+### Licence extras (D19)
+- **Elevance:** an ATS "Job Family:" line asks for nothing. Its pharmacy technician postings end with
+  "MED > Licensed/Registered Pharmacist/Pharmacy Technician". Three postings lose Pharmacist, and two of them
+  keep Pharmacy Technician.
+- **Oscar:** a licence under a "Bonus points:" heading, or asked for "(if an …)", is a preference. Six NP and
+  PA postings lose RN and keep NP.
+- **Firefighter EMT:** the licence it matches is "Paramedic or EMT" (title words paramedic, EMT, emergency
+  medical technician). A firefighter EMT needs EMT certification, so the requirement is right. A test pins
+  it. Splitting EMT from Paramedic would be a separate decision.
+- **Census:** of 6,423 stored postings that carry licences, exactly those 9 change
+  (`…\scratchpad\phase7\licence_diff.py`).
+
+### Johns Hopkins Medicine and City of Toronto (D20)
+- **Johns Hopkins Medicine** (`hospitals_us`): a new reader, `hopkins_medicine`, for its own jobs site.
+  - The pages are ordered by title, and postings that share a title move between pages, so paging skips a
+    few (1,082 of 1,087).
+  - The sitemap lists every posting, so each one that paging skipped is read from its own page's
+    JobPosting. The read is then complete: 1,087 of 1,087 in 131 s, so closures are detected.
+  - robots.txt allows `/jobs/` and the sitemap and asks for a two-second Crawl-delay, which the reader keeps.
+    `/feeds/` is disallowed and isn't used.
+  - Where its postings land today: Healthcare 741 (Clinical Care 596), no board 277, Operations 27,
+    Finance 11, Software 8, other boards 23.
+- **City of Toronto** (`public_health`): its SuccessFactors board, read whole with `successfactors_portal`:
+  69 of 69 in 2 s. robots.txt allows `/search/`.
+  - Healthcare gets 7: Public Health Nurse, Health Promotion Specialist, Paramedic Level 1, PSW (LTC),
+    Senior Health Information Analyst, Veterinary Technician, Behavioural Scientist Communications.
+  - Finance 5, other boards 15, no board 42.
+  - The employer is typed `public_health_agency`, like Health Canada and PHAC. The type decides only one
+    placement: the Behavioural Scientist goes to Healthcare.
+- **Finance postings from these sources** reach the Finance board only for profiles that also poll
+  Healthcare, as with every `health/` source, since Finance alone doesn't poll `health/`.
+  - Johns Hopkins Medicine 11: FP&A, actuarial, audit, compliance. One is a misread: "APP (NP or PA) –
+    Maternal Fetal Medicine – High Risk Perinatal" reads as Risk.
+  - City of Toronto 5: accounting and financial analysts.
+- **Employers:** `johns_hopkins_medicine` (hospital) and `city_of_toronto`. No stored posting changes board,
+  key or label (`…\scratchpad\phase4\new_employer_effects.py`).
+- **Counts:** `health/` goes 210 → 212 sources, and Healthcare polls 263 → 265. The history was re-recorded
+  (1,007 boards, `sources_version` 11, unreleased). Johns Hopkins Medicine is the slowest health source at
+  131 s. The poll cycle wasn't simulated again.
+- **Tests:** two reader tests in `tests/sources/test_health_adapters.py`.
+
+### Hospitals still worth adding (for your approval)
+Counted on 2026-10-28. Rows marked ✓ were read with the app's own reader. The rest are from a survey
+(`…\scratchpad\phase7\hospitals_us.md`, `hospitals_canada.md`). Nothing here is added.
+
+**An existing reader reads them:**
+
+| Employer | Reader | Postings | Note |
+|---|---|---|---|
+| Kaiser Permanente | radancy | 3,208 ✓ | Narrow by its categories: Nursing Licensed & NPs 799, Clinical Support 529, Imaging 277, Rehab 265, Behavioral Health 207, Pharmacy 106, Lab 90, Medical Assistant 86, Surgical Tech 76 (survey) |
+| CommonSpirit Health | radancy | 5,916 ✓ | Reads now; needs narrowing like Kaiser |
+| Advocate Health | workday | over 2,000 ✓ | Workday's cap; narrow by job family |
+| Intermountain Health | workday | 1,480 ✓ | |
+| Houston Methodist | workday | 1,419 ✓ | |
+| Northwestern Medicine | radancy | 1,403 ✓ | |
+| Sutter Health | workday | 1,354 ✓ | |
+| Cedars-Sinai | radancy | 954 ✓ | |
+| Vanderbilt University Medical Center | workday | 920 ✓ | |
+| Boston Medical Center | workday | 757 ✓ | |
+| Nationwide Children's | workday | 576 ✓ | |
+| University of Washington (UW Medicine inside) | workday | 577 ✓ | University-wide |
+| University of Pennsylvania | workday | 479 ✓ | The university, not the Penn Medicine health system |
+| Children's National | workday | 391 ✓ | |
+| UHN (Toronto) | smartrecruiters | 164 ✓ | The real board, not the sandbox found in Phase 4 |
+| HCA Healthcare | workday | 139 ✓ | Corporate roles only |
+| Memorial Sloan Kettering | workday | 135 ✓ | |
+| Health Sciences North (Sudbury) | successfactors_portal | 76 ✓ | |
+| Alberta Health Services | taleo | 1,112 | Phase 4 saw its site refuse its paging; check with the reader |
+| Covenant Health (Alberta) | taleo | 135 | |
+| Oak Valley Health | workday | 72 | The app's reader got 422: the site name needs checking |
+| Kingston Health Sciences Centre | successfactors | unconfirmed | |
+
+**Need a new reader:**
+- Island Health (HRSmart, 1,266).
+- Interior Health and Northern Health (one custom site, 1,359 and 641).
+- North York General and Michael Garron (Njoyn, which answered with a captcha in Phase 4).
+- Lakeridge (87) and Niagara (17) (eRecruit).
+- Baycrest (SilkRoad, about 34) and Holland Bloorview (AppOne, 16).
+- Montefiore (VizRecruiter), Rush (Infor Lawson) and Children's Hospital Los Angeles (GR8 People).
+- Unity Health Toronto (Infor CloudSuite).
+- Horizon and Vitalité (iTacit; Vitalité is French), NL Health Services (ServiceNow), Health PEI (Workland).
+- MUHC and CHUM (Quebec's portal, French).
+
+**Not read yet:**
+- The survey couldn't read a count for Cleveland Clinic, Boston Children's, NYU Langone, Northwell and UPMC.
+  They may read with radancy, as Cedars-Sinai and Northwestern do; untested.
+- iCIMS: Yale New Haven, OHSU, Emory.
+- Taleo: MD Anderson.
+- PeopleSoft: Michigan Medicine, inside the University of Michigan's board.
+- Oracle HCM: UCSF Health and Texas Children's, whose searches answered with one posting.
+- Blocked:
+  - UNC Health (Cloudflare);
+  - Sunnybrook (sign-in);
+  - PHSA (403);
+  - Saskatchewan Health Authority (Oracle 500);
+  - Bruyère and Ontario Shores (UKG browser check);
+  - The Royal (Jobvite redirect).
+- Grand River Hospital: its site was down.
+
+### Gate on `dc9e47c`
+- **Against `95f51e3`** (`E:\healthcare-gate\p6_vs_p7.txt`, `…\scratchpad\phase7\p6_vs_p7.py`):
+  - Every board without Healthcare is identical in every sample profile, Finance included. The test
+    filter takes no posting off any board.
+  - The four Healthcare profiles differ on exactly the 9 licence postings above, in their detail text.
+    One fit changes: Elevance's "Pharmacy Technician I – Refill & Prescription Support" goes 34 → 54, since
+    it no longer requires a Pharmacist licence. The count at fit 55 or more is unchanged.
+  - Facts differ for 12 postings: those 9, plus the 3 stored test postings.
+- **Against `main`** (`E:\healthcare-gate\compare_p7.txt`): the same as the final run in section 13. Only
+  the four Healthcare digests differ, and every count is equal.
+- **Tests:** 669 Python and 83 JS pass on `dc9e47c`.
