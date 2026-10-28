@@ -853,7 +853,9 @@ track's boards, skill groups and types resolve.
      - Simulated on stored postings: no moves off a board, no key changes, 599 type labels (10 on Finance).
    - **Gate at `8af28fc`** (Clinical Care and Clinical Research): as expected.
      - Boards without Healthcare lose only the 34 approved postings, plus Moderna's "Research Associate,
-       Analytical Technical Operations" (Finance → Healthcare), which waits on your yes.
+       Analytical Technical Operations" (Finance → Healthcare).
+     - **Approved** on 2026-10-27: the Moderna move, and again Thermo Fisher's "FSP Clinical Research
+       Associate I - Bilingual French QC Canada" (already one of the 34).
      - Otherwise there are no fit, order or other changes, only employer-type labels.
      - Healthcare gains 22 more postings from no board than at Phase 3: 4,890 against 4,868, as simulated.
    - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
