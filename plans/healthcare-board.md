@@ -856,7 +856,7 @@ track's boards, skill groups and types resolve.
        Analytical Technical Operations" (Finance → Healthcare).
      - **Approved** on 2026-10-27: the Moderna move, and again Thermo Fisher's "FSP Clinical Research
        Associate I - Bilingual French QC Canada" (already one of the 34).
-   - **Gate at `c3f0cd5`** (all 172 `health/` sources, 945 employers in all): passed with what was approved.
+   - **Gate at `c3f0cd5`** (all 172 `health/` sources, 947 employers in all): passed with what was approved.
      - The moves off boards without Healthcare are the same 35 postings as at `8af28fc`: Finance 19,
        Operations 10, Software 5, Sales 1.
      - Every other posting on those boards keeps its fit, order and filter. The differences are employer-type
