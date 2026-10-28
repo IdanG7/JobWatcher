@@ -179,8 +179,14 @@ class JobwatchHTTPServer(ThreadingHTTPServer):
 CLIENT_GONE = (ConnectionAbortedError, ConnectionResetError, BrokenPipeError)
 # Read-heavy GET endpoints whose responses are reused until data changes.
 CACHED_PATHS = {"/api/jobs", "/api/overview", "/api/analytics", "/api/companies", "/api/meta"}
+# Also reused until the data changes, but only recomputed when asked (keep_ready leaves them alone).
+CACHED_ON_DEMAND = {"/api/saved-searches", "/api/sources", "/api/calendar", "/api/applications"}
 CACHE_REFRESH_SECONDS = 30   # how stale a page may be while postings arrive; it is refreshed in the background
 CACHE_HOT_SECONDS = 600      # the pages asked for in the last ten minutes are kept ready
+CACHE_STALE_SECONDS = 120    # after background changes, a page this old is still shown while it is recomputed
+# Changes that leave every cached page as it was (opening a link, an update, a letter): nothing is recomputed.
+KEEPS_PAGES = re.compile(r"/api/(open|refresh|shutdown|background|whats-new/seen|update/.+|discord/test|letters/.+"
+                         r"|documents/merge|jobs/[^/]+/(cover-letter(/revise)?|recipient(/lookup)?))")
 
 
 class _Computation:
@@ -272,6 +278,7 @@ class JobwatchService:
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._pending_cache: tuple[float, int] | None = None
+        self._resume_pending: tuple[tuple, int] | None = None   # (data version, resume version) -> count
         self.status = {"indexing": False, "last_refresh": None, "last_stats": None,
                        "poll_running": False, "last_poll": None, "error": None, "progress": None}
         con = watcher.db_open(self.db_path)
@@ -366,21 +373,53 @@ class JobwatchService:
                 self._version_con.close()
                 self._version_con = None
 
-    def cached(self, key, compute):
+    def cached(self, key, compute, keep=True, fresh=False):
         """A GET response, kept until the data changes, so moving between pages costs nothing. While
         postings arrive in the background a page is served as it was for up to CACHE_REFRESH_SECONDS, and
-        keep_ready recomputes it meanwhile. After invalidate() (a change the user made, a poll or scoring
-        finishing) it is computed afresh, once however many requests ask for it."""
+        keep_ready recomputes it meanwhile (``keep``). Older than that but younger than CACHE_STALE_SECONDS, it
+        is still served at once while it is recomputed in the background (stale-while-revalidate). ``fresh``
+        (a Refresh the user clicked) serves only a page computed since the data last changed. After
+        invalidate() (a change the user made) it is computed afresh, once however many requests ask for it."""
+        return self.cached_page(key, compute, keep, fresh)[0]
+
+    def cached_page(self, key, compute, keep=True, fresh=False):
+        """cached(), and whether the page is one kept from before background changes (being recomputed)."""
         now, version = time.monotonic(), self.data_version()
+        stale = None
         with self._cache_lock:
             if len(self._asked) > 64:
                 self._asked.clear()
-            self._asked[key] = (now, compute)
+            if keep:
+                self._asked[key] = (now, compute)
             hit = self._cache.get(key)
-            if hit and hit[0] == self._cache_gen and (
-                    (version is not None and hit[1] == version) or now - hit[2] < CACHE_REFRESH_SECONDS):
-                return hit[3]
-        return self._compute(key, compute)
+            if hit and hit[0] == self._cache_gen:
+                if (version is not None and hit[1] == version) or (
+                        not fresh and now - hit[2] < CACHE_REFRESH_SECONDS):
+                    return hit[3], False
+                if not fresh and now - hit[2] < CACHE_STALE_SECONDS:
+                    stale = hit
+        if stale is not None:
+            self._revalidate(key, compute)
+            return stale[3], True
+        return self._compute(key, compute), False
+
+    def _revalidate(self, key, compute) -> None:
+        """Recompute a page in the background, once however many stale reads ask for it."""
+        with self._cache_lock:
+            if key in self._computing:
+                return
+
+        def run():
+            try:
+                self._compute(key, compute)
+            except Exception:       # the next request that computes it hears why
+                pass
+        threading.Thread(target=run, name="jobwatch-revalidate", daemon=True).start()
+
+    def data_changed(self) -> None:
+        """Background work (a poll, facts or scoring) committed: pages in use are refreshed by keep_ready and
+        meanwhile served as they were, rather than dropped (invalidate() is for changes the user made)."""
+        self._ready.set()
 
     def _compute(self, key, compute):
         with self._cache_lock:
@@ -457,7 +496,7 @@ class JobwatchService:
                 self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)
                 self._pending_cache = None
                 if stats.get("facts") or stats.get("scored"):
-                    self.invalidate()
+                    self.data_changed()
                 return stats
             except Exception as exc:   # surfaced in /api/status, never crashes the server
                 self.status["error"] = f"{type(exc).__name__}: {exc}"
@@ -722,7 +761,7 @@ class JobwatchService:
                 store.facts_pass(keys=[(board, job_id)])
                 store.score_pass(keys=[(board, job_id)])
             self._pending_cache = None
-            self.invalidate()
+            self.data_changed()
         except Exception as exc:            # a busy or closed database: the next open tries again
             watcher.log(f"! description fetch for {board}:{job_id} failed: {type(exc).__name__}: {exc}")
         finally:
@@ -815,7 +854,8 @@ class JobwatchService:
                                       "end": [(today + timedelta(days=7)).isoformat()]}, con)["items"][:10]
             last_run = con.execute("SELECT * FROM runs ORDER BY rowid DESC LIMIT 1").fetchone()
             source_rows = con.execute("SELECT seeded, failures FROM boards").fetchall()
-            searches = self._saved_searches(con, with_counts=True)
+            # The same counts Settings shows: shared through the response cache rather than counted twice.
+            searches = self.cached(("/api/saved-searches", ""), self.saved_searches, keep=False)["saved_searches"]
             pending = self.pending_facts(con)
             pipeline = dict(con.execute("SELECT status, COUNT(*) FROM applications GROUP BY status").fetchall())
         enabled = len(polled_sources(self.config, profile, self.kn))      # the sources this profile's boards poll
@@ -1117,8 +1157,12 @@ class JobwatchService:
                 """SELECT a.*, i.fit AS live_fit, i.category AS live_category, i.eff_deadline,
                           i.company_type, COALESCE(s.status,'active') AS job_status, i.cycle
                    FROM applications a
-                   LEFT JOIN job_intel i ON a.job_key=(i.board||':'||i.job_id)
-                   LEFT JOIN job_state s ON a.job_key=(s.board||':'||s.job_id)
+                   -- Split at the first ':' as save_application does, so the primary keys are used
+                   -- (the bare expression join read both tables in full once per application).
+                   LEFT JOIN job_intel i ON i.board=substr(a.job_key, 1, instr(a.job_key, ':') - 1)
+                        AND i.job_id=substr(a.job_key, instr(a.job_key, ':') + 1) AND a.job_key=(i.board||':'||i.job_id)
+                   LEFT JOIN job_state s ON s.board=substr(a.job_key, 1, instr(a.job_key, ':') - 1)
+                        AND s.job_id=substr(a.job_key, instr(a.job_key, ':') + 1) AND a.job_key=(s.board||':'||s.job_id)
                    ORDER BY a.priority DESC, a.updated_at DESC""").fetchall()
             events = {}
             for r in con.execute("SELECT job_key, ts, from_status, to_status FROM application_events ORDER BY ts"):
@@ -1418,23 +1462,22 @@ class JobwatchService:
                     heat[wd][hr] = n
             # Source performance: volume, quality, earliest discovery within clusters.
             sources = []
-            first_by_cluster = dict(con.execute(
-                """SELECT i.cluster_key, MIN(j.first_seen) FROM job_intel i
-                   JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id GROUP BY i.cluster_key
-                   HAVING COUNT(*) > 1""").fetchall())
+            # Summed in SQL: one row per source instead of every posting through Python. Shared = in a
+            # cluster of two or more; first = found at the cluster's earliest first sighting. Sources come in
+            # the order a scan of jobs first meets them, as the row-by-row loop did, so ties sort the same.
             per_board = {}
-            for board, cluster, first_seen, fit, fin in con.execute(
-                    """SELECT i.board, i.cluster_key, j.first_seen, i.fit, i.is_finance FROM job_intel i
-                       JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id WHERE j.title != ''"""):
-                b = per_board.setdefault(board, {"jobs": 0, "finance": 0, "high_fit": 0, "fit_sum": 0,
-                                                 "shared": 0, "first": 0})
-                b["jobs"] += 1
-                b["finance"] += fin or 0
-                b["high_fit"] += 1 if (fit or 0) >= 75 else 0
-                b["fit_sum"] += fit or 0
-                if cluster in first_by_cluster:
-                    b["shared"] += 1
-                    b["first"] += 1 if first_seen == first_by_cluster[cluster] else 0
+            for board, jobs, fin, high, fit_sum, shared, first in con.execute(
+                    """WITH firsts AS (SELECT i.cluster_key, MIN(j.first_seen) first_seen FROM job_intel i
+                                       JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id GROUP BY i.cluster_key
+                                       HAVING COUNT(*) > 1)
+                       SELECT i.board, COUNT(*), SUM(COALESCE(i.is_finance, 0)), SUM(COALESCE(i.fit, 0) >= 75),
+                              SUM(COALESCE(i.fit, 0)), SUM(COALESCE(f.hit, 0)),
+                              SUM(COALESCE(f.hit, 0) AND j.first_seen IS f.first_seen)
+                       FROM jobs j JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
+                       LEFT JOIN (SELECT *, 1 hit FROM firsts) f ON f.cluster_key IS i.cluster_key
+                       WHERE j.title != '' GROUP BY i.board ORDER BY MIN(j.rowid)"""):
+                per_board[board] = {"jobs": jobs, "finance": fin, "high_fit": high, "fit_sum": fit_sum,
+                                    "shared": shared, "first": first or 0}
             apps_by_board = dict(con.execute(
                 "SELECT board, COUNT(*) FROM applications WHERE status NOT IN ('discovered','saved') GROUP BY board").fetchall())
             offers_by_board = dict(con.execute(
@@ -1542,13 +1585,23 @@ class JobwatchService:
         row = con.execute("SELECT * FROM candidate_resume WHERE id=1").fetchone()
         if not row:
             return {"available": False, "enabled": False, "pending": 0}
-        # facts_version is written with facts, so this never reads the facts themselves (a third of the table).
-        pending = con.execute("""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i
-            ON i.board=j.board AND i.job_id=j.job_id LEFT JOIN resume_matches rm
-            ON rm.board=j.board AND rm.job_id=j.job_id WHERE j.title!='' AND
-            (i.facts_version IS NOT ? OR rm.profile_version IS NULL OR rm.profile_version!=?
-             OR i.profile_version IS NULL OR i.profile_version!=?)""",
-            (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
+        # A full count over every posting (~2 s on a large database), the same for every list, saved view and
+        # page until the database changes: counted once per data version. The version is read before
+        # counting, so a commit during the count only makes the next caller count again. Only once the
+        # response cache has opened its version connection (any page asked for), so nothing new holds the file.
+        key = (self.data_version() if self._version_con is not None else None, row["version"])
+        known = self._resume_pending
+        if key[0] is not None and known and known[0] == key:
+            pending = known[1]
+        else:
+            # facts_version is written with facts, so this never reads the facts themselves (a third of the table).
+            pending = con.execute("""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i
+                ON i.board=j.board AND i.job_id=j.job_id LEFT JOIN resume_matches rm
+                ON rm.board=j.board AND rm.job_id=j.job_id WHERE j.title!='' AND
+                (i.facts_version IS NOT ? OR rm.profile_version IS NULL OR rm.profile_version!=?
+                 OR i.profile_version IS NULL OR i.profile_version!=?)""",
+                (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
+            self._resume_pending = (key, pending)
         result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending,
                   "filename": row["filename"], "updated_at": row["updated_at"],
                   "targets": self.profile(con).get("target_roles") or [],
@@ -2442,7 +2495,7 @@ class JobwatchService:
                     self.status["poll_running"] = False
                     self.status["progress"]["finished_at"] = time.time()
                 self._poll_lock.release()
-                self.invalidate()
+                self.data_changed()
                 self.kick()
         threading.Thread(target=run, name="jobwatch-poll", daemon=True).start()
         return {"ok": True, "started": True}
@@ -2687,8 +2740,8 @@ class JobwatchHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def json(self, value, status=HTTPStatus.OK):
-        self._send(json.dumps(value, default=str).encode(), status=status)
+    def json(self, value, status=HTTPStatus.OK, extra_headers=None):
+        self._send(json.dumps(value, default=str).encode(), status=status, extra_headers=extra_headers)
 
     def _reject_unread_body(self, message, status):
         """Deliver early errors before closing a socket with unread upload data.
@@ -2785,19 +2838,24 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                 if route_method != method:
                     continue
                 try:
-                    if method == "GET" and parsed.path in CACHED_PATHS:
+                    stale = False
+                    if method == "GET" and (parsed.path in CACHED_PATHS or parsed.path in CACHED_ON_DEMAND):
                         # Kept with the response and called again in the background: it holds no request.
                         service, query = self.service, parsed.query
-                        result = service.cached((parsed.path, query), lambda handler=handler, match=match: handler(
-                            service, match, parse_qs(query), body))
+                        # "Cache-Control: no-cache" (a Refresh the user clicked) waits for current data.
+                        fresh = "no-cache" in (self.headers.get("Cache-Control") or "")
+                        result, stale = service.cached_page(
+                            (parsed.path, query), lambda handler=handler, match=match: handler(
+                                service, match, parse_qs(query), body), keep=parsed.path in CACHED_PATHS, fresh=fresh)
                     else:
                         result = handler(self.service, match, parse_qs(parsed.query), body)
-                        if method != "GET":
+                        if method != "GET" and not KEEPS_PAGES.fullmatch(parsed.path):
                             self.service.invalidate()
                     if isinstance(result, FileResult):
                         return self._send(result.data, result.content_type, extra_headers={
                             "Content-Disposition": f"attachment; filename*=UTF-8''{quote(result.filename)}"})
-                    return self.json(result)
+                    # A page from before background changes: the app asks again shortly for the current one.
+                    return self.json(result, extra_headers={"X-Foothold-Stale": "1"} if stale else None)
                 except ApiError as exc:
                     return self.json({"error": str(exc)}, exc.status)
                 except CLIENT_GONE:

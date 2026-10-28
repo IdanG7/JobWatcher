@@ -6,6 +6,13 @@ export class ApiError extends Error {
   constructor(message, status) { super(message); this.status = status; }
 }
 
+// While a Refresh the user clicked runs, pages come back current rather than as the server last kept them.
+let fresh = 0;
+export async function freshly(work) {
+  fresh += 1;
+  try { return await work(); } finally { fresh -= 1; }
+}
+
 export async function api(path, {method = 'GET', body, params, signal, timeout = 30000} = {}) {
   let url = path;
   if (params) {
@@ -19,12 +26,15 @@ export async function api(path, {method = 'GET', body, params, signal, timeout =
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeout);
   const init = {method, signal: controller.signal, headers: {Accept: 'application/json'}};
+  if (fresh && method === 'GET') init.headers['Cache-Control'] = 'no-cache';
   if (body !== undefined) {
     init.headers['Content-Type'] = 'application/json';
     init.body = JSON.stringify(body);
   }
   try {
     const res = await fetch(url, init);
+    // A page kept from before background changes (the server is computing the current one).
+    if (res.headers?.get('X-Foothold-Stale')) globalThis.dispatchEvent?.(new Event('foothold-stale'));
     const text = await res.text();
     let data = {};
     try { data = text ? JSON.parse(text) : {}; } catch { data = {error: text}; }
