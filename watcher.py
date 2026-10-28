@@ -37,7 +37,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import parse_qs, urljoin, urlsplit
+from urllib.parse import parse_qs, unquote, urljoin, urlsplit
 
 import requests
 
@@ -164,7 +164,7 @@ def _age_posted_epoch(text, now=None):
     return day.timestamp()
 
 
-RELATIVE_DATE_ATS = {"workday", "github_md"}     # listing dates written as "Posted Today" / "3d"
+RELATIVE_DATE_ATS = {"workday", "github_md", "neogov"}   # listing dates written as "Posted Today" / "3d"
 
 
 def _workday_posted_epoch(text, now=None):
@@ -1789,6 +1789,770 @@ def fetch_adp(cfg):
     return _finish_listing(out, "ADP", limit)
 
 
+DAYFORCE_HOST = "https://jobs.dayforcehcm.com"
+
+
+def _dayforce_place(loc):
+    """'Toronto, ON, CA'; a place with no city (a province or a whole country) keeps its own label."""
+    city = (loc.get("cityName") or "").strip()
+    if city:
+        return _place(city, loc.get("stateCode"), loc.get("isoCountryCode"))
+    return (loc.get("formattedAddress") or "").strip() or _place(loc.get("stateCode"), loc.get("isoCountryCode"))
+
+
+def fetch_dayforce(cfg):
+    """Dayforce candidate portals (jobs.dayforcehcm.com/<culture>/<client>/<site>), a Next.js app whose
+    job list is a POST to its own /api/geo/<client>/jobposting/search: 25 postings a page, each with its
+    full description as text, and maxCount as the total. Like the page, the search first needs the
+    anonymous CSRF token and cookie from /api/auth/csrf. A board with no openings answers 200 with
+    maxCount 0; a wrong client or site answers 404. cfg: client (first path segment of the portal link,
+    e.g. 'kardium'), site (the segment after it, e.g. 'CANDIDATEPORTAL'), optional culture (default
+    'en-US', the portal link's language; it only sets the language and the posting link), max."""
+    client, site, culture = cfg["client"], cfg["site"], cfg.get("culture", "en-US")
+    if not (re.fullmatch(r"[A-Za-z0-9-]+", client) and re.fullmatch(r"[A-Za-z0-9_-]+", site)
+            and re.fullmatch(r"[a-z]{2}-[A-Z]{2}", culture)):
+        raise ValueError("Dayforce client and site must be the segments of the portal link, culture like en-US")
+    token = requests.get(f"{DAYFORCE_HOST}/api/auth/csrf", headers={"User-Agent": UA, "Accept": "application/json"},
+                         timeout=TIMEOUT)
+    token.raise_for_status()
+    csrf = token.json().get("csrfToken")
+    if not csrf:
+        raise RuntimeError("Dayforce answered no CSRF token")
+    headers = {"User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json",
+               "X-CSRF-TOKEN": csrf}
+    out, seen, offset = SourceListing(), set(), 0
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.post(f"{DAYFORCE_HOST}/api/geo/{client}/jobposting/search", headers=headers,
+                          json={"clientNamespace": client, "jobBoardCode": site, "cultureCode": culture,
+                                "distanceUnit": 0, "paginationStart": offset},
+                          cookies=token.cookies, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        posts = data.get("jobPostings")
+        if not isinstance(posts, list):
+            raise RuntimeError("Dayforce search response has no jobPostings")
+        if out.total is None and isinstance(data.get("maxCount"), int):
+            out.total = data["maxCount"]
+        page = [{"id": str(j.get("jobPostingId") or ""), "title": (j.get("jobTitle") or "").strip(),
+                 "location": "; ".join(dict.fromkeys(filter(None, map(_dayforce_place, j.get("postingLocations") or [])))),
+                 "url": f"{DAYFORCE_HOST}/{culture}/{client}/{site}/jobs/{j.get('jobPostingId')}",
+                 "posted": _iso_epoch(j.get("postingStartTimestampUTC")),
+                 "description": html_to_text(j.get("jobDescription") or "")} for j in posts]
+        if _consume_page(out, page, seen, "Dayforce", limit):
+            break
+        offset += len(posts)
+    return _finish_listing(out, "Dayforce", limit)
+
+
+ADP_WFN_API = "https://workforcenow.adp.com/mascsr/default/careercenter/public/events/staffing/v1/job-requisitions"
+
+
+ADP_WFN_PAGE = "https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html"
+
+
+ADP_WFN_STEP = 10       # the career center's own page size; the server serves at most 20 rows a call
+
+
+def _adp_wfn_cfg(cfg):
+    """(cid, ccid, lang) from a source cfg, checked so they can only be what a careers link carries."""
+    cid, ccid, lang = cfg["cid"], cfg.get("ccid", "19000101_000001"), cfg.get("lang", "en_US")
+    if not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", str(cid)):
+        raise ValueError("ADP Workforce Now cid must be the uuid in the employer's recruitment.html link")
+    if not re.fullmatch(r"\d{8}_\d+", str(ccid)):
+        raise ValueError("ADP Workforce Now ccid must be the ccId in the employer's recruitment.html link")
+    if not re.fullmatch(r"[a-z]{2}_[A-Z]{2}", str(lang)):
+        raise ValueError("ADP Workforce Now lang must look like en_US or en_CA")
+    return cid, ccid, lang
+
+
+def _adp_wfn_params(cid, ccid, lang, **extra):
+    return {"cid": cid, "ccId": ccid, "lang": lang, "locale": lang, **extra}
+
+
+def _adp_wfn_field(job, group, code, key):
+    """One value from a requisition's customFieldGroup (stringFields, dateFields...)."""
+    for f in (job.get("customFieldGroup") or {}).get(group) or []:
+        if (f.get("nameCode") or {}).get("codeValue") == code:
+            return f.get(key)
+    return None
+
+
+def _adp_wfn_place(loc):
+    """'Toronto, ON, CA' from the display name, or the city and province when it is only a state name
+    ('Georgia', 'Remote'); the display name carries the country code, the address does not."""
+    name = ((loc.get("nameCode") or {}).get("shortName") or "").strip()
+    addr = loc.get("address") or {}
+    city = (addr.get("cityName") or "").strip()
+    if not city:
+        return name
+    region = ((addr.get("countrySubdivisionLevel1") or {}).get("codeValue") or "").strip()
+    tail = name.rsplit(",", 1)[-1].strip()
+    return _place(city, region, tail if re.fullmatch(r"[A-Z]{2}", tail) else "")
+
+
+def fetch_adp_wfn(cfg):
+    """ADP Workforce Now recruitment career centers (workforcenow.adp.com/mascsr/.../recruitment.html?cid=...):
+    the public staffing JSON the page itself calls, newest first, 10 a page. The list carries no description
+    (see detail_adp_wfn) and no location at all for some employers (Canadian Cancer Society). cfg: cid (the
+    uuid in the employer's careers link), ccid (default 19000101_000001), lang (en_US / en_CA), max."""
+    cid, ccid, lang = _adp_wfn_cfg(cfg)
+    out, seen, skip = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        # $skip is the 1-based number of the first row wanted (left out it means 1; 0 works but returns
+        # one row short), so pages are 1-10, 11-20 ... and meta.totalNumber counts every row.
+        r = requests.get(ADP_WFN_API, params=_adp_wfn_params(cid, ccid, lang, **{"$top": ADP_WFN_STEP, "$skip": skip}),
+                         headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if not isinstance(data, dict) or not isinstance(data.get("jobRequisitions"), list):
+            raise RuntimeError("ADP Workforce Now response has no jobRequisitions")
+        total = (data.get("meta") or {}).get("totalNumber")
+        if out.total is None and isinstance(total, int) and not isinstance(total, bool):
+            out.total = total
+        page = []
+        for j in data["jobRequisitions"]:
+            jid = str(_adp_wfn_field(j, "stringFields", "ExternalJobID", "stringValue") or "")
+            places = []
+            for loc in j.get("requisitionLocations") or []:
+                place = _adp_wfn_place(loc)
+                if place and place not in places:
+                    places.append(place)
+            # ADP stamps local (Eastern) time with a Z, so this can read a few hours early, never late
+            posted = _iso_epoch(_adp_wfn_field(j, "dateFields", "PostingDate", "dateValue") or j.get("postDate"))
+            page.append({"id": jid, "title": (j.get("requisitionTitle") or "").strip(), "location": "; ".join(places),
+                         "url": f"{ADP_WFN_PAGE}?cid={cid}&ccId={ccid}&jobId={jid}&lang={lang}&source=CC2",
+                         "posted": posted})
+        if _consume_page(out, page, seen, "ADP Workforce Now", limit):
+            break
+        skip += ADP_WFN_STEP
+    return _finish_listing(out, "ADP Workforce Now", limit)
+
+
+def _bamboohr_company(cfg):
+    company = str(cfg["company"])
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*", company):
+        raise ValueError("BambooHR company must be the subdomain its careers page links to")
+    return company
+
+
+def fetch_bamboohr(cfg):
+    """BambooHR career pages (<company>.bamboohr.com/careers): the /careers/list JSON the page
+    itself loads. One response carries every opening and meta.totalCount; there is no paging.
+    The list has no description and no date (detail_bamboohr supplies both).
+    cfg: company (the subdomain in the employer's own link to its BambooHR page), max."""
+    company = _bamboohr_company(cfg)
+    limit = _source_limit(cfg)
+    r = requests.get(f"https://{company}.bamboohr.com/careers/list",
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    rows, total = data.get("result"), (data.get("meta") or {}).get("totalCount")
+    if not isinstance(rows, list) or isinstance(total, bool) or not isinstance(total, int):
+        raise RuntimeError("BambooHR careers list has no result list and totalCount")
+    out, seen = SourceListing(total=total), set()
+    page = []
+    for j in rows:
+        here, ats = j.get("location") or {}, j.get("atsLocation") or {}
+        # "Mississauga, Ontario" for office roles; the ATS location (city, state, country) otherwise.
+        place = _place(here.get("city"), here.get("state")) or _place(ats.get("city"), ats.get("state"), ats.get("country"))
+        if str(j.get("locationType")) == "1" or j.get("isRemote") is True:      # 0 on-site, 1 remote, 2 hybrid
+            place = f"{place} (Remote)" if place else "Remote"
+        page.append({"id": str(j.get("id") or ""), "title": (j.get("jobOpeningName") or "").strip(),
+                     "location": place, "url": f"https://{company}.bamboohr.com/careers/{j.get('id')}",
+                     "posted": None, "department": j.get("departmentLabel") or ""})
+    if not _consume_page(out, page, seen, "BambooHR", limit):
+        _consume_page(out, [], seen, "BambooHR", limit)    # the one response is the whole list: a short count is partial
+    return _finish_listing(out, "BambooHR", limit)
+
+
+# ---------------------------------------------------------------- begin taleo block
+TALEO_PAUSE = 0.5       # seconds between requests to one career section
+
+
+def _taleo_base(cfg):
+    host, section = cfg["host"], str(cfg["section"])
+    if not re.fullmatch(r"[a-z0-9-]+\.taleo\.net", host):
+        raise ValueError("Taleo host must be a <company>.taleo.net career site "
+                         "(Taleo Business Edition, *.tbe.taleo.net, is a different product)")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", section):
+        raise ValueError("Taleo section must be the career section's name from its jobsearch.ftl link")
+    return f"https://{host}/careersection/{section}"
+
+
+def _taleo_date_epoch(value):
+    """'Oct 26, 2026' (or '2026-10-26') -> epoch at 12:00 UTC on that day (None if missing or malformed)."""
+    text = ", ".join(str(value or "").split(", ")[:2]).strip()      # drops a trailing ', 12:00:00 AM'
+    for fmt in ("%b %d, %Y", "%B %d, %Y", "%Y-%m-%d"):
+        try:
+            return _date_epoch(datetime.strptime(text, fmt).date().isoformat())
+        except ValueError:
+            continue
+    return None
+
+
+def _taleo_labels(text, name):
+    """(rows per page, column labels) of one list from the page's _ftl definition. The labels
+    ('reqlistitem.title', ...) say what each position of a row holds, so no position is hard-coded."""
+    m = re.search(name + r":\s*\{\s*_size:\s*(\d+),\s*_hles:\s*\[[^\]]*\],\s*_hlid:\s*\[([^\]]*)\]", text)
+    if not m:
+        return 0, []
+    return int(m.group(1)), [x.removeprefix("reqlistitem.") for x in re.findall(r"'([^']*)'", m.group(2))]
+
+
+def _taleo_select(text, name):
+    m = re.search(r'<select\b[^>]*\bname="' + re.escape(name) + r'"[^>]*>(.*?)</select>', text, re.S)
+    return m.group(1) if m else ""
+
+
+def _taleo_rows(items, labels):
+    """Flat cell values -> one dict per row, label -> first non-empty value (percent-decoded)."""
+    if not labels or len(items) % len(labels):
+        raise RuntimeError("Taleo result list does not match its column labels")
+    rows = []
+    for i in range(0, len(items), len(labels)):
+        row = {}
+        for label, value in zip(labels, items[i:i + len(labels)]):
+            if value and label not in row:
+                row[label] = unquote(value)
+        rows.append(row)
+    return rows
+
+
+def fetch_taleo(cfg):
+    """Oracle Taleo Enterprise career sections (<company>.taleo.net/careersection/<section>/jobsearch.ftl),
+    the classic server-rendered kind: the page embeds its first results and pages the rest through the
+    same jobsearch.ajax call its own pager makes. Newest first, as many rows per call as the page's
+    'results per page' control offers. Taleo Business Edition (*.tbe.taleo.net) and sections that
+    redirect to another site are not this. cfg: host ('hhsc.taleo.net'), section ('2'), optional
+    max, page_size (rows per call; default the largest the page offers)."""
+    base = _taleo_base(cfg)
+    limit = _source_limit(cfg)
+    headers = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}
+    r = requests.get(f"{base}/jobsearch.ftl", params={"lang": "en"}, headers=headers, timeout=TIMEOUT)
+    r.raise_for_status()
+    size, labels = _taleo_labels(r.text, "listRequisition")
+    form = re.search(r'<form\b[^>]*\bid="ftlform"[^>]*>(.*)</form>', r.text, re.S)
+    count = re.search(r'name="listRequisition\.nbElements"[^>]*\bvalue="(\d+)"', r.text) or \
+        re.search(r"\((\d+) jobs? found\)", r.text)
+    if not (form and labels and "contestnumber" in labels and "title" in labels and count):
+        raise RuntimeError(f"Taleo search page is not a classic requisition list (landed on {r.url})")
+    fields = []
+    for tag in re.findall(r"<input\b[^>]*>", form.group(1), re.I):
+        name = _html_attr(tag, "name")
+        if name and not (_html_attr(tag, "type").lower() in ("checkbox", "radio") and "checked" not in tag.lower()):
+            fields.append((name, _html_attr(tag, "value")))
+    out = SourceListing(total=int(count.group(1)))
+    # What the page's own controls send: the largest page size and Posting Date (Descending Order).
+    sizes = [int(n) for n in re.findall(r'<option value="(\d+)">\d+</option>', _taleo_select(r.text, "dropListSize"))]
+    per_page = int(cfg.get("page_size") or (max(sizes) if sizes else size))
+    newest = re.search(r'<option value="(\d+)">Posting Date \(Descending Order\)</option>', r.text)
+    call = {"ftlpageid": "reqListBasicPage", "ftlinterfaceid": "requisitionListInterface", "ftlcompid": "rlPager",
+            "jsfCmdId": "rlPager", "ftlcompclass": "PagerComponent", "ftlcallback": "ftlPager_processResponse",
+            "ftlajaxid": "ftlx1", "dropListSize": str(per_page)}
+    if newest:
+        call["dropSortBy"] = newest.group(1)
+    body = [(k, v) for k, v in fields if k not in call and k != "rlPager.currentPage"]
+    seen, page_no = set(), 1
+    pages = -(-out.total // per_page)
+    while page_no <= pages:
+        time.sleep(TALEO_PAUSE)
+        resp = requests.post(f"{base}/jobsearch.ajax", data=body + list(call.items()) + [("rlPager.currentPage", str(page_no))],
+                             headers={**headers, "Referer": f"{base}/jobsearch.ftl?lang=en",
+                                      "X-Requested-With": "XMLHttpRequest"},
+                             cookies=r.cookies, timeout=TIMEOUT)
+        resp.raise_for_status()
+        parts = resp.text.split("!$!")
+        if len(parts) < 3 or not parts[0].endswith("ftlPager_processResponse"):
+            raise RuntimeError("Taleo pager response is not a result list")
+        cells = parts[2].split("!|!") if parts[2] else []
+        rows = _taleo_rows(cells, labels)
+        if page_no == 1 and len(rows) < min(per_page, out.total):
+            per_page = max(len(rows), 1)             # the page ignored the size: page by what it returned
+            pages = -(-out.total // per_page)
+        page = [{"id": row.get("contestnumber", ""), "title": row.get("title", ""),
+                 "location": row.get("basiclocations", ""),
+                 "url": f"{base}/jobdetail.ftl?job={row.get('contestnumber', '')}&lang=en",
+                 "posted": _taleo_date_epoch(row.get("postingdate")),
+                 "department": row.get("organization", "")} for row in rows]
+        if _consume_page(out, page, seen, "Taleo", limit):
+            break
+        page_no += 1
+    else:
+        _consume_page(out, [], seen, "Taleo", limit)   # ran out of pages short of the total: say so
+    return _finish_listing(out, "Taleo", limit)
+
+
+# LHSC's first page took 40 s to start answering (about 9 s on a repeat), past the usual 25 s TIMEOUT.
+PS_TIMEOUT = 90
+
+
+_PS_URL = re.compile(r"https://[\w.-]+(?::\d+)?/psc/[\w.-]+/[\w.-]+/[\w.-]+/c/HRS_HRAM_FL\.HRS_CG_SEARCH_FL\.GBL")
+
+
+_PS_SEARCH = {"Page": "HRS_APP_SCHJOB_FL", "Action": "U", "FOCUS": "Applicant"}
+
+
+_PS_POSTING = {"Page": "HRS_APP_JBPST_FL", "Action": "U", "FOCUS": "Applicant", "PostingSeq": "1"}
+
+
+_PS_ROW = re.compile(r"<li\b[^>]*\bid='HRS_AGNT_RSLT_I\$0_row_\d+'")
+
+
+_PS_VALUE = re.compile(r"<span class='ps_box-value'\s+id='([A-Z][A-Z0-9_]*)\$\d+'\s*>(.*?)</span>", re.S)
+
+
+_PS_MORE = re.compile(r"class='ps_box-more'[^>]*submitAction_win0\(document\.win0,'([^']+)'\)")
+
+
+def _ps_check(cfg):
+    url, site = cfg["url"], str(cfg.get("site", "1"))
+    if not _PS_URL.fullmatch(url):
+        raise ValueError("peoplesoft url must be the site's .../psc/<site>/<portal>/<node>/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL address")
+    if not site.isdigit():
+        raise ValueError("peoplesoft site must be the numeric SiteId from the careers page's search link")
+    return url, site
+
+
+def _ps_posted(text, dmy=False):
+    """The grid's date as the site's PeopleSoft locale prints it: 2026-10-26 (SickKids),
+    2026/10/28 (LHSC) or 10/28/2026 (The Ottawa Hospital; day first when cfg dmy)."""
+    m = re.fullmatch(r"(\d{4})[-/](\d\d)[-/](\d\d)", text.strip())
+    if m:
+        return _date_epoch("-".join(m.groups()))
+    m = re.fullmatch(r"(\d\d)/(\d\d)/(\d{4})", text.strip())
+    if m:
+        a, b, year = m.groups()
+        return _date_epoch(f"{year}-{b}-{a}" if dmy else f"{year}-{a}-{b}")
+    return None
+
+
+def _ps_rows(text, url, site, dmy=False, place=""):
+    """Every row of the Search Results grid (the page repeats them all after each 'more')."""
+    starts = [m.start() for m in _PS_ROW.finditer(text)]
+    end = text.find("</ul>", starts[-1]) if starts else -1      # the last row ends with the grid's </ul>
+    starts.append(end if end >= 0 else len(text))
+    page = []
+    for a, b in zip(starts, starts[1:]):
+        f = {k: " ".join(html_to_text(v).split()) for k, v in _PS_VALUE.findall(text[a:b])}      # &nbsp; padding
+        jid, title = f.get("HRS_APP_JBSCH_I_HRS_JOB_OPENING_ID", ""), f.get("SCH_JOB_TITLE", "")
+        if not jid or not title:
+            raise RuntimeError("PeopleSoft pagination could not parse a result")
+        page.append({"id": jid, "title": title, "location": _place(f.get("LOCATION"), place),
+                     "url": _ps_posting_url(url, site, jid), "posted": _ps_posted(f.get("SCH_OPENED", ""), dmy),
+                     "department": " / ".join(x for x in (f.get("JOB_FAMILY_LABEL"),
+                                                           f.get("HRS_APP_JBSCH_I_HRS_DEPT_DESCR")) if x)})
+    return page
+
+
+def _ps_posting_url(url, site, job_id):
+    return f"{url}?" + "&".join(f"{k}={v}" for k, v in {**_PS_POSTING, "SiteId": site, "JobOpeningId": job_id}.items())
+
+
+def _ps_total(text):
+    m = (re.search(r"id='win0divHRS_AGNT_RSLT_Irowcnt\$0'><span class='ps-text'>([\d,]+) rows?<", text)
+         or re.search(r"<b>([\d,]+)</b>\s*jobs? found", text))
+    return int(m.group(1).replace(",", "")) if m else None
+
+
+def _ps_form(text):
+    """The page's hidden form state (ICSID, ICStateNum, ...), which each postback must echo."""
+    form = {}
+    for tag in re.findall(r"<input\b[^>]*>", text):
+        if re.search(r"type=['\"]hidden['\"]", tag):
+            name = re.search(r"name=['\"]([^'\"]+)['\"]", tag)
+            value = re.search(r"value=['\"]([^'\"]*)['\"]", tag)
+            if name:
+                form[name.group(1)] = html.unescape(value.group(1)) if value else ""
+    return form
+
+
+def fetch_peoplesoft(cfg):
+    """Oracle PeopleSoft Candidate Gateway (Fluid): SickKids, The Ottawa Hospital, LHSC. A plain GET of the
+    site's job search page sets a guest session and lists the first 50 postings server-side with a
+    "N jobs found" count; the page's "more" button is a form postback that answers with every row so far.
+    cfg: url (the site's .../c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL address), site (SiteId, default 1; the
+    careers page's search link carries it), place (optional text added to each location, for sites
+    that name only the building), dmy (true when the site prints dates day first), max."""
+    url, site = _ps_check(cfg)
+    out, seen = SourceListing(), set()
+    limit = _source_limit(cfg)
+    headers = {"User-Agent": UA}
+    r = requests.get(url, params={**_PS_SEARCH, "SiteId": site}, headers=headers, timeout=PS_TIMEOUT)
+    r.raise_for_status()
+    cookies = r.cookies          # the guest session; the postbacks echo it and it does not rotate
+    while True:
+        empty = "psc_grid-norows" in r.text and "No jobs found." in r.text      # a site with no postings has no grid
+        if "HRS_AGNT_RSLT_I" not in r.text and not empty:
+            raise RuntimeError("PeopleSoft response has no search results grid")
+        total = 0 if empty else _ps_total(r.text)
+        if out.total is None and total is not None:
+            out.total = total
+        page = _ps_rows(r.text, url, site, bool(cfg.get("dmy")), cfg.get("place", ""))
+        if _consume_page(out, page, seen, "PeopleSoft", limit):
+            break
+        more = _PS_MORE.search(r.text)
+        if not more:
+            if out.total is None:
+                out.complete = True
+            else:
+                out.reason = f"PeopleSoft list ended at {len(out)} of reported total {out.total}"
+            break
+        time.sleep(1)
+        r = requests.post(url, data={**_ps_form(r.text), "ICAction": more.group(1)},
+                          headers={**headers, "Referer": url}, cookies=cookies, timeout=PS_TIMEOUT)
+        r.raise_for_status()
+    return _finish_listing(out, "PeopleSoft", limit)
+
+
+GC_JOBS = "https://emploisfp-psjobs.cfp-psc.gc.ca/psrs-srfp/applicant/"
+
+
+def fetch_gc_jobs(cfg):
+    """GC Jobs (emploisfp-psjobs.cfp-psc.gc.ca), the Government of Canada's public-service job
+    search. Its search form is a GET (page2440) whose criteria the server keeps in the session;
+    the page then loads the "Jobs open to the public" list with isSecondPartOfPage=1, 20 to a
+    page, and says the total in the tab's name. cfg: departments (the search form's Organization
+    ids, e.g. 117 Health Canada, 1094 Public Health Agency of Canada; none means every
+    organization), title (optional keyword), max."""
+    departments = cfg.get("departments") or []
+    if not isinstance(departments, list) or not all(isinstance(d, int) and not isinstance(d, bool) and d > 0
+                                                    for d in departments):
+        raise ValueError("GC Jobs departments must be a list of organization ids from the search form")
+    search = urljoin(GC_JOBS, "page2440")
+    http = requests.Session()
+    http.headers.update({"User-Agent": UA, "Accept-Language": "en"})
+    # The page's own start: a session cookie and English, then the "no GC network" check it makes.
+    http.get(search, params={"fromMenu": "true", "toggleLanguage": "en"}, timeout=TIMEOUT).raise_for_status()
+    time.sleep(0.5)
+    http.get(search, params={"ajaxSetInternalAccess": 1}, timeout=TIMEOUT).raise_for_status()
+    criteria = [("tab", 1), ("title", str(cfg.get("title") or "")), *[("department", d) for d in departments],
+                ("officialLanguage", ""), ("search", "Search jobs")]
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        time.sleep(0.5)
+        if page_no == 1:
+            params = [*criteria, ("isSecondPartOfPage", 1), ("isInitialNetworkCheck", 1)]
+        else:
+            params = [("requestedPage", page_no), ("fromPage", page_no - 1), ("tab", 1), ("log", "false"),
+                      ("isSecondPartOfPage", 1)]
+        r = http.get(search, params=params, timeout=TIMEOUT)
+        r.raise_for_status()
+        count = re.search(r"Jobs open to the public \((\d+)\)", r.text)
+        if not count:
+            raise RuntimeError("GC Jobs search page has no result count")
+        if out.total is None:
+            out.total = int(count.group(1))
+        page = []
+        for card in re.split(r'<li class="searchResult">', r.text)[1:]:
+            link = re.search(r'<a\b[^>]*href="([^"]*[?&]poster=(\d+)[^"]*)"[^>]*>(.*?)</a>', card, re.S)
+            if not link:
+                continue
+            cells = re.findall(r'<div class="tableCell">(.*?)</div>', card, re.S)
+            # "Closing date: 2026-11-02 <br> Health Canada - Directorate <br> Calgary (Alberta), ..." and
+            # "English essential <br> $25.17 to $38.38 per hour"
+            lines, pay = ([[" ".join(html_to_text(part).split()) for part in re.split(r"<br\s*/?>", cell)]
+                           for cell in cells[:2]] + [[], []])[:2]
+            page.append({"id": link.group(2), "title": " ".join(html_to_text(link.group(3)).split()),
+                         "url": urljoin(GC_JOBS, html.unescape(link.group(1))),
+                         "department": lines[1] if len(lines) > 1 else "",
+                         "location": lines[2] if len(lines) > 2 else "",
+                         "salary": pay[1] if len(pay) > 1 else "", "posted": None})
+        if _consume_page(out, page, seen, "GC Jobs", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "GC Jobs", limit)
+
+
+NEOGOV = "https://www.governmentjobs.com"
+
+
+def _neogov_agency(cfg):
+    agency = cfg.get("agency")
+    if not isinstance(agency, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", agency):
+        raise ValueError("NEOGOV agency must be the name in the careers page address")
+    return agency
+
+
+def _neogov_list(cfg, key):
+    values = cfg.get(key) or []
+    if not isinstance(values, list) or not all(isinstance(v, str) and v.strip() for v in values):
+        raise ValueError(f"NEOGOV {key} must be a list of the filter names the agency's page shows")
+    return values
+
+
+def _neogov_text(fragment):
+    return " ".join(html_to_text(fragment).split())
+
+
+def fetch_neogov(cfg):
+    """A NEOGOV agency's careers list (governmentjobs.com/careers/<agency>): the HTML fragment its
+    own page loads from /careers/home/index, 10 postings to a page, newest first, with the total
+    ("N Job Postings found"). Cards carry no description (a 700-character teaser only).
+    cfg: agency (the name in the page address), department (list of the agency's Department
+    names), category (list of Category names; not every agency has them), keyword, place (shown when
+    a card names none, as at LA County), max."""
+    agency = _neogov_agency(cfg)
+    filters = [*(("department", d) for d in _neogov_list(cfg, "department")),
+               *(("category", c) for c in _neogov_list(cfg, "category"))]
+    if cfg.get("keyword"):
+        filters.append(("keyword", str(cfg["keyword"])))
+    headers = {"User-Agent": UA, "X-Requested-With": "XMLHttpRequest", "Referer": f"{NEOGOV}/careers/{agency}"}
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        r = requests.get(f"{NEOGOV}/careers/home/index", headers=headers, timeout=TIMEOUT,
+                         params=[("agency", agency), *filters, ("page", page_no), ("sort", "PostingDate"),
+                                 ("isDescendingSort", "true")])
+        r.raise_for_status()
+        count = re.search(r'id="job-postings-number">\s*([\d,]+)', r.text)
+        if count and out.total is None:
+            out.total = int(count.group(1).replace(",", ""))
+        elif not count and page_no == 1:
+            raise RuntimeError("NEOGOV list has no posting count")
+        page = []
+        for card in re.split(r'<li class="list-item"', r.text)[1:]:
+            tag = re.search(r'<a\b[^>]*\bitem-details-link\b[^>]*>(.*?)</a>', card, re.S)
+            job_id = re.search(r'data-job-id="(\d+)"', card)
+            if not tag or not job_id:
+                continue
+            link = re.match(r"<a\b[^>]*>", tag.group(0)).group(0)
+            meta = re.search(r'<ul class="list-meta">(.*?)</ul>', card, re.S)
+            items = re.findall(r"<li\b[^>]*>(.*?)</li>", meta.group(1), re.S) if meta else []
+            dept = next((_neogov_text(i).removeprefix("Department:").strip() for i in items
+                         if _neogov_text(i).startswith("Department:")), _html_attr(link, "data-department-name"))
+            # "Denver, CO" has no label; "Full Time - $66,024.00 Annually" has the dash span.
+            place = next((_neogov_text(i) for i in items if ":" not in _neogov_text(i) and "<span>-</span>" not in i), "")
+            pay = next((_neogov_text(i) for i in items if "<span>-</span>" in i), "")
+            since = re.search(r'list-entry-starts"><span>([^<]*)', card)
+            posted = since.group(1) if since and "more than" not in since.group(1) else ""
+            page.append({"id": job_id.group(1), "title": _neogov_text(tag.group(1)),
+                         "location": place or str(cfg.get("place") or ""),
+                         "url": NEOGOV + _html_attr(link, "href"), "department": dept,
+                         "salary": pay.split(" - ", 1)[1] if " - " in pay else "",
+                         "posted": _workday_posted_epoch(posted)})
+        if _consume_page(out, page, seen, "NEOGOV", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "NEOGOV", limit)
+
+
+PARADOX_PAGE_SIZE = 20      # the site's page-size menu offers 10 and 20; any other value is clamped to 10
+
+
+PARADOX_PAGE_PAUSE = 0.5    # seconds between pages
+
+
+def _paradox_search(page_html):
+    """The `jobSearch` object a Paradox careers page embeds as window.__PRELOAD_STATE__."""
+    marker = re.search(r"window\.__PRELOAD_STATE__\s*=\s*", page_html)
+    if not marker:
+        raise RuntimeError("Paradox page has no embedded job data")
+    state, _ = json.JSONDecoder().raw_decode(page_html, marker.end())
+    search = state.get("jobSearch") if isinstance(state, dict) else None
+    if not isinstance(search, dict) or not isinstance(search.get("jobs"), list):
+        raise RuntimeError("Paradox page has no job search data")
+    return search
+
+
+def fetch_paradox(cfg):
+    """Paradox ("Olivia") careers sites: careers.loblaw.ca, careers.shoppersdrugmart.ca,
+    careers.rexall.ca, employment.ucsd.edu. The site's own list page is server-rendered with the
+    matching total, 20 postings a page at /<path>/page/<n>. Listings carry no description (read each
+    posting's own page: PAGE_DETAIL_ATS). cfg: host ('careers.loblaw.ca'); optional path (the list
+    page, default 'jobs'; a landing page such as 'uc-san-diego-health' lists its own subset), filter
+    ({facet field: [values]}, e.g. {"category": ["Pharmacy"]}; values of one field OR together),
+    query (keyword), max."""
+    host, path = cfg["host"], cfg.get("path", "jobs").strip("/")
+    if not re.fullmatch(r"[a-z0-9][a-z0-9.-]*", host) or not re.fullmatch(r"[a-z0-9_/-]*", path):
+        raise ValueError("Paradox host and path must be the careers site's own")
+    params = {"page_size": PARADOX_PAGE_SIZE}
+    if cfg.get("query"):
+        params["keyword"] = cfg["query"]
+    wanted = {field: list(values) for field, values in (cfg.get("filter") or {}).items()}
+    for field, values in wanted.items():
+        for i, value in enumerate(values):
+            params[f"filter[{field}][{i}]"] = value
+    base = f"https://{host}/{path}".rstrip("/")
+    out, seen, page_no = SourceListing(), set(), 1
+    limit = _source_limit(cfg)
+    while len(out) < limit:
+        if page_no > 1:
+            time.sleep(PARADOX_PAGE_PAUSE)
+        r = requests.get(base if page_no == 1 else f"{base}/page/{page_no}", params=params,
+                         headers={"User-Agent": UA}, timeout=TIMEOUT)
+        r.raise_for_status()
+        search = _paradox_search(r.text)
+        if page_no == 1:
+            echoed = search.get("params") or {}
+            # a site that ignores the filter would hand back its whole board under this source's name
+            if (echoed.get("filter") or {}) != wanted or echoed.get("keyword", "") != cfg.get("query", ""):
+                raise RuntimeError("Paradox search did not apply the configured filter")
+            if not isinstance(search.get("totalJob"), int):
+                raise RuntimeError("Paradox page has no job total")
+            out.total = search["totalJob"]
+        page = []
+        for job in search["jobs"]:
+            fields = {c.get("cfKey"): c.get("value") for c in job.get("customFields") or []}
+            places = []
+            for loc in job.get("locations") or []:
+                country = loc.get("countryAbbr") if loc.get("countryAbbr") not in (None, "US", "CA") else ""
+                place = _place(loc.get("cityStateAbbr") or loc.get("locationName") or loc.get("locationParsedText"),
+                               country)
+                if place and place not in places:
+                    places.append(place)
+            if not places and job.get("isRemote"):
+                places = ["Remote"]
+            link = str(job.get("originalURL") or "").lstrip("/")
+            page.append({"id": str(job.get("reference") or link.rsplit("/", 1)[-1]),
+                         "title": job.get("title") or "",
+                         "location": "; ".join(places),
+                         "url": requests.utils.requote_uri(f"https://{host}/{link}"),
+                         "posted": _date_epoch(fields.get("cf_date_posted")),
+                         "department": job.get("brandName") or ""})
+        if _consume_page(out, page, seen, "Paradox", limit):
+            break
+        page_no += 1
+    return _finish_listing(out, "Paradox", limit)
+
+
+SFP_PAUSE = 0.3      # seconds between pages of one site
+
+
+_SFP_DATE_FORMATS = ("%b %d, %Y", "%d %b %Y", "%B %d, %Y", "%d %B %Y")
+
+
+def _sfp_date(text):
+    """'Oct 28, 2026' (en_US) or '28 Oct 2026' (en_GB) -> epoch at 12:00 UTC; None if not a date."""
+    text = re.sub(r"\bSept\b", "Sep", html_to_text(text or "").strip())
+    for fmt in _SFP_DATE_FORMATS:
+        try:
+            return _date_epoch(datetime.strptime(text, fmt).date().isoformat())
+        except ValueError:
+            pass
+    return None
+
+
+def _sfp_total(text):
+    """The result count: the table's 'Results 1 - 25 of 211', or the tile page's
+    jobRecordsFound / 'Showing 1 to 25 of 73 Jobs'."""
+    match = (re.search(r'class=["\'][^"\']*paginationLabel[^"\']*["\'][^>]*>.*?of\s*<b>\s*([\d,]+)', text, re.S)
+             or re.search(r'jobRecordsFound:\s*parseInt\(\s*["\'](\d+)["\']', text)
+             or re.search(r"Showing\s+\d+\s+to\s+\d+\s+of\s+([\d,]+)\s+Jobs", text))
+    return int(match.group(1).replace(",", "")) if match else None
+
+
+def _sfp_cell(row, name):
+    match = re.search(r'<td\b[^>]*class=["\'][^"\']*\b' + name + r'\b[^"\']*["\'][^>]*>(.*?)</td>', row, re.S | re.I)
+    return html_to_text(match.group(1)).strip() if match else ""
+
+
+def _sfp_title_link(block):
+    links = re.findall(r"<a\b([^>]*)>(.*?)</a>", block, re.S | re.I)
+    link = next(((attrs, title) for attrs, title in links if "jobTitle-link" in _html_attr(attrs, "class")), None)
+    if not link:
+        raise RuntimeError("SuccessFactors pagination could not parse a result")
+    return link
+
+
+def _sfp_job(root, href, title, **fields):
+    job_url = urljoin(root, href)
+    jid = re.search(r"/(\d+)/?$", urlsplit(job_url).path)
+    return {"id": jid.group(1) if jid else "", "title": html_to_text(title).strip(), "url": job_url, **fields}
+
+
+def _sfp_table(text, root, cfg):
+    """The result table: <tr class="data-row"> with colTitle, colLocation, colDate and, on some sites,
+    colDepartment or colFacility (Novo Nordisk keeps its function in Facility; Olympus a plant number)."""
+    page = []
+    for row in re.findall(r'<tr\b[^>]*class=["\'][^"\']*data-row[^"\']*["\'][^>]*>(.*?)</tr>', text, re.S | re.I):
+        attrs, title = _sfp_title_link(row)
+        dept = _sfp_cell(row, "colDepartment") or (_sfp_cell(row, "colFacility") if cfg.get("facility") == "department" else "")
+        job = _sfp_job(root, _html_attr(attrs, "href"), title, location=_sfp_cell(row, "colLocation"),
+                       posted=_sfp_date(_sfp_cell(row, "colDate")))
+        if dept:
+            job["department"] = dept
+        page.append(job)
+    return page
+
+
+def _sfp_tiles(text, root, cfg):
+    """The tile layout (jobs.toronto.ca): <li class="job-tile job-id-N"> holding the title link and
+    labelled fields repeated for desktop, tablet and phone (…-desktop-section-department-value).
+    Toronto shows Job Stream (department), Position Type and Posting Date but no location."""
+    page = []
+    for attrs, tile in re.findall(r"<li\b([^>]*\bjob-tile\b[^>]*)>(.*?)</li>", text, re.S | re.I):
+        link_attrs, title = _sfp_title_link(tile)
+        fields, labels = {}, {}
+        for name, value in re.findall(r'\bid="[^"]*-desktop-section-(\w+)-value"[^>]*>(.*?)</div>', tile, re.S):
+            fields.setdefault(name, html_to_text(value).strip())
+        for name, value in re.findall(r'\bid="[^"]*-desktop-section-(\w+)-label"[^>]*>(.*?)</span>', tile, re.S):
+            labels.setdefault(name, html_to_text(value).strip())
+        job = _sfp_job(root, _html_attr(link_attrs, "href") or _html_attr(attrs, "data-url"), title,
+                       location=fields.get("location") or cfg.get("location", ""),
+                       posted=_sfp_date(fields.get("date")))
+        if fields.get("department"):
+            job["department"] = fields["department"]
+        if fields.get("shifttype"):
+            job["listing_note"] = f"{labels.get('shifttype') or 'Position Type'}: {fields['shifttype']}."
+        page.append(job)
+    return page
+
+
+def fetch_successfactors_portal(cfg):
+    """SuccessFactors Recruiting Marketing career sites in the table or the tile layout. Paged like
+    `successfactors` (the /search/ page with ?startrow=<rows read>, or a /go/<name>/<id>/ category
+    paged by path) but it also reads tiles (City of Toronto) and en_GB dates (Novo Nordisk).
+    cfg: url (the site's /search/ page), max (safety limit, default 5000), optional location (a
+    fixed place for sites whose tiles show none, e.g. "Toronto, ON"), optional facility
+    ("department" when the Facility column holds the function, as on Novo Nordisk) and optional
+    passes (default 3).
+
+    Odd: jobs.toronto.ca is served by several nodes whose search indexes can disagree for a while
+    (73 postings on one, 69 on another, and the order of postings posted the same day differs
+    between requests), so one pass can repeat a posting and skip another. The total is therefore the
+    largest one any page reported, and an incomplete pass is followed by up to `passes` - 1 more
+    passes that only add postings not yet seen. A listing still short of the total stays incomplete."""
+    root = cfg["url"].rstrip("/") + "/"
+    search = urlsplit(root).path.endswith("/search/")
+    out, seen, requested = SourceListing(), set(), False
+    limit = _source_limit(cfg)
+    for attempt in range(max(1, int(cfg.get("passes", 3)))):
+        offset, out.reason = 0, ""
+        while offset < limit:
+            if requested:
+                time.sleep(SFP_PAUSE)
+            requested = True
+            url = root if offset == 0 or search else f"{root}{offset}/"
+            params = {"q": "", "sortColumn": "referencedate", "sortDirection": "desc"}
+            if search and offset:
+                params["startrow"] = offset
+            r = requests.get(url, params=params, headers={"User-Agent": UA}, timeout=TIMEOUT)
+            r.raise_for_status()
+            total = _sfp_total(r.text)
+            if total is not None:
+                out.total = total if out.total is None else max(out.total, total)
+            if 'id="searchresults"' in r.text:
+                page = _sfp_table(r.text, root, cfg)
+            elif 'id="job-tile-list"' in r.text:
+                page = _sfp_tiles(r.text, root, cfg)
+            elif re.search(r"no (?:matching )?jobs", r.text, re.I):
+                page = []
+            else:
+                raise RuntimeError("SuccessFactors pagination response has no search results")
+            if attempt and page and all(j["id"] in seen for j in page):
+                offset += len(page)         # a later pass only looks for what the earlier ones missed
+                continue
+            if _consume_page(out, page, seen, "SuccessFactors", limit):
+                break
+            offset += len(page)
+        if out.complete or len(out) >= limit:
+            break
+    return _finish_listing(out, "SuccessFactors", limit)
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -1823,6 +2587,15 @@ ADAPTERS = {
     "google": fetch_google,
     "jobs_api": fetch_jobs_api,
     "adp": fetch_adp,
+    "dayforce": fetch_dayforce,
+    "adp_wfn": fetch_adp_wfn,
+    "bamboohr": fetch_bamboohr,
+    "taleo": fetch_taleo,
+    "peoplesoft": fetch_peoplesoft,
+    "gc_jobs": fetch_gc_jobs,
+    "neogov": fetch_neogov,
+    "paradox": fetch_paradox,
+    "successfactors_portal": fetch_successfactors_portal,
 }
 
 
@@ -1933,6 +2706,128 @@ def detail_ukg(cfg, job_id):
     return html_to_text(data.get("Description") or ""), data.get("JobCategoryName") or ""
 
 
+def detail_adp_wfn(cfg, job_id):
+    """(description, department) for one ADP Workforce Now posting, by the same ExternalJobID the listing
+    gives as its id. The record has no department; a closed posting answers 200 with an empty record."""
+    cid, ccid, lang = _adp_wfn_cfg(cfg)
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("ADP Workforce Now job id must be the numeric jobId")
+    r = requests.get(f"{ADP_WFN_API}/{job_id}", params=_adp_wfn_params(cid, ccid, lang),
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    text = html_to_text(data.get("requisitionDescription") or "") if isinstance(data, dict) else ""
+    if not text:
+        raise ValueError("the ADP Workforce Now posting has no description (it has probably closed)")
+    return text, ""
+
+
+def detail_bamboohr(cfg, job_id):
+    """One BambooHR posting: description (HTML), department, and the exact datePosted the list lacks."""
+    company = _bamboohr_company(cfg)
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("BambooHR posting id must be numeric")
+    r = requests.get(f"https://{company}.bamboohr.com/careers/{job_id}/detail",
+                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r.raise_for_status()                      # a closed or unknown posting answers 404 {"type": "not_found"}
+    job = (r.json().get("result") or {}).get("jobOpening") or {}
+    meta = {"posted": _date_epoch(job.get("datePosted"))}
+    return html_to_text(job.get("description") or ""), job.get("departmentLabel") or "", meta
+
+
+def detail_taleo(cfg, job_id):
+    """One Taleo posting page (jobdetail.ftl?job=<job number>): its description is not in the
+    HTML text but in the page's embedded descRequisition row, whose rich-text cells begin '!*!'.
+    -> (description, department)."""
+    r = requests.get(f"{_taleo_base(cfg)}/jobdetail.ftl", params={"job": job_id, "lang": "en"},
+                     headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    _, labels = _taleo_labels(r.text, "descRequisition")
+    cells = re.search(r"fillList\('requisitionDescriptionInterface',\s*'descRequisition',\s*\[(.*?)\]\);", r.text, re.S)
+    if not (labels and cells):
+        raise ValueError("the Taleo posting page has no posting data")
+    items = re.findall(r"'((?:[^'\\]|\\.)*)'", cells.group(1))
+    if len(items) != len(labels):
+        raise ValueError("the Taleo posting data does not match its labels")
+    parts, row = [], {}
+    for label, value in zip(labels, items):
+        if not value:
+            continue
+        rich = value.startswith("!*!")
+        text = html_to_text(unquote(value[3:] if rich else value)) if (rich or label in ("description", "qualification")) else ""
+        if text and text not in parts:
+            parts.append(text)
+        row.setdefault(label, unquote(value[3:] if rich else value))
+    if not parts:
+        raise ValueError("the Taleo posting has no description")
+    return "\n\n".join(parts), row.get("organization") or row.get("jobfield") or ""
+
+
+def _ps_span(text, start):
+    """The HTML inside the <span> whose opening tag ends at `start`, up to its balancing </span>."""
+    depth = 1
+    for m in re.finditer(r"<(/?)span\b[^>]*>", text[start:], re.I):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return text[start:start + m.start()]
+    return text[start:]
+
+
+def detail_peoplesoft(cfg, job_id):
+    """A PeopleSoft Candidate Gateway posting page (a GET sets its own guest session): the description
+    comes as titled sections ("Position Information", "Qualifications", ...) of rich text; the page has
+    no JSON-LD. Returns (text, department); the department is left to the listing."""
+    url, site = _ps_check(cfg)
+    r = requests.get(url, params={**_PS_POSTING, "SiteId": site, "JobOpeningId": job_id},
+                     headers={"User-Agent": UA}, timeout=PS_TIMEOUT)
+    r.raise_for_status()
+    sections = []
+    for m in re.finditer(r"<span class='ps_box-value'\s+id=[\"']?HRS_SCH_PSTDSC_DESCRLONG\$(\d+)[\"']?\s*>", r.text):
+        body = html_to_text(_ps_span(r.text, m.end())).replace("\xa0", " ").strip()
+        heads = re.findall(r"id='HRS_SCH_WRK_DESCR100\$%slbl'>(.*?)</span>" % m.group(1),
+                           r.text[max(0, m.start() - 2000):m.start()], re.S)
+        title = html_to_text(heads[-1]).strip() if heads else ""
+        if body:
+            sections.append(f"{title}\n{body}" if title else body)
+    if not sections:
+        raise ValueError("the PeopleSoft posting page has no description")
+    return "\n\n".join(sections), ""
+
+
+def detail_gc_jobs(cfg, job_id):
+    """One GC Jobs posting's page (page1800?poster=<id>): the "About the position", "You need",
+    language and asset sections as text, and the "Department - Branch" line. The page has no JSON-LD
+    and ends with the hiring contact's name and email, so detail_page's generic read is not used."""
+    r = requests.get(urljoin(GC_JOBS, "page1800"), params={"poster": str(job_id)}, timeout=TIMEOUT,
+                     headers={"User-Agent": UA, "Accept-Language": "en"})
+    r.raise_for_status()
+    body = re.search(r'<div id="aboutPosition"[^>]*>(.*?)<div id="ourCommitment"', r.text, re.S)
+    text = html_to_text(body.group(1)) if body else ""
+    if not text:
+        # Some ads are only a notice that the applicant is sent on to the employer's own site
+        # (hc-phac.hiringplatform.ca for Health Canada's inventories); nothing to read here.
+        away = re.search(r"You will leave the .{0,80}?Jobs Web site", r.text, re.S)
+        raise ValueError("the GC Jobs posting is hosted on another site" if away
+                         else "the GC Jobs posting page has no description sections")
+    dept = re.search(r'<h2 class="pst-h2">(.*?)</h2>', r.text, re.S)
+    return text, " ".join(html_to_text(dept.group(1)).split()) if dept else ""
+
+
+def detail_neogov(cfg, job_id):
+    """One NEOGOV posting: its page (/careers/<agency>/jobs/<id>, which redirects to the titled
+    address) carries a schema.org JobPosting with the full description and the exact datePosted."""
+    from intel.page_text import html_text, json_ld_posting
+    agency = _neogov_agency(cfg)
+    r = requests.get(f"{NEOGOV}/careers/{agency}/jobs/{int(job_id)}", headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r.raise_for_status()
+    posting = json_ld_posting(r.text)
+    text = html_text(posting.get("description") or "")
+    if not text:
+        raise ValueError("the NEOGOV posting page has no JobPosting description")
+    posted = _date_epoch(posting.get("datePosted"))
+    return text, "", {"posted": posted} if posted else {}
+
+
 DETAIL_FETCHERS = {
     "workable": detail_workable,
     "ukg": detail_ukg,
@@ -1941,13 +2836,19 @@ DETAIL_FETCHERS = {
     "workday": detail_workday,
     "smartrecruiters": detail_smartrecruiters,
     "eightfold": detail_eightfold,
+    "adp_wfn": detail_adp_wfn,
+    "bamboohr": detail_bamboohr,
+    "taleo": detail_taleo,
+    "peoplesoft": detail_peoplesoft,
+    "gc_jobs": detail_gc_jobs,
+    "neogov": detail_neogov,
 }
 # Fetched only when the user opens a posting, never in the poll's batches.
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
 # Sources whose listings carry no description: each posting's own link is read
 # instead (community lists link to employers' ATS pages, often via a redirect).
 PAGE_DETAIL_ATS = {"bofa", "github_md", "github_listings", "avature", "radancy", "icims", "successfactors", "marqeta",
-                   "atlassian", "kula"}
+                   "atlassian", "kula", "paradox", "successfactors_portal"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
 PAGE_MAX_BYTES = 5_000_000
