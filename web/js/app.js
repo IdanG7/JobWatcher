@@ -1,6 +1,6 @@
 // Router, global state, theme, live status. Every view module exports
 // render(root, ctx) -> optional {update(params), onKey(e), cleanup()}.
-import {appWindow, get, openExternal, post} from './api.js';
+import {appWindow, freshly, get, openExternal, post} from './api.js';
 import {ageLong, buildHash, compact, esc, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
@@ -49,9 +49,7 @@ const ctx = {
   closeJob() { ctx.setParams({job: null}); },
   /** Data changed (save, status move, watch): refresh the view softly and the drawer. */
   changed() {
-    current.view?.refresh?.();
-    if (drawerOpen()) reloadDrawer();
-    refreshNav();
+    return Promise.allSettled([current.view?.refresh?.(), drawerOpen() ? reloadDrawer() : null, refreshNav()]);
   },
   quick(action, job) { return quickAction(action, job, ctx); },
   async loadProfile() {
@@ -175,6 +173,8 @@ let lastCollectionRefresh = 0;
 let collectionRefresh = false;
 let collectionDirty = false;
 const COLLECTION_VIEWS = new Set(['overview', 'opportunities', 'companies', 'analytics', 'sources']);
+// The server sent a page from before background changes: ask again for the current one at a later tick.
+const pageWasStale = () => { collectionDirty = true; };
 async function refreshCollectionView() {
   if (collectionRefresh || !COLLECTION_VIEWS.has(current.name) || !current.view?.refresh || isTyping({target: document.activeElement})) return;
   collectionRefresh = true;
@@ -205,7 +205,7 @@ async function refreshStatus() {
     dot.className = `live-dot ${statusError ? 'warn' : busy ? 'busy' : 'ok'}`;
     label.textContent = statusError ? 'Needs attention' : s.poll_running ? 'Collecting' : busy ? 'Ranking' : 'Live';
     if (s.last_poll && lastPollSeen && s.last_poll !== lastPollSeen) {
-      toast('New poll finished', {action: {label: 'Refresh', fn: () => ctx.changed()}});
+      toast('New poll finished', {action: {label: 'Refresh', fn: () => freshly(() => ctx.changed())}});
     }
     lastPollSeen = s.last_poll || lastPollSeen;
     const finished = previous && ((previous.poll_running && !s.poll_running) || (previous.indexing && !s.indexing) || previous.last_refresh !== s.last_refresh);
@@ -403,6 +403,7 @@ async function boot() {
   document.getElementById('cmdk-open').addEventListener('click', () => openPalette(ctx));
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { applyTheme(); current.view?.redraw?.(); });
   window.addEventListener('hashchange', route);
+  window.addEventListener('foothold-stale', pageWasStale);
   document.addEventListener('keydown', onKey);
   if (appWindow) {
     // Links to other sites (postings, company pages) leave Foothold's window for the browser.
@@ -443,6 +444,7 @@ async function boot() {
     current.view?.cleanup?.();
     current.view = null;
     window.removeEventListener('hashchange', route);
+    window.removeEventListener('foothold-stale', pageWasStale);
     document.removeEventListener('keydown', onKey);
   };
 }
