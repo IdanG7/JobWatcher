@@ -1930,19 +1930,19 @@ def fetch_adp_wfn(cfg):
     return _finish_listing(out, "ADP Workforce Now", limit)
 
 
-def _bamboohr_company(cfg):
-    company = str(cfg["company"])
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*", company):
-        raise ValueError("BambooHR company must be the subdomain its careers page links to")
-    return company
+def _bamboohr_account(cfg):
+    account = str(cfg["account"])
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*", account):
+        raise ValueError("BambooHR account must be the subdomain its careers page links to")
+    return account
 
 
 def fetch_bamboohr(cfg):
     """BambooHR career pages (<company>.bamboohr.com/careers): the /careers/list JSON the page
     itself loads. One response carries every opening and meta.totalCount; there is no paging.
     The list has no description and no date (detail_bamboohr supplies both).
-    cfg: company (the subdomain in the employer's own link to its BambooHR page), max."""
-    company = _bamboohr_company(cfg)
+    cfg: account (the subdomain in the employer's own link to its BambooHR page), max."""
+    company = _bamboohr_account(cfg)
     limit = _source_limit(cfg)
     r = requests.get(f"https://{company}.bamboohr.com/careers/list",
                      headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
@@ -2215,7 +2215,7 @@ def fetch_gc_jobs(cfg):
     the page then loads the "Jobs open to the public" list with isSecondPartOfPage=1, 20 to a
     page, and says the total in the tab's name. cfg: departments (the search form's Organization
     ids, e.g. 117 Health Canada, 1094 Public Health Agency of Canada; none means every
-    organization), title (optional keyword), max."""
+    organization), query (optional keyword), max."""
     departments = cfg.get("departments") or []
     if not isinstance(departments, list) or not all(isinstance(d, int) and not isinstance(d, bool) and d > 0
                                                     for d in departments):
@@ -2227,7 +2227,7 @@ def fetch_gc_jobs(cfg):
     http.get(search, params={"fromMenu": "true", "toggleLanguage": "en"}, timeout=TIMEOUT).raise_for_status()
     time.sleep(0.5)
     http.get(search, params={"ajaxSetInternalAccess": 1}, timeout=TIMEOUT).raise_for_status()
-    criteria = [("tab", 1), ("title", str(cfg.get("title") or "")), *[("department", d) for d in departments],
+    criteria = [("tab", 1), ("title", str(cfg.get("query") or "")), *[("department", d) for d in departments],
                 ("officialLanguage", ""), ("search", "Search jobs")]
     out, seen, page_no = SourceListing(), set(), 1
     limit = _source_limit(cfg)
@@ -2270,9 +2270,9 @@ NEOGOV = "https://www.governmentjobs.com"
 
 
 def _neogov_agency(cfg):
-    agency = cfg.get("agency")
+    agency = cfg.get("account")
     if not isinstance(agency, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", agency):
-        raise ValueError("NEOGOV agency must be the name in the careers page address")
+        raise ValueError("NEOGOV account must be the agency name in the careers page address")
     return agency
 
 
@@ -2291,14 +2291,14 @@ def fetch_neogov(cfg):
     """A NEOGOV agency's careers list (governmentjobs.com/careers/<agency>): the HTML fragment its
     own page loads from /careers/home/index, 10 postings to a page, newest first, with the total
     ("N Job Postings found"). Cards carry no description (a 700-character teaser only).
-    cfg: agency (the name in the page address), department (list of the agency's Department
-    names), category (list of Category names; not every agency has them), keyword, place (shown when
+    cfg: account (the agency's name in the page address), departments (list of the agency's Department
+    names), categories (list of Category names; not every agency has them), query, place (shown when
     a card names none, as at LA County), max."""
     agency = _neogov_agency(cfg)
-    filters = [*(("department", d) for d in _neogov_list(cfg, "department")),
-               *(("category", c) for c in _neogov_list(cfg, "category"))]
-    if cfg.get("keyword"):
-        filters.append(("keyword", str(cfg["keyword"])))
+    filters = [*(("department", d) for d in _neogov_list(cfg, "departments")),
+               *(("category", c) for c in _neogov_list(cfg, "categories"))]
+    if cfg.get("query"):
+        filters.append(("keyword", str(cfg["query"])))
     headers = {"User-Agent": UA, "X-Requested-With": "XMLHttpRequest", "Referer": f"{NEOGOV}/careers/{agency}"}
     out, seen, page_no = SourceListing(), set(), 1
     limit = _source_limit(cfg)
@@ -2362,7 +2362,7 @@ def fetch_paradox(cfg):
     careers.rexall.ca, employment.ucsd.edu. The site's own list page is server-rendered with the
     matching total, 20 postings a page at /<path>/page/<n>. Listings carry no description (read each
     posting's own page: PAGE_DETAIL_ATS). cfg: host ('careers.loblaw.ca'); optional path (the list
-    page, default 'jobs'; a landing page such as 'uc-san-diego-health' lists its own subset), filter
+    page, default 'jobs'; a landing page such as 'uc-san-diego-health' lists its own subset), facets
     ({facet field: [values]}, e.g. {"category": ["Pharmacy"]}; values of one field OR together),
     query (keyword), max."""
     host, path = cfg["host"], cfg.get("path", "jobs").strip("/")
@@ -2371,7 +2371,7 @@ def fetch_paradox(cfg):
     params = {"page_size": PARADOX_PAGE_SIZE}
     if cfg.get("query"):
         params["keyword"] = cfg["query"]
-    wanted = {field: list(values) for field, values in (cfg.get("filter") or {}).items()}
+    wanted = {field: list(values) for field, values in (cfg.get("facets") or {}).items()}
     for field, values in wanted.items():
         for i, value in enumerate(values):
             params[f"filter[{field}][{i}]"] = value
@@ -2724,7 +2724,7 @@ def detail_adp_wfn(cfg, job_id):
 
 def detail_bamboohr(cfg, job_id):
     """One BambooHR posting: description (HTML), department, and the exact datePosted the list lacks."""
-    company = _bamboohr_company(cfg)
+    company = _bamboohr_account(cfg)
     if not re.fullmatch(r"\d+", str(job_id)):
         raise ValueError("BambooHR posting id must be numeric")
     r = requests.get(f"https://{company}.bamboohr.com/careers/{job_id}/detail",

@@ -163,7 +163,7 @@ class BambooHRTests(unittest.TestCase):
                 list_row("301", "Field Service Engineer", "Clinical/QARA", None, None, "1",
                          {"country": "United States", "state": "New Jersey", "province": None, "city": "Newark"})]
         get.return_value = response({"meta": {"totalCount": 2}, "result": rows})
-        jobs = watcher.fetch_bamboohr({"company": "profoundmedical"})
+        jobs = watcher.fetch_bamboohr({"account": "profoundmedical"})
         self.assertEqual("https://profoundmedical.bamboohr.com/careers/list", get.call_args[0][0])
         self.assertEqual(["336", "301"], [j["id"] for j in jobs])
         self.assertEqual(("Mississauga, Ontario", "Clinical/QARA", "https://profoundmedical.bamboohr.com/careers/336"),
@@ -173,33 +173,33 @@ class BambooHRTests(unittest.TestCase):
         self.assertEqual(2, jobs.total)
         self.assertTrue(jobs.complete)
         get.return_value = response({"meta": {"totalCount": 0}, "result": []})          # Variational AI today
-        jobs = watcher.fetch_bamboohr({"company": "variationalai"})
+        jobs = watcher.fetch_bamboohr({"account": "variationalai"})
         self.assertEqual((0, 0, True), (len(jobs), jobs.total, jobs.complete))
         get.return_value = response({"meta": {"totalCount": 3}, "result": [   # fewer rows than the reported total
             list_row("464", "Buyer", "Procurement", "MaRS Centre, Toronto  ", "Ontario", "2")]})
-        jobs = watcher.fetch_bamboohr({"company": "oicr"})
+        jobs = watcher.fetch_bamboohr({"account": "oicr"})
         self.assertEqual("MaRS Centre, Toronto, Ontario", jobs[0]["location"])
         self.assertFalse(jobs.complete)
         self.assertIn("1 of reported total 3", jobs.reason)
         with self.assertRaises(ValueError):
-            watcher.fetch_bamboohr({"company": "oicr.evil.example/x"})
+            watcher.fetch_bamboohr({"account": "oicr.evil.example/x"})
         get.return_value = response({"unexpected": True})
         with self.assertRaises(RuntimeError):
-            watcher.fetch_bamboohr({"company": "oicr"})
+            watcher.fetch_bamboohr({"account": "oicr"})
 
     @patch("watcher.requests.get")
     def test_posting_detail(self, get):
         get.return_value = response({"meta": {}, "result": {"jobOpening": {
             "jobOpeningName": "Buyer", "departmentLabel": "Procurement", "datePosted": "2026-10-02",
             "description": "<p>About OICR</p><p>Position: Buyer &amp; Procurement</p>"}}})
-        text, dept, meta = watcher.detail_bamboohr({"company": "oicr"}, "464")
+        text, dept, meta = watcher.detail_bamboohr({"account": "oicr"}, "464")
         self.assertEqual("https://oicr.bamboohr.com/careers/464/detail", get.call_args[0][0])
         self.assertEqual("Procurement", dept)
         self.assertEqual(["About OICR", "Position: Buyer & Procurement"],
                          [line.strip() for line in text.split("\n") if line.strip()])
         self.assertEqual(watcher._date_epoch("2026-10-02"), meta["posted"])
         with self.assertRaises(ValueError):
-            watcher.detail_bamboohr({"company": "oicr"}, "../464")
+            watcher.detail_bamboohr({"account": "oicr"}, "../464")
 
 
 TALEO_LABELS = ["hotjob", "no", "title", "jobschedule", "contestnumber", "basiclocations", "organization", "postingdate"]
@@ -457,7 +457,7 @@ class GcJobsTests(unittest.TestCase):
     def test_no_jobs_found_is_a_complete_empty_listing(self, session, sleep):
         session.return_value.get.side_effect = [response(text="x"), response({}),
                                                 gc_results(0, tail="<p><strong>No jobs found</strong>.</p>")]
-        jobs = watcher.fetch_gc_jobs({"departments": [117], "title": "zzz"})
+        jobs = watcher.fetch_gc_jobs({"departments": [117], "query": "zzz"})
         self.assertEqual((0, 0, True), (len(jobs), jobs.total, jobs.complete))
 
     @patch("watcher.requests.get")
@@ -512,7 +512,7 @@ class NeogovTests(unittest.TestCase):
             neogov_fragment(3, neogov_card(5529000, "nurse", "Nurse Consultant", "Department of Public Health &amp; Environment",
                              NEOGOV_PAY.replace("$66,024.00 Annually", "See Position Description"), "Posted 3 days ago")),
         ]
-        jobs = watcher.fetch_neogov({"agency": "colorado", "department": ["Department of Public Health & Environment"],
+        jobs = watcher.fetch_neogov({"account": "colorado", "departments": ["Department of Public Health & Environment"],
                                      "place": "Colorado"})
         self.assertEqual(["5530775", "5530001", "5529000"], [j["id"] for j in jobs])
         self.assertEqual(("Field Health Compliance Inspector", "Denver Metro, CO", "$66,024.00 Annually",
@@ -534,13 +534,13 @@ class NeogovTests(unittest.TestCase):
     def test_missing_count_and_short_paging(self, get):
         get.return_value = response(text="<h1>Cannot load jobs.</h1>")
         with self.assertRaises(RuntimeError):
-            watcher.fetch_neogov({"agency": "lacounty"})
+            watcher.fetch_neogov({"account": "lacounty"})
         with self.assertRaises(ValueError):
-            watcher.fetch_neogov({"agency": "../x"})
+            watcher.fetch_neogov({"account": "../x"})
         # the list ends before the reported total: kept, but not complete
         get.side_effect = [neogov_fragment(12, neogov_card(1, "a", "A", "PUBLIC HEALTH", NEOGOV_PAY, "Posted today")),
                            response(text="<ul class='job-listing-container'></ul>")]
-        jobs = watcher.fetch_neogov({"agency": "lacounty", "department": ["PUBLIC HEALTH"]})
+        jobs = watcher.fetch_neogov({"account": "lacounty", "departments": ["PUBLIC HEALTH"]})
         self.assertEqual((1, 12, False), (len(jobs), jobs.total, jobs.complete))
         self.assertIn("1 of reported total 12", jobs.reason)
 
@@ -551,7 +551,7 @@ class NeogovTests(unittest.TestCase):
             "description": "&lt;p&gt;Conduct &lt;b&gt;disease surveillance&lt;/b&gt; analyses for the County.&lt;/p&gt;",
             "datePosted": "2026-09-15", "hiringOrganization": {"@type": "Organization", "name": "County of Los Angeles"}}
             </script>''')
-        text, dept, meta = watcher.detail_neogov({"agency": "lacounty"}, "4852599")
+        text, dept, meta = watcher.detail_neogov({"account": "lacounty"}, "4852599")
         self.assertEqual("Conduct disease surveillance analyses for the County.", text)
         self.assertEqual(watcher._date_epoch("2026-09-15"), meta["posted"])
         self.assertTrue(get.call_args[0][0].endswith("/careers/lacounty/jobs/4852599"))
@@ -579,7 +579,7 @@ class ParadoxTests(unittest.TestCase):
                  3, params),
             paradox_site([paradox_posting("R2000708267", "Director, Pharmacy Operations (12 mos contract)", "Vancouver, BC",
                           "Shoppers Drug Mart", "director-pharmacy-operations-12-mos-contract")], 0, params)]
-        jobs = watcher.fetch_paradox({"host": "careers.loblaw.ca", "filter": {"category": ["Pharmacy"]}})
+        jobs = watcher.fetch_paradox({"host": "careers.loblaw.ca", "facets": {"category": ["Pharmacy"]}})
         self.assertEqual(["R2000715149", "R2000711379", "R2000708267"], [j["id"] for j in jobs])
         self.assertEqual(("Kingston, ON", "Loblaws", "https://careers.loblaw.ca/pharmacist/job/R2000715149"),
                          tuple(jobs[0][k] for k in ("location", "department", "url")))
@@ -609,7 +609,7 @@ class ParadoxTests(unittest.TestCase):
     def test_refuses_an_ignored_filter_and_marks_a_short_list_partial(self, get, sleep):
         get.return_value = paradox_site([paradox_posting("R1", "Pharmacist")], 1)          # the site echoed no filter
         with self.assertRaises(RuntimeError):
-            watcher.fetch_paradox({"host": "careers.loblaw.ca", "filter": {"category": ["Pharmacy"]}})
+            watcher.fetch_paradox({"host": "careers.loblaw.ca", "facets": {"category": ["Pharmacy"]}})
         get.side_effect = [paradox_site([paradox_posting("R1", "Pharmacist"), paradox_posting("R2", "Pharmacist")], 5), paradox_site([], 0)]
         jobs = watcher.fetch_paradox({"host": "careers.loblaw.ca"})
         self.assertFalse(jobs.complete)

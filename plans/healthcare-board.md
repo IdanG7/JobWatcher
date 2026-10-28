@@ -877,6 +877,43 @@ track's boards, skill groups and types resolve.
      - Simulated on stored postings: no moves off a board, no key changes. Two ICF postings move from no
        board to Healthcare. The other 125 gain only the label, at the same fit; 5 of them are on Finance.
        ICF International's 40 postings keep their own key and stay untyped.
+   - **New adapters and the sources they unlock** (2026-10-28, on your go-ahead, which replaces D11).
+     - Nine adapters (`d5aac5c`): Dayforce, ADP Workforce Now, BambooHR, Taleo Enterprise, PeopleSoft
+       Candidate Gateway, GC Jobs, NEOGOV, Paradox, and `successfactors_portal` (SuccessFactors sites in the
+       tile layout or with day-month dates). Each reads the public endpoint the site's own page calls.
+       26 tests are in `tests/sources/test_health_adapters.py`. No existing adapter changed.
+     - 37 sources and 37 employers. Each was fetched once with the app's adapter; 36 read whole and Dexcom
+       read 274 of 275.
+       - Hospitals: Sinai Health, Women's College, Hamilton Health Sciences, SickKids, The Ottawa Hospital,
+         LHSC, Shared Health Manitoba, UC San Diego Health.
+       - Research: Johns Hopkins University, OICR, Vector Institute, Alberta Innovates.
+       - Medical devices: Boston Scientific, Dexcom, Kardium, Synaptive, Profound Medical, Bausch + Lomb,
+         Teleflex, Olympus.
+       - Pharma, labs and biotech: Novo Nordisk, Teva, LifeLabs, Dewpoint, Variational AI.
+       - Pharmacy: Loblaw, Shoppers Drug Mart and Rexall (Pharmacy and Healthcare categories), and Kenvue.
+       - Public health: Health Canada, PHAC, the Canadian Cancer Society, the CDC Foundation, the Health
+         Standards Organization, Diabetes Canada, and the Colorado and Los Angeles County public health
+         departments.
+     - **Config fixes, no adapter:** Boston Scientific, Dexcom and Johns Hopkins University answer on
+       Eightfold's newer search (`api: pcsx`), and Teva on the older one. Bausch + Lomb and Teleflex already
+       read with `successfactors`, and Kenvue with Workday. The Phase 4 notes had them wrong.
+     - **Build:** `BOARD_FIELDS` gains the new adapters' keys. No existing source used any of them. The new
+       keys reuse existing names where one fits: `account`, `query`, `facets`, `categories`.
+     - Simulated on stored postings: no moves and no key changes. 69 postings at Boston Scientific,
+       Dexcom, Profound Medical, Loblaw and Kenvue gain an employer-type label on other boards, at the same
+       fit. None of them is on Finance.
+     - **Still not added:**
+       - Njoyn (North York General, Michael Garron, CIHI) and Ontario's public service: their sites answer
+         with a captcha.
+       - Alberta Health Services: its site refuses its own paging call.
+       - ICON and AbbVie: their Attrax sites' robots.txt disallows the search page. An adapter is drafted
+         and works.
+       - The CDC: USAJobs needs a registered API key.
+       - Johns Hopkins Medicine: its jobs site reads 1,092 of 1,097 on every sweep.
+       - Kaiser Permanente: a Radancy site of 3,208 postings, not yet narrowed.
+       - City of Toronto: a whole-city board. The new SuccessFactors reader can read it.
+       - Vital Strategies: Taleo Business Edition.
+       - Sobeys: Dayforce behind a WordPress plugin.
    - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
      - Method: each source was fetched once by the app's adapter, 10 at a time. The 124 sources up to
        `8af28fc` were timed in one run, the 48 after it in a second. Each profile's cycle was then simulated

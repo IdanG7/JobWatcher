@@ -1,7 +1,7 @@
 {
   "title": "Pharma",
-  "verified": "2026-10-27",
-  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. Full listings: each was under 2,000 postings that day, and their finance, sales and technology roles reach those boards only for profiles that also have them. Eli Lilly, Roche, Genentech and GSK are Phenom sites with a description teaser; Amgen's Radancy listing read 1,710 of 1,745. Sanofi's board includes its Toronto vaccines site. Not added: AstraZeneca (its Radancy search answers 400), Teva (its Eightfold site answers 404), Boehringer Ingelheim and Bausch Health (their SuccessFactors pages show no results table), AbbVie (Attrax), Novo Nordisk (old SuccessFactors portal), Vertex (no board found; its site answers 403), Sanis Health (no careers site).",
+  "verified": "2026-10-28",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27, and Teva's and Novo Nordisk's on 2026-10-28. Full listings: each was under 2,000 postings that day, and their finance, sales and technology roles reach those boards only for profiles that also have them. Eli Lilly, Roche, Genentech and GSK are Phenom sites with a description teaser; Amgen's Radancy listing read 1,710 of 1,745. Sanofi's board includes its Toronto vaccines site. Teva reads Eightfold's older search; Novo Nordisk's SuccessFactors site is read with its day-month dates. Not added: AstraZeneca (its Radancy search answers 400), Boehringer Ingelheim and Bausch Health (their SuccessFactors pages show no results table), AbbVie (its Attrax site's robots.txt disallows the search page), Vertex (no board found; its site answers 403), Sanis Health (no careers site).",
   "boards": {
     "pfizer": {"ats": "workday", "host": "pfizer.wd1.myworkdayjobs.com", "tenant": "pfizer", "site": "PfizerCareers", "min_interval": 3600, "company_key": "pfizer", "group": "Pharma", "priority": 2, "geography": "global"},
     "merck": {"ats": "workday", "host": "msd.wd5.myworkdayjobs.com", "tenant": "msd", "site": "SearchJobs", "min_interval": 3600, "company_key": "merck", "group": "Pharma", "priority": 2, "geography": "global"},
@@ -22,6 +22,8 @@
     "sandoz": {"ats": "workday", "host": "sandoz.wd103.myworkdayjobs.com", "tenant": "sandoz", "site": "sandoz_careers", "min_interval": 3600, "company_key": "sandoz", "group": "Pharma", "priority": 2, "geography": "global"},
     "apotex": {"ats": "successfactors", "url": "https://careers.apotex.com/search/", "min_interval": 3600, "company_key": "apotex", "group": "Pharma", "priority": 2, "geography": "canada"},
     "biontech": {"ats": "successfactors", "url": "https://jobs.biontech.com/search/", "min_interval": 3600, "company_key": "biontech", "group": "Pharma", "priority": 2, "geography": "global"},
-    "bayer": {"ats": "eightfold", "host": "talent.bayer.com", "domain": "bayer.com", "min_interval": 3600, "company_key": "bayer", "group": "Pharma", "priority": 2, "geography": "global"}
+    "bayer": {"ats": "eightfold", "host": "talent.bayer.com", "domain": "bayer.com", "min_interval": 3600, "company_key": "bayer", "group": "Pharma", "priority": 2, "geography": "global"},
+    "novo_nordisk": {"ats": "successfactors_portal", "url": "https://careers.novonordisk.com/search/", "facility": "department", "min_interval": 1800, "company_key": "novo_nordisk", "group": "Pharma", "priority": 2, "geography": "global"},
+    "teva": {"ats": "eightfold", "host": "www.careers.teva", "domain": "tevapharm.com", "min_interval": 1800, "company_key": "teva", "group": "Pharma", "priority": 2, "geography": "global"}
   }
 }

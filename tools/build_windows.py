@@ -37,7 +37,9 @@ BOARD_FIELDS = {"ats", "token", "tenant", "site", "host", "domain", "url", "repo
                 "query", "queries", "search", "location", "facets", "cols", "group",
                 "min_interval", "disabled", "company_key", "company_type", "geography",
                 "priority", "complete_listing", "indirect_links", "path", "branch", "max", "size", "pages", "recency", "seed_pages", "seed_recency",
-                "feed", "servlet", "lang", "label", "api", "account", "board", "categories", "companies", "region"}
+                "feed", "servlet", "lang", "label", "api", "account", "board", "categories", "companies", "region",
+                "client", "culture", "cid", "ccid", "section", "page_size", "departments", "facility", "passes",
+                "place", "dmy"}
 
 QUICK_START = """FOOTHOLD - Windows 10/11, 64-bit
 

@@ -1,7 +1,7 @@
 {
   "title": "Biotech",
-  "verified": "2026-10-27",
-  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27. Vancouver and Toronto first, then Boston/Cambridge and the Bay Area. BenchSci's Lever board had no openings that day. Already polled for tech (tech/ and shared/ health_tech): Insitro, Recursion, Natera, Tempus AI, Isomorphic Labs, PathAI, Flatiron Health. Not added: STEMCELL Technologies (its Radancy search answers 400), Arcus Biosciences (its Jobvite feed doesn't parse), Zymeworks (Rippling), Variational AI (BambooHR), Dewpoint (ADP Workforce Now), Guardant Health (no board found on its careers page); Notch, Repare, Fusion and Chinook were acquired.",
+  "verified": "2026-10-28",
+  "note": "Healthcare board only. Each feed was fetched successfully on 2026-10-27, and Variational AI's and Dewpoint's on 2026-10-28; neither had openings that day. Vancouver and Toronto first, then Boston/Cambridge and the Bay Area. BenchSci's Lever board had no openings that day. Already polled for tech (tech/ and shared/ health_tech): Insitro, Recursion, Natera, Tempus AI, Isomorphic Labs, PathAI, Flatiron Health. Not added: STEMCELL Technologies (its Radancy search answers 400), Arcus Biosciences (its Jobvite feed doesn't parse), Zymeworks (Rippling), Guardant Health (no board found on its careers page); Notch, Repare, Fusion and Chinook were acquired.",
   "boards": {
     "abcellera": {"ats": "greenhouse", "token": "abcellera", "min_interval": 1800, "company_key": "abcellera", "group": "Biotech", "priority": 2, "geography": "canada"},
     "aspect_biosystems": {"ats": "greenhouse", "token": "aspectbiosystems", "min_interval": 1800, "company_key": "aspect_biosystems", "group": "Biotech", "priority": 2, "geography": "canada"},
@@ -31,6 +31,8 @@
     "nurix_therapeutics": {"ats": "greenhouse", "token": "nurix", "min_interval": 1800, "company_key": "nurix_therapeutics", "group": "Biotech", "priority": 2, "geography": "us"},
     "kymera_therapeutics": {"ats": "greenhouse", "token": "kymeratherapeutics", "min_interval": 1800, "company_key": "kymera_therapeutics", "group": "Biotech", "priority": 2, "geography": "us"},
     "inceptive": {"ats": "greenhouse", "token": "inceptive", "min_interval": 1800, "company_key": "inceptive", "group": "Biotech", "priority": 2, "geography": "us"},
-    "xaira_therapeutics": {"ats": "greenhouse", "token": "xairatherapeutics", "min_interval": 1800, "company_key": "xaira_therapeutics", "group": "Biotech", "priority": 2, "geography": "us"}
+    "xaira_therapeutics": {"ats": "greenhouse", "token": "xairatherapeutics", "min_interval": 1800, "company_key": "xaira_therapeutics", "group": "Biotech", "priority": 2, "geography": "us"},
+    "dewpoint_therapeutics": {"ats": "adp_wfn", "cid": "a792b9db-fd47-4cf3-a0ab-207c735e407c", "ccid": "19000101_000001", "lang": "en_US", "min_interval": 1800, "company_key": "dewpoint_therapeutics", "group": "Biotech", "priority": 2, "geography": "us"},
+    "variational_ai": {"ats": "bamboohr", "account": "variationalai", "min_interval": 1800, "company_key": "variational_ai", "group": "Biotech", "priority": 2, "geography": "canada"}
   }
 }

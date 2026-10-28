@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "069c7080d2bc475f",
+  "hash": "cb2c364bc47e30a1",
   "names": [
    "10x_genomics",
    "1password",
@@ -131,6 +131,7 @@
    "akamai",
    "akuna",
    "alayacare",
+   "alberta_innovates",
    "alcami",
    "aleph_alpha",
    "alignment_health",
@@ -202,6 +203,7 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "bausch_lomb",
    "baxter_international",
    "bayer",
    "beam_therapeutics",
@@ -238,6 +240,7 @@
    "booz_allen_hamilton",
    "borrowell",
    "boston_dynamics",
+   "boston_scientific",
    "box",
    "braintrust",
    "braze",
@@ -261,6 +264,7 @@
    "camh",
    "canada_intern26",
    "canadian_blood_services",
+   "canadian_cancer_society",
    "canadian_tire",
    "canva",
    "capital_one",
@@ -271,6 +275,7 @@
    "cartesia",
    "catalent",
    "cato_networks",
+   "cdc_foundation",
    "cdpq",
    "cdpq_students",
    "cdw",
@@ -318,6 +323,7 @@
    "collective",
    "collective_health",
    "collibra",
+   "colorado_public_health",
    "comcast",
    "commonwealth_fusion",
    "commure",
@@ -369,6 +375,9 @@
    "deutsche_bank",
    "deutsche_bank_tech",
    "devoted_health",
+   "dewpoint_therapeutics",
+   "dexcom",
+   "diabetes_canada",
    "dialpad",
    "digital_extremes",
    "digitalocean",
@@ -485,10 +494,13 @@
    "hackensack_meridian_health",
    "hackerone",
    "halton_healthcare",
+   "hamilton_health_sciences",
    "harness",
    "harvard_university",
    "harvey",
    "headway",
+   "health_canada",
+   "health_standards_organization",
    "hebbia",
    "helion_energy",
    "hex",
@@ -539,6 +551,7 @@
    "jefferies_campus",
    "jfrog",
    "jobber",
+   "johns_hopkins_university",
    "johnson_johnson",
    "jpmorgan",
    "jpmorgan_early",
@@ -546,6 +559,8 @@
    "jump_trading",
    "kabam",
    "kairos_power",
+   "kardium",
+   "kenvue",
    "keysight_technologies",
    "kinaxis",
    "kkr",
@@ -561,6 +576,7 @@
    "kymera_therapeutics",
    "kyndryl",
    "l3harris_technologies",
+   "la_county_public_health",
    "labcorp",
    "labelbox",
    "lam_research",
@@ -575,6 +591,7 @@
    "lenovo_canada",
    "lenovo_us",
    "letta",
+   "lifelabs",
    "lightmatter",
    "lightning_ai",
    "lightspeed_commerce",
@@ -595,10 +612,12 @@
    "liquid_ai",
    "lithic",
    "llamaindex",
+   "loblaw_pharmacy",
    "lockheed_martin",
    "lockheed_martin_finance",
    "locus_robotics",
    "logitech",
+   "london_health_sciences_centre",
    "lonza",
    "loopio",
    "lowe_s",
@@ -694,6 +713,7 @@
    "notion",
    "nova_scotia_health",
    "novartis",
+   "novo_nordisk",
    "nozomi_networks",
    "nurix_therapeutics",
    "nuro",
@@ -703,9 +723,11 @@
    "nwfintech_quant27",
    "nxp",
    "offseason_fall26",
+   "oicr",
    "oklo",
    "okta",
    "old_mission",
+   "olympus_americas",
    "omada_health",
    "ontario_health",
    "onto_innovation",
@@ -760,12 +782,14 @@
    "premier_research",
    "priceline",
    "procore_technologies",
+   "profound_medical",
    "proofpoint",
    "providence",
    "providence_health_care",
    "psiquantum",
    "ptc",
    "public_com",
+   "public_health_agency_of_canada",
    "public_health_ontario",
    "pure_storage",
    "qiagen",
@@ -800,6 +824,7 @@
    "resmed",
    "retool",
    "revvity",
+   "rexall",
    "rigetti_computing",
    "ringcentral",
    "riot_games",
@@ -857,7 +882,10 @@
    "sentry",
    "serve_robotics",
    "servicenow",
+   "shared_health_manitoba",
    "shield_ai",
+   "shoppers_drug_mart",
+   "sickkids",
    "siemens_canada",
    "siemens_finance",
    "siemens_healthineers",
@@ -872,6 +900,7 @@
    "simplify_intern26",
    "simplify_intern27",
    "simplify_newgrad",
+   "sinai_health",
    "singlestore",
    "skydio",
    "smartsheet",
@@ -927,6 +956,7 @@
    "swarmia",
    "sweetgreen",
    "sword_health",
+   "synaptive_medical",
    "synopsys",
    "synthesia",
    "sysmex_america",
@@ -940,6 +970,7 @@
    "td",
    "td_students",
    "td_tech",
+   "teleflex",
    "telus",
    "temporal",
    "tempus_ai",
@@ -947,10 +978,12 @@
    "tenstorrent",
    "terran_orbital",
    "terrapower",
+   "teva",
    "texas_instruments",
    "the_aerospace",
    "the_home_depot",
    "the_new_york_times",
+   "the_ottawa_hospital",
    "thermo_fisher_scientific",
    "thinkific",
    "thinking_machines",
@@ -977,6 +1010,7 @@
    "typeface",
    "uber",
    "ubisoft",
+   "uc_san_diego_health",
    "ucsf",
    "udemy",
    "uipath",
@@ -997,8 +1031,10 @@
    "vansh_newgrad27",
    "vanta",
    "vapi_ai",
+   "variational_ai",
    "vast_space",
    "vatic_labs",
+   "vector_institute",
    "veeva_systems",
    "vercel",
    "verizon",
@@ -1035,6 +1071,7 @@
    "william_blair",
    "william_osler_health_system",
    "wiz",
+   "womens_college_hospital",
    "workato",
    "workday_hq",
    "workiva",
@@ -1103,6 +1140,7 @@
   "akamai": 10,
   "akuna": 1,
   "alayacare": 10,
+  "alberta_innovates": 11,
   "alcami": 11,
   "aleph_alpha": 10,
   "alignment_health": 11,
@@ -1174,6 +1212,7 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "bausch_lomb": 11,
   "baxter_international": 11,
   "bayer": 11,
   "beam_therapeutics": 11,
@@ -1210,6 +1249,7 @@
   "booz_allen_hamilton": 10,
   "borrowell": 10,
   "boston_dynamics": 10,
+  "boston_scientific": 11,
   "box": 10,
   "braintrust": 1,
   "braze": 10,
@@ -1233,6 +1273,7 @@
   "camh": 11,
   "canada_intern26": 1,
   "canadian_blood_services": 11,
+  "canadian_cancer_society": 11,
   "canadian_tire": 10,
   "canva": 10,
   "capital_one": 1,
@@ -1243,6 +1284,7 @@
   "cartesia": 1,
   "catalent": 11,
   "cato_networks": 10,
+  "cdc_foundation": 11,
   "cdpq": 6,
   "cdpq_students": 6,
   "cdw": 10,
@@ -1290,6 +1332,7 @@
   "collective": 10,
   "collective_health": 10,
   "collibra": 10,
+  "colorado_public_health": 11,
   "comcast": 1,
   "commonwealth_fusion": 10,
   "commure": 1,
@@ -1341,6 +1384,9 @@
   "deutsche_bank": 6,
   "deutsche_bank_tech": 10,
   "devoted_health": 10,
+  "dewpoint_therapeutics": 11,
+  "dexcom": 11,
+  "diabetes_canada": 11,
   "dialpad": 10,
   "digital_extremes": 10,
   "digitalocean": 10,
@@ -1457,10 +1503,13 @@
   "hackensack_meridian_health": 11,
   "hackerone": 10,
   "halton_healthcare": 11,
+  "hamilton_health_sciences": 11,
   "harness": 10,
   "harvard_university": 11,
   "harvey": 1,
   "headway": 10,
+  "health_canada": 11,
+  "health_standards_organization": 11,
   "hebbia": 10,
   "helion_energy": 10,
   "hex": 10,
@@ -1511,6 +1560,7 @@
   "jefferies_campus": 6,
   "jfrog": 10,
   "jobber": 10,
+  "johns_hopkins_university": 11,
   "johnson_johnson": 11,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
@@ -1518,6 +1568,8 @@
   "jump_trading": 1,
   "kabam": 10,
   "kairos_power": 10,
+  "kardium": 11,
+  "kenvue": 11,
   "keysight_technologies": 10,
   "kinaxis": 10,
   "kkr": 6,
@@ -1533,6 +1585,7 @@
   "kymera_therapeutics": 11,
   "kyndryl": 10,
   "l3harris_technologies": 10,
+  "la_county_public_health": 11,
   "labcorp": 11,
   "labelbox": 10,
   "lam_research": 10,
@@ -1547,6 +1600,7 @@
   "lenovo_canada": 10,
   "lenovo_us": 10,
   "letta": 10,
+  "lifelabs": 11,
   "lightmatter": 10,
   "lightning_ai": 10,
   "lightspeed_commerce": 10,
@@ -1569,10 +1623,12 @@
   "liquid_ai": 10,
   "lithic": 1,
   "llamaindex": 10,
+  "loblaw_pharmacy": 11,
   "lockheed_martin": 10,
   "lockheed_martin_finance": 10,
   "locus_robotics": 10,
   "logitech": 10,
+  "london_health_sciences_centre": 11,
   "lonza": 11,
   "loopio": 10,
   "lowe_s": 10,
@@ -1668,6 +1724,7 @@
   "notion": 1,
   "nova_scotia_health": 11,
   "novartis": 11,
+  "novo_nordisk": 11,
   "nozomi_networks": 10,
   "nurix_therapeutics": 11,
   "nuro": 1,
@@ -1677,9 +1734,11 @@
   "nwfintech_quant27": 1,
   "nxp": 10,
   "offseason_fall26": 1,
+  "oicr": 11,
   "oklo": 10,
   "okta": 10,
   "old_mission": 1,
+  "olympus_americas": 11,
   "omada_health": 10,
   "ontario_health": 11,
   "onto_innovation": 10,
@@ -1734,12 +1793,14 @@
   "premier_research": 11,
   "priceline": 10,
   "procore_technologies": 10,
+  "profound_medical": 11,
   "proofpoint": 10,
   "providence": 11,
   "providence_health_care": 11,
   "psiquantum": 10,
   "ptc": 10,
   "public_com": 10,
+  "public_health_agency_of_canada": 11,
   "public_health_ontario": 11,
   "pure_storage": 10,
   "qiagen": 11,
@@ -1774,6 +1835,7 @@
   "resmed": 11,
   "retool": 1,
   "revvity": 11,
+  "rexall": 11,
   "rigetti_computing": 10,
   "ringcentral": 10,
   "riot_games": 10,
@@ -1831,7 +1893,10 @@
   "sentry": 10,
   "serve_robotics": 10,
   "servicenow": 1,
+  "shared_health_manitoba": 11,
   "shield_ai": 1,
+  "shoppers_drug_mart": 11,
+  "sickkids": 11,
   "siemens_canada": 10,
   "siemens_finance": 10,
   "siemens_healthineers": 11,
@@ -1846,6 +1911,7 @@
   "simplify_intern26": 1,
   "simplify_intern27": 1,
   "simplify_newgrad": 1,
+  "sinai_health": 11,
   "singlestore": 10,
   "skydio": 10,
   "smartsheet": 1,
@@ -1901,6 +1967,7 @@
   "swarmia": 10,
   "sweetgreen": 1,
   "sword_health": 10,
+  "synaptive_medical": 11,
   "synopsys": 10,
   "synthesia": 10,
   "sysmex_america": 11,
@@ -1914,6 +1981,7 @@
   "td": 1,
   "td_students": 2,
   "td_tech": 10,
+  "teleflex": 11,
   "telus": 10,
   "temporal": 10,
   "tempus_ai": 10,
@@ -1921,10 +1989,12 @@
   "tenstorrent": 10,
   "terran_orbital": 10,
   "terrapower": 10,
+  "teva": 11,
   "texas_instruments": 10,
   "the_aerospace": 10,
   "the_home_depot": 10,
   "the_new_york_times": 10,
+  "the_ottawa_hospital": 11,
   "thermo_fisher_scientific": 11,
   "thinkific": 10,
   "thinking_machines": 10,
@@ -1951,6 +2021,7 @@
   "typeface": 1,
   "uber": 10,
   "ubisoft": 10,
+  "uc_san_diego_health": 11,
   "ucsf": 11,
   "udemy": 10,
   "uipath": 10,
@@ -1971,8 +2042,10 @@
   "vansh_newgrad27": 1,
   "vanta": 1,
   "vapi_ai": 10,
+  "variational_ai": 11,
   "vast_space": 10,
   "vatic_labs": 1,
+  "vector_institute": 11,
   "veeva_systems": 10,
   "vercel": 1,
   "verizon": 10,
@@ -2009,6 +2082,7 @@
   "william_blair": 1,
   "william_osler_health_system": 11,
   "wiz": 10,
+  "womens_college_hospital": 11,
   "workato": 10,
   "workday_hq": 1,
   "workiva": 10,
@@ -2547,6 +2621,33 @@
   ],
   "token": [
    "alayacare"
+  ]
+ },
+ "alberta_innovates": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "innovates"
+  ],
+  "company_key": [
+   "alberta_innovates"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "InnoTech"
   ]
  },
  "alcami": {
@@ -4206,6 +4307,29 @@
    "baseten"
   ]
  },
+ "bausch_lomb": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "bausch_lomb"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.bauschlomb.com/search/"
+  ]
+ },
  "baxter_international": {
   "ats": [
    "workday"
@@ -5182,6 +5306,35 @@
    "bostondynamics"
   ]
  },
+ "boston_scientific": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "boston_scientific"
+  ],
+  "domain": [
+   "bostonscientific.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "bostonscientific.eightfold.ai"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "box": {
   "ats": [
    "greenhouse"
@@ -5718,6 +5871,37 @@
    "https://careers.blood.ca/search/"
   ]
  },
+ "canadian_cancer_society": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "7da0a9eb-c7f2-490d-a0f7-779c58f6fd8b"
+  ],
+  "company_key": [
+   "canadian_cancer_society"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "lang": [
+   "en_CA"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "canadian_tire": {
   "ats": [
    "workday"
@@ -5958,6 +6142,37 @@
   ],
   "token": [
    "catonetworks"
+  ]
+ },
+ "cdc_foundation": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "014dfa20-d261-4f83-8d77-5edb4e15f0f8"
+  ],
+  "company_key": [
+   "cdc_foundation"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "cdpq": {
@@ -7095,6 +7310,36 @@
   ],
   "token": [
    "collibra"
+  ]
+ },
+ "colorado_public_health": {
+  "account": [
+   "__missing__",
+   "colorado"
+  ],
+  "ats": [
+   "neogov"
+  ],
+  "company_key": [
+   "colorado_public_health"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    "Department of Public Health & Environment"
+   ]
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "comcast": {
@@ -8328,6 +8573,93 @@
   ],
   "tenant": [
    "devoted"
+  ]
+ },
+ "dewpoint_therapeutics": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "a792b9db-fd47-4cf3-a0ab-207c735e407c"
+  ],
+  "company_key": [
+   "dewpoint_therapeutics"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "dexcom": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "dexcom"
+  ],
+  "domain": [
+   "dexcom.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.dexcom.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "diabetes_canada": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "diabetescanada"
+  ],
+  "company_key": [
+   "diabetes_canada"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "DiabetesCanada"
   ]
  },
  "dialpad": {
@@ -10961,6 +11293,33 @@
    "HaltonHealthcare1"
   ]
  },
+ "hamilton_health_sciences": {
+  "ats": [
+   "taleo"
+  ],
+  "company_key": [
+   "hamilton_health_sciences"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "hhsc.taleo.net"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "section": [
+   "__missing__",
+   "2"
+  ]
+ },
  "harness": {
   "ats": [
    "greenhouse"
@@ -11036,6 +11395,59 @@
   ],
   "token": [
    "headway"
+  ]
+ },
+ "health_canada": {
+  "ats": [
+   "gc_jobs"
+  ],
+  "company_key": [
+   "health_canada"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    117
+   ]
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "health_standards_organization": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "healthstandards"
+  ],
+  "company_key": [
+   "health_standards_organization"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "hebbia": {
@@ -12228,6 +12640,35 @@
    "jobber"
   ]
  },
+ "johns_hopkins_university": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "johns_hopkins_university"
+  ],
+  "domain": [
+   "jhu.edu"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "host": [
+   "hiring.jhu.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "johnson_johnson": {
   "ats": [
    "workday"
@@ -12404,6 +12845,66 @@
   ],
   "token": [
    "kairospower"
+  ]
+ },
+ "kardium": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "kardium"
+  ],
+  "company_key": [
+   "kardium"
+  ],
+  "culture": [
+   "__missing__",
+   "en-CA"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
+ "kenvue": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "kenvue"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "kenvue.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "kenvue"
+  ],
+  "tenant": [
+   "kenvue"
   ]
  },
  "keysight_technologies": {
@@ -12772,6 +13273,36 @@
    2
   ]
  },
+ "la_county_public_health": {
+  "account": [
+   "__missing__",
+   "lacounty"
+  ],
+  "ats": [
+   "neogov"
+  ],
+  "company_key": [
+   "la_county_public_health"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    "PUBLIC HEALTH"
+   ]
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "labcorp": {
   "ats": [
    "workday"
@@ -13118,6 +13649,33 @@
   ],
   "token": [
    "letta"
+  ]
+ },
+ "lifelabs": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "lifelabs"
+  ],
+  "company_key": [
+   "lifelabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Diagnostics & Lab Tools"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "lightmatter": {
@@ -13934,6 +14492,38 @@
    "llamaindex"
   ]
  },
+ "loblaw_pharmacy": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "loblaw_companies"
+  ],
+  "facets": [
+   "__missing__",
+   {
+    "category": [
+     "Pharmacy",
+     "Healthcare"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.loblaw.ca"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "lockheed_martin": {
   "api": [
    "pcsx"
@@ -14051,6 +14641,32 @@
   ],
   "tenant": [
    "logitech"
+  ]
+ },
+ "london_health_sciences_centre": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "london_health_sciences_centre"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "1"
+  ],
+  "url": [
+   "https://careers.lhsc.on.ca/psc/LHCGWPRD/EMPLOYEE/CAREERS_EXT/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
   ]
  },
  "lonza": {
@@ -16488,6 +17104,33 @@
    "novartis"
   ]
  },
+ "novo_nordisk": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "novo_nordisk"
+  ],
+  "facility": [
+   "__missing__",
+   "department"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.novonordisk.com/search/"
+  ]
+ },
  "nozomi_networks": {
   "ats": [
    "greenhouse"
@@ -16689,6 +17332,30 @@
    "tech"
   ]
  },
+ "oicr": {
+  "account": [
+   "__missing__",
+   "oicr"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "oicr"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "oklo": {
   "ats": [
    "greenhouse"
@@ -16750,6 +17417,29 @@
   ],
   "token": [
    "oldmissioncapital"
+  ]
+ },
+ "olympus_americas": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "olympus_americas"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.olympusamerica.com/search/"
   ]
  },
  "omada_health": {
@@ -17924,6 +18614,30 @@
    "procore"
   ]
  },
+ "profound_medical": {
+  "account": [
+   "__missing__",
+   "profoundmedical"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "profound_medical"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "proofpoint": {
   "ats": [
    "workday"
@@ -18075,6 +18789,32 @@
   ],
   "token": [
    "public"
+  ]
+ },
+ "public_health_agency_of_canada": {
+  "ats": [
+   "gc_jobs"
+  ],
+  "company_key": [
+   "public_health_agency_of_canada"
+  ],
+  "departments": [
+   "__missing__",
+   [
+    1094
+   ]
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "public_health_ontario": {
@@ -18921,6 +19661,29 @@
   ],
   "lang": [
    "en"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "rexall": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "rexall"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.rexall.ca"
   ],
   "min_interval": [
    1800
@@ -20239,12 +21002,93 @@
    "ServiceNow"
   ]
  },
+ "shared_health_manitoba": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "shared_health_manitoba"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.wrha.mb.ca/search/"
+  ]
+ },
  "shield_ai": {
   "ats": [
    "lever"
   ],
   "token": [
    "shieldai"
+  ]
+ },
+ "shoppers_drug_mart": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "shoppers_drug_mart"
+  ],
+  "facets": [
+   "__missing__",
+   {
+    "category": [
+     "Pharmacy",
+     "Healthcare"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Pharmacy & Consumer Health"
+  ],
+  "host": [
+   "careers.shoppersdrugmart.ca"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "sickkids": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "sickkids"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "1"
+  ],
+  "url": [
+   "https://career.sickkids.ca:8001/psc/CRHCMPRD/CAREER/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
   ]
  },
  "siemens_canada": {
@@ -20570,6 +21414,37 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "sinai_health": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "sinaihealth"
+  ],
+  "company_key": [
+   "sinai_health"
+  ],
+  "culture": [
+   "__missing__",
+   "en-CA"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "sinaihealthcareers"
   ]
  },
  "singlestore": {
@@ -21785,6 +22660,33 @@
    "swordhealth"
   ]
  },
+ "synaptive_medical": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "pp4h663"
+  ],
+  "company_key": [
+   "synaptive_medical"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
  "synopsys": {
   "ats": [
    "radancy"
@@ -22133,6 +23035,29 @@
    "td"
   ]
  },
+ "teleflex": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "teleflex"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.teleflex.com/search/"
+  ]
+ },
  "telus": {
   "ats": [
    "successfactors"
@@ -22309,6 +23234,32 @@
    "terrapowerllc"
   ]
  },
+ "teva": {
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "teva"
+  ],
+  "domain": [
+   "tevapharm.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Pharma"
+  ],
+  "host": [
+   "www.careers.teva"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "texas_instruments": {
   "ats": [
    "oracle_hcm"
@@ -22414,6 +23365,32 @@
   ],
   "token": [
    "thenewyorktimes"
+  ]
+ },
+ "the_ottawa_hospital": {
+  "ats": [
+   "peoplesoft"
+  ],
+  "company_key": [
+   "the_ottawa_hospital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "2"
+  ],
+  "url": [
+   "https://jobposting.ottawahospital.on.ca/psc/jobposting/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
   ]
  },
  "thermo_fisher_scientific": {
@@ -23014,6 +23991,32 @@
    "Ubisoft2"
   ]
  },
+ "uc_san_diego_health": {
+  "ats": [
+   "paradox"
+  ],
+  "company_key": [
+   "uc_san_diego_health"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "employment.ucsd.edu"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "path": [
+   "uc-san-diego-health"
+  ],
+  "priority": [
+   2
+  ]
+ },
  "ucsf": {
   "ats": [
    "oracle_hcm"
@@ -23468,6 +24471,30 @@
    "vapi"
   ]
  },
+ "variational_ai": {
+  "account": [
+   "__missing__",
+   "variationalai"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "variational_ai"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Biotech"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "vast_space": {
   "ats": [
    "greenhouse"
@@ -23497,6 +24524,37 @@
   ],
   "token": [
    "vaticlabs"
+  ]
+ },
+ "vector_institute": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "__missing__",
+   "19000101_000001"
+  ],
+  "cid": [
+   "__missing__",
+   "4ed2be93-8bc5-40e2-915f-931884eac404"
+  ],
+  "company_key": [
+   "vector_institute"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Research Institutes & Universities"
+  ],
+  "lang": [
+   "en_CA"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "veeva_systems": {
@@ -24268,6 +25326,33 @@
   ],
   "token": [
    "wizinc"
+  ]
+ },
+ "womens_college_hospital": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "__missing__",
+   "wch"
+  ],
+  "company_key": [
+   "womens_college_hospital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "workato": {
