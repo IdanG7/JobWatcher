@@ -9,6 +9,12 @@ from tests.sources.test_source_coverage import response
 
 @patch("watcher.time.sleep")
 class EightfoldTests(unittest.TestCase):
+    def setUp(self):
+        watcher._eightfold_next = 0.0
+        spacing = patch.object(watcher, "EIGHTFOLD_SPACING", 0)
+        spacing.start()
+        self.addCleanup(spacing.stop)
+
     @patch("watcher.requests.get")
     def test_pcsx_search_pages_until_the_count(self, get, sleep):
         def page(*ids, count=3):
@@ -53,6 +59,32 @@ class EightfoldTests(unittest.TestCase):
         self.assertEqual([("1", "Fremont, CA, US")], [(j["id"], j["location"]) for j in jobs])
         self.assertFalse(jobs.complete)
         self.assertIn("rate-limited", jobs.reason)
+
+    @patch("watcher.requests.get")
+    def test_pcsx_keeps_what_it_read_when_refused_part_way(self, get, sleep):
+        refused = response({})
+        refused.status_code = 403
+        refused.raise_for_status.side_effect = watcher.requests.HTTPError(response=refused)
+        get.side_effect = [response({"status": 200, "data": {"count": 30, "positions": [
+            {"id": 1, "name": "Engineer", "locations": []}]}}), refused]
+        jobs = watcher.fetch_eightfold({"host": "jobs.northropgrumman.com", "domain": "ngc.com", "api": "pcsx"})
+        self.assertEqual(["1"], [j["id"] for j in jobs])
+        self.assertFalse(jobs.complete)
+        self.assertIn("refused", jobs.reason)
+        get.side_effect = [refused]
+        with self.assertRaises(watcher.requests.HTTPError):
+            watcher.fetch_eightfold({"host": "apply.ukg.com", "domain": "ukg.com", "api": "pcsx"})
+
+    @patch("watcher.requests.get")
+    def test_eightfold_sites_take_turns(self, get, sleep):
+        get.side_effect = [response({"count": 1, "positions": [{"id": 7, "name": "Engineer"}]}),
+                           response({"status": 200, "data": {"jobDescription": "Design"}})]
+        with patch.object(watcher, "EIGHTFOLD_SPACING", 30):
+            watcher.fetch_eightfold({"host": "explore.jobs.netflix.net", "domain": "netflix.com"})
+            watcher.detail_eightfold({"host": "careers.qualcomm.com", "domain": "qualcomm.com", "api": "pcsx"}, "7")
+        self.assertEqual(2, get.call_count)
+        self.assertEqual(1, sleep.call_count)
+        self.assertGreater(sleep.call_args[0][0], 29)
 
     @patch("watcher.requests.get")
     def test_older_sites_keep_the_apply_api(self, get, sleep):
