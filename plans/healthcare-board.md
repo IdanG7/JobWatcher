@@ -973,8 +973,9 @@ track's boards, skill groups and types resolve.
        `pending_ok`); other boards' facts are unchanged. A title names a licence unless it is a student,
        extern, assistant or trainee role. A licence the description only prefers ("RPhT preferred") isn't
        required. Pending phrases: "eligible for registration", GN status, "new grads welcome", NGG.
-     - **Fit:** "Licence required", −20, when a required licence isn't in the profile's `licences`; its line
-       says when pending registration is considered. A certification is shown, never scored.
+     - **Fit:** "Licence required", −20, when the profile's `licences` hold none of the posting's licences; its
+       line says when pending registration is considered. Any one is enough, since a posting that names
+       several mostly takes either ("LPN or RN", "RT/RN/RPN"). A certification is shown, never scored.
      - **Resume:** held from the top lines, the certifications section, a credential line or a licensed job
        title; expected (licences only) from the program, so a BScN expects RN. Applying the resume adds them
        to the profile. Finance and tech resumes read none and stay byte-identical.
@@ -991,6 +992,34 @@ track's boards, skill groups and types resolve.
        board's licences sees all seven. Finance and tech calendars have none.
      - Shown as an italic amber "Program window" with a legend entry only when one is on screen.
      - Tests: `tests/app/test_program_windows.py`.
+   - **Gate on `91b0b19`** (ICF, the adapters and their 37 sources; `E:\healthcare-gate\compare_p5a.txt`):
+     - The boards without Healthcare lose the same postings as at Phase 4 (the 35 approved moves). Nothing is
+       added or changed there, and the order is kept.
+     - The only new differences are employer-type labels at the same fit, on postings that had no type:
+       Finance 30 → 33 (three ICF postings, now Health Consulting), Software 131 → 145, Operations 74 → 86,
+       AI & Data 54 → 62, Sales 102 → 107, Design 14 → 19, Hardware and Product +2 each, People & Legal
+       unchanged (`…\scratchpad\phase5\label_diff.py`).
+     - Healthcare gains one more posting from no board, ICF's "Environmental Chemist (Corvallis, OR)":
+       5,293 → 5,294.
+   - **Gate on `4b49f97`** (licences and program windows; `E:\healthcare-gate\compare_p5b.txt`):
+     - Every profile without Healthcare has the same digest as on `91b0b19`, so the boards keep their postings,
+       fit and order.
+     - The Healthcare profiles hold no licences, so a posting that requires one loses 20. On the Healthcare
+       profile, fit 55 or more goes 5,068 → 3,285; on Finance + Healthcare 7,132 → 5,349. Postings and matches
+       are unchanged.
+     - Of 5,294 open Healthcare postings, 2,092 require a licence: RN 883, physiotherapist 332, RPN/LPN 306,
+       NP 207, pharmacist 174, OT 162, and 40 others. 2,015 of them are in Clinical Care. Certifications:
+       BLS 28 and 10 others. Three are open to pending registration.
+       (`…\scratchpad\phase5\licence_census.py`, `E:\healthcare-gate\licence_census_p5b.txt`.)
+     - Read by sampling: the titles are licensed roles. Twelve postings name two licences. Six of them take
+       either one ("RT/RN/RPN", "LPN or RN"), and the penalty now applies only when the profile holds none
+       (above). That is a scoring change only, so the gate's numbers stand.
+     - Known extras, left as they are:
+       - Elevance's job-family line "Licensed/Registered Pharmacist/Pharmacy Technician" adds a pharmacist
+         licence to two pharmacy technician postings.
+       - Oscar's "Compact RN license (if an APRN)" is under "Bonus points", not a preference word, so RN is
+         added to six NP and PA postings.
+       - Lockheed's "Firefighter EMT" counts as a paramedic.
 6. **Onboarding, Settings, the Sources view and the docs** (`PRODUCT.md`, `docs/ARCHITECTURE.md`, the
    manifest `_readme`).
    - What's new items drafted in `web/js/release-notes.js`, with no version bump.

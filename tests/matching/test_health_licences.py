@@ -69,6 +69,13 @@ class LicenceFitTests(unittest.TestCase):
         f = facts("Nursing Student Extern, Summer 2027", "Current BLS for healthcare providers.")
         self.assertIsNone(licence_penalty(f, merge_profile()))
 
+    def test_any_one_of_several_licences_is_enough(self):
+        f = facts("CORE Clinical (LPN or RN) Coordinator", "")
+        self.assertEqual(f["licences"]["required"], ["rn", "rpn"])
+        self.assertIsNone(licence_penalty(f, merge_profile({"licences": ["rpn"]})))
+        self.assertEqual(licence_penalty(f, merge_profile())["detail"],
+                         "Registered Nurse (RN) or Registered Practical Nurse (RPN/LPN) required")
+
     def test_profile_licences_are_validated(self):
         self.assertEqual(validate_profile(merge_profile({"licences": ["rn", "bls"]}), KN), [])
         self.assertIn("unknown licences: cpa", validate_profile(merge_profile({"licences": ["cpa"]}), KN))
