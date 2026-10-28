@@ -996,6 +996,23 @@
     {"key": "caris_life_sciences", "name": "Caris Life Sciences", "type": "diagnostics", "country": "US", "hq": "Irving", "aliases": ["=caris life sciences"]},
     {"key": "neogenomics", "name": "NeoGenomics", "type": "diagnostics", "country": "US", "hq": "Fort Myers", "aliases": ["=neogenomics"]},
     {"key": "sysmex_america", "name": "Sysmex America", "type": "diagnostics", "country": "US", "hq": "Lincolnshire", "aliases": ["=sysmex america"]},
-    {"key": "standard_biotools", "name": "Standard BioTools", "type": "diagnostics", "country": "US", "hq": "South San Francisco", "aliases": ["=standard biotools"]}
+    {"key": "standard_biotools", "name": "Standard BioTools", "type": "diagnostics", "country": "US", "hq": "South San Francisco", "aliases": ["=standard biotools"]},
+    {"key": "medtronic", "name": "Medtronic", "type": "medtech", "country": "IE", "hq": "Dublin", "aliases": ["=medtronic"]},
+    {"key": "stryker", "name": "Stryker", "type": "medtech", "country": "US", "hq": "Kalamazoo", "aliases": ["=stryker"]},
+    {"key": "abbott", "name": "Abbott", "type": "medtech", "country": "US", "hq": "Abbott Park", "aliases": ["=abbott"]},
+    {"key": "becton_dickinson", "name": "BD", "type": "medtech", "country": "US", "hq": "Franklin Lakes", "aliases": ["=becton dickinson"]},
+    {"key": "baxter_international", "name": "Baxter", "type": "medtech", "country": "US", "hq": "Deerfield", "aliases": ["=baxter international"]},
+    {"key": "edwards_lifesciences", "name": "Edwards Lifesciences", "type": "medtech", "country": "US", "hq": "Irvine", "aliases": ["=edwards lifesciences"]},
+    {"key": "smith_nephew", "name": "Smith+Nephew", "type": "medtech", "country": "GB", "hq": "Watford", "aliases": ["=smith+nephew"]},
+    {"key": "zimmer_biomet_holdings", "name": "Zimmer Biomet", "type": "medtech", "country": "US", "hq": "Warsaw", "aliases": ["=zimmer biomet holdings"]},
+    {"key": "siemens_healthineers", "name": "Siemens Healthineers", "type": "medtech", "country": "DE", "hq": "Erlangen", "aliases": ["=siemens healthineers"]},
+    {"key": "philips", "name": "Philips", "type": "medtech", "country": "NL", "hq": "Amsterdam", "aliases": ["=philips"]},
+    {"key": "steris", "name": "STERIS", "type": "medtech", "country": "IE", "hq": "Dublin", "aliases": ["=steris"]},
+    {"key": "resmed", "name": "ResMed", "type": "medtech", "country": "US", "hq": "San Diego", "aliases": ["=resmed"]},
+    {"key": "insulet", "name": "Insulet", "type": "medtech", "country": "US", "hq": "Acton", "aliases": ["=insulet"]},
+    {"key": "irhythm_technologies", "name": "iRhythm Technologies", "type": "medtech", "country": "US", "hq": "San Francisco", "aliases": ["=irhythm technologies"]},
+    {"key": "tandem_diabetes_care", "name": "Tandem Diabetes Care", "type": "medtech", "country": "US", "hq": "San Diego", "aliases": ["=tandem diabetes care"]},
+    {"key": "penumbra", "name": "Penumbra", "type": "medtech", "country": "US", "hq": "Alameda", "aliases": ["=penumbra"]},
+    {"key": "glaukos", "name": "Glaukos", "type": "medtech", "country": "US", "hq": "Aliso Viejo", "aliases": ["=glaukos"]}
   ]
 }

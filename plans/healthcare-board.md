@@ -837,9 +837,25 @@ track's boards, skill groups and types resolve.
      - Thermo Fisher's board lists test requisitions titled "DO NOT APPLY - TEST REQ", 42 in its Clinical
        Research category. No source drops such titles today.
      - The Jobvite feeds need the company id from the board page (Dynacare, NeoGenomics), not the slug.
-     - Simulated on stored postings: one move off a board, Thermo Fisher's "FSP Clinical Research Associate I
-       - Bilingual French QC Canada", from Finance to Healthcare by the life_science_research rule, for your
-       yes. No key changes; 254 type labels, 11 of them on Finance postings.
+     - Simulated on stored postings: no new moves off a board. The simulation lists Thermo Fisher's "FSP
+       Clinical Research Associate I - Bilingual French QC Canada", but that posting moved in Phase 3 and is
+       one of the 34 approved. No key changes; 254 type labels, 11 of them on Finance postings.
+   - **Regulatory & Quality and Medical Devices** (2026-10-27): `medtech`, 18 sources and 17 employers, typed
+     `medtech`. Regulatory & Quality, Medical Devices and Medical Affairs poll it.
+     - Medtronic, Stryker, BD, Baxter, Edwards, Smith+Nephew, Philips (from Workday, behind its Phenom site),
+       ResMed, Insulet, iRhythm, Tandem, Penumbra and Glaukos are read whole (each under 2,000).
+     - Abbott reads 6 families (997 postings). GE HealthCare adds its service, quality and manufacturing
+       families as a new source; its existing tech and finance sources are unchanged.
+     - Siemens Healthineers, Zimmer Biomet and Steris are Phenom sites with a description teaser.
+     - Not added: Boston Scientific and Dexcom (their Eightfold feeds answer 403), Kardium and Synaptive
+       (Dayforce), and the others in the pack note. J&J's medtech brands post on J&J's board, which the
+       pharma pack reads whole; Masimo posts on Danaher's.
+     - Simulated on stored postings: no moves off a board, no key changes, 599 type labels (10 on Finance).
+   - **Gate at `8af28fc`** (Clinical Care and Clinical Research): as expected.
+     - Boards without Healthcare lose only the 34 approved postings, plus Moderna's "Research Associate,
+       Analytical Technical Operations" (Finance → Healthcare), which waits on your yes.
+     - Otherwise there are no fit, order or other changes, only employer-type labels.
+     - Healthcare gains 22 more postings from no board than at Phase 3: 4,890 against 4,868, as simulated.
    - **Poll time** at `8af28fc`: each source fetched once by the app's adapter, 10 at a time. Each
      profile's cycle was then simulated in poll order (`…\scratchpad\phase4\poll_time.py`):
      - Healthcare: 785 → 177 sources. A full poll takes 1,055 s → 286 s, set by the two LinkedIn searches

@@ -100,13 +100,14 @@
   ]
  },
  "__shipped__": {
-  "hash": "1cff8335d68aa6f6",
+  "hash": "f338ca877b1285ba",
   "names": [
    "10x_genomics",
    "1password",
    "1x_technologies",
    "2k",
    "6sense",
+   "abbott_medtech",
    "abcellera",
    "abnormal_security",
    "abridge",
@@ -201,8 +202,10 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "baxter_international",
    "bayer",
    "beam_therapeutics",
+   "becton_dickinson",
    "behaviour_interactive",
    "bell",
    "benchling",
@@ -386,6 +389,7 @@
    "dyno_therapeutics",
    "e2b",
    "ebay",
+   "edwards_lifesciences",
    "eikon_therapeutics",
    "elastic",
    "electronic_arts",
@@ -445,6 +449,7 @@
    "ge_aerospace",
    "ge_healthcare",
    "ge_healthcare_finance",
+   "ge_healthcare_medtech",
    "ge_vernova",
    "ge_vernova_finance",
    "gearbox_software",
@@ -458,6 +463,7 @@
    "ginkgo_bioworks",
    "github",
    "gitlab",
+   "glaukos",
    "glean",
    "global_payments",
    "globalfoundries",
@@ -513,6 +519,7 @@
    "inflection_ai",
    "insitro",
    "instacart",
+   "insulet",
    "intel",
    "intel_early",
    "intellia_therapeutics",
@@ -522,6 +529,7 @@
    "inworld_ai",
    "ionq",
    "iqvia",
+   "irhythm_technologies",
    "ironclad",
    "isomorphic_labs",
    "jackson_laboratory",
@@ -619,6 +627,7 @@
    "mda_space",
    "medallia",
    "medavie_health_services",
+   "medtronic",
    "merck",
    "mercor",
    "mercury",
@@ -724,8 +733,10 @@
    "pdt_partners",
    "peloton",
    "pendo",
+   "penumbra",
    "perplexity",
    "pfizer",
+   "philips",
    "physical_intelligence",
    "pika_labs",
    "pinecone",
@@ -785,6 +796,7 @@
    "relay_therapeutics",
    "render",
    "replit",
+   "resmed",
    "retool",
    "revvity",
    "rigetti_computing",
@@ -847,6 +859,7 @@
    "shield_ai",
    "siemens_canada",
    "siemens_finance",
+   "siemens_healthineers",
    "siemens_us",
    "sierra",
    "sierra_nevada",
@@ -861,6 +874,7 @@
    "singlestore",
    "skydio",
    "smartsheet",
+   "smith_nephew",
    "snap",
    "snaplogic",
    "sndsh_intern27",
@@ -897,9 +911,11 @@
    "stanford_health_care",
    "starburst",
    "stepstone",
+   "steris",
    "stockx",
    "strava",
    "stripe",
+   "stryker",
    "substack",
    "suki",
    "sumo_logic",
@@ -917,6 +933,7 @@
    "take_two",
    "takeda",
    "talkspace",
+   "tandem_diabetes_care",
    "tanium",
    "target",
    "td",
@@ -1044,6 +1061,7 @@
    "zendesk",
    "zilliz",
    "zillow",
+   "zimmer_biomet_holdings",
    "zipline",
    "zocdoc",
    "zoom",
@@ -1060,6 +1078,7 @@
   "1x_technologies": 10,
   "2k": 10,
   "6sense": 10,
+  "abbott_medtech": 11,
   "abcellera": 11,
   "abnormal_security": 10,
   "abridge": 1,
@@ -1154,8 +1173,10 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "baxter_international": 11,
   "bayer": 11,
   "beam_therapeutics": 11,
+  "becton_dickinson": 11,
   "behaviour_interactive": 10,
   "bell": 10,
   "benchling": 10,
@@ -1339,6 +1360,7 @@
   "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
+  "edwards_lifesciences": 11,
   "eikon_therapeutics": 11,
   "elastic": 1,
   "electronic_arts": 10,
@@ -1398,6 +1420,7 @@
   "ge_aerospace": 10,
   "ge_healthcare": 10,
   "ge_healthcare_finance": 10,
+  "ge_healthcare_medtech": 11,
   "ge_vernova": 10,
   "ge_vernova_finance": 10,
   "gearbox_software": 10,
@@ -1411,6 +1434,7 @@
   "ginkgo_bioworks": 11,
   "github": 10,
   "gitlab": 1,
+  "glaukos": 11,
   "glean": 1,
   "global_payments": 10,
   "globalfoundries": 10,
@@ -1466,6 +1490,7 @@
   "inflection_ai": 10,
   "insitro": 10,
   "instacart": 1,
+  "insulet": 11,
   "intel": 1,
   "intel_early": 1,
   "intellia_therapeutics": 11,
@@ -1475,6 +1500,7 @@
   "inworld_ai": 10,
   "ionq": 10,
   "iqvia": 11,
+  "irhythm_technologies": 11,
   "ironclad": 10,
   "isomorphic_labs": 10,
   "jackson_laboratory": 11,
@@ -1574,6 +1600,7 @@
   "mda_space": 10,
   "medallia": 10,
   "medavie_health_services": 11,
+  "medtronic": 11,
   "merck": 11,
   "mercor": 1,
   "mercury": 1,
@@ -1679,8 +1706,10 @@
   "pdt_partners": 1,
   "peloton": 1,
   "pendo": 10,
+  "penumbra": 11,
   "perplexity": 1,
   "pfizer": 11,
+  "philips": 11,
   "physical_intelligence": 10,
   "pika_labs": 10,
   "pinecone": 10,
@@ -1740,6 +1769,7 @@
   "relay_therapeutics": 11,
   "render": 10,
   "replit": 10,
+  "resmed": 11,
   "retool": 1,
   "revvity": 11,
   "rigetti_computing": 10,
@@ -1802,6 +1832,7 @@
   "shield_ai": 1,
   "siemens_canada": 10,
   "siemens_finance": 10,
+  "siemens_healthineers": 11,
   "siemens_us": 10,
   "sierra": 1,
   "sierra_nevada": 10,
@@ -1816,6 +1847,7 @@
   "singlestore": 10,
   "skydio": 10,
   "smartsheet": 1,
+  "smith_nephew": 11,
   "snap": 10,
   "snaplogic": 10,
   "sndsh_intern27": 1,
@@ -1852,9 +1884,11 @@
   "stanford_health_care": 11,
   "starburst": 1,
   "stepstone": 1,
+  "steris": 11,
   "stockx": 10,
   "strava": 10,
   "stripe": 1,
+  "stryker": 11,
   "substack": 10,
   "suki": 10,
   "sumo_logic": 10,
@@ -1872,6 +1906,7 @@
   "take_two": 10,
   "takeda": 11,
   "talkspace": 10,
+  "tandem_diabetes_care": 11,
   "tanium": 10,
   "target": 1,
   "td": 1,
@@ -1999,6 +2034,7 @@
   "zendesk": 10,
   "zilliz": 10,
   "zillow": 10,
+  "zimmer_biomet_holdings": 11,
   "zipline": 10,
   "zocdoc": 10,
   "zoom": 1,
@@ -2006,6 +2042,49 @@
   "zoox": 1,
   "zscaler": 10,
   "zuora": 10
+ },
+ "abbott_medtech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "abbott"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "77166004ab82108dbc36d45444ea5319",
+     "77166004ab82108dbc36ddc1741b531d",
+     "77166004ab82108dbc36c663b1735313",
+     "77166004ab82108dbc36d8a13149531b",
+     "77166004ab82108dbc36ca9a7bcb5315"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "abbott.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Abbott quality, R&D, field clinical and technical support, medical and clinical affairs and regulatory roles"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "abbottcareers"
+  ],
+  "tenant": [
+   "abbott"
+  ]
  },
  "abcellera": {
   "ats": [
@@ -4125,6 +4204,35 @@
    "baseten"
   ]
  },
+ "baxter_international": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "baxter_international"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "baxter.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "baxter"
+  ],
+  "tenant": [
+   "baxter"
+  ]
+ },
  "bayer": {
   "ats": [
    "eightfold"
@@ -4172,6 +4280,35 @@
   ],
   "token": [
    "beamtherapeutics"
+  ]
+ },
+ "becton_dickinson": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "becton_dickinson"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "bdx.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "EXTERNAL_CAREER_SITE_USA"
+  ],
+  "tenant": [
+   "bdx"
   ]
  },
  "behaviour_interactive": {
@@ -8580,6 +8717,35 @@
    "ebay"
   ]
  },
+ "edwards_lifesciences": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "edwards_lifesciences"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "edwards.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "edwardscareers"
+  ],
+  "tenant": [
+   "edwards"
+  ]
+ },
  "eikon_therapeutics": {
   "ats": [
    "greenhouse"
@@ -9956,6 +10122,47 @@
    "gehc"
   ]
  },
+ "ge_healthcare_medtech": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ge_healthcare"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "864c17d3c011100151ac11f872420000",
+     "85e6093984ac1025dddec0e260ae0000",
+     "85e6093984ac1025ddde9263cac80000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "gehc.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "GE HealthCare service, quality and manufacturing roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "GEHC_ExternalSite"
+  ],
+  "tenant": [
+   "gehc"
+  ]
+ },
  "ge_vernova": {
   "ats": [
    "workday"
@@ -10265,6 +10472,32 @@
   ],
   "token": [
    "gitlab"
+  ]
+ },
+ "glaukos": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "glaukos"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "ekpl.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_3001"
   ]
  },
  "glean": {
@@ -11496,6 +11729,35 @@
    "instacart"
   ]
  },
+ "insulet": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "insulet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "insulet.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "insuletcareers"
+  ],
+  "tenant": [
+   "insulet"
+  ]
+ },
  "intel": {
   "ats": [
    "workday"
@@ -11735,6 +11997,35 @@
   ],
   "tenant": [
    "iqvia"
+  ]
+ },
+ "irhythm_technologies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "irhythm_technologies"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "irhythmtech.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "irhythm"
+  ],
+  "tenant": [
+   "irhythmtech"
   ]
  },
  "ironclad": {
@@ -14504,6 +14795,35 @@
    "medaviehs"
   ]
  },
+ "medtronic": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "medtronic"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "medtronic.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MedtronicCareers"
+  ],
+  "tenant": [
+   "medtronic"
+  ]
+ },
  "merck": {
   "ats": [
    "workday"
@@ -16995,6 +17315,29 @@
    "pendo"
   ]
  },
+ "penumbra": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "penumbra"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "penumbrainc"
+  ]
+ },
  "perplexity": {
   "ats": [
    "ashby"
@@ -17030,6 +17373,35 @@
   ],
   "tenant": [
    "pfizer"
+  ]
+ },
+ "philips": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "philips"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "philips.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "jobs-and-careers"
+  ],
+  "tenant": [
+   "philips"
   ]
  },
  "physical_intelligence": {
@@ -18460,6 +18832,35 @@
    "replit"
   ]
  },
+ "resmed": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "resmed"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "resmed.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Resmed_External_Careers"
+  ],
+  "tenant": [
+   "resmed"
+  ]
+ },
  "retool": {
   "ats": [
    "ashby"
@@ -19876,6 +20277,32 @@
    "https://jobs.siemens.com/en_US/externaljobs/SearchJobs"
   ]
  },
+ "siemens_healthineers": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "siemens_healthineers"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.siemens-healthineers.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.siemens-healthineers.com/global/en/job/{id}/"
+  ]
+ },
  "siemens_us": {
   "ats": [
    "avature"
@@ -20166,6 +20593,35 @@
   ],
   "token": [
    "smartsheet"
+  ]
+ },
+ "smith_nephew": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "smith_nephew"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "smithnephew.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "smithnephew"
   ]
  },
  "snap": {
@@ -20989,6 +21445,32 @@
    "stepstone"
   ]
  },
+ "steris": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "steris"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.steris.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.steris.com/us/en/job/{id}/"
+  ]
+ },
  "stockx": {
   "ats": [
    "greenhouse"
@@ -21041,6 +21523,35 @@
   ],
   "token": [
    "stripe"
+  ]
+ },
+ "stryker": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "stryker"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "stryker.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "StrykerCareers"
+  ],
+  "tenant": [
+   "stryker"
   ]
  },
  "substack": {
@@ -21405,6 +21916,35 @@
   ],
   "token": [
    "talkspace"
+  ]
+ },
+ "tandem_diabetes_care": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "tandem_diabetes_care"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "tandemdiabetes.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "tandemdiabetes"
+  ],
+  "tenant": [
+   "tandemdiabetes"
   ]
  },
  "tanium": {
@@ -24393,6 +24933,32 @@
   ],
   "tenant": [
    "zillow"
+  ]
+ },
+ "zimmer_biomet_holdings": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "zimmer_biomet_holdings"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Medical Devices"
+  ],
+  "host": [
+   "careers.zimmerbiomet.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.zimmerbiomet.com/us/en/job/{id}/"
   ]
  },
  "zipline": {
