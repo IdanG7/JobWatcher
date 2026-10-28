@@ -238,7 +238,7 @@ class LevelTests(unittest.TestCase):
 class EmployerAndSkillTests(unittest.TestCase):
     def test_healthcare_types_are_on_the_healthcare_track_only(self):
         for ctype in ("hospital", "pharma", "biotech", "medtech", "cro_cdmo", "diagnostics", "payer",
-                      "public_health_agency", "university", "pharmacy_consumer"):
+                      "public_health_agency", "health_consulting", "university", "pharmacy_consumer"):
             self.assertEqual(["healthcare"], KN.type_tracks(ctype), ctype)
         self.assertEqual(["tech", "healthcare"], KN.type_tracks("research_lab"))
         self.assertEqual(["tech", "healthcare"], KN.type_tracks("health_tech"))

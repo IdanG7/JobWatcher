@@ -48,6 +48,7 @@
     "diagnostics":          {"label": "Diagnostics & Lab Tools",   "group": "Diagnostics & Lab Tools",     "tracks": ["healthcare"]},
     "payer":                {"label": "Health Insurer",            "group": "Health Insurers",             "tracks": ["healthcare"]},
     "public_health_agency": {"label": "Public Health Agency",      "group": "Public Health",               "tracks": ["healthcare"]},
+    "health_consulting":    {"label": "Health Consulting",         "group": "Public Health",               "tracks": ["healthcare"]},
     "university":           {"label": "University",                "group": "Universities",                "tracks": ["healthcare"]},
     "pharmacy_consumer":    {"label": "Pharmacy & Consumer Health", "group": "Pharmacy & Consumer Health",  "tracks": ["healthcare"]},
     "unknown":              {"label": "Unclassified",          "group": "Other"}
@@ -980,6 +981,7 @@
     {"key": "american_cancer_society", "name": "American Cancer Society", "type": "public_health_agency", "country": "US", "hq": "Atlanta", "aliases": ["=american cancer society"]},
     {"key": "american_heart_association", "name": "American Heart Association", "type": "public_health_agency", "country": "US", "hq": "Dallas", "aliases": ["=american heart association"]},
     {"key": "march_of_dimes", "name": "March of Dimes", "type": "public_health_agency", "country": "US", "hq": "Arlington", "aliases": ["=march of dimes"]},
+    {"key": "icf", "name": "ICF", "type": "health_consulting", "country": "US", "hq": "Reston", "aliases": ["=icf"]},
     {"key": "dynacare", "name": "Dynacare", "type": "diagnostics", "country": "CA", "hq": "Brampton", "aliases": ["=dynacare"]},
     {"key": "labcorp", "name": "Labcorp", "type": "diagnostics", "country": "US", "hq": "Burlington", "aliases": ["=labcorp"]},
     {"key": "quest_diagnostics", "name": "Quest Diagnostics", "type": "diagnostics", "country": "US", "hq": "Secaucus", "aliases": ["=quest diagnostics"]},

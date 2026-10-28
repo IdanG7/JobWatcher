@@ -868,6 +868,15 @@ track's boards, skill groups and types resolve.
      filter for test requisitions ("DO NOT APPLY - TEST REQ", 42 at Thermo Fisher).
      - Otherwise there are no fit, order or other changes, only employer-type labels.
      - Healthcare gains 22 more postings from no board than at Phase 3: 4,890 against 4,868, as simulated.
+   - **ICF** (2026-10-28, on your go-ahead): its health search (80 postings, fetched whole) joins
+     `public_health`.
+     - ICF gets a new type, `health_consulting` ("Health Consulting"), which counts only for the Healthcare
+       board, with the public-health prior and claims of `public_health_agency`.
+     - Typed `consulting`, it would have put 26 of its stored postings on Finance (the type's finance
+       prior) and raised every ICF posting's company points from 4 to 6.
+     - Simulated on stored postings: no moves off a board, no key changes. Two ICF postings move from no
+       board to Healthcare. The other 125 gain only the label, at the same fit; 5 of them are on Finance.
+       ICF International's 40 postings keep their own key and stay untyped.
    - **Poll time** with all 172 `health/` sources (`c3f0cd5`).
      - Method: each source was fetched once by the app's adapter, 10 at a time. The 124 sources up to
        `8af28fc` were timed in one run, the 48 after it in a second. Each profile's cycle was then simulated
