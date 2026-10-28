@@ -228,7 +228,16 @@ class DashboardServiceTests(ServiceFixture):
         self.assertEqual({"software": 0.75}, saved["profile"]["role_weights"])
         with self.assertRaises(ApiError):
             self.service.put_profile({"fields": ["astrology"]})
+        # Licences (D16) and the hours preference (D15) are kept, as a resume or Settings set them.
+        saved = self.service.put_profile({"fields": ["healthcare"], "licences": ["rn", "bls"],
+                                          "hours": {"employment": ["full_time"], "no_nights": True}})
+        self.assertEqual((["rn", "bls"], {"employment": ["full_time"], "no_nights": True}),
+                         (saved["profile"]["licences"], self.service.get_profile()["profile"]["hours"]))
+        with self.assertRaises(ApiError):
+            self.service.put_profile({"hours": {"employment": ["weekly"]}})
         meta = self.service.meta()
+        self.assertEqual({"key": "rn", "label": "Registered Nurse (RN)", "kind": "licence", "board": "healthcare"},
+                         meta["licences"][0])
         self.assertIn("CA", {c["key"] for c in meta["countries"]})
         self.assertIn("English", meta["languages"])
 

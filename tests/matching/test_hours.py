@@ -1,11 +1,11 @@
 """Stated hours (plans/healthcare-board.md, D15): read from the title and stated phrases, never from passing
-words; a fact and a filter, never fit points."""
+words; a fact and a filter, and fit points only once the profile sets an hours preference."""
 import json
 import sqlite3
 import time
 import unittest
 
-from intel import analyze, load_knowledge, merge_profile
+from intel import analyze, load_knowledge, merge_profile, score_job, validate_profile
 from intel.facts import FACTS_VERSION, build_facts
 from intel.hours import extract_hours
 from job_query import build_where
@@ -66,6 +66,37 @@ class HoursTests(unittest.TestCase):
         self.assertEqual(["casual", "nights", "on_call"], hits)
         self.assertNotIn("bogus", args)
         self.assertFalse(any("hours" in w for w in build_where({}, fts=False)[0]))
+
+
+class HoursPreferenceTests(unittest.TestCase):
+    """Settings' "Hours I can work" and "No night shifts" (D15): unset, nothing scores."""
+
+    def penalties(self, title, hours=None):
+        f = build_facts({"title": title, "company": "Example Health", "posted": NOW}, KN)
+        profile = merge_profile({"fields": ["healthcare"], "target_roles": ["healthcare"],
+                                 **({"hours": hours} if hours is not None else {})})
+        return {p["key"]: (p["points"], p["detail"]) for p in score_job(f, profile, KN)["penalties"]
+                if p["key"] in ("hours", "nights")}
+
+    def test_nothing_scores_until_a_preference_is_set(self):
+        self.assertEqual({}, self.penalties("Registered Nurse - Casual, Nights"))
+        self.assertEqual({}, self.penalties("Registered Nurse - Casual, Nights", {"employment": [], "no_nights": False}))
+
+    def test_other_hours_and_night_shifts_cost_fit(self):
+        self.assertEqual({"hours": (-10, "Casual; you can work Full-time, Part-time"), "nights": (-10, "Night shifts")},
+                         self.penalties("Registered Nurse - Casual, Nights",
+                                        {"employment": ["full_time", "part_time"], "no_nights": True}))
+        # Any one of the stated types is enough, and a posting that states none costs nothing.
+        self.assertEqual({}, self.penalties("Pharmacy Technician - Full-Time / Part-Time", {"employment": ["part_time"]}))
+        self.assertEqual({}, self.penalties("Registered Nurse", {"employment": ["full_time"], "no_nights": True}))
+
+    def test_the_preference_is_validated(self):
+        ok = merge_profile({"hours": {"employment": ["casual", "per_diem"], "no_nights": True}})
+        self.assertEqual([], validate_profile(ok, KN))
+        self.assertIn("unknown hours.employment: weekly", validate_profile(merge_profile({"hours": {"employment": ["weekly"]}}), KN))
+        self.assertIn("unknown hours.employment: 5", validate_profile(merge_profile({"hours": {"employment": [5]}}), KN))
+        self.assertIn("hours.no_nights must be true or false", validate_profile(merge_profile({"hours": {"no_nights": "yes"}}), KN))
+        self.assertIn("hours must be an object", validate_profile(merge_profile({"hours": ["casual"]}), KN))
 
 
 if __name__ == "__main__":

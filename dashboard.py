@@ -1712,7 +1712,8 @@ class JobwatchService:
 
     def put_profile(self, payload: dict) -> dict:
         incoming = payload.get("profile") or payload
-        allowed = set(merge_profile({}).keys()) | {"role_weights", "fields"}
+        # Keys beyond the defaults: fields, licences (D16) and the hours preference (D15), absent until set.
+        allowed = set(merge_profile({}).keys()) | {"role_weights", "fields", "licences", "hours"}
         cleaned = {k: v for k, v in incoming.items() if k in allowed}
         profile = merge_profile(self.config.get("profile"), cleaned)
         gpa = (profile.get("education") or {}).get("gpa")
@@ -2374,7 +2375,8 @@ class JobwatchService:
             "skills": [{"key": s.key, "label": s.label, "group": s.group} for s in self.kn.skills],
             "skill_groups": self.kn.skill_groups,
             # Licences & certifications a board's postings may ask for (D16).
-            "licences": [{"key": l.key, "label": l.label, "kind": l.kind} for l in self.kn.licence_by_key.values()],
+            "licences": [{"key": l.key, "label": l.label, "kind": l.kind, "board": board}
+                         for board, board_licences in self.kn.licences.items() for l in board_licences.items],
             "statuses": [{"key": s, "label": STATUS_LABELS[s]} for s in APP_STATUSES],
             "relationships": RELATIONSHIPS,
             "cycles": [{"key": c, "label": cycle_label(c)} for c in cycles],

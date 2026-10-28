@@ -16,6 +16,7 @@ import time
 from datetime import date, datetime, timezone
 
 from .cycle import window_status
+from .hours import EMPLOYMENT, EMPLOYMENT_LABELS
 from .knowledge import Knowledge
 from .sources import profile_fields
 
@@ -330,6 +331,15 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     if required and not set(required) & set(profile.get("licences") or []):
         penalty("licence", "Licence required", 20, " or ".join(kn.licence_by_key[k].label for k in required) + " required"
                 + ("; candidates whose registration is pending are considered" if licences.get("pending_ok") else ""))
+    # Hours the profile can work (D15; Settings, unset by default): a posting that states only other employment
+    # types, or night shifts. One that states no hours costs nothing.
+    hours, can = facts.get("hours") or {}, profile.get("hours") or {}
+    stated = hours.get("employment") or []
+    if can.get("employment") and stated and not set(stated) & set(can["employment"]):
+        penalty("hours", "Hours", 10, " / ".join(EMPLOYMENT_LABELS[k] for k in stated) + "; you can work "
+                + ", ".join(EMPLOYMENT_LABELS[k] for k in EMPLOYMENT if k in can["employment"]))
+    if can.get("no_nights") and "night" in (hours.get("shifts") or []):
+        penalty("nights", "Night shifts", 10, "Night shifts")
     job_countries = set(loc["countries"]) or ({company["country"]} if company.get("country") else set())
     auth = profile.get("work_authorization") or {}
     if elig.get("sponsorship") == "not_available":

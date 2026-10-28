@@ -263,10 +263,12 @@ export function levelText({level_label: level = '', stage = ''} = {}) {
   return b.includes(a) || a.includes(b) ? level : `${level} · ${kind}`;
 }
 
-/** Hours a posting states (facts.hours), as the Opportunities filter offers them. */
+/** Hours a posting states (facts.hours), as the Opportunities filter offers them; Settings' "Hours I can work"
+ *  offers the employment types. */
 export const HOURS = [
-  {key: 'full_time', label: 'Full-time'}, {key: 'part_time', label: 'Part-time'}, {key: 'casual', label: 'Casual'},
-  {key: 'per_diem', label: 'Per diem / PRN'}, {key: 'temporary', label: 'Temporary or contract'},
+  {key: 'full_time', label: 'Full-time', employment: true}, {key: 'part_time', label: 'Part-time', employment: true},
+  {key: 'casual', label: 'Casual', employment: true}, {key: 'per_diem', label: 'Per diem / PRN', employment: true},
+  {key: 'temporary', label: 'Temporary or contract', employment: true},
   {key: 'day', label: 'Days'}, {key: 'evening', label: 'Evenings'}, {key: 'night', label: 'Nights'},
   {key: 'weekend', label: 'Weekends'}, {key: 'rotating', label: 'Rotating shifts'}, {key: 'twelve_hour', label: '12-hour shifts'},
   {key: 'on_call', label: 'On call'},

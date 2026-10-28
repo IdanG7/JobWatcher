@@ -80,6 +80,11 @@ export function skillGroupsFor(fields, meta = {}) {
   return new Set(fields.flatMap(field => (named.get(field)?.length ? named.get(field) : ['soft'])));
 }
 
+/** The licences and certifications these fields' boards ask for (meta.licences, Healthcare's today). */
+export function licencesFor(fields, meta = {}) {
+  return (meta.licences || []).filter(l => fields.includes(l.board));
+}
+
 /** Cycles to suggest from a graduation year and the stages someone applies for. */
 export function suggestCycles(gradYear, stages, now = new Date()) {
   const out = [];

@@ -2,8 +2,8 @@
 
 Read on every board from the title, and from the description only where it states them ('Employment type:
 Casual', 'This is a temporary full-time position', '12-hour rotating shifts'), never from passing words
-('business casual', 'full-time students', 'a full-time offer after graduation'). Facts only: nothing here
-scores.
+('business casual', 'full-time students', 'a full-time offer after graduation'). Facts only: they cost fit
+only through the profile's hours preference, in scoring.py.
 """
 
 from __future__ import annotations
@@ -13,6 +13,8 @@ import re
 R = lambda p: re.compile(p, re.I)  # noqa: E731
 
 EMPLOYMENT = ("full_time", "part_time", "casual", "per_diem", "temporary")
+EMPLOYMENT_LABELS = {"full_time": "Full-time", "part_time": "Part-time", "casual": "Casual",
+                     "per_diem": "Per diem / PRN", "temporary": "Temporary or contract"}
 SHIFTS = ("day", "evening", "night", "weekend", "rotating", "twelve_hour")
 
 # Employment-type words, and where a title or a description states them.

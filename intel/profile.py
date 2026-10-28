@@ -12,6 +12,8 @@ import copy
 import hashlib
 import json
 
+from .hours import EMPLOYMENT
+
 WORK_AUTH_VALUES = ("citizen", "permanent_resident", "authorized", "needs_sponsorship", "unknown")
 STAGES = ("internship", "new_grad", "entry", "experienced", "senior")
 
@@ -90,6 +92,17 @@ def validate_profile(profile: dict, kn=None) -> list[str]:
     for country, value in (profile.get("work_authorization") or {}).items():
         if value not in WORK_AUTH_VALUES:
             problems.append(f"work_authorization.{country} must be one of {', '.join(WORK_AUTH_VALUES)}")
+    # Hours I can work and No night shifts (D15); absent means no preference.
+    hours = profile.get("hours", {})
+    if not isinstance(hours, dict):
+        problems.append("hours must be an object")
+    else:
+        if not isinstance(hours.get("employment", []), list):
+            problems.append("hours.employment must be a list")
+        elif unknown := [k for k in hours.get("employment", []) if k not in EMPLOYMENT]:
+            problems.append(f"unknown hours.employment: {', '.join(map(str, unknown))}")   # a stored value may be any type
+        if not isinstance(hours.get("no_nights", False), bool):
+            problems.append("hours.no_nights must be true or false")
     if kn is not None:
         valid_roles = set(kn.categories) | {f"{n.parent}.{n.key}" for n in kn.subcategories.values()} | set(kn.families)
         unknown = [r for r in profile.get("target_roles") or [] if r not in valid_roles]

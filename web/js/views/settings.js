@@ -2,7 +2,7 @@
 // appearance and privacy notes. Laid out like an app's settings window: a
 // sidebar of sections, one section on screen at a time (#/settings?tab=…).
 import {del, fileToBase64, get, patch, post, put} from '../api.js';
-import {esc} from '../lib.js';
+import {HOURS, esc} from '../lib.js';
 import {bindMenu, confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
 import {FIELD_INFO, countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
@@ -284,6 +284,14 @@ export async function render(root, ctx) {
     const mine = (profile.languages || []).map(l => l.toLowerCase());
     const otherLanguages = (profile.languages || []).filter(l => !known.some(k => k.toLowerCase() === l.toLowerCase()));
 
+    // Licences & certifications (D16), shown to the boards whose postings ask for them.
+    const licences = meta.licences || [];
+    const licenceBoards = [...new Set(licences.map(l => l.board))];
+    const licenceGroup = licenceBoards.length ? group('Licences & certifications', 'Postings that require a licence you don’t list rank lower. Count one you will hold by the time you start. Certifications show on postings and never change fit.',
+      [['licence', 'Licences'], ['certification', 'Certifications']].map(([kind, name]) => `<div class="set-block" data-pick-scope><p class="set-mini" data-scope-label>${name}</p>${picks('licence', licences.filter(l => l.kind === kind).map(l => [l.key, l.label]), profile.licences || [])}</div>`).join(''),
+      {attrs: ` data-field-section="${esc(licenceBoards.join(' '))}"`}) : '';
+    const hours = profile.hours || {};
+
     const about = panel('about', 'About you', 'Used to explain matches and check eligibility. Nothing here is required, and it stays on this computer.',
       group('Basics', '', row('Profile name', 'For your own reference', `<input class="input" name="name" value="${esc(profile.name || '')}">`)
         + row('Headline', 'Shown on Today under the date', `<input class="input" name="headline" value="${esc(profile.headline || '')}" placeholder="2027 finance recruiting · Toronto">`))
@@ -293,6 +301,7 @@ export async function render(root, ctx) {
         + row('Program or major', '', `<input class="input" name="edu_program" value="${esc(edu.program || '')}" placeholder="Commerce, Computer Science">`)
         + `<div class="set-row">${label('Graduation', 'When you finish this degree')}<span class="set-control pair">${month}${year}</span></div>`
         + row('GPA', 'Optional', `<span class="input-unit"><input class="input num" name="edu_gpa" inputmode="decimal" value="${esc(edu.gpa ?? '')}" placeholder="3.7"><span>/ 4.0</span></span>`))
+      + licenceGroup
       + group('Work authorization', 'For each country you target. Postings that state they won’t sponsor, or that need citizenship, are checked against this. Choose countries under <a class="link" href="#/settings?tab=places">Locations &amp; timing</a>.',
         countries.map(([k, name]) => `<label class="set-row" data-auth-country="${esc(k)}">${label(esc(name), k === 'US' ? 'Some U.S. roles require citizenship' : '')}<span class="set-control"><select class="select" name="auth_${esc(k)}">${options(WORK_AUTH.map(([v, text]) => ({key: v, label: text})), auth[k] || 'unknown')}</select></span></label>`).join('')
         + '<p class="set-empty" data-auth-empty hidden>Choose the countries you are targeting first.</p>')
@@ -353,6 +362,9 @@ export async function render(root, ctx) {
 
     const places = panel('places', 'Locations & timing', 'Which kinds of roles and recruiting cycles you are in, and where you want to work.',
       group('Stages', 'Pick every stage you would apply to.', block(choices('checkbox', 'stage', STAGES, profile.target_stages || [])))
+      + group('Hours', 'Postings that state only other hours rank lower. A posting that states none is never affected, and with nothing picked here every posting ranks the same.',
+        field('Hours I can work', '', picks('hours_employment', HOURS.filter(h => h.employment).map(h => [h.key, h.label]), hours.employment || []))
+        + row('No night shifts', 'Postings with night shifts rank lower', `<input type="checkbox" class="switch" name="no_nights"${hours.no_nights ? ' checked' : ''}>`))
       + group('Recruiting cycles', 'Postings in these cycles get the cycle points, worth up to 10. A dot marks cycles with open postings right now.',
         block(`<div class="cycles">${cycleRows}</div>`))
       + group('Countries', 'Other cities in these countries still score well. Postings outside them rank lower.', block(picks('country', countries, profile.target_countries || [])))
@@ -598,7 +610,13 @@ export async function render(root, ctx) {
       .map(k => [k, fd.get(`auth_${k}`)]).filter(([k, v]) => v && (v !== 'unknown' || countries.includes(k) || k in before));
     const languages = [...all('language'), ...list(fd.get('languages_other'))]
       .filter((lang, i, arr) => arr.findIndex(other => other.toLowerCase() === lang.toLowerCase()) === i);
+    // Licences and hours are sent once set, so a profile that never had them saves as before.
+    const licences = all('licence');
+    const employment = all('hours_employment');
+    const noNights = fd.get('no_nights') === 'on';
     return {
+      ...(licences.length || saved.licences ? {licences} : {}),
+      ...(employment.length || noNights || saved.hours ? {hours: {employment, no_nights: noNights}} : {}),
       name: fd.get('name'), headline: fd.get('headline'),
       graduation_year: num(fd.get('graduation_year'), null), graduation_month: num(fd.get('graduation_month'), 5),
       education: {level: fd.get('edu_level') || 'undergraduate', school: fd.get('edu_school'), program: fd.get('edu_program'), gpa: fd.get('edu_gpa') || null},

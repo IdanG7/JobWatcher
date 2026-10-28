@@ -51,6 +51,10 @@ class CalendarProgramTests(ServiceFixture):
         self.service.put_profile({"fields": ["finance", "healthcare"], "licences": ["pharmacist"]})
         items = [i for i in self.service.calendar(dec)["items"] if i["kind"] == "program"]
         self.assertEqual([(i["date"], i["key"]) for i in items], [("2026-12-12", "aifa")])
+        # The saved licence narrows them: October's nurse externships are for RNs.
+        octo = {"start": ["2026-10-01"], "end": ["2026-10-31"]}
+        self.assertEqual([i["key"] for i in self.service.calendar(octo)["items"] if i["kind"] == "program"],
+                         ["industry_fellowships"])
 
 
 if __name__ == "__main__":

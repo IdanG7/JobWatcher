@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
+import {countryList, employerSections, fieldList, licencesFor, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
 import {META} from './board-meta.js';
 
 const FINANCE = ['investment_banking', 'private_markets', 'public_markets'];
@@ -92,4 +92,11 @@ test('finance employer types keep their sections and tech types are listed apart
       tracks: [{key: 'tech', label: 'Tech', boards: [], sections: [['Tech', ['big_tech']]]}]});
   // A server without tracks lists every type under Finance, as before.
   assert.deepEqual(employerSections([{key: 'bulge_bracket'}, {key: 'unknown'}]), {finance: [['Other', ['bulge_bracket']]], tracks: []});
+});
+
+test('licences follow the boards whose postings ask for them', () => {
+  const meta = {licences: [{key: 'rn', kind: 'licence', board: 'healthcare'}, {key: 'bls', kind: 'certification', board: 'healthcare'}]};
+  assert.deepEqual(licencesFor(['finance', 'healthcare'], meta).map(l => l.key), ['rn', 'bls']);
+  assert.deepEqual(licencesFor(['finance', 'software'], meta), []);
+  assert.deepEqual(licencesFor(['healthcare'], {}), []);      // a server from before licences
 });

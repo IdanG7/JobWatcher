@@ -1025,6 +1025,32 @@ track's boards, skill groups and types resolve.
    - What's new items drafted in `web/js/release-notes.js`, with no version bump.
    - Merge `main`, run the gate again, run both full suites, and write the final report.
    - Add my lessons to Part C of the brief in the main checkout.
+   - **As built** (2026-10-28):
+     - **`main` merged** (`d70bace`, switching tabs while Foothold works). No conflict; `dashboard.py` merged
+       on its own. The gate's main-side snapshot (`6c7112c`) still stands: the two new commits change only
+       `dashboard.py`, tests and `web/`, and the gate runs `intel_store` and `intel/` alone.
+     - **Setup:** "Which specialties?" shows Healthcare's nine filters through `family_tree()`, as designed.
+       It also asks "Licences you hold or will hold" for a board with licences (Healthcare's 11; certifications
+       come from the resume or Settings). A Finance-only setup is unchanged.
+     - **Settings:**
+       - About you gains "Licences & certifications", shown only to the boards whose postings name them
+         (`/api/meta` licences carry their `board`).
+       - Locations & timing gains "Hours", for every board: "Hours I can work" (the five employment types)
+         and "No night shifts".
+       - A profile that never set either saves without the keys, so its version and scores don't change.
+     - **Hours preference (D15):** −10 "Hours" when a posting states only employment types outside the
+       profile's, and −10 "Night shifts" when it states nights. A posting that states no hours costs nothing,
+       and an unset preference costs nothing on any board (`tests/matching/test_hours.py`).
+     - **Fixed:** `put_profile` kept only the default profile's keys, so a Settings save dropped the licences
+       a resume had added (and would have dropped `hours`). The Phase 5 Calendar test passed by coincidence.
+       It now checks October, where a pharmacist sees fellowships and not nurse externships.
+     - **Sources view:** no change needed. Counts and the "Your boards" filter follow the profile's boards,
+       and Healthcare's twelve packs show under their titles (checked in the preview).
+     - **Docs:** `PRODUCT.md` (fields, packs, Settings parts per board), `docs/ARCHITECTURE.md` (modules, the
+       `health/` folder, the Boards section, the gate, the new penalties), and the taxonomy `_readme`
+       (Healthcare has specialties). The manifest `_readme` already described `health/`.
+     - **What's new:** a 0.3.12 draft with four items (the board, resumes, licences and hours, program dates).
+       Set its version and date at release.
 
 ---
 
