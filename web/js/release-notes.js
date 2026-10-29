@@ -11,10 +11,10 @@
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
   {version: '0.3.12', date: '2026-10-28', items: [
-    {icon: 'spark', title: 'Tabs open at once while Foothold works',
-      text: 'Recent pages stay ready during checks and the one-time re-rank this update starts.'},
     {icon: 'heart', title: 'More Healthcare roles, by specialty', link: '#/settings?tab=roles',
       text: 'From the job sites of over 200 hospitals, labs, drug makers and more, in nine specialties.'},
+    {icon: 'tag', title: 'Pay shows on more roles', link: '#/opportunities',
+      text: 'Pay in job descriptions now shows on far more roles and counts for Minimum annual pay.'},
     {icon: 'check', title: 'Licences count toward fit', link: '#/settings?tab=about',
       text: 'Healthcare roles that need a licence you don’t list rank lower. Add yours in About you.'},
     {icon: 'clock', title: 'Say which hours you can work', link: '#/settings?tab=places',
