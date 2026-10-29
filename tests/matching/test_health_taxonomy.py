@@ -122,6 +122,20 @@ class PlacementTests(unittest.TestCase):
                                 ("Research Associate I", "public_markets")):
             self.assertEqual(category, self.assertBoard("finance", title)["category"], title)
 
+    def test_a_pay_line_in_the_title_is_no_finance_word(self):
+        # Vanderbilt and Boston Medical Center name the pay in the title; 'Rates' there isn't Fixed Income.
+        for title in ("Licensed Practical Nurse - Adult Urology - Cool Springs (**New Rates**)",
+                      "Licensed Practical Nurse PRN - Neurology Clinic - (!!New Rates!!)"):
+            self.assertBoard("healthcare", title, company_type="hospital")
+        for title in ("CT Technologist (24 Hours, Evenings/Nights) Enhanced Rates and 15k Sign-On Bonus!",
+                      "MRI Tech-Per Diem, Enhanced Pay Rates",
+                      "Lead Cat Scan Technologist $15K sign-on bonus and new higher rates"):
+            self.assertFalse(cls(title, company_type="hospital")["is_finance"], title)
+        self.assertFalse(cls("Heat Treat Operator – 1st Shift – Pay Rate: $21.00/hour")["is_finance"])
+        for title in ("Rates Trader", "Associate, Rates Structuring", "Summer Analyst - Rates",
+                      "Interest Rates Sales - Vice President", "Emerging Markets Rates Strategist"):
+            self.assertEqual("fixed_income", self.assertBoard("finance", title)["subcategory"], title)
+
     def test_life_science_research_titles_leave_equity_research(self):
         # D1: 'research associate' is Equity Research's title word too.
         for title, kw in (("Research Associate, Cell Biology", {}), ("Clinical Research Associate II", {}),

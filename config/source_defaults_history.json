@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "e64bf14f5d8fd1f4",
+  "hash": "f5dd3640f5c29200",
   "names": [
    "10x_genomics",
    "1password",
@@ -240,6 +240,7 @@
    "booz_allen_hamilton",
    "borrowell",
    "boston_dynamics",
+   "boston_medical_center",
    "boston_scientific",
    "box",
    "braintrust",
@@ -292,6 +293,7 @@
    "cheo",
    "chewy",
    "children_s_hospital_of_philadelphia",
+   "children_s_national",
    "chime",
    "cibc",
    "cibc_students",
@@ -501,6 +503,7 @@
    "harvey",
    "headway",
    "health_canada",
+   "health_sciences_north",
    "health_standards_organization",
    "hebbia",
    "helion_energy",
@@ -514,6 +517,7 @@
    "hopper",
    "houlihan_lokey",
    "houlihan_lokey_campus",
+   "houston_methodist",
    "hp",
    "hpe",
    "hrt",
@@ -650,6 +654,7 @@
    "medallia",
    "medavie_health_services",
    "medtronic",
+   "memorial_sloan_kettering",
    "merck",
    "mercor",
    "mercury",
@@ -691,6 +696,7 @@
    "nasdaq",
    "natera",
    "national_bank",
+   "nationwide_children_s",
    "ncr_voyix",
    "nebius",
    "neo4j",
@@ -1027,6 +1033,7 @@
    "unstructured_io",
    "upstart",
    "vancouver_coastal_health",
+   "vanderbilt_university_medical_center",
    "vanguard",
    "vansh_intern26",
    "vansh_intern27",
@@ -1251,6 +1258,7 @@
   "booz_allen_hamilton": 10,
   "borrowell": 10,
   "boston_dynamics": 10,
+  "boston_medical_center": 11,
   "boston_scientific": 11,
   "box": 10,
   "braintrust": 1,
@@ -1303,6 +1311,7 @@
   "cheo": 11,
   "chewy": 10,
   "children_s_hospital_of_philadelphia": 11,
+  "children_s_national": 11,
   "chime": 1,
   "cibc": 1,
   "cibc_students": 2,
@@ -1512,6 +1521,7 @@
   "harvey": 1,
   "headway": 10,
   "health_canada": 11,
+  "health_sciences_north": 11,
   "health_standards_organization": 11,
   "hebbia": 10,
   "helion_energy": 10,
@@ -1525,6 +1535,7 @@
   "hopper": 10,
   "houlihan_lokey": 1,
   "houlihan_lokey_campus": 1,
+  "houston_methodist": 11,
   "hp": 1,
   "hpe": 10,
   "hrt": 1,
@@ -1663,6 +1674,7 @@
   "medallia": 10,
   "medavie_health_services": 11,
   "medtronic": 11,
+  "memorial_sloan_kettering": 11,
   "merck": 11,
   "mercor": 1,
   "mercury": 1,
@@ -1704,6 +1716,7 @@
   "nasdaq": 1,
   "natera": 10,
   "national_bank": 2,
+  "nationwide_children_s": 11,
   "ncr_voyix": 10,
   "nebius": 10,
   "neo4j": 10,
@@ -2040,6 +2053,7 @@
   "unstructured_io": 10,
   "upstart": 1,
   "vancouver_coastal_health": 11,
+  "vanderbilt_university_medical_center": 11,
   "vanguard": 6,
   "vansh_intern26": 1,
   "vansh_intern27": 1,
@@ -5310,6 +5324,35 @@
    "bostondynamics"
   ]
  },
+ "boston_medical_center": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "boston_medical_center"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "bmc.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BMC"
+  ],
+  "tenant": [
+   "bmc"
+  ]
+ },
  "boston_scientific": {
   "api": [
    "pcsx"
@@ -6551,6 +6594,35 @@
   ],
   "tenant": [
    "chop"
+  ]
+ },
+ "children_s_national": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "children_s_national"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "childrensnational.wd108.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CN_Careers"
+  ],
+  "tenant": [
+   "childrensnational"
   ]
  },
  "chime": {
@@ -11453,6 +11525,32 @@
    2
   ]
  },
+ "health_sciences_north": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "health_sciences_north"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "location": [
+   "Sudbury, ON"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.hsnsudbury.ca/search/"
+  ]
+ },
  "health_standards_organization": {
   "ats": [
    "dayforce"
@@ -11744,6 +11842,35 @@
   ],
   "tenant": [
    "hl"
+  ]
+ },
+ "houston_methodist": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "houston_methodist"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "houstonmethodist.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "GTI"
+  ],
+  "tenant": [
+   "houstonmethodist"
   ]
  },
  "hp": {
@@ -15521,6 +15648,35 @@
    "medtronic"
   ]
  },
+ "memorial_sloan_kettering": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "memorial_sloan_kettering"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "msk.wd108.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MSKCC_Careers_Primary"
+  ],
+  "tenant": [
+   "msk"
+  ]
+ },
  "merck": {
   "ats": [
    "workday"
@@ -16537,6 +16693,35 @@
   ],
   "url": [
    "https://emplois.bnc.ca/en_CA/careers/searchjobs/"
+  ]
+ },
+ "nationwide_children_s": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "nationwide_children_s"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "nationwidechildrens.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "NCHCareers"
+  ],
+  "tenant": [
+   "nationwidechildrens"
   ]
  },
  "ncr_voyix": {
@@ -24408,6 +24593,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "vanderbilt_university_medical_center": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "vanderbilt_university_medical_center"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "host": [
+   "vumc.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "vumccareers"
+  ],
+  "tenant": [
+   "vumc"
   ]
  },
  "vanguard": {

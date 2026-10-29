@@ -278,6 +278,7 @@ class Knowledge:
         self.generic_finance_title = re.compile(
             fragment(data.get("generic_finance_title", "analyst|associate")), re.I)
         self.test_posting_title = compile_union(data.get("test_posting_titles"))
+        self.pay_rate_phrase = compile_union(data.get("pay_rate_phrases"))
         self.categories: dict[str, Node] = {}
         self.subcategories: dict[str, Node] = {}
         for key, cat in data.get("categories", {}).items():
