@@ -933,13 +933,29 @@ def fetch_phenom(cfg):
 
 
 EIGHTFOLD_BACKOFF = (10, 30, 60)       # waits after successive 429s on one request
+# Eightfold's career sites share one edge, which refuses an address (403) for a minute or two
+# once all of them together are asked too fast, so their requests take turns with a gap.
+EIGHTFOLD_SPACING = 1.5                # seconds between requests to any Eightfold site
+_eightfold_lock = threading.Lock()
+_eightfold_next = 0.0
+
+
+def _eightfold_get(url, **kw):
+    """Every Eightfold request (both APIs, listings and opened postings) takes its turn here."""
+    global _eightfold_next
+    with _eightfold_lock:
+        now = time.monotonic()
+        if now < _eightfold_next:
+            time.sleep(_eightfold_next - now)
+        _eightfold_next = time.monotonic() + EIGHTFOLD_SPACING
+    return requests.get(url, **kw)
 
 
 def _eightfold_pcsx_get(cfg, path, params):
     for wait in (*EIGHTFOLD_BACKOFF, None):
-        r = requests.get(f"https://{cfg['host']}/api/pcsx/{path}", params={"domain": cfg["domain"], **params},
-                         headers={"User-Agent": UA, "Accept": "application/json",
-                                  "Referer": f"https://{cfg['host']}/careers"}, timeout=TIMEOUT)
+        r = _eightfold_get(f"https://{cfg['host']}/api/pcsx/{path}", params={"domain": cfg["domain"], **params},
+                           headers={"User-Agent": UA, "Accept": "application/json",
+                                    "Referer": f"https://{cfg['host']}/careers"}, timeout=TIMEOUT)
         if r.status_code != 429 or wait is None:
             break
         time.sleep(wait)
@@ -953,20 +969,20 @@ def _eightfold_pcsx_get(cfg, path, params):
 def fetch_eightfold_pcsx(cfg):
     """Eightfold's newer search (Qualcomm, Lam Research), for sites that refuse the
     older API. cfg: host, domain, api 'pcsx', optional query, max. It serves 10 per page, and
-    answers bursts with 429, so pages are spaced; a listing it stops serving
+    answers bursts with 429 or 403, so pages are spaced; a listing it stops serving
     part-way keeps what was read (incomplete, so nothing is closed)."""
     out, seen, start = SourceListing(), set(), 0
     limit = _source_limit(cfg)
     while len(out) < limit:
-        if start:
-            time.sleep(1)
         try:
             data = _eightfold_pcsx_get(cfg, "search", {"query": cfg.get("query", ""), "location": "", "start": start,
                                                        "num": 10, "sort_by": "timestamp"})
         except requests.HTTPError as exc:
-            if not out or exc.response is None or exc.response.status_code != 429:
+            status = exc.response.status_code if exc.response is not None else 0
+            if not out or status not in (403, 429):
                 raise
-            out.reason = f"Eightfold rate-limited the listing at {len(out)} of {out.total} postings"
+            stopped = "refused" if status == 403 else "rate-limited"
+            out.reason = f"Eightfold {stopped} the listing at {len(out)} of {out.total} postings"
             return out
         if out.total is None and isinstance(data.get("count"), int):
             out.total = data["count"]
@@ -995,9 +1011,9 @@ def fetch_eightfold(cfg):
                   "sort_by": "timestamp"}
         if cfg.get("query"):
             params["query"] = cfg["query"]
-        r = requests.get(f"https://{cfg['host']}/api/apply/v2/jobs", params=params,
-                         headers={"User-Agent": UA, "Accept": "application/json"},
-                         timeout=TIMEOUT)
+        r = _eightfold_get(f"https://{cfg['host']}/api/apply/v2/jobs", params=params,
+                           headers={"User-Agent": UA, "Accept": "application/json"},
+                           timeout=TIMEOUT)
         r.raise_for_status()
         data = r.json()
         if out.total is None and isinstance(data.get("count"), int):
@@ -2634,9 +2650,9 @@ def detail_eightfold(cfg, job_id):
     if cfg.get("api") == "pcsx":
         data = _eightfold_pcsx_get(cfg, "position_details", {"position_id": job_id})
         return html_to_text(data.get("jobDescription") or ""), data.get("department") or ""
-    r = requests.get(f"https://{cfg['host']}/api/apply/v2/jobs/{job_id}",
-                     params={"domain": cfg["domain"]},
-                     headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    r = _eightfold_get(f"https://{cfg['host']}/api/apply/v2/jobs/{job_id}",
+                       params={"domain": cfg["domain"]},
+                       headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
     r.raise_for_status()
     data = r.json()
     return html_to_text(data.get("job_description") or ""), data.get("department") or ""
