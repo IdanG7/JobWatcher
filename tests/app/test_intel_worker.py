@@ -2,6 +2,7 @@
 report back to it; the server stays as it was to every page."""
 import io
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -267,6 +268,7 @@ class SupervisionTests(unittest.TestCase):
         self.assertEqual([3, 3, 3], exits)
         self.assertFalse(worker.alive)
 
+    @unittest.skipUnless(os.name == "nt", "Windows job objects; elsewhere the worker ends on end of input")
     def test_the_worker_ends_with_the_process_that_started_it(self):
         # The real interpreter, not a virtual environment's launcher, so the job holds the process itself.
         worker = WorkerProcess([getattr(sys, "_base_executable", sys.executable), "-c",
