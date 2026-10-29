@@ -218,10 +218,11 @@ def stop_running(url: str) -> bool:
         return False
 
 
-def wait_for_exit(pid: int, seconds: float, may_end: bool = False) -> bool:
+def wait_for_exit(pid: int, seconds: float, may_end: bool = False, created: int | None = None) -> bool:
     """Wait for a stopping server's process to end (its files stay in use until it
     does). Only a Python process is waited for, so a reused process id never
-    holds things up; with ``may_end`` one still alive after ``seconds`` is ended."""
+    holds things up; with ``may_end`` one still alive after ``seconds`` is ended.
+    ``created`` (when the process started) names it exactly: another one is left alone."""
     import ctypes
     from ctypes import wintypes
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -237,6 +238,11 @@ def wait_for_exit(pid: int, seconds: float, may_end: bool = False) -> bool:
             return True
         if Path(name.value).name.lower() not in ("pythonw.exe", "python.exe"):
             return True       # the id now belongs to another program
+        if created is not None:
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if not kernel32.GetProcessTimes(wintypes.HANDLE(handle), *(ctypes.byref(t) for t in times)) \
+                    or (times[0].dwHighDateTime << 32 | times[0].dwLowDateTime) != created:
+                return True   # started after the one recorded: the id was reused
         if kernel32.WaitForSingleObject(handle, int(seconds * 1000)) == 0:
             return True
         if not may_end:
@@ -248,12 +254,17 @@ def wait_for_exit(pid: int, seconds: float, may_end: bool = False) -> bool:
 
 
 def stop_and_wait(data: Path, seconds: float = 30, ask: bool = True) -> bool:
-    """Stop the copy serving this data folder and wait until its process has exited.
-    ``ask=False`` only waits for a copy that is already stopping."""
+    """Stop the copy serving this data folder and wait until its process, and its
+    background worker's, have exited. ``ask=False`` only waits for a copy that is
+    already stopping."""
     try:      # written by the server at start and left behind, unlike instance.json
         pid = int((data / "server.pid").read_text(encoding="utf-8").strip())
     except (OSError, ValueError):
         pid = None
+    try:      # "pid created": the worker the server started (intel_worker.py)
+        worker, created = (int(part) for part in (data / "worker.pid").read_text(encoding="utf-8").split())
+    except (OSError, ValueError):
+        worker = created = None
     url = instance_url(data / "instance.json") if ask else None
     answered = bool(url) and stop_running(url)
     deadline = time.monotonic() + seconds
@@ -265,10 +276,12 @@ def stop_and_wait(data: Path, seconds: float = 30, ask: bool = True) -> bool:
         if time.monotonic() >= deadline:
             return False
         time.sleep(0.2)
-    if not pid:
-        return True
     # Ended only if it answered the stop request: then the id is certainly this server.
-    return wait_for_exit(pid, max(5.0, deadline - time.monotonic()), may_end=answered)
+    stopped = not pid or wait_for_exit(pid, max(5.0, deadline - time.monotonic()), may_end=answered)
+    # The worker ends with the server; one still ending is waited for, and one the server left
+    # behind is ended (its start time makes it certainly that worker).
+    return stopped and (not worker or wait_for_exit(worker, max(5.0, deadline - time.monotonic()),
+                                                    may_end=True, created=created))
 
 
 def preferred_port(data: Path) -> int:
@@ -585,6 +598,7 @@ def main(argv=None) -> int:
         if args.console:
             print("Keep this window open. Close it or press Ctrl+C to stop Foothold.", flush=True)
             print("Open Settings to choose your targets and upload your own resume.\n", flush=True)
+        service.worker_pid_path = data / "worker.pid"
         service.start_background()
         if not args.no_poll:
             def poll():
@@ -602,8 +616,7 @@ def main(argv=None) -> int:
             pass
         finally:
             print("\nFoothold stopped.", flush=True)
-            service._stop.set()
-            service._wake.set()
+            service.stop_background()       # the worker has ended before exit_now
             server.server_close()
             state.unlink(missing_ok=True)
     finally:

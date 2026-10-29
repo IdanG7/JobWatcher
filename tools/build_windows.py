@@ -28,7 +28,7 @@ PYTHON_VERSION = "3.14.8"
 RUNTIME_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
 # Published at https://www.python.org/downloads/release/python-3148/
 RUNTIME_SHA256 = "a93abe456ab01bd96d7a085b3cdb6566b3063f4241360d114142fbdb07f0a310"
-MODULES = ("watcher.py", "dashboard.py", "db_migrations.py", "intel_store.py",
+MODULES = ("watcher.py", "dashboard.py", "db_migrations.py", "intel_store.py", "intel_worker.py",
            "job_intelligence.py", "job_query.py", "portable_start.py", "version.py", "updater.py",
            "update_key.py")
 KNOWLEDGE = ("companies.json", "locations.json", "skills.json", "taxonomy.json", "source_defaults_v1.json",
