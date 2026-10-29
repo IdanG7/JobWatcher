@@ -110,6 +110,44 @@ class ResponseCacheTests(fixtures.ServiceFixture):
             time.sleep(0.3)
         self.assertEqual(1, self.calls)
 
+    def test_a_page_in_use_stays_kept_however_many_searches_come_between(self):
+        for query in range(100):
+            self.service.cached(("search", query), lambda: None)
+            self.assertEqual(1, self.service.cached("page", self.compute))
+        self.assertEqual(1, self.calls)
+
+    def test_the_page_asked_for_longest_ago_is_the_one_let_go(self):
+        for query in range(200):
+            self.service.cached(("search", query), self.compute)
+        self.service.cached(("search", 199), self.compute)
+        self.service.cached(("search", 100), self.compute)
+        self.assertEqual(200, self.calls)
+        self.service.cached(("search", 0), self.compute)                        # 128 pages are kept
+        self.assertEqual(201, self.calls)
+
+    def recomputed_after_a_change(self, asks, count):
+        """Ask for the pages ``asks`` in order, change the data, and return the pages keep_ready recomputes."""
+        computed = []
+        for key in asks:
+            self.service.cached(key, lambda key=key: computed.append(key))
+        before = len(computed)
+        threading.Thread(target=self.service.keep_ready, daemon=True).start()
+        self.service.invalidate()
+        deadline = time.monotonic() + 5
+        while len(computed) < before + count and time.monotonic() < deadline:
+            time.sleep(0.02)
+        time.sleep(0.1)                             # and nothing more
+        return computed[before:]
+
+    def test_the_64_pages_asked_for_last_are_kept_ready_newest_first(self):
+        searches = [("search", query) for query in range(100)]
+        self.assertEqual(searches[:35:-1], self.recomputed_after_a_change(searches, 64))
+
+    def test_a_page_asked_for_again_is_kept_ready(self):
+        searches = [("search", query) for query in range(80)]
+        asks = ["page", *searches[:40], "page", *searches[40:]]
+        self.assertEqual([*searches[:39:-1], "page", *searches[39:16:-1]], self.recomputed_after_a_change(asks, 64))
+
     def test_the_resume_pending_count_is_counted_again_after_a_change(self):
         con = sqlite3.connect(self.db_path)
         con.execute("INSERT INTO candidate_resume(id, filename, parsed, enabled, version, updated_at) "
