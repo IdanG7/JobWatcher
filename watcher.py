@@ -932,6 +932,7 @@ def fetch_phenom(cfg):
     return out
 
 
+EIGHTFOLD_REPEATS = 3                  # whole pages already read, in a row, before a listing counts as stuck
 EIGHTFOLD_BACKOFF = (10, 30, 60)       # waits after successive 429s on one request
 # Eightfold's career sites share one edge, which refuses an address (403) for a minute or two
 # once all of them together are asked too fast, so their requests take turns with a gap.
@@ -973,6 +974,7 @@ def fetch_eightfold_pcsx(cfg):
     part-way keeps what was read (incomplete, so nothing is closed)."""
     out, seen, start = SourceListing(), set(), 0
     limit = _source_limit(cfg)
+    shifted = repeats = 0
     while len(out) < limit:
         try:
             data = _eightfold_pcsx_get(cfg, "search", {"query": cfg.get("query", ""), "location": "", "start": start,
@@ -992,9 +994,23 @@ def fetch_eightfold_pcsx(cfg):
                                        for place in p.get("standardizedLocations") or p.get("locations") or []),
                  "url": f"https://{cfg['host']}{p.get('positionUrl') or '/careers/job/' + str(p.get('id'))}",
                  "posted": p.get("postedTs")} for p in data.get("positions") or []]
+        # postedTs is a day, and the order among postings that share one shifts whenever the site
+        # updates its index, so a page can bring back postings already read and hide as many unread
+        # ones. A whole page of them is skipped rather than taken for a stuck listing, unless it keeps happening.
+        again = sum(j["id"] in seen for j in page)
+        shifted += again
+        if page and again == len(page) and repeats < EIGHTFOLD_REPEATS:
+            repeats += 1
+            start += len(page)
+            continue
+        repeats = 0
         if _consume_page(out, page, seen, "Eightfold", limit):
             break
         start += len(page)
+    if shifted:
+        out.complete = False
+        out.reason = (f"Eightfold returned {len(out)} of {out.total} postings; its order shifted during the read "
+                      f"({shifted} came twice), so removals are not tracked this time")
     return _finish_listing(out, "Eightfold", limit)
 
 
