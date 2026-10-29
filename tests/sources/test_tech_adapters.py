@@ -60,6 +60,35 @@ class EightfoldTests(unittest.TestCase):
         self.assertFalse(jobs.complete)
         self.assertIn("rate-limited", jobs.reason)
 
+    @staticmethod
+    def same_day(*ids, count=5):
+        return response({"status": 200, "data": {"count": count, "positions": [
+            {"id": i, "name": f"Engineer {i}", "postedTs": 1793145600} for i in ids]}})
+
+    @patch("watcher.requests.get")
+    def test_pcsx_skips_a_page_a_reorder_brought_back(self, get, sleep):
+        # Same-day postings 3 and 4 move ahead of 1 and 2 after the first page, as Northrop's do.
+        get.side_effect = [self.same_day(1, 2), self.same_day(1, 2), self.same_day(5), self.same_day()]
+        jobs = watcher.fetch_eightfold({"host": "jobs.northropgrumman.com", "domain": "ngc.com", "api": "pcsx"})
+        self.assertEqual(["1", "2", "5"], [j["id"] for j in jobs])
+        self.assertEqual([0, 2, 4, 5], [c.kwargs["params"]["start"] for c in get.call_args_list])
+        self.assertFalse(jobs.complete)
+        self.assertIn("order shifted", jobs.reason)
+
+    @patch("watcher.requests.get")
+    def test_pcsx_overlap_never_counts_as_the_whole_listing(self, get, sleep):
+        get.side_effect = [self.same_day(1, 2, count=3), self.same_day(2, 3, count=3)]
+        jobs = watcher.fetch_eightfold({"host": "careers.qualcomm.com", "domain": "qualcomm.com", "api": "pcsx"})
+        self.assertEqual(["1", "2", "3"], [j["id"] for j in jobs])
+        self.assertFalse(jobs.complete)
+
+    @patch("watcher.requests.get")
+    def test_pcsx_still_fails_a_listing_stuck_on_one_page(self, get, sleep):
+        get.return_value = self.same_day(1, 2, count=50)
+        with self.assertRaisesRegex(RuntimeError, "repeated a page"):
+            watcher.fetch_eightfold({"host": "apply.ukg.com", "domain": "ukg.com", "api": "pcsx"})
+        self.assertEqual(2 + watcher.EIGHTFOLD_REPEATS, get.call_count)
+
     @patch("watcher.requests.get")
     def test_pcsx_keeps_what_it_read_when_refused_part_way(self, get, sleep):
         refused = response({})
