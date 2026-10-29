@@ -2,13 +2,16 @@
 skills, employer types and education, read the same as text, a PDF or a LaTeX PDF; a biomedical engineering
 resume opens Hardware and Healthcare. Finance and tech resumes are read as before (test_resume_tech.py)."""
 import importlib.util
+import re
 import time
 import unittest
+from xml.sax.saxutils import escape
 
 from intel import build_facts, load_knowledge, merge_profile, score_job
 from intel.matching import match_resume
 from intel.profile import validate_profile
 from intel.resume import clean_pdf_text, extract_text, parse_resume, profile_from_resume
+from tests.resume.test_resume_documents import docx
 from tests.resume.test_resume_tech import pdf
 
 KN = load_knowledge()
@@ -114,6 +117,39 @@ def plain_lines(text):
     return [line.replace("–", "-").replace("• ", "- ") for line in text.splitlines()]
 
 
+_RIGHT_SIDE = re.compile(r"^(.*\S)\s+(\w{3} \d{4} – (?:\w{3} \d{4}|Present)|[A-Z][a-z]+, [A-Z]{2})$")
+
+
+_HEADINGS = {"Education", "Experience", "Clinical Experience", "Volunteer Experience", "Projects", "Certifications", "Skills"}
+
+
+def word_docx(text, listed=None):
+    """The resume as Word saves it: bullets are list numbering, and dates and cities sit at a right tab stop.
+    ``listed``: headings, education lines and dated job lines are list items too, and duties have no full stop,
+    as many Word resumes are laid out; "nested" puts the duties a level below their job, "flat" beside it."""
+    numbering = ('<w:numbering><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:numFmt w:val="bullet"/></w:lvl>'
+                 '<w:lvl w:ilvl="1"><w:numFmt w:val="bullet"/></w:lvl></w:abstractNum>'
+                 '<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>')
+    run = lambda s: f"<w:r><w:t xml:space=\"preserve\">{escape(s)}</w:t></w:r>"
+    body, section = [], ""
+    for line in text.splitlines():
+        section = line if line in _HEADINGS else section
+        right = _RIGHT_SIDE.match(line)
+        level = None
+        if line.startswith("• "):
+            line, level = (line[2:].rstrip("."), int(listed == "nested")) if listed else (line[2:], 0)
+        elif listed and (line in _HEADINGS or section == "Education" or (right and re.search(r"\d{4}", right[2]))):
+            level = 0
+        props = (f'<w:numPr><w:ilvl w:val="{level}"/><w:numId w:val="1"/></w:numPr>' if level is not None else "")
+        if right and not line.startswith("•"):
+            props += '<w:tabs><w:tab w:val="right" w:pos="9360"/></w:tabs>'
+            content = f"{run(right[1])}<w:r><w:tab/></w:r>{run(right[2])}"
+        else:
+            content = run(line)
+        body.append(f"<w:p><w:pPr>{props}</w:pPr>{content}</w:p>")
+    return docx("".join(body), numbering=numbering)
+
+
 def keys(parsed):
     return [i["key"] for i in parsed["role_interests"]]
 
@@ -125,7 +161,7 @@ class HealthResumeTests(unittest.TestCase):
         self.assertEqual(("undergraduate", "Nursing", 2027, 4),
                          tuple(edu[k] for k in ("level", "program", "graduation_year", "graduation_month")))
         self.assertEqual(["healthcare.clinical_care"], keys(parsed))
-        self.assertEqual(["Nursing Student", "Personal Support Worker (Part-Time"], [r["title"] for r in parsed["roles"]])
+        self.assertEqual(["Nursing Student", "Personal Support Worker (Part-Time)"], [r["title"] for r in parsed["roles"]])
         self.assertLessEqual({"vital_signs", "medication_administration", "patient_care", "bls", "ehr", "infection_control"},
                              {s["key"] for s in parsed["skills"]})
         self.assertEqual(["hospital", "pharmacy_consumer"], parsed["company_types"])
@@ -166,6 +202,51 @@ class HealthResumeTests(unittest.TestCase):
                     self.assertEqual(keys(want), keys(read))
                     self.assertEqual(want["education"]["program"], read["education"]["program"])
                     self.assertEqual({s["key"] for s in want["skills"]}, {s["key"] for s in read["skills"]})
+
+    def test_a_word_docx_reads_as_the_text_does(self):
+        for name, text in RESUMES.items():
+            want = parse_resume(text, KN)
+            for listed in (None, "nested", "flat"):
+                with self.subTest(resume=name, listed=listed):
+                    read = parse_resume(extract_text("resume.docx", word_docx(text, listed)), KN, wrapped=False)
+                    self.assertEqual(want["role_interests"], read["role_interests"])
+                    self.assertEqual([(r["title"], r["label"]) for r in want["roles"]],
+                                     [(r["title"], r["label"]) for r in read["roles"]])
+                    self.assertEqual([(e["company"], e["title"]) for e in want["entries"]],
+                                     [(e["company"], e["title"]) for e in read["entries"]])
+                    self.assertEqual(want["education"], read["education"])
+                    self.assertEqual(want.get("licences"), read.get("licences"))
+
+    def test_a_wrapped_bullet_line_is_no_role(self):
+        # A PDF wraps a long bullet; its last line ("nurse.") is the bullet's end, not a job title.
+        for end in ("the charge\nnurse.", "the\nICU charge nurse."):
+            wrapped = parse_resume(NURSING.replace("the charge nurse.", end), KN)
+            self.assertEqual(["Nursing Student", "Personal Support Worker (Part-Time)"], [r["title"] for r in wrapped["roles"]])
+        # A title on its own line after an unfinished bullet is still a role.
+        titled = parse_resume(NURSING.replace("the charge nurse.", "the charge nurse\nRegistered Nurse"), KN)
+        self.assertIn("Registered Nurse", [r["title"] for r in titled["roles"]])
+
+    def test_a_typed_bullet_is_a_duty_or_a_skill(self):
+        # Dates don't make a typed bullet a job, nor a heading word a heading.
+        want = parse_resume(NURSING, KN)
+        for change in (("on a 32-bed unit.\n", "on a 32-bed unit.\n• Shadowed a registered nurse, Jun 2025 – Aug 2025\n"),
+                       ("Skills\n", "Skills\n• Leadership\n• Projects\n")):
+            with self.subTest(line=change[1].split("\n")[1]):
+                read = parse_resume(NURSING.replace(*change), KN)
+                self.assertEqual([(e["company"], e["title"]) for e in want["entries"]],
+                                 [(e["company"], e["title"]) for e in read["entries"]])
+                self.assertEqual(want["licences"], read["licences"])
+                self.assertEqual(want["role_interests"], read["role_interests"])
+
+    def test_the_rest_of_a_bullet_or_a_title(self):
+        from intel.resume import _goes_on
+        nurse = [KN.tracks["healthcare"].role_words]
+        for line, rest in [("nurse.", True), ("and charted in Epic.", True), ("the ICU charge nurse.", True),
+                           ("lululemon  Data Analyst Intern", False), ("backend developer co-op", False),
+                           ("e-Commerce Data Analyst", False), ("iOS Developer", False), ("Acme Inc.", False),
+                           ("Registered Nurse", False), ("staff nurse", False)]:
+            with self.subTest(line=line):
+                self.assertEqual(rest, _goes_on(line, nurse))
 
     def test_latex_codes_become_text(self):
         text = clean_pdf_text("\n".join(latex_lines(BIOLOGY)))

@@ -1707,13 +1707,15 @@ class JobwatchService:
     def parse_resume(self, payload: dict, keep_text: bool = False) -> dict:
         filename, text = self._document_text(payload)
         try:
-            parsed = parse_resume(text, self.kn)
+            # a .docx's lines are whole paragraphs; a PDF's or pasted text's may be wrapped
+            parsed = parse_resume(text, self.kn, wrapped="text" in payload or not filename.lower().endswith(".docx"))
             if not (parsed["education"].get("level") and (parsed["skills"] or parsed["roles"])):
                 raise ResumeError("could not recognize education and experience or skills; upload or paste the complete resume")
         except ResumeError as exc:
             raise ApiError(str(exc)) from exc
         parsed = {k: parsed.get(k) for k in ("education", "skills", "roles", "role_categories", "role_interests", "career",
-                                             "company_types", "cities", "internships", "languages", "work_authorization")}
+                                             "company_types", "cities", "internships", "languages", "work_authorization",
+                                             "licences")}
         parsed["roles"] = [{k: r[k] for k in ("title", "category", "subcategory", "label")} for r in parsed["roles"]]
         with self.db() as con:
             current = self.profile(con)

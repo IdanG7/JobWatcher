@@ -111,6 +111,36 @@ class ResumeLicenceTests(unittest.TestCase):
         self.assertEqual(self.found(PHARMACY), [("pharmacist", "expected"), ("bls", "held")])
         self.assertEqual(self.found(BIOLOGY), [])
 
+    def test_lines_that_only_look_like_a_licence(self):
+        # Uploading saves these to the profile, where a wrong one would hide the licence a posting asks for.
+        degree = "Bachelor of Science, Honours Biology (Co-op) Expected: May 2027"
+        for change, absent in [
+                (("Skills\n", "Certifications\nOracle Certified Professional (OCP), Java SE 11 Developer\nSkills\n"), "pharmacist"),
+                (("MARCUS CHEN\n", "MARCUS CHEN\nAspiring Registered Nurse\n"), "rn"),
+                ((degree, "Bachelor of Science in Exercise Science, Pre-Physical Therapy Expected: May 2027"), "physiotherapist"),
+                ((degree, "Bachelor of Science, Honours Biology, minor in Nutrition Expected: May 2027"), "dietitian"),
+                ((degree, "Bachelor of Science, Honours Biology; Minor: Psychology and Nutrition Expected: May 2027"), "dietitian"),
+                ((degree, "Bachelor of Science, Honours Biology with a Nutrition minor Expected: May 2027"), "dietitian"),
+                ((degree, "Bachelor of Science, Honours Biology (Nursing prerequisites) Expected: May 2027"), "rn"),
+                ((degree, "Bachelor of Psychiatric Nursing (BPN) Expected: May 2027"), "rn"),
+                ((degree, "Bachelor of Applied Science, Pharmacy Technician Expected: May 2027"), "pharmacist"),
+                (("Skills\n", "Certifications\nRegistered Nurse (registration pending)\nSkills\n"), "rn"),
+                (("aseptic technique.\n", "aseptic technique.\n• Assisted a licensed pharmacist with medication "
+                                          "reconciliation.\n"), "pharmacist")]:
+            with self.subTest(line=change[1].strip()):
+                self.assertNotIn(absent, [key for key, _ in self.found(BIOLOGY.replace(*change))])
+        self.assertIn(("pharmacy_technician", "expected"), self.found(BIOLOGY.replace(
+            degree, "Bachelor of Applied Science, Pharmacy Technician Expected: May 2027")))
+        for line, held in [("Ontario College of Pharmacists (OCP) registration, Part A, 2025", "pharmacist"),
+                           ("Pharmacist, OCP #612345", "pharmacist"),
+                           ("Registered Nurse, CNO #1234567 | Seeking ICU roles", "rn"),
+                           ("MPH Candidate, Registered Nurse (CNO)", "rn"),
+                           ("Registered Nurse, College of Nurses of Ontario, 2025 (renewal in progress)", "rn")]:
+            with self.subTest(line=line):
+                self.assertIn((held, "held"), self.found(BIOLOGY.replace("Skills\n", f"Certifications\n{line}\nSkills\n")))
+        minor = NURSING.replace("(BScN) Expected", "(BScN), minor in Psychology Expected")
+        self.assertIn(("rn", "expected"), self.found(minor))
+
     def test_a_licensed_job_title_is_held(self):
         text = NURSING.replace("Personal Support Worker (Part-Time)", "Registered Nurse (Casual)")
         self.assertIn(("rn", "held"), self.found(text))

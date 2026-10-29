@@ -16,6 +16,42 @@ from .knowledge import BoardLicences, Knowledge
 # Resume lines that state a credential rather than describe work ("reported changes to the charge nurse").
 _CREDENTIAL_LINE = re.compile(r"\b(?:licen[cs]\w*|registration|registered (?:with|member)|college of|nclex|"
                               r"in good standing|certifi\w+|certificate)\b", re.I)
+# ...but a credential named as a goal ("Aspiring Registered Nurse", "Registered Nurse (registration pending)")
+# isn't held yet. Each part of a line ("RN, CNO #1234567 | Seeking ICU roles") is read on its own.
+_PARTS = re.compile(r"\s*[|;•]\s*")
+_GOAL = re.compile(r"\b(?:aspiring|future|prospective|seeking|pursuing|candidate|in progress|working toward\w*|"
+                   r"(?:studying|training|preparing) (?:for|to)|to become|looking for)\b", re.I)
+_PENDING = re.compile(r"\W{0,3}(?:candidate|(?:(?:registration|licen[cs]e|licensure) )?(?:in progress|pending)|"
+                      r"eligible|expected)\b", re.I)
+# ...nor someone else's ("assisted a licensed pharmacist"; "licensed as a Registered Nurse" is the person's).
+_ARTICLE = re.compile(r"(?<!\bas )\b(?:a|an|the)\s+$", re.I)
+# A program the degree is a step toward, beside or short of ("Pre-Physical Therapy", "minor in Nutrition",
+# "Nutrition minor", "Nursing prerequisites", "Physical Therapy Assistant"), or another licence's ("Psychiatric
+# Nursing"; "Practical Nursing" and "Pharmacy Technician" are other items' wider matches) expects no licence.
+_ASIDE_BEFORE = re.compile(r"\bpre[- ]?$|\bminors?\b|\b(?:psychiatric|veterinary)\s+$", re.I)
+_ASIDE_AFTER = re.compile(r"\s+(?:minors?|prerequisites?|pathway|assistant|aide)\b", re.I)
+
+
+def _held(pattern, parts: list[str]):
+    """The first credential a part states as held: not a goal (in its own comma clause), not someone else's."""
+    for part in parts:
+        for m in pattern.finditer(part):
+            before = part[:m.start()]
+            if not (_GOAL.search(before.rsplit(",", 1)[-1]) or _ARTICLE.search(before)
+                    or _PENDING.match(part, m.end())):
+                return m
+    return None
+
+
+def _expected(item, programs: list[str], spans: set) -> re.Match | None:
+    """The program match that expects the item's licence; ``spans`` holds every item's (program, start, end)."""
+    for p, program in enumerate(programs):
+        for m in item.degree.finditer(program):
+            minor = any(re.search(rf"{re.escape(m.group(0))}\s+minors?\b", o, re.I) for o in programs)
+            wider = any(q == p and s <= m.start() and m.end() <= e and (s, e) != m.span() for q, s, e in spans)
+            if not (minor or wider or _ASIDE_BEFORE.search(program[:m.start()]) or _ASIDE_AFTER.match(program, m.end())):
+                return m
+    return None
 
 
 # An ATS's job-family line names a family of roles, not what this posting asks for: "Job Family:\nMED >
@@ -73,19 +109,21 @@ def resume_licences(sections: dict[str, list[str]], entries: list[dict], educati
     lines = [l for l in sections.get("_top", [])[:3] + sections.get("certifications", []) if l.strip()]
     lines += [l for name, block in sections.items() if name not in ("_top", "certifications")
               for l in block if _CREDENTIAL_LINE.search(l)]
-    credentials = "\n".join(lines)
+    parts = [p for l in lines for p in _PARTS.split(l) if p.strip()]
     titles = [e["title"] for e in entries if e["block"] == "experience" and e["title"]]
-    program = " ".join(education.get(k) or "" for k in ("program", "degree_text"))
+    programs = [education.get(k) or "" for k in ("program", "degree_text")]
+    spans = {(p, *m.span()) for board in boards for item in board.items if item.degree
+             for p, program in enumerate(programs) for m in item.degree.finditer(program)}
     found, seen = [], set()
     for board in boards:
         for item in board.items:
             if item.key in seen:
                 continue
-            held = item.resume and item.resume.search(credentials)
+            held = item.resume and _held(item.resume, parts)
             if not held and item.title:
                 held = next((m for t in titles if (m := item.title.search(t))
                              and not (item.title_unless and item.title_unless.search(t))), None)
-            expected = not held and item.kind == "licence" and item.degree and item.degree.search(program)
+            expected = not held and item.kind == "licence" and item.degree and _expected(item, programs, spans)
             if held or expected:
                 seen.add(item.key)
                 found.append({"key": item.key, "label": item.label, "kind": item.kind,

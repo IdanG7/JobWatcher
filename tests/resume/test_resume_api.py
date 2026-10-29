@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from tests.app import test_dashboard as fixtures
 from dashboard import ApiError, JobwatchService, JobwatchHandler
+from tests.resume.test_resume_health import NURSING, word_docx
 from tests.resume.test_resume_matching import RESUME
 
 
@@ -105,6 +106,18 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         self.assertNotIn("Quantitative Researcher", csv)
         self.assertNotIn(marker, csv)
         self.assertIn("Quantitative Researcher", self.service.csv_export({"resume_match": "0"}))
+
+    def test_a_resumes_licences_reach_the_profile(self):
+        self.assertEqual(["rn", "bls"], self.service.parse_resume({"text": NURSING})["profile"]["licences"])
+        with patch.object(self.service, "kick"):
+            self.service.apply_resume({"text": NURSING})
+        self.assertEqual(["rn", "bls"], self.service.get_profile()["profile"]["licences"])
+
+    def test_a_docx_upload_proposes_what_its_text_does(self):
+        # Word's list paragraphs are whole lines: a duty with no full stop never takes in the next employer.
+        data = base64.b64encode(word_docx(NURSING, "flat")).decode()
+        self.assertEqual(self.service.parse_resume({"text": NURSING})["profile"],
+                         self.service.parse_resume({"filename": "resume.docx", "data": data})["profile"])
 
     def test_incomplete_or_invalid_replacement_preserves_saved_facts(self):
         self.apply()

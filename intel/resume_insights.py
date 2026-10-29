@@ -108,8 +108,13 @@ def span_end(m: re.Match) -> tuple[int | None, int | None]:
 
 def without_dates(line: str, m: re.Match) -> str:
     """The role text around a date: before it, or after it when the date leads."""
-    before, after = line[:m.start()].strip(" ,|–—-()"), line[m.end():].strip(" ,|–—-()")
-    return before or after
+    return trim_title(line[:m.start()]) or trim_title(line[m.end():])
+
+
+def trim_title(text: str) -> str:
+    """Separators and brackets off a title's ends, but not the bracket that closes one in it ("(Part-Time)")."""
+    text = text.strip(" \t,|–—-()")
+    return text + ")" if text.count("(") > text.count(")") else text
 _SEASON_START = {"winter": 1, "summer": 5, "fall": 9}
 # "Toronto, ON" / "New York, NY": one word, or two when the first is a city prefix.
 _CITY_SUFFIX = re.compile(r"\s+(?:(?:New|San|Los|Las|Salt|St\.?|Saint|Fort|Grand|Thunder|Niagara)\s)?"
@@ -122,11 +127,12 @@ def strip_city(text: str) -> str:
     return _CITY_SUFFIX.sub("", text).strip()
 
 
-def experience_entries(sections: dict[str, list[str]]) -> list[dict]:
+def experience_entries(sections: dict[str, list[str]], wrapped: bool = True) -> list[dict]:
     """Group resume lines into roles: company, title, dates and their bullets.
 
     A line with a date range is a role; the plain line before it names the
-    employer; bullet lines (and their wrapped continuations) belong to it.
+    employer; bullet lines (and their wrapped continuations, where lines can be
+    wrapped: not a .docx's paragraphs) belong to it.
     """
     entries: list[dict] = []
     for block in ("experience", "leadership", "projects"):
@@ -148,7 +154,7 @@ def experience_entries(sections: dict[str, list[str]]) -> list[dict]:
                            "end": span_end(dates)[0], "bullets": []}
                 entries.append(current)
                 continue
-            if current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
+            if wrapped and current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
                 current["bullets"][-1] += " " + line          # wrapped bullet text
             else:
                 company = strip_city(line)        # drop a trailing "Toronto, ON"
