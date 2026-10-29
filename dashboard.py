@@ -185,6 +185,8 @@ CACHED_ON_DEMAND = {"/api/saved-searches", "/api/sources", "/api/calendar", "/ap
 CACHE_REFRESH_SECONDS = 30   # how stale a page may be while postings arrive; it is refreshed in the background
 CACHE_HOT_SECONDS = 600      # the pages asked for in the last ten minutes are kept ready
 CACHE_STALE_SECONDS = 120    # after background changes, a page this old is still shown while it is recomputed
+CACHE_READY_PAGES = 64       # the pages asked for most recently are recomputed after a change, newest first
+CACHE_PAGES = 2 * CACHE_READY_PAGES     # pages kept, with room so pages asked for on demand never push those out
 # Changes that leave every cached page as it was (opening a link, an update, a letter): nothing is recomputed.
 KEEPS_PAGES = re.compile(r"/api/(open|refresh|shutdown|background|whats-new/seen|update/.+|discord/test|letters/.+"
                          r"|documents/merge|jobs/[^/]+/(cover-letter(/revise)?|recipient(/lookup)?))")
@@ -195,6 +197,14 @@ class _Computation:
 
     def __init__(self, gen: int):
         self.gen, self.done, self.value, self.error = gen, threading.Event(), None, None
+
+
+def _keep_recent(pages: dict, key, value, limit: int) -> None:
+    """Store ``key`` as the most recent of at most ``limit`` pages (a dict keeps the order they came in)."""
+    pages.pop(key, None)
+    pages[key] = value
+    while len(pages) > limit:
+        del pages[next(iter(pages))]
 
 
 def _today() -> date:
@@ -393,12 +403,11 @@ class JobwatchService:
         now, version = time.monotonic(), self.data_version()
         stale = None
         with self._cache_lock:
-            if len(self._asked) > 64:
-                self._asked.clear()
             if keep:
-                self._asked[key] = (now, compute)
+                _keep_recent(self._asked, key, (now, compute), CACHE_READY_PAGES)
             hit = self._cache.get(key)
             if hit and hit[0] == self._cache_gen:
+                _keep_recent(self._cache, key, hit, CACHE_PAGES)
                 if (version is not None and hit[1] == version) or (
                         not fresh and now - hit[2] < CACHE_REFRESH_SECONDS):
                     return hit[3], False
@@ -444,9 +453,7 @@ class JobwatchService:
             computation.value = compute()
             with self._cache_lock:
                 if gen == self._cache_gen:          # never keep a result computed before a change
-                    if len(self._cache) > 64:
-                        self._cache.clear()
-                    self._cache[key] = (gen, version, started, computation.value)
+                    _keep_recent(self._cache, key, (gen, version, started, computation.value), CACHE_PAGES)
             return computation.value
         except BaseException as exc:
             computation.error = exc
@@ -475,7 +482,7 @@ class JobwatchService:
                 due = [(key, compute) for key, (_, compute) in self._asked.items()
                        if not (hit := self._cache.get(key)) or hit[0] != self._cache_gen
                        or (hit[1] != version and now - hit[2] >= CACHE_REFRESH_SECONDS / 2)]
-            for key, compute in due:
+            for key, compute in reversed(due):      # the page asked for last is likely the one on screen
                 try:
                     self._compute(key, compute)
                 except Exception:           # a request that can't be answered: its own asker hears why
