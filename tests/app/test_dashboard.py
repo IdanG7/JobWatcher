@@ -127,6 +127,8 @@ class DashboardServiceTests(ServiceFixture):
         # The employer's own copy of the same job stands in until the list posting's page is read.
         self.assertTrue(job["description"].startswith("Join our M&A team."))
         self.assertEqual("RBC Careers", job["description_from"])
+        # ...and so does its pay, which the list posting couldn't read without that text.
+        self.assertEqual("CAD $50/hour", job["facts"]["compensation"]["display"])
 
     def test_search_filters_and_overview(self):
         results = self.service.jobs({"category": ["investment_banking"], "location": ["toronto"]})

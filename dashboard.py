@@ -739,14 +739,20 @@ class JobwatchService:
             if not job["description"].strip() and others:
                 # LinkedIn keeps only the title and city; the company's own copy of the job has the text.
                 copy = con.execute(
-                    "SELECT board, CAST(description AS BLOB) AS description, department FROM job_text WHERE ("
-                    + " OR ".join("(board=? AND job_id=?)" for _ in others)
-                    + ") AND COALESCE(description, '') != '' ORDER BY LENGTH(description) DESC LIMIT 1",
+                    "SELECT t.board, CAST(t.description AS BLOB) AS description, t.department, i.facts "
+                    "FROM job_text t LEFT JOIN job_intel i ON i.board=t.board AND i.job_id=t.job_id WHERE ("
+                    + " OR ".join("(t.board=? AND t.job_id=?)" for _ in others)
+                    + ") AND COALESCE(t.description, '') != '' ORDER BY LENGTH(t.description) DESC LIMIT 1",
                     [v for pair in others for v in pair]).fetchone()
                 if copy:
                     job["description"] = bytes(copy["description"]).decode("utf-8", "replace")
                     job["department"] = job["department"] or copy["department"] or ""
                     job["description_from"] = self.source_label(copy["board"])
+                    # ...and its pay, which this posting couldn't read without the text
+                    if not (job["facts"].get("compensation") or {}).get("display"):
+                        pay = json.loads(copy["facts"] or "{}").get("compensation")
+                        if pay:
+                            job["facts"]["compensation"] = pay
             keys = [(m["board"], m["job_id"]) for m in members] or [(board, job_id)]
             where = " OR ".join("(board=? AND job_id=?)" for _ in keys)
             # The earliest real posting date and sighting among the duplicates
