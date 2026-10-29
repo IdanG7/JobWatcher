@@ -226,18 +226,21 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         family = _software_or_hardware(title)
     elif family == "other" and support_occupation:
         family = "operations"
+    # 'CT Technologist, Enhanced Pay Rates': finance title words are read without the title's pay line.
+    pay = kn.pay_rate_phrase
+    finance_title = pay.regex.sub(" ", title) if pay and pay.search(title) else title
 
     results = {}
     for key, cat in kn.categories.items():
-        cat_score, cat_evidence = _node_score(cat, title, department, description, weights, family)
-        title_signal = bool(_title_hits(cat, title, family))
+        cat_score, cat_evidence = _node_score(cat, finance_title, department, description, weights, family)
+        title_signal = bool(_title_hits(cat, finance_title, family))
         best_sub, best_sub_score, best_sub_evidence = None, 0.0, []
         sub_scores = {}
         for full, sub in kn.subcategories.items():
             if sub.parent != key:
                 continue
-            score, evidence = _node_score(sub, title, department, description, weights, family)
-            if _title_hits(sub, title, family):
+            score, evidence = _node_score(sub, finance_title, department, description, weights, family)
+            if _title_hits(sub, finance_title, family):
                 title_signal = True
             score += priors.get(full, 0) if (score or cat_score or generic) else 0
             sub_scores[sub.key] = score

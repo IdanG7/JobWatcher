@@ -1054,6 +1054,13 @@
     {"key": "colorado_public_health", "name": "Colorado Department of Public Health and Environment", "type": "public_health_agency", "country": "US", "hq": "Denver", "aliases": ["=colorado department of public health and environment"]},
     {"key": "la_county_public_health", "name": "Los Angeles County Department of Public Health", "type": "public_health_agency", "country": "US", "hq": "Los Angeles", "aliases": ["=los angeles county department of public health"]},
     {"key": "johns_hopkins_medicine", "name": "Johns Hopkins Medicine", "type": "hospital", "country": "US", "hq": "Baltimore", "aliases": ["=johns hopkins medicine", "=johns hopkins hospital", "=the johns hopkins hospital", "=johns hopkins health system"]},
-    {"key": "city_of_toronto", "name": "City of Toronto", "type": "public_health_agency", "country": "CA", "hq": "Toronto", "aliases": ["=city of toronto", "=toronto public health"]}
+    {"key": "city_of_toronto", "name": "City of Toronto", "type": "public_health_agency", "country": "CA", "hq": "Toronto", "aliases": ["=city of toronto", "=toronto public health"]},
+    {"key": "health_sciences_north", "name": "Health Sciences North", "type": "hospital", "country": "CA", "hq": "Sudbury", "aliases": ["=health sciences north"]},
+    {"key": "vanderbilt_university_medical_center", "name": "Vanderbilt University Medical Center", "type": "hospital", "country": "US", "hq": "Nashville", "aliases": ["=vanderbilt university medical center", "=vumc", "=vanderbilt health"]},
+    {"key": "memorial_sloan_kettering", "name": "Memorial Sloan Kettering", "type": "hospital", "country": "US", "hq": "New York", "aliases": ["=memorial sloan kettering cancer center", "=memorial sloan kettering"]},
+    {"key": "houston_methodist", "name": "Houston Methodist", "type": "hospital", "country": "US", "hq": "Houston", "aliases": ["=houston methodist", "=houston methodist hospital"]},
+    {"key": "boston_medical_center", "name": "Boston Medical Center", "type": "hospital", "country": "US", "hq": "Boston", "aliases": ["=boston medical center", "=boston medical center health system"]},
+    {"key": "children_s_national", "name": "Children's National", "type": "hospital", "country": "US", "hq": "Washington", "aliases": ["=children s national hospital", "=children s national", "=children s national health system"]},
+    {"key": "nationwide_children_s", "name": "Nationwide Children's", "type": "hospital", "country": "US", "hq": "Columbus", "aliases": ["=nationwide children s hospital", "=nationwide children s"]}
   ]
 }

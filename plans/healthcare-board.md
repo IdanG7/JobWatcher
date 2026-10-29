@@ -1086,6 +1086,7 @@ Decided on 2026-10-28, after the final report. The user's words were relayed by 
 | **D19** | The known licence extras: Elevance's job-family line, Oscar's "Bonus points", Lockheed's Firefighter EMT. | **"Do what you believe is best"**: the first two fixed narrowly; the EMT one is right as it is (section 14) |
 | **D20** | City of Toronto and Johns Hopkins Medicine, and the hospitals still worth adding. | **"Try getting the Toronto/John Hopkins"**: both added; the other hospitals are listed for approval (section 14) |
 | **D21** | The release: the What's new version and date, `version.py`. | **Wait** for the session that moves facts and scoring into a worker process |
+| **D22** | Ten hospitals with existing readers before 0.3.12 ships: UHN, Health Sciences North, Cedars-Sinai, Northwestern Medicine, VUMC, MSK, Houston Methodist, BMC, Children's National, Nationwide Children's. Kaiser and the rest later. | **"Hospitals first"**: seven added; Cedars-Sinai, Northwestern Medicine and UHN left out by robots.txt (section 15) |
 
 ---
 
@@ -1376,3 +1377,151 @@ Counted on 2026-10-28. Rows marked ✓ were read with the app's own reader. The 
 - **Against `main`** (`E:\healthcare-gate\compare_p7.txt`): the same as the final run in section 13. Only
   the four Healthcare digests differ, and every count is equal.
 - **Tests:** 669 Python and 83 JS pass on `dc9e47c`.
+
+## 15. The first hospital batch (2026-10-28, on `3499c78`)
+
+Decision D22. The branch was fast-forwarded to `main` at `3499c78` ("Release version 0.3.12", not yet shipped),
+and this work sits on top of it. Scripts are in `…\scratchpad\phase8\`.
+
+### Added: seven hospitals, each read whole with an existing reader
+
+| Source | Pack | Reader | Read / site total | Time | `min_interval` |
+|---|---|---|---|---|---|
+| Health Sciences North | `hospitals_canada` | successfactors_portal | 76 / 76 | 2 s | 1800 |
+| Vanderbilt University Medical Center | `hospitals_us` | workday | 918 / 918 | 38 s | 3600 |
+| Memorial Sloan Kettering | `hospitals_us` | workday | 135 / 135 | 4 s | 1800 |
+| Houston Methodist | `hospitals_us` | workday | 1,416 / 1,416 | 25 s | 3600 |
+| Boston Medical Center | `hospitals_us` | workday | 755 / 755 | 16 s | 1800 |
+| Children's National | `hospitals_us` | workday | 391 / 391 | 9 s | 1800 |
+| Nationwide Children's | `hospitals_us` | workday | 576 / 576 | 13 s | 1800 |
+
+- **robots.txt** (`robots.py`):
+  - Each Workday site's robots.txt allows its own career site and disallows only `/refreshFacet/` and any
+    non-public portals. The reader's `/wday/cxs/` path isn't disallowed.
+  - Health Sciences North's allows `/search/`.
+- **Every listing was complete**, with distinct, non-empty ids. Health Sciences North's tiles show no place,
+  so the source sets "Sudbury, ON", as City of Toronto's sets "Toronto, ON".
+- **Employers:** seven `hospital` entries in `companies.json`, with exact-name aliases only. "BMC" and "MSK"
+  are not aliases, since both are ambiguous.
+  - One stored posting changes employer key (`…\scratchpad\phase4\new_employer_effects.py`): an AI & Data
+    posting from "Memorial Sloan Kettering Cancer Center" (`simplify_newgrad`). It is closed or a duplicate,
+    so no board view shows it.
+  - No stored posting moves board.
+- **Counts:**
+  - `health/` goes 212 → 219 sources, and Healthcare polls 265 → 272.
+  - The history was re-recorded: 1,014 boards, `sources_version` 11 (unreleased), hash `f5dd3640f5c29200`.
+    Only the seven boards are added; nothing else in the file changes.
+  - A dry run of the build's `record_release` on this bundle accepts it and saves nothing.
+- **What's new:** "over 200 hospitals, labs, drug makers and more" stays true, with 219 `health/` sources.
+
+### Left out: three, by robots.txt
+- **Cedars-Sinai and Northwestern Medicine** (Radancy):
+  - Their robots.txt disallows `/search-jobs/`. That is the search their own pages link to, and the path the
+    `radancy` reader reads.
+  - The reader's default `/en/` prefix isn't disallowed by the letter of the rule. On these two sites,
+    though, it is only an alias of the same search, so it isn't used.
+  - Their sitemaps are allowed and could feed a reader like Johns Hopkins Medicine's. That would be a new
+    reader, for your approval.
+- **UHN** (SmartRecruiters): the reader reads SmartRecruiters' API. The robots.txt at
+  `api.smartrecruiters.com` allows `/v1/companies/` only to LinkedInBot and disallows every other crawler.
+- **The same rules cover sources the app already has.** These are unchanged, for your decision:
+  - All 12 SmartRecruiters sources read that API: Halton, William Osler, Harvard, SAP, ServiceNow,
+    Intuitive, Western Digital, Canva, Ubisoft, Freshworks, Armis and Check Point.
+  - 17 of the 18 Radancy sources read `/en/search-jobs/` on sites whose robots.txt disallows `/search-jobs/`
+    (`robots_existing.py`). Only the American Cancer Society's has no such rule.
+    - Evotec's site really lives under `/en/`.
+    - Hackensack Meridian's own pages link to the bare `/search-jobs`, as Cedars-Sinai's do.
+    - The others' links weren't checked.
+
+### Pay lines in titles
+- **Problem:** 25 of the new postings read as Fixed Income from a "Rates" in their pay line.
+  - BMC's CT, MRI and multi-modality technologists: "Enhanced Pay Rates", "new higher rates".
+  - VUMC's licensed practical nurses and one AEMT: "(\*\*New Rates\*\*)".
+- **Fix:** `taxonomy.json` gains `pay_rate_phrases`:
+  - "(new|enhanced|higher|increased|improved) (pay )?rates?"
+  - "(pay|hourly|shift|differential) rates?"
+
+  `classify` reads finance title words without them. "Rates Trader", "Associate, Rates Structuring" and
+  "Summer Analyst - Rates" stay Fixed Income. The test is in `tests/matching/test_health_taxonomy.py`.
+- **Census:** the classification of none of the 294,571 stored postings changes, including the 2,307 whose
+  titles hold "rate" (`rates_census.py` and an in-place comparison).
+- **Result:**
+  - The eight LPNs reach Healthcare (Clinical Care).
+  - BMC's CT and MRI technologists and VUMC's AEMT go to no board, like BMC's other imaging technologists
+    without "Rates" ("CT Technologist Nights", the mammography roles), since Healthcare's title words don't
+    name CT, MRI, mammography or nuclear medicine technologists. See "Left for you" below.
+
+### Where the seven boards' postings land (live, 2026-10-28, `place_live.py`)
+
+| Source | Postings | Healthcare | Finance | Other boards | No board |
+|---|---|---|---|---|---|
+| Health Sciences North | 76 | 52 | 1 | 1 | 22 |
+| Vanderbilt University Medical Center | 918 | 690 | 12 | 20 | 196 |
+| Memorial Sloan Kettering | 135 | 67 | 5 | 10 | 53 |
+| Houston Methodist | 1,416 | 975 | 23 | 51 | 367 |
+| Boston Medical Center | 755 | 515 | 5 | 27 | 208 |
+| Children's National | 391 | 277 | 1 | 27 | 86 |
+| Nationwide Children's | 576 | 358 | 8 | 40 | 170 |
+| **All seven** | **4,267** | **2,934** | **55** | **176** | **1,102** |
+
+- **Healthcare's filters:**
+  - Clinical Care 2,203; no filter 388; Lab Research 194; Health Admin 98; Clinical Research 23.
+  - Medical Devices 15; Bioinformatics 6; Public Health 5; Regulatory & Quality 1; Medical Affairs 1.
+- **Other boards:** Operations 97, Software 22, People & Legal 21, Product 11, Sales 11, AI & Data 8,
+  Hardware 5, Design 1.
+- **Finance, 55:** these reach the Finance board only for profiles that also poll Healthcare, as with every
+  `health/` source.
+  - By employer: Houston Methodist 23, VUMC 12, Nationwide Children's 8, MSK 5, BMC 5, Children's National 1,
+    Health Sciences North 1.
+  - Most are finance or compliance work: financial analysts, accountants, controllers and compliance
+    officers.
+  - About a dozen are misreads that stay:
+    - Houston Methodist's six insurance verifiers;
+    - its three coding quality auditors and an Ambulatory Payment Classification Coordinator;
+    - its "Manager Research Operations - Mao lab";
+    - VUMC's "Registered Nurse, High Risk OB/Antepartum", which reads as Risk.
+  - A fix for clinical "high risk" phrases would also take UnitedHealth Group's stored "MFM High Risk OB
+    Ultrasound Technologist" off Finance, where it shows today. That is a Finance move, so it is left for you.
+
+### Poll time (`E:\healthcare-gate\poll\poll_time_p8b.txt`)
+- **Method:** the `91b0b19` timings, plus one whole read on 2026-10-28 of each source added since then
+  (Johns Hopkins Medicine, City of Toronto and these seven). Each profile's cycle was then simulated on
+  10 workers, `main` (`3499c78`) → this branch (`…\scratchpad\phase4\poll_time.py`).
+- **Healthcare:** 265 → 272 sources. A full poll takes 321 s → 334 s. Every-cycle work is unchanged.
+- **Mixed profiles:**
+  - Finance + Healthcare: 883 s → 897 s.
+  - Software + Healthcare: 930 s → 941 s.
+  - AI & Data + Healthcare: 625 s → 640 s.
+- **Sales, Operations, People & Legal, Finance + Sales and the alert runner:** 997 → 1,004 sources,
+  1,179 s → 1,189 s.
+- **Finance, the tech boards and Finance + Software** are unchanged.
+- **The new sources are all under 60 s;** the slowest is VUMC at 38 s.
+- **Healthcare sources over about 60 s:**
+  - the two LinkedIn searches (274 s and 272 s), which set the full poll;
+  - Johns Hopkins Medicine 131 s (its two-second crawl delay);
+  - Johns Hopkins University 81 s;
+  - Beth Israel Lahey 75 s; Medtronic 73 s; Stryker 67 s;
+  - Boston Scientific 66 s; Shoppers Drug Mart 65 s; Philips 65 s.
+- **Caveat:** the simulation doesn't model the Eightfold turn-taking that `bcffc4b` added. Eightfold sources
+  include Johns Hopkins University, Boston Scientific and Dexcom.
+
+### Gate (`E:\healthcare-gate\compare_p8b.txt`)
+- **Baseline:** `snap_p7.db` (`dc9e47c`). It serves as `main`'s, since nothing the gate reads differs between
+  `dc9e47c` and `3499c78`.
+- **Result:** the gate passed. All 17 profiles' digests are identical, including Healthcare's and every mix with it.
+  Every board shows the same postings, fit and order.
+- **Facts:** 294,571 stored postings; facts differ for one, and none changes board. That one is the
+  Memorial Sloan Kettering posting whose employer key changes, as above.
+- **Live postings aren't in the gate,** which reads stored postings. Where the seven boards' live postings land
+  is in the table above.
+
+### Left for you
+- **Imaging technologists:** Healthcare's title words don't place CT, MRI, mammography, nuclear medicine or
+  echo technologists, so BMC's land on no board. Adding them would move stored postings from no board to
+  Healthcare only.
+- **Clinical "high risk" phrases:** VUMC's RN; Johns Hopkins Medicine's "High Risk Perinatal"; UHG's
+  ultrasound technologist, which is on Finance today.
+- **robots.txt** for the existing SmartRecruiters and Radancy sources, and a sitemap reader for Cedars-Sinai
+  and Northwestern Medicine.
+- **Next batches:** Kaiser once it's narrowed. CommonSpirit, Advocate, Intermountain, Sutter, UW, UPenn and
+  HCA are as listed in section 14.
