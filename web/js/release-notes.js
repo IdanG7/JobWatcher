@@ -10,16 +10,15 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
-  // Draft for the Healthcare & Science board: set the version and date when it is released.
   {version: '0.3.12', date: '2026-10-28', items: [
-    {icon: 'heart', title: 'A Healthcare & Science board', link: '#/settings?tab=roles',
-      text: 'Nine specialties, from clinical care to medical devices, read from 206 employers’ sites.'},
-    {icon: 'file', title: 'Resumes for healthcare roles', link: '#/settings?tab=resume',
-      text: 'A nursing, lab or pharmacy resume sets Healthcare targets, skills and your licences.'},
-    {icon: 'check', title: 'Licences and hours count', link: '#/settings?tab=about',
-      text: 'Roles that need a licence you don’t hold, or hours you can’t work, rank lower.'},
-    {icon: 'calendar', title: 'Program dates in Calendar', link: '#/calendar',
-      text: 'PhORCAS, AIFA, nurse externships and new-grad windows show for Healthcare profiles.'},
+    {icon: 'spark', title: 'Tabs open at once while Foothold works',
+      text: 'Recent pages stay ready during checks and the one-time re-rank this update starts.'},
+    {icon: 'heart', title: 'More Healthcare roles, by specialty', link: '#/settings?tab=roles',
+      text: 'From the job sites of over 200 hospitals, labs, drug makers and more, in nine specialties.'},
+    {icon: 'check', title: 'Licences count toward fit', link: '#/settings?tab=about',
+      text: 'Healthcare roles that need a licence you don’t list rank lower. Add yours in About you.'},
+    {icon: 'clock', title: 'Say which hours you can work', link: '#/settings?tab=places',
+      text: 'Roles stating only other hours, or nights you rule out, rank lower. Filter by hours too.'},
   ]},
   {version: '0.3.11', date: '2026-10-24', items: [
     {icon: 'calendar', title: 'Calendar follows your resume', link: '#/calendar',
