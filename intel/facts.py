@@ -120,4 +120,7 @@ def build_facts(job: dict, kn: Knowledge, board_cfg: dict | None = None, section
     if board in kn.licences:
         # Only a board that defines licences reads them (D16), so other boards' facts stay as they were.
         facts["licences"] = posting_licences(title, description, kn.licences[board])
+    if kn.test_posting_title and kn.test_posting_title.search(title):
+        # The employer's test requisition ("DO NOT APPLY - TEST REQ"); other postings' facts stay as they were.
+        facts["test_posting"] = True
     return facts

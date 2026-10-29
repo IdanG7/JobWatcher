@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "cb2c364bc47e30a1",
+  "hash": "e64bf14f5d8fd1f4",
   "names": [
    "10x_genomics",
    "1password",
@@ -307,6 +307,7 @@
    "citi",
    "citi_early",
    "citi_tech",
+   "city_of_toronto",
    "clearco",
    "clickhouse",
    "clickup",
@@ -551,6 +552,7 @@
    "jefferies_campus",
    "jfrog",
    "jobber",
+   "johns_hopkins_medicine",
    "johns_hopkins_university",
    "johnson_johnson",
    "jpmorgan",
@@ -1316,6 +1318,7 @@
   "citi": 1,
   "citi_early": 1,
   "citi_tech": 10,
+  "city_of_toronto": 11,
   "clearco": 10,
   "clickhouse": 1,
   "clickup": 10,
@@ -1560,6 +1563,7 @@
   "jefferies_campus": 6,
   "jfrog": 10,
   "jobber": 10,
+  "johns_hopkins_medicine": 11,
   "johns_hopkins_university": 11,
   "johnson_johnson": 11,
   "jpmorgan": 1,
@@ -7005,6 +7009,32 @@
   ],
   "tenant": [
    "citi"
+  ]
+ },
+ "city_of_toronto": {
+  "ats": [
+   "successfactors_portal"
+  ],
+  "company_key": [
+   "city_of_toronto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Public Health & Global Health"
+  ],
+  "location": [
+   "Toronto, ON"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.toronto.ca/search/"
   ]
  },
  "clearco": {
@@ -12638,6 +12668,26 @@
   ],
   "token": [
    "jobber"
+  ]
+ },
+ "johns_hopkins_medicine": {
+  "ats": [
+   "hopkins_medicine"
+  ],
+  "company_key": [
+   "johns_hopkins_medicine"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Hospitals & Health Systems"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "johns_hopkins_university": {
