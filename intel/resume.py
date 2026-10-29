@@ -68,28 +68,150 @@ _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 def _docx_text(data: bytes) -> str:
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as zf:
-            info = zf.getinfo("word/document.xml")
-            if info.file_size > 20_000_000:        # zip-bomb guard
-                raise ResumeError("document is too large")
-            xml = zf.read(info)
+            root = _docx_part(zf, "document", required=True)
+            bullet_level = _docx_bullets(_docx_part(zf, "styles"), _docx_part(zf, "numbering"))
     except (zipfile.BadZipFile, KeyError) as exc:
         raise ResumeError("could not read this .docx file") from exc
-    try:
-        root = ElementTree.fromstring(xml)
-    except ElementTree.ParseError as exc:
-        raise ResumeError("could not read this .docx file") from exc
-    lines = []
+    paragraphs = []         # (text, the level of a bulleted list item, else None)
     for para in root.iter(f"{_W}p"):
         parts = []
-        for node in para.iter():
-            if node.tag == f"{_W}t" and node.text:
-                parts.append(node.text)
-            elif node.tag == f"{_W}tab":
-                parts.append("\t")
-            elif node.tag in (f"{_W}br", f"{_W}cr"):
-                parts.append("\n")
-        lines.append("".join(parts))
+        for run in para.iter(f"{_W}r"):
+            for node in run:        # a run's own tabs; the paragraph's tab stops are settings
+                if node.tag == f"{_W}t" and node.text:
+                    parts.append(node.text)
+                elif node.tag == f"{_W}tab":
+                    parts.append("\t")
+                elif node.tag in (f"{_W}br", f"{_W}cr"):
+                    parts.append("\n")
+                elif node.tag == f"{_W}sym" and not "".join(parts).strip() \
+                        and (node.get(f"{_W}char") or "").upper() in _SYMBOL_BULLETS:
+                    parts.append("• ")
+        text = "".join(parts)
+        listed = text.strip() and not text.lstrip().startswith("•")
+        paragraphs.append((text, bullet_level(para.find(f"{_W}pPr")) if listed else None))
+    following, after = [None] * len(paragraphs), None     # the next paragraph with text, by index
+    for i in range(len(paragraphs) - 1, -1, -1):
+        following[i] = after
+        after = i if paragraphs[i][0].strip() else after
+    lines, plain = [], ""       # the last line that is no list item: a list's heading, job or employer line
+    for i, (text, level) in enumerate(paragraphs):
+        # Word keeps a list's bullet in its numbering, not in the text: write it, as a typed one reads, on a
+        # duty. A heading, job or employer line set as a list item reads as it always has, as a plain line.
+        if level is not None and not _docx_plain_item(paragraphs, following, i, plain):
+            text = "• " + text
+        elif level is None and text.strip():
+            plain = text
+        lines.append(text)
     return "\n".join(lines)
+
+
+# Headings that can be items of a list too ("Leadership" among skills): a heading unless an item follows it.
+_ITEM_HEADINGS = re.compile(r"^\s*(?:leadership|activities|extracurricular|projects|interests|languages|awards|"
+                            r"academic)\s*:?\s*$", re.I)
+
+
+def _docx_plain_item(paragraphs: list, following: list, i: int, above: str) -> bool:
+    """Whether a list item is a heading, job or employer line rather than a duty: it heads a deeper list, has
+    dates (unless it is listed under a dated job line) or its dates on the next line, names the employer above a
+    dated title, or is a section heading."""
+    text, level = paragraphs[i]
+    j = following[i]
+    after, after_level = paragraphs[j] if j is not None else ("", None)
+    k = following[j] if j is not None else None
+    if len(text) < 50 and _SECTION.match(text):
+        return not _ITEM_HEADINGS.match(text) or after_level != level
+    dated = bool(_RANGE.search(text)) and not _RANGE.search(above)
+    return ((after_level is not None and after_level > level) or dated or _only_dates(after)
+            or (after_level is None and bool(_RANGE.search(after)) and k is not None
+                and paragraphs[k][1] is not None and paragraphs[k][1] > level))
+
+
+def _only_dates(text: str) -> bool:
+    """A line of dates, and a place ("Jan 2026 – Apr 2026 | Hamilton, ON")."""
+    text = text.strip()
+    m = _RANGE.search(text)
+    return bool(m) and not insights.strip_city(" " + insights.without_dates(text, m)).strip(" \t,|–—-()")
+
+
+# Word's bullet library as Symbol and Wingdings characters: • ▪ □ ● ■ ❖ ➢ → ✓ (a phone or envelope is no bullet)
+_SYMBOL_BULLETS = {"F0B7", "F0A7", "F0A8", "F06C", "F06E", "F076", "F0D8", "F0E0", "F0FC"}
+
+
+def _docx_part(zf: zipfile.ZipFile, name: str, required: bool = False):
+    """word/<name>.xml as XML; None for a missing, broken or oversized part that isn't required."""
+    try:
+        info = zf.getinfo(f"word/{name}.xml")
+    except KeyError:
+        if required:
+            raise
+        return None
+    if info.file_size > 20_000_000:        # zip-bomb guard
+        if required:
+            raise ResumeError("document is too large")
+        return None
+    try:
+        return ElementTree.fromstring(zf.read(info))
+    except ElementTree.ParseError as exc:
+        if required:
+            raise ResumeError("could not read this .docx file") from exc
+        return None
+
+
+def _val(node, path: str) -> str | None:
+    found = node.find(path) if node is not None else None
+    return found.get(f"{_W}val") if found is not None else None
+
+
+def _docx_bullets(styles, numbering):
+    """The level of a paragraph (its w:pPr) that is a bulleted list item: numbered by itself or by its style, at
+    a level whose format is a bullet; else None. A numbered heading or list is none; without the numbering part,
+    any list is one."""
+    formats = {}
+    if numbering is not None:
+        abstracts = {a.get(f"{_W}abstractNumId"): a for a in numbering.iter(f"{_W}abstractNum")}
+        styled = {_val(a, f"{_W}styleLink"): a for a in abstracts.values() if _val(a, f"{_W}styleLink")}
+
+        def levels(abstract) -> dict:
+            # a list style's definition only links to the one that holds its levels
+            abstract = styled.get(_val(abstract, f"{_W}numStyleLink"), abstract)
+            return {} if abstract is None else {
+                l.get(f"{_W}ilvl"): _val(l, f"{_W}numFmt") for l in abstract.iter(f"{_W}lvl")}
+
+        for num in numbering.iter(f"{_W}num"):
+            found = levels(abstracts.get(_val(num, f"{_W}abstractNumId")))
+            for override in num.iter(f"{_W}lvlOverride"):
+                if (lvl := override.find(f"{_W}lvl")) is not None:
+                    found[override.get(f"{_W}ilvl")] = _val(lvl, f"{_W}numFmt")
+            for ilvl, fmt in found.items():
+                formats[(num.get(f"{_W}numId"), ilvl)] = fmt
+    based, numbered = {}, {}
+    for style in styles.iter(f"{_W}style") if styles is not None else ():
+        sid = style.get(f"{_W}styleId")
+        based[sid] = _val(style, f"{_W}basedOn")
+        if (num := style.find(f"{_W}pPr/{_W}numPr")) is not None:
+            numbered[sid] = (_val(num, f"{_W}numId"), _val(num, f"{_W}ilvl"))
+
+    def style_numbering(sid):
+        seen = set()
+        while sid and sid not in seen:
+            if sid in numbered:
+                return numbered[sid]
+            seen.add(sid)
+            sid = based.get(sid)
+        return None, None
+
+    def bullet_level(props) -> int | None:
+        num_id, ilvl = style_numbering(_val(props, f"{_W}pStyle"))
+        if props is not None and (own := props.find(f"{_W}numPr")) is not None:
+            num_id, ilvl = _val(own, f"{_W}numId") or num_id, _val(own, f"{_W}ilvl") or ilvl
+        ilvl = ilvl or "0"
+        if not num_id or num_id == "0":        # numId 0 takes a style's numbering off
+            return None
+        if (formats.get((num_id, ilvl)) if formats else "bullet") != "bullet":
+            return None
+        return int(ilvl) if ilvl.isdigit() else 0
+
+    return bullet_level
 
 
 def _pdf_text(data: bytes) -> str:
@@ -294,7 +416,8 @@ def _graduation(edu_text: str, full: str) -> tuple[int | None, int | None, str |
 
 def _education(edu_lines: list[str], full: str) -> dict:
     text = "\n".join(edu_lines) or full
-    school = next((l.strip(" ,|") for l in (edu_lines or full.splitlines()) if _SCHOOL.search(l) and len(l) < 120), None)
+    school = next((_BULLET.sub("", l).strip(" ,|") for l in (edu_lines or full.splitlines())
+                   if _SCHOOL.search(l) and len(l) < 120), None)
     if school:
         school = re.split(r"\s{2,}|\t|\s[|–—]\s|,\s*(?:expected|20\d\d)", school)[0].strip(" ,|")
         school = insights.strip_city(school)
@@ -304,7 +427,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         if m:
             level = key
             line = next((l for l in text.splitlines() if m.group(0) in l), m.group(0))
-            degree_text = re.sub(r"\s{2,}", " · ", line.strip())[:140]
+            degree_text = re.sub(r"\s{2,}", " · ", _BULLET.sub("", line).strip())[:140]
             break
     program = None
     for pattern in (_PROGRAM, _PROGRAM_IN):
@@ -334,16 +457,22 @@ def _education(edu_lines: list[str], full: str) -> dict:
             "graduation_text": grad_text}
 
 
-def _experience(lines: list[str], kn: Knowledge,
-                tracks: frozenset[str] = frozenset()) -> tuple[list[dict], list[str]]:
+def _experience(lines: list[str], kn: Knowledge, tracks: frozenset[str] = frozenset(),
+                wrapped: bool = True) -> tuple[list[dict], list[str]]:
     """Role-like lines (classified with the job taxonomy) and achievement bullets.
     Finance roles, and those on the boards of ``tracks`` (tech: Software, AI & Data, Hardware…)."""
     roles, bullets = [], []
     # An open track's role words ("nurse", "technologist") also mark a role line; a finance resume's are as before.
     track_words = [kn.tracks[t].role_words for t in sorted(tracks) if kn.tracks[t].role_words]
+    runs_on = False         # the last bullet's sentence runs on: a PDF may have wrapped it onto the next line
     for raw in lines:
         line = raw.strip()
         if not line:
+            continue
+        # ...and its last words ("nurse.") are the rest of it, not a role
+        if runs_on and _goes_on(line, track_words):
+            bullets[-1] = (bullets[-1] + " " + line)[:400]
+            runs_on = not line.endswith((".", "!", "?"))
             continue
         # explicit bullets, or long sentence-like lines without a date range
         if _BULLET.match(raw) or (len(line.split()) >= 12 and not re.search(r"\s{3,}|\t", line)
@@ -351,12 +480,14 @@ def _experience(lines: list[str], kn: Knowledge,
             text = _BULLET.sub("", line).strip()
             if len(text) > 25:
                 bullets.append(text[:400])
+            runs_on = wrapped and len(text) > 25 and not text.endswith((".", "!", "?"))
             continue
+        runs_on = False
         if len(line) <= 160:
             # "Company — Role", "Role, Company" and "Role | Dates" all occur:
             # classify only the segment that reads like a job title, so a
             # firm name ("… Asset Management") never stands in for the role.
-            title_line = _RANGE.sub("", line).strip(" ,|–—-()")
+            title_line = insights.trim_title(_RANGE.sub("", line))
             segments = [s.strip() for s in re.split(r"\s{2,}|\t|\s[|–—-]\s|,\s", title_line) if s.strip()]
             titled = [s for s in segments if _ROLE_WORD.search(s) or any(w.search(s) for w in track_words)]
             best = None
@@ -383,6 +514,22 @@ _ROLE_WORD = re.compile(r"\b(?:analyst|associate|intern|internship|co-?op|summer
                         r"advisor|specialist|assistant|fellow|portfolio|scientist|programmer|designer)\b", re.I)
 
 
+def _goes_on(line: str, track_words: list) -> bool:
+    """Whether a line after a bullet with no full stop is the rest of it ("nurse.", "and charted in Epic.")
+    rather than a title ("lululemon  Data Analyst Intern", "backend developer co-op")."""
+    if _RANGE.search(line) or re.search(r"\s{2,}|\t|\s[|–—-]\s", line):
+        return False
+    if not line.endswith((".", "!", "?")) and any(w.search(line) for w in (_ROLE_WORD, *track_words)):
+        return False
+    return bool(_RUNS_ON.match(line) or _ENDS_SENTENCE.search(line))
+
+
+# The rest of a wrapped bullet goes on in lower case ("iOS", "eBay" and "e-Commerce" don't), or ends its
+# sentence on a lower-case word ("…the ICU charge nurse.", not "Acme Inc.").
+_RUNS_ON = re.compile(r"[a-z][a-z'’-]*(?![\w'’-])")
+_ENDS_SENTENCE = re.compile(r"(?<![\w.])[a-z][a-z'’-]*[.!?]$")
+
+
 def _languages(text: str) -> list[str]:
     found = []
     m = _LANG_LINE.search(text)
@@ -393,8 +540,9 @@ def _languages(text: str) -> list[str]:
     return found
 
 
-def parse_resume(text: str, kn: Knowledge) -> dict:
-    """Structured, explainable fields from resume text."""
+def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
+    """Structured, explainable fields from resume text. ``wrapped``: its lines may be wrapped (a PDF, pasted
+    text); a .docx's are whole paragraphs, so a plain line after a bullet is never the rest of it."""
     text = (text or "").replace("\r\n", "\n").replace("\r", "\n")[:MAX_CHARS]
     if len(text.strip()) < 40:
         raise ResumeError("the resume text is too short to parse")
@@ -404,10 +552,10 @@ def parse_resume(text: str, kn: Knowledge) -> dict:
     edu_lines = sections.get("education", [])
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
-    entries = insights.experience_entries(sections)
+    entries = insights.experience_entries(sections, wrapped)
     # A resume that opens no track (no tech title or degree) is read with the finance vocabulary alone.
     tracks = insights.resume_tracks(entries, education, kn)
-    roles, bullets = _experience(exp_lines or lines, kn, tracks)
+    roles, bullets = _experience(exp_lines or lines, kn, tracks, wrapped)
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
     interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"))

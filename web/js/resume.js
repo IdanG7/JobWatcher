@@ -18,7 +18,8 @@ export function resumeFacts(parsed = {}) {
 }
 
 export function resumeChanges(changes = {}, meta = {}) {
-  const labels = Object.fromEntries([...(meta.company_types || []), ...(meta.skills || [])].map(s => [s.key, s.label]));
+  const labels = Object.fromEntries([...(meta.company_types || []), ...(meta.skills || []), ...(meta.licences || [])]
+    .map(s => [s.key, s.label]));
   for (const cat of meta.taxonomy || []) {
     labels[cat.key] = cat.label;
     for (const sub of cat.subcategories || []) labels[`${cat.key}.${sub.key}`] = sub.label;

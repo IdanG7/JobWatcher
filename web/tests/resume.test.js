@@ -43,6 +43,11 @@ test('facts, proposed changes and matching reasons escape document text', () => 
   assert.equal(resumeMatchSection(null), '');
 });
 
+test('proposed changes name the licences a resume adds', () => {
+  const meta = {licences: [{key: 'rn', label: 'Registered Nurse (RN)'}, {key: 'bls', label: 'BLS'}]};
+  assert.match(resumeChanges({licences: {before: null, after: ['rn', 'bls']}}, meta), /Registered Nurse \(RN\), BLS/);
+});
+
 test('preview never applies; apply submits original input and updates profile', async () => {
   const f = await fixture();
   f.controls.text.value = 'A complete resume entered by the candidate';
