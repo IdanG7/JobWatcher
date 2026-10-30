@@ -7,7 +7,7 @@ import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
 import {mountView} from './view-loader.js';
 import {collectionMarkup, showWork} from './collection-status.js';
-import {checkWhatsNew, closeWhatsNew, openWhatsNew, whatsNewOpen} from './whats-new.js';
+import {checkWhatsNew, closeWhatsNew, openWhatsNew, setWhatsNewAside, whatsNewOnceLeft, whatsNewOpen} from './whats-new.js';
 import {TOUR_KEY, startTour, tourDue} from './tour.js';
 import * as overview from './views/overview.js';
 import * as opportunities from './views/opportunities.js';
@@ -82,8 +82,8 @@ async function route() {
   if (current.name && !ONBOARDING.has(current.name)) ctx.previous = ctx.route;
   ctx.route = r;
   const name = VIEWS[r.path[0]] ? r.path[0] : 'overview';
-  // The What's new card sits outside #view, over the page: it would stay on top of the intro and setup.
-  if (ONBOARDING.has(name) && whatsNewOpen()) closeWhatsNew();
+  // The What's new card sits outside #view, over the page: it waits, unread, while the intro or setup is up.
+  setWhatsNewAside(ONBOARDING.has(name));
   const key = viewKey(r);
   hideTooltip();
 
@@ -431,7 +431,16 @@ async function boot() {
   }
   ctx.applyTheme = () => { applyTheme(); current.view?.redraw?.(); };
   // Settings › System and the palette reopen the release notes.
-  ctx.whatsNew = async () => { if (await openWhatsNew() === false) toast('This version has no release notes'); };
+  ctx.whatsNew = async () => {
+    if (await openWhatsNew() === false) { toast('This version has no release notes'); return; }
+    // On the intro or setup the card waits hidden, as it would cover the screen: say when it shows.
+    if (!ONBOARDING.has(ctx.route.path[0])) return;
+    const data = await ctx.loadProfile().catch(() => ({}));
+    const name = ctx.route.path[0];
+    if (ONBOARDING.has(name) && !whatsNewOpen()) {      // still waiting: not left in the meantime
+      toast(whatsNewOnceLeft(name, name === 'intro' ? intro.introFirstRun(data, store) : data.saved === false));
+    }
+  };
   // Settings › System and the palette: the intro again, and the tour of the header.
   ctx.intro = () => ctx.navigate(['intro']);
   ctx.tour = () => { if (!startTour()) toast('The tour points at the header, which this screen hides'); };

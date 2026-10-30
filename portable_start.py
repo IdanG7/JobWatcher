@@ -601,12 +601,7 @@ def main(argv=None) -> int:
         service.worker_pid_path = data / "worker.pid"
         service.start_background()
         if not args.no_poll:
-            def poll():
-                while not service._stop.is_set():
-                    service.trigger_poll()
-                    if service._stop.wait(max(60, service.config.get("interval_seconds", 300))):
-                        break
-            threading.Thread(target=poll, name="jobwatch-auto-poll", daemon=True).start()
+            threading.Thread(target=service.auto_poll, name="jobwatch-auto-poll", daemon=True).start()
             print("Fetching jobs in the background; the first fetch can take several minutes.", flush=True)
         if args.console and not args.no_browser:
             open_app(url, data)

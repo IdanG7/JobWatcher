@@ -139,9 +139,31 @@ export function cardMarkup({current, seen = null, releases, earlier = [], manual
 }
 
 // ---------------------------------------------------------------- the card on the page
-let card = null;      // {el, current, opener, recheck}
+let card = null;      // {el, current, opener, recheck, focusOnShow}
+let aside = false;    // the intro or setup fills the window
 
-export function whatsNewOpen() { return card !== null; }
+export function whatsNewOpen() { return card !== null && !aside; }
+
+/**
+ * Asked for on the intro or setup, where the card waits hidden: when it shows, by the buttons that screen
+ * has. On a first run the intro leads into setup, whose way out is Skip for now; run again, Cancel.
+ */
+export function whatsNewOnceLeft(route, firstRun) {
+  if (route === 'intro' && !firstRun) return 'What’s new opens when you close the intro';
+  return `What’s new opens when you finish or ${firstRun ? 'skip' : 'cancel'} setup`;
+}
+
+/** While the intro or setup is on screen the card steps aside, still unread, and comes back after. */
+export function setWhatsNewAside(value) {
+  aside = value;
+  if (!card) return;
+  card.el.hidden = value;
+  // Asked for while it waited: it takes focus as it shows, as it would have when asked for anywhere else.
+  if (!value && card.focusOnShow) {
+    card.focusOnShow = false;
+    card.el.focus({preventScroll: true});
+  }
+}
 
 // "All updates" opens or folds the earlier releases. Opened, the list scrolls so the row sits at
 // its top with them under it, when they don't all fit already.
@@ -178,7 +200,8 @@ function mount({current, seen, releases, manual}) {
   const holder = document.createElement('div');
   holder.innerHTML = cardMarkup({current, seen, releases, earlier: earlierReleases(current, releases), manual});
   const el = holder.firstElementChild;
-  card = {el, current, opener: manual ? document.activeElement : null, recheck: null};
+  card = {el, current, opener: manual ? document.activeElement : null, recheck: null, focusOnShow: manual && aside};
+  el.hidden = aside;
   el.addEventListener('click', e => {
     if (e.target.closest('[data-wn-close]')) closeWhatsNew();
     const more = e.target.closest('[data-wn-more]');
@@ -243,7 +266,10 @@ export async function checkWhatsNew({route = () => ''} = {}) {
 
 /** Settings › System and the palette: this version's notes, whether or not they were closed. */
 export async function openWhatsNew() {
-  if (card) { card.el.focus({preventScroll: true}); return; }
+  if (card) {
+    if (aside) card.focusOnShow = true; else card.el.focus({preventScroll: true});
+    return;
+  }
   const info = await get('/api/whats-new').catch(() => null);
   const releases = info?.version ? recentReleases(info.version) : [];
   if (!releases.length) return false;

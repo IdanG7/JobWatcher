@@ -4,7 +4,9 @@ import {test} from 'node:test';
 
 import {RELEASE_NOTES} from '../js/release-notes.js';
 import {icon} from '../js/ui.js';
-import {cardMarkup, cardToShow, compareVersions, earlierReleases, pendingReleases, recentReleases, rollSegments} from '../js/whats-new.js';
+import {cardMarkup, cardToShow, closeWhatsNew, compareVersions, earlierReleases, openWhatsNew, pendingReleases, recentReleases,
+  rollSegments, setWhatsNewAside, whatsNewOnceLeft, whatsNewOpen} from '../js/whats-new.js';
+import {introFirstRun} from '../js/views/intro.js';
 
 const release = (version, n = 2) => ({version, date: '2026-10-01', items: Array.from({length: n}, (_, i) => ({icon: 'spark', title: `${version} change ${i + 1}`, text: 'One line.'}))});
 // Out of order on purpose: the card sorts newest first itself.
@@ -151,4 +153,74 @@ test('the running version has release notes', () => {
   const version = readFileSync(new URL('../../version.py', import.meta.url), 'utf8').match(/APP_VERSION\s*=\s*"([^"]+)"/)[1];
   assert.ok(RELEASE_NOTES.some(r => r.version === version),
     `version.py is ${version}: add its entry to web/js/release-notes.js so the What’s new card has something to show`);
+});
+
+test('the card steps aside, unread, while the intro or setup is up, and comes back after', async () => {
+  const cards = [];
+  const posts = [];
+  const doc = {activeElement: null, addEventListener() {}, removeEventListener() {},
+    getElementById: () => ({before() {}, focus() {}}),
+    createElement: () => {
+      const holder = {};
+      Object.defineProperty(holder, 'innerHTML', {set() {
+        const el = {hidden: false, inert: false, classList: {add() {}}, addEventListener() {}, remove() {}, querySelector: () => null,
+          focus() { if (!el.hidden) doc.activeElement = el; }, contains: n => n === el};      // hidden: no focus
+        cards.push(el);
+        holder.firstElementChild = el;
+      }});
+      return holder;
+    }};
+  const fetch = async (url, init) => {
+    if (init.method === 'POST') posts.push([url, JSON.parse(init.body)]);
+    const body = init.method === 'POST' ? {ok: true} : {version: RELEASE_NOTES[0].version, seen: RELEASE_NOTES[0].version};
+    return {ok: true, status: 200, headers: {get: () => null}, text: async () => JSON.stringify(body)};
+  };
+  const saved = ['document', 'fetch'].map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]);
+  Object.assign(globalThis, {document: doc, fetch});
+  try {
+    assert.equal(await openWhatsNew(), true);
+    const card = cards.at(-1);
+    setWhatsNewAside(true);                  // the intro opens over the page
+    doc.activeElement = null;                // as a browser does for a hidden element
+    assert.equal(card.hidden, true);
+    assert.equal(whatsNewOpen(), false, 'Escape belongs to the intro');
+    setWhatsNewAside(false);                 // and ends on a page again
+    assert.equal(card.hidden, false);
+    assert.equal(whatsNewOpen(), true);
+    assert.equal(doc.activeElement, null, 'shown again, it does not take focus from the page');
+    assert.deepEqual(posts, [], 'stepping aside does not mark it read');
+    // Asked for again while it waits: it takes focus once it shows, and is not opened twice.
+    setWhatsNewAside(true);
+    await openWhatsNew();
+    setWhatsNewAside(false);
+    assert.equal(cards.length, 1);
+    assert.equal(doc.activeElement, card);
+    closeWhatsNew();
+    assert.deepEqual(posts, [['/api/whats-new/seen', {version: RELEASE_NOTES[0].version}]]);
+    // Asked for while setup is up, it waits hidden from the start, then shows with focus.
+    setWhatsNewAside(true);
+    assert.equal(await openWhatsNew(), true);
+    assert.equal(cards.at(-1).hidden, true);
+    assert.notEqual(doc.activeElement, cards.at(-1));
+    setWhatsNewAside(false);
+    assert.equal(cards.at(-1).hidden, false);
+    assert.equal(doc.activeElement, cards.at(-1));
+    closeWhatsNew();
+  } finally {
+    setWhatsNewAside(false);
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor); else delete globalThis[name];
+    }
+  }
+});
+
+test('asked for on the intro or setup, it says when it opens by the button that screen shows', () => {
+  const store = skipped => ({get: key => (key === 'jw-setup-skipped' && skipped ? '1' : null)});
+  // A first run: the intro's Skip intro leads into setup, whose way out is Skip for now.
+  assert.equal(whatsNewOnceLeft('intro', introFirstRun({saved: false}, store(false))), 'What’s new opens when you finish or skip setup');
+  assert.equal(whatsNewOnceLeft('welcome', true), 'What’s new opens when you finish or skip setup');
+  // Played again, or setup skipped in this browser: the intro's Close goes back; setup run again has Cancel.
+  assert.equal(whatsNewOnceLeft('intro', introFirstRun({saved: true}, store(false))), 'What’s new opens when you close the intro');
+  assert.equal(whatsNewOnceLeft('intro', introFirstRun({saved: false}, store(true))), 'What’s new opens when you close the intro');
+  assert.equal(whatsNewOnceLeft('welcome', false), 'What’s new opens when you finish or cancel setup');
 });

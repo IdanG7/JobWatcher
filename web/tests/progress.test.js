@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {backgroundWork, collectionMarkup, progressBar, workMarkup} from '../js/collection-status.js';
-import {emptyListWork, firstScanState} from '../js/views/opportunities.js';
+import {emptyListWork, firstScanState, focusId} from '../js/views/opportunities.js';
 
 test('a bar with a count fills to it; without one it slides instead of sitting gray', () => {
   const bar = progressBar({key: 'rank', label: 'Ranking', value: 1200, max: 4800});
@@ -56,16 +56,16 @@ test('the Live card fills its bar while collecting and ranking, and drops it whe
 
 test('an empty list during a first scan shows the work, and the roles once it ends', () => {
   const scanning = {poll_running: true, progress: {phase: 'fetching', total: 120, completed: 34}};
-  const empty = {jobs: [], ranked_any: false};
+  const empty = {jobs: [], first_scan: true};
   assert.equal(emptyListWork(empty, scanning)[0].count, '34 of 120 sources');
   const html = firstScanState(emptyListWork(empty, scanning));
   assert.match(html, /Finding roles for you/);
   assert.match(html, /<div class="work-list" data-work><div class="work-row">/);
   assert.doesNotMatch(html, /No roles match/);
   assert.equal(emptyListWork(empty, {}), null, 'nothing running: the usual empty state');
-  assert.equal(emptyListWork({jobs: [{key: 'a'}], ranked_any: true}, scanning), null);
-  // Once anything is ranked, a routine poll leaves an empty search as "no roles"; a pass with postings to go does not.
-  const ranked = {jobs: [], ranked_any: true};
+  assert.equal(emptyListWork({jobs: [{key: 'a'}], first_scan: false}, scanning), null);
+  // After the first scan a routine poll leaves an empty search as "no roles"; a pass with postings to go does not.
+  const ranked = {jobs: [], first_scan: false};
   assert.equal(emptyListWork(ranked, scanning), null);
   assert.equal(emptyListWork(ranked, {indexing: true, ranking: {total: 4800, done: 1200}}).at(-1).count, '1,200 of 4,800');
   assert.equal(emptyListWork(ranked, {indexing: true, ranking: {total: 4800, done: 4800}}), null);
@@ -78,21 +78,39 @@ test('during a poll an empty list keeps one state while ranking passes start and
   // Each source that lands starts a pass: indexing on, its backlog counted, its facts done, then a gap until the next.
   const ticks = [{...poll, indexing: true, pending: 0, ranking: null}, {...poll, indexing: true, pending: 2400, ranking: {total: 2400, done: 0}},
     {...poll, indexing: true, pending: 0, ranking: {total: 2400, done: 2400}}, {...poll, indexing: false, pending: 0, ranking: null}];
-  const ranked = {jobs: [], ranked_any: true};
+  const ranked = {jobs: [], first_scan: false};
   assert.deepEqual(ticks.map(s => emptyListWork(ranked, s)), [null, null, null, null], 'a narrow search says "no roles" throughout');
-  assert.ok(ticks.every(s => emptyListWork({jobs: [], ranked_any: false}, s)), 'a first scan shows the work throughout');
-  // Once the work is shown it stays while anything runs, though the first roles ranked make ranked_any true.
+  assert.ok(ticks.every(s => emptyListWork({jobs: [], first_scan: true}, s)), 'a first scan shows the work throughout');
+  // Once the work is shown it stays while anything runs, though the first poll finishing ends the first scan.
   assert.ok(ticks.every(s => emptyListWork(ranked, s, true)));
   assert.equal(emptyListWork(ranked, {progress: {phase: 'complete'}}, true), null, 'the work ended: the roles, or "no roles"');
-  assert.equal(emptyListWork({jobs: [{key: 'a'}], ranked_any: true}, ticks[1], true), null);
+  assert.equal(emptyListWork({jobs: [{key: 'a'}], first_scan: false}, ticks[1], true), null);
 });
-
 test('a ranking pass that failed leaves no bar for work that is not running', () => {
   const failed = {indexing: false, pending: 2400, ranking: null, error: 'OperationalError: database is locked'};
   assert.deepEqual(backgroundWork(failed), []);
-  assert.equal(emptyListWork({jobs: [], ranked_any: true}, failed), null);
+  assert.equal(emptyListWork({jobs: [], first_scan: false}, failed), null);
   assert.equal(backgroundWork({pending: 2400})[0].count, '2,400 left', 'a count with no error is still work');
   // The next pass is work again, but its stale count is not postings left before it counts its own.
   assert.deepEqual(backgroundWork({...failed, indexing: true}).map(w => w.label), ['Ranking']);
-  assert.equal(emptyListWork({jobs: [], ranked_any: true}, {...failed, indexing: true}), null);
+  assert.equal(emptyListWork({jobs: [], first_scan: false}, {...failed, indexing: true}), null);
+});
+
+test('a background redraw finds the control focus was on, in the row it moved to', () => {
+  const had = Object.getOwnPropertyDescriptor(globalThis, 'CSS');
+  globalThis.CSS = {escape: s => String(s).replace(/["\\]/g, '\\$&')};
+  try {
+    const row = {dataset: {i: '3', key: 'rbc-42'}};
+    const control = (dataset, inRow = false, href = null) => ({dataset, closest: sel => (inRow && sel === 'tr[data-key]' ? row : null),
+      getAttribute: name => (name === 'href' ? href : null)});
+    assert.equal(focusId(control({rowAct: 'save'}, true)), 'tr[data-key="rbc-42"] [data-row-act="save"]', 'by its row, not its place');
+    assert.equal(focusId(control({openJob: ''}, true, '#/opportunities?job=rbc-42')), 'tr[data-key="rbc-42"] [data-open-job=""]');
+    // A quick filter by what it filters: its place in the bar changes as counts reorder the family chips.
+    assert.equal(focusId(control({quickI: '1', quickKey: '{"family":"data_ml"}'})), '[data-quick-key="{\\"family\\":\\"data_ml\\"}"]');
+    assert.equal(focusId(control({remove: 'city', value: 'say "hi"'})), '[data-remove="city"][data-value="say \\"hi\\""]');
+    assert.equal(focusId(control({}, false, '#/settings?tab=resume')), '[href="#/settings?tab=resume"]', 'a plain link by where it goes');
+    assert.equal(focusId(control({}, true)), '', 'nothing to find it by: focus is left alone');
+  } finally {
+    if (had) Object.defineProperty(globalThis, 'CSS', had); else delete globalThis.CSS;
+  }
 });

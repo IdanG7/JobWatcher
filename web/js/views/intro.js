@@ -18,6 +18,9 @@ export function firstRunRoute({saved, introSeen = false, setupSkipped = false, r
   return introSeen ? 'welcome' : 'intro';
 }
 
+/** A first run, for the intro: no profile saved, and setup not skipped in this browser. It then leads into setup. */
+export const introFirstRun = (profileData, store) => profileData.saved === false && !store.get('jw-setup-skipped');
+
 /** Where the intro leads when it ends or is skipped: setup on first run, else back where you were. */
 export function introExit({firstRun, previous = null}) {
   if (firstRun) return {path: ['welcome'], params: {}};
@@ -54,7 +57,7 @@ export const STEPS = [
 
 export async function render(root, ctx) {
   let firstRun = false;
-  try { firstRun = (await ctx.loadProfile()).saved === false && !ctx.store.get('jw-setup-skipped'); } catch { /* offline: the intro still reads, and ends in Settings' place */ }
+  try { firstRun = introFirstRun(await ctx.loadProfile(), ctx.store); } catch { /* offline: the intro still reads, and ends in Settings' place */ }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const plan = introPlan({reduced});
   const state = {step: 0, opening: plan.opening};

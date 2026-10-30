@@ -74,6 +74,27 @@ class PollProgressTests(ServiceFixture):
         self.assertEqual("ok", finished["rbc"]["outcome"])
         self.assertEqual("failed", finished["demo_quant"]["outcome"])
         self.assertTrue(any(event == "phase" and data["phase"] == "indexing" for event, data in events))
+        with self.service.db() as con:
+            self.assertEqual(set(), self.service.untried_sources(con))     # one that failed was still taken on
+
+    def test_a_source_whose_results_fail_to_store_is_not_left_untried(self):
+        events = []
+        self.service.config["description_budget"] = 0
+
+        def fetch(name, cfg):       # a dict where the salary's text belongs: storing it fails and rolls back
+            return name, [{"id": "x", "title": "Analyst", "location": "Toronto", "url": "https://example.com/x",
+                           "salary": {"min": 90000}}]
+
+        with patch.object(watcher, "fetch_board", side_effect=fetch), patch.object(watcher, "load_subscribers", return_value=[]):
+            con = watcher.db_open(self.db_path)
+            try:
+                watcher.cycle(self.service.config, con, progress=lambda event, **data: events.append((event, data)))
+            finally:
+                con.close()
+        outcomes = {data["outcome"] for event, data in events if event == "source_finished"}
+        self.assertEqual({"failed"}, outcomes)
+        with self.service.db() as con:
+            self.assertEqual(set(), self.service.untried_sources(con))     # else every empty list would stay a first scan
 
     def test_new_source_is_added_after_a_concurrent_commit(self):
         # Workday date repair has nothing to clear here. It must not leave a
