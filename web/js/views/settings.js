@@ -5,6 +5,7 @@ import {del, fileToBase64, get, patch, post, put} from '../api.js';
 import {HOURS, esc} from '../lib.js';
 import {bindMenu, confirmDialog, errorState, icon, options, prettyKey, skeletonRows, toast} from '../ui.js';
 import {mountResume} from '../resume.js';
+import {progressBar} from '../collection-status.js';
 import {FIELD_INFO, countryList, employerSections, fieldList, profileFields, roleField, skillGroupsFor, specialtyFamilies} from '../fields.js';
 
 const STAGES = [
@@ -176,7 +177,7 @@ export async function render(root, ctx) {
         + modelRow()
         + (download?.state === 'running'
           ? block(`<p class="set-mini">Downloading ${esc(download.model)}${download.total ? ` · ${gb(download.completed)} of ${gb(download.total)}` : '…'}</p>
-            <progress class="set-progress" aria-label="Model download" max="${download.total || 1}"${download.total ? ` value="${download.completed}"` : ''}></progress>
+            <div class="set-progress">${progressBar({label: 'Model download', value: download.total ? download.completed : null, max: download.total})}</div>
             <p class="fine">You can leave this page; the download carries on.</p>`) : '')
         + (download?.state === 'failed' ? block(`<p class="source-error">${esc(download.error)}</p>`) : '');
     const refs = writer.references;

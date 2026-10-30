@@ -9,6 +9,7 @@ import {
 } from '../ui.js';
 import {markVisited, saveSearchForm} from '../forms.js';
 import {setDrawerDocked} from '../detail.js';
+import {backgroundWork, progressBar, showWork, workMarkup} from '../collection-status.js';
 
 export const PER_PAGE = 50;
 const LIST_KEYS = new Set(['category', 'location', 'cycle', 'stage', 'company_type', 'hours']);
@@ -103,8 +104,25 @@ export function rankingState(rm, samples = []) {
   const left = samples.length ? rankingTimeLeft(samples) : null;
   return `<div class="empty ranking" role="status" aria-live="polite"><strong>Ranking roles for your profile</strong>
     <p>Foothold is checking each posting against your resume and targets. Roles show up here as they’re ranked, and it keeps going if you leave this page.</p>
-    <div class="rank-progress"><progress max="${total}" value="${checked}" aria-label="Postings checked"></progress>
+    <div class="rank-progress">${progressBar({key: 'checked', label: 'Postings checked', value: checked, max: total})}
       <div class="rank-figures"><span><span class="figure">${checked.toLocaleString()}</span> of <span class="figure">${total.toLocaleString()}</span> checked</span><span>${esc(left || 'Estimating time left…')}</span></div></div></div>`;
+}
+
+/** Background work to show in place of an empty list: any on a first scan, before anything is ranked; after that
+ *  only a ranking pass with postings still to go, so a narrow search during a routine poll still says "no roles". */
+export function emptyListWork(data, status) {
+  if (data.jobs.length) return null;
+  const work = backgroundWork(status);
+  const r = status?.ranking;
+  const left = r ? r.done < r.total : status?.pending > 0;
+  return work.length && (data.ranked_any === false || left) ? work : null;
+}
+
+/** The results panel while Foothold collects and ranks with nothing to list yet. */
+export function firstScanState(work) {
+  return `<div class="empty first-scan"><strong>Finding roles for you</strong>
+    <p>Foothold is collecting postings from your sources and ranking each one against your profile. Roles show up here as they’re ranked, and it keeps going if you leave this page.</p>
+    <div class="work-list" data-work>${workMarkup(work)}</div></div>`;
 }
 
 export async function render(root, ctx) {
@@ -188,6 +206,7 @@ export async function render(root, ctx) {
       const data = await get('/api/jobs', params, controller.signal);
       if (controller.signal.aborted) return;
       state.data = data;
+      state.loadedAt = Date.now();
       // Pending counts over time give ranking's pace. Other filters rank other postings, so they start over;
       // a poll adding postings does not.
       const rm = data.resume_matching;
@@ -537,6 +556,11 @@ export async function render(root, ctx) {
     const sort = state.params.sort || 'fit';
     const dir = state.params.dir;
     const wrap = $('[data-table]');
+    const work = emptyListWork(d, ctx.status);
+    if (work) {
+      wrap.innerHTML = firstScanState(work);
+      return;
+    }
     if (!d.jobs.length && d.resume_matching?.active && d.resume_matching.pending_filtered) {
       wrap.innerHTML = rankingState(d.resume_matching, state.ranking);
       return;
@@ -854,6 +878,17 @@ export async function render(root, ctx) {
       if (JSON.stringify(a) !== JSON.stringify(b)) { await load(); restoreFocus(); }
     },
     refresh: () => load({quiet: true}),
+    // An empty list during a scan follows its progress, then shows the roles once the work ends.
+    status(s) {
+      const d = state.data;
+      if (!d || d.jobs.length) return;
+      const work = emptyListWork(d, s);
+      const box = $('[data-work]');
+      if (work && box) showWork(box, workMarkup(work));
+      else if (work) drawTable();           // the list was drawn before the status showed the work
+      // Roles show up as they are ranked, and the list fills once the work ends.
+      if (box && !state.loading && (!work || Date.now() - state.loadedAt > 10000)) load({quiet: true});
+    },
     onKey(e) {
       const jobs = state.data?.jobs || [];
       // Enter / Space on a focused button, link or sort header does that control's own thing.

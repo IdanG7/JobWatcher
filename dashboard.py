@@ -294,6 +294,7 @@ class JobwatchService:
         self._worker_poll = False         # a poll sent to the worker that hasn't ended
         self.worker_pid_path: Path | None = None    # set by the portable launcher, for --stop
         self._pending_cache: tuple[float, int] | None = None
+        self._ranking: dict | None = None     # the ranking pass under way: {"total", "done"} postings
         self._resume_pending: tuple[tuple, int] | None = None   # (data version, resume version) -> count
         self.status = {"indexing": False, "last_refresh": None, "last_stats": None,
                        "poll_running": False, "last_poll": None, "error": None, "progress": None}
@@ -493,11 +494,12 @@ class JobwatchService:
     def refresh_now(self, force_score: bool = False) -> dict:
         """One facts and scoring pass in this process (the worker runs the same refresh_database)."""
         with self._refresh_lock:
+            self._ranking = None
             self.status["indexing"] = True
             try:
                 # Count down as batches land, so a long re-rank after an update shows what's left.
                 stats = refresh_database(self.db_path, self.config, force_score, backlog=self.pending_facts,
-                                         on_remaining=lambda n: setattr(self, "_pending_cache", (time.time(), n)))
+                                         on_remaining=self._ranking_left)
                 self._refreshed(stats)
                 return stats
             except Exception as exc:   # surfaced in /api/status, never crashes the server
@@ -505,6 +507,13 @@ class JobwatchService:
                 raise
             finally:
                 self.status["indexing"] = False
+
+    def _ranking_left(self, n: int) -> None:
+        """A ranking pass's postings left. Its first count is the backlog it starts with, so done of total
+        follows from there."""
+        self._pending_cache = (time.time(), n)
+        total = max(n, self._ranking["total"]) if self._ranking else n
+        self._ranking = {"total": total, "done": total - n}
 
     def _refreshed(self, stats: dict) -> None:
         self.status.update(last_refresh=utcnow(), last_stats=stats, error=None)
@@ -554,9 +563,10 @@ class JobwatchService:
     def _worker_event(self, kind: str, data: dict) -> None:
         """What the worker reports sets what refresh_now() and polls in this process set."""
         if kind == "indexing":
+            self._ranking = None
             self.status["indexing"] = data["on"]
         elif kind == "pending":
-            self._pending_cache = (time.time(), data["n"])
+            self._ranking_left(data["n"])
         elif kind == "done":
             self.status["indexing"] = False
             self._refreshed(data["stats"])
@@ -679,6 +689,8 @@ class JobwatchService:
             resume["unfiltered_total"] = sum(verdicts.values())
             resume["excluded_total"] = verdicts.get(0, 0)
             resume["pending_filtered"] = max(0, resume["unfiltered_total"] - total - resume["excluded_total"])
+            # Nothing ranked at all yet (a first scan): an empty list is not "no roles match".
+            ranked_any = bool(jobs) or con.execute("SELECT 1 FROM job_intel LIMIT 1").fetchone() is not None
             self._attach_sources(con, jobs)
             facets = {}
             if want_facets:
@@ -697,7 +709,7 @@ class JobwatchService:
                                 GROUP BY i.{column} ORDER BY COUNT(*) DESC LIMIT 25""")]
         return {"jobs": jobs, "total": total, "page": page, "per_page": per_page,
                 "pages": max(1, (total + per_page - 1) // per_page), "facets": facets,
-                "resume_matching": resume}
+                "resume_matching": resume, "ranked_any": ranked_any}
 
     def job_detail(self, key: str) -> dict:
         board, _, job_id = key.partition(":")
@@ -2580,7 +2592,9 @@ class JobwatchService:
         p = result["progress"]
         if p:
             p["elapsed"] = round((p["finished_at"] or time.time()) - p["started_at"])
-        return {**result, "version": APP_VERSION, "pending": self._pending_cache[1] if self._pending_cache else 0}
+        ranking = self._ranking if result["indexing"] else None
+        return {**result, "version": APP_VERSION, "pending": self._pending_cache[1] if self._pending_cache else 0,
+                "ranking": dict(ranking) if ranking else None}
 
     def update_info(self) -> dict:
         """Whether a newer release exists, and in the Windows app whether it is downloaded."""

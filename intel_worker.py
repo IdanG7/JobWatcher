@@ -55,8 +55,8 @@ def count_pending_facts(con) -> int:
 def refresh_database(db_path, config: dict, force_score: bool = False, backlog=count_pending_facts,
                      on_remaining=None) -> dict:
     """One facts and scoring pass on a connection of its own: what the worker runs, and the server's
-    refresh_now() in its place. ``on_remaining(n)`` hears how many postings are left as batches land,
-    from ``backlog(con)``, counted first."""
+    refresh_now() in its place. ``on_remaining(n)`` hears the backlog, ``backlog(con)`` counted first,
+    then how many postings are left as batches land."""
     con = sqlite3.connect(db_path, timeout=30)
     con.execute("PRAGMA busy_timeout=15000")
     con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
@@ -65,6 +65,7 @@ def refresh_database(db_path, config: dict, force_score: bool = False, backlog=c
         progress = None
         if on_remaining is not None:
             pending = backlog(con)
+            on_remaining(pending)
             progress = lambda done: on_remaining(max(0, pending - done))  # noqa: E731
         return IntelStore(con, config).refresh(force_score=force_score, on_progress=progress)
     finally:
@@ -112,17 +113,11 @@ class Worker:
     def kick(self) -> None:
         self._wake.set()
 
-    def _backlog(self, con) -> int:
-        n = count_pending_facts(con)
-        self.emit("pending", n=n)
-        return n
-
     def refresh(self) -> None:
         self.indexing = True
         self.emit("indexing", on=True)
         try:
-            stats = refresh_database(self.db_path, self.config, backlog=self._backlog,
-                                     on_remaining=lambda n: self.emit("pending", n=n))
+            stats = refresh_database(self.db_path, self.config, on_remaining=lambda n: self.emit("pending", n=n))
         except Exception as exc:    # reported, and tried again on the next pass
             self.indexing = False
             self.emit("error", text=f"{type(exc).__name__}: {exc}")
