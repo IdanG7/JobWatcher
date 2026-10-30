@@ -46,6 +46,8 @@ function baseCommands(ctx) {
     }},
     {group: 'Actions', label: 'Keyboard shortcuts', icon: 'command', keys: '?', run: () => openHelp()},
     {group: 'Actions', label: 'What’s new in Foothold', icon: 'spark', run: () => actions.whatsNew?.()},
+    {group: 'Actions', label: 'How Foothold works', icon: 'info', run: () => ctx.intro?.()},
+    {group: 'Actions', label: 'Show me around', icon: 'pin', run: () => ctx.tour?.()},
   ];
 }
 
