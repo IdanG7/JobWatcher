@@ -288,6 +288,7 @@ class JobwatchService:
         self.desktop = False
         self._wake = threading.Event()
         self._stop = threading.Event()
+        self._poll_soon = threading.Event()     # a board no poll has tried: auto_poll() checks it without waiting
         # Facts, scoring and polls run in a worker process (intel_worker.py) once start_background() has
         # started it; without it, in this process's threads, as tests and refresh_now() do.
         self._worker: WorkerProcess | None = None
@@ -552,11 +553,31 @@ class JobwatchService:
                 self._wake.clear()
         threading.Thread(target=loop, name="jobwatch-intel", daemon=True).start()
 
+    def auto_poll(self) -> None:
+        """Poll every interval_seconds (a minute at least) until stopped. A board picked in setup or Settings
+        is polled once the poll under way ends, rather than at the next interval, unless that poll took it on."""
+        while not self._stop.is_set():
+            self.trigger_poll()
+            due = time.monotonic() + max(60, self.config.get("interval_seconds", 300))
+            while self._poll_soon.wait(max(0.0, due - time.monotonic())) and not self._stop.is_set():
+                self._poll_soon.clear()
+                while self.status["poll_running"] and not self._stop.wait(2):
+                    pass
+                if self._stop.is_set():
+                    break
+                try:
+                    with self.db() as con:
+                        if self.untried_sources(con):
+                            break
+                except Exception:       # can't tell (a locked database): poll, rather than end the loop
+                    break
+
     def stop_background(self) -> None:
         """Stop the background work, and wait until the worker process has ended: its files (the runtime
         Setup replaces) are free before this process exits."""
         self._stop.set()
         self._wake.set()
+        self._poll_soon.set()       # auto_poll() sees the stop at once
         worker, self._worker = self._worker, None
         if worker is not None:
             worker.stop()
@@ -602,6 +623,25 @@ class JobwatchService:
     # ------------------------------------------------------------ shared helpers
     def profile(self, con) -> dict:
         return load_profile(con, self.config)
+
+    def untried_sources(self, con) -> set[str]:
+        """The sources the profile's boards poll that no poll has started on: a board just picked in setup or
+        Settings. A poll adds a source's row as it starts, so one that then fails is not among them."""
+        sources = polled_sources(self.config, self.profile(con), self.kn)
+        return set(sources) - {board for (board,) in con.execute("SELECT board FROM boards")}
+
+    def first_scan(self, con) -> bool:
+        """Whether the roles for a list may still be on their way: no poll has finished, nothing is ranked, or no
+        poll that started after a board was picked has finished. kv boards_picked (put_profile) holds the last runs
+        row then, and whether a poll was under way, as that poll read the profile before the pick."""
+        if (con.execute("SELECT 1 FROM runs LIMIT 1").fetchone() is None
+                or con.execute("SELECT 1 FROM job_intel LIMIT 1").fetchone() is None):
+            return True
+        picked = con.execute("SELECT v FROM kv WHERE k='boards_picked'").fetchone()
+        if picked is None:
+            return False
+        mark = json.loads(picked[0])
+        return con.execute("SELECT COUNT(*) FROM runs WHERE rowid > ?", (mark["run"],)).fetchone()[0] <= mark["under_way"]
 
     def watched(self, con) -> set[str]:
         return set(watched_companies(con))
@@ -690,8 +730,8 @@ class JobwatchService:
             resume["unfiltered_total"] = sum(verdicts.values())
             resume["excluded_total"] = verdicts.get(0, 0)
             resume["pending_filtered"] = max(0, resume["unfiltered_total"] - total - resume["excluded_total"])
-            # Nothing ranked at all yet (a first scan): an empty list is not "no roles match".
-            ranked_any = bool(jobs) or con.execute("SELECT 1 FROM job_intel LIMIT 1").fetchone() is not None
+            # During a first scan, or the first poll of a board just picked, an empty list is not "no roles match".
+            first_scan = not jobs and self.first_scan(con)
             self._attach_sources(con, jobs)
             facets = {}
             if want_facets:
@@ -710,7 +750,7 @@ class JobwatchService:
                                 GROUP BY i.{column} ORDER BY COUNT(*) DESC LIMIT 25""")]
         return {"jobs": jobs, "total": total, "page": page, "per_page": per_page,
                 "pages": max(1, (total + per_page - 1) // per_page), "facets": facets,
-                "resume_matching": resume, "ranked_any": ranked_any}
+                "resume_matching": resume, "first_scan": first_scan}
 
     def job_detail(self, key: str) -> dict:
         board, _, job_id = key.partition(":")
@@ -1804,6 +1844,18 @@ class JobwatchService:
         with self.db() as con:
             save_profile(con, profile)
             self._update_resume_version(con)
+            # A board picked in setup or Settings: its sources are polled now, not at the next interval, and
+            # its list is a first scan until that poll ends (first_scan).
+            untried = self.untried_sources(con)
+            mark = con.execute("SELECT v FROM kv WHERE k='boards_picked'").fetchone()
+            if untried:
+                run = con.execute("SELECT COALESCE(MAX(rowid), 0) FROM runs").fetchone()[0]
+                con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('boards_picked', ?)", (json.dumps(
+                    {"run": run, "under_way": int(self.status["poll_running"]), "sources": sorted(untried)}),))
+            elif mark and not set(json.loads(mark[0])["sources"]) & {b for (b,) in con.execute("SELECT board FROM boards")}:
+                con.execute("DELETE FROM kv WHERE k='boards_picked'")      # undone before any poll took it on
+        if untried:
+            self._poll_soon.set()
         self.kick()
         return {"ok": True, "profile": profile}
 

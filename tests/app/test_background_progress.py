@@ -2,6 +2,8 @@
 done of total, so the bars fill instead of sitting gray."""
 from contextlib import closing
 import sqlite3
+import threading
+import time
 from unittest.mock import patch
 
 from intel_worker import WorkerProcess
@@ -108,12 +110,122 @@ class RankingProgressTests(ServiceFixture):
 
 
 class FirstScanListTests(ServiceFixture):
-    def test_an_empty_list_says_whether_anything_is_ranked_yet(self):
-        self.assertTrue(self.service.jobs({})["ranked_any"])
-        none = self.service.jobs({"q": ["zzzz no such role"]})
+    search = {"q": ["zzzz no such role"]}
+
+    def finished_poll(self):
+        with closing(sqlite3.connect(self.db_path)) as con:
+            con.execute("INSERT INTO runs VALUES ('2026-10-30T09:00:00+00:00', '2026-10-30T09:04:00+00:00', 3, 0, 0, 120, 0, 0, 240.0)")
+            con.commit()
+
+    def taken_on(self, sources):
+        """As a poll does as it starts: a row for each source it polls."""
+        with closing(sqlite3.connect(self.db_path)) as con:
+            con.executemany("INSERT OR IGNORE INTO boards(board) VALUES (?)", [(source,) for source in sources])
+            con.commit()
+
+    def pick_rbc(self):
+        """Every source polled once, then setup or Settings picks the board rbc is in: a save, with rbc untried."""
+        with self.service.db() as con:
+            self.taken_on(self.service.untried_sources(con))
+        with closing(sqlite3.connect(self.db_path)) as con:
+            con.execute("DELETE FROM boards WHERE board='rbc'")
+            con.commit()
+        self.service.put_profile({"profile": self.service.get_profile()["profile"]})
+
+    def first_scan(self):
+        return self.service.jobs(self.search)["first_scan"]
+
+    def test_an_empty_list_says_whether_the_first_scan_is_still_under_way(self):
+        self.assertFalse(self.service.jobs({})["first_scan"])          # roles to list
+        none = self.service.jobs(self.search)
         self.assertEqual(0, none["total"])
-        self.assertTrue(none["ranked_any"])                 # postings are ranked; none match this search
+        self.assertTrue(none["first_scan"])          # some postings ranked, none match, and no poll has finished
+        self.finished_poll()
+        self.assertFalse(self.first_scan())          # after a finished poll: "no roles match"
         with closing(sqlite3.connect(self.db_path)) as con:
             con.execute("DELETE FROM job_intel")
             con.commit()
-        self.assertFalse(self.service.jobs({})["ranked_any"])
+        self.assertTrue(self.service.jobs({})["first_scan"])           # nothing ranked at all
+
+    def test_a_board_picked_later_is_polled_at_once_and_a_first_scan_until_that_poll_ends(self):
+        self.finished_poll()
+        with self.service.db() as con:
+            self.taken_on(self.service.untried_sources(con))
+        self.service.put_profile({"profile": self.service.get_profile()["profile"]})
+        self.assertFalse(self.service._poll_soon.is_set())             # an ordinary save: the next poll is on time
+        self.assertFalse(self.first_scan())
+        self.pick_rbc()
+        self.assertTrue(self.service._poll_soon.is_set())              # polled once the poll under way ends
+        self.assertTrue(self.first_scan())                             # its roles may be on their way
+        self.finished_poll()                                           # the poll that took it on
+        self.assertFalse(self.first_scan())
+
+    def test_the_poll_under_way_at_the_pick_does_not_end_its_first_scan(self):
+        self.finished_poll()
+        self.service.status["poll_running"] = True      # the launch poll, which read the profile before setup
+        self.pick_rbc()
+        self.service.status["poll_running"] = False
+        self.finished_poll()                            # that poll ends
+        self.assertTrue(self.first_scan())
+        self.finished_poll()                            # the next one, which took the board on
+        self.assertFalse(self.first_scan())
+
+    def test_a_board_picked_then_removed_before_any_poll_is_no_first_scan(self):
+        self.finished_poll()
+        self.pick_rbc()
+        self.assertTrue(self.first_scan())
+        profile = self.service.get_profile()["profile"]
+        with patch.object(self.service, "untried_sources", return_value=set()):
+            self.service.put_profile({"profile": profile})              # rbc's board removed again: none untried
+        self.assertFalse(self.first_scan())                            # nothing new is on its way
+
+    def test_a_board_a_poll_has_taken_on_stays_a_first_scan_until_that_poll_ends(self):
+        self.finished_poll()
+        self.pick_rbc()
+        self.taken_on(["rbc"])                                         # the poll for it has started
+        self.service.put_profile({"profile": self.service.get_profile()["profile"]})
+        self.assertTrue(self.first_scan())
+        self.finished_poll()
+        self.assertFalse(self.first_scan())
+
+    def run_auto_poll(self, **untried):
+        """auto_poll with a poll under way when setup saves; the polls it starts, after that poll ends."""
+        calls = []
+
+        def trigger():
+            calls.append(time.time())
+            self.service.status["poll_running"] = len(calls) == 1     # the first poll is still running at setup
+            return {"ok": True, "started": True}
+
+        def wait_for(n, seconds=6):
+            deadline = time.time() + seconds
+            while len(calls) < n and time.time() < deadline:
+                time.sleep(0.05)
+            return len(calls)
+
+        with patch.object(self.service, "trigger_poll", side_effect=trigger), \
+                patch.object(self.service, "untried_sources", **untried):
+            thread = threading.Thread(target=self.service.auto_poll, daemon=True)
+            thread.start()
+            try:
+                self.assertEqual(1, wait_for(1))
+                self.service._poll_soon.set()                          # setup saved a board no poll had started on
+                time.sleep(0.3)
+                self.assertEqual(1, len(calls), "not while a poll runs")
+                self.service.status["poll_running"] = False
+                wait_for(2, seconds=4)                                 # the check runs every 2 s; the interval is 300 s
+            finally:
+                self.service.stop_background()
+                thread.join(5)
+        self.assertFalse(thread.is_alive())
+        return len(calls)
+
+    def test_auto_poll_polls_a_new_board_once_the_poll_under_way_ends(self):
+        self.assertEqual(2, self.run_auto_poll(return_value={"rbc"}))
+
+    def test_auto_poll_waits_for_the_interval_when_the_poll_under_way_took_the_board_on(self):
+        self.assertEqual(1, self.run_auto_poll(return_value=set()))
+
+    def test_auto_poll_polls_on_when_it_cannot_tell(self):
+        # A locked database must not end the loop, which would stop polling until the app restarts.
+        self.assertEqual(2, self.run_auto_poll(side_effect=sqlite3.OperationalError("database is locked")))

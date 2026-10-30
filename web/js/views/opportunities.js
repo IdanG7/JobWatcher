@@ -108,16 +108,28 @@ export function rankingState(rm, samples = []) {
       <div class="rank-figures"><span><span class="figure">${checked.toLocaleString()}</span> of <span class="figure">${total.toLocaleString()}</span> checked</span><span>${esc(left || 'Estimating time left…')}</span></div></div></div>`;
 }
 
-/** Background work to show in place of an empty list: any on a first scan, before anything is ranked; after that
- *  only a ranking pass with postings still to go, so a narrow search during a routine poll still says "no roles".
- *  Once shown it stays while any work runs, so the list does not flip as passes start and end. */
+/** Background work to show in place of an empty list: any on a first scan (until a poll has finished, and again
+ *  until the first poll of a board just picked has); after that only a ranking pass with postings still to go,
+ *  so a narrow search during a routine poll still says "no roles". Once shown it stays while any work runs, so
+ *  the list does not flip as passes start and end. */
 export function emptyListWork(data, status, shown = false) {
   if (data.jobs.length) return null;
   const work = backgroundWork(status);
   const r = status?.ranking;
   // A poll starts a pass as each source lands, so postings left come and go while it runs.
   const left = !status?.poll_running && (r ? r.done < r.total : status?.pending > 0 && !status?.error);
-  return work.length && (shown || data.ranked_any === false || left) ? work : null;
+  return work.length && (shown || data.first_scan || left) ? work : null;
+}
+
+/** A selector for a control the list draws again, so focus can return to it: its data attributes (else a
+ *  link's href), inside its row's when it has one, as rows move while roles are ranked. Not a quick filter's
+ *  place in the bar, which changes as counts reorder the bar. Empty when nothing names it. */
+export function focusId(el) {
+  const attrs = Object.entries(el.dataset || {}).filter(([k]) => k !== 'quickI')
+    .map(([k, v]) => `[data-${k.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)}="${CSS.escape(v)}"]`).join('')
+    || (el.getAttribute?.('href') ? `[href="${CSS.escape(el.getAttribute('href'))}"]` : '');
+  const row = el.closest?.('tr[data-key]');
+  return attrs && row && row !== el ? `tr[data-key="${CSS.escape(row.dataset.key)}"] ${attrs}` : attrs;
 }
 
 /** The results panel while Foothold collects and ranks with nothing to list yet. */
@@ -216,7 +228,7 @@ export async function render(root, ctx) {
       if (!rm?.active || !rm.pending_filtered || state.ranking[0]?.filters !== filters) state.ranking = [];
       if (rm?.active && rm.pending_filtered) state.ranking.push({t: Date.now(), pending: rm.pending_filtered, filters});
       state.cursor = Math.min(state.cursor, data.jobs.length - 1);
-      drawAll();
+      drawAll({quiet});
       if (data.resume_matching?.active && data.resume_matching.pending) state.timer = setTimeout(() => load({quiet: true}), 10000);
     } catch (err) {
       if (err.name === 'AbortError') return;
@@ -240,7 +252,12 @@ export async function render(root, ctx) {
   const controlId = n => n && ['list', 'single', 'toggle', 'range', 'clear', 'expand', 'group']
     .map(k => (n.dataset?.[k] !== undefined ? `[data-${k}="${CSS.escape(n.dataset[k])}"]${n.value && k === 'list' ? `[value="${CSS.escape(n.value)}"]` : ''}` : '')).find(Boolean);
 
-  function drawAll() {
+  function drawAll({quiet = false} = {}) {
+    // A background refresh redraws the page under the user: focus goes back to the control it was on, looked
+    // for only in the part it was in (the toolbar and the empty list both have "Clear"). The filters keep their own.
+    const zone = quiet && document.activeElement?.closest?.('[data-summary], [data-interests], [data-quick], [data-active], [data-table], [data-pager]');
+    const held = zone && root.contains(zone) ? document.activeElement : null;
+    const heldId = held && focusId(held);
     drawSummary();
     drawInterests();
     drawQuick();
@@ -257,6 +274,7 @@ export async function render(root, ctx) {
     }
     drawTable();
     drawPager();
+    if (heldId && !held.isConnected && !root.contains(document.activeElement)) zone.querySelector(heldId)?.focus({preventScroll: true});
   }
 
   function interestText() {
@@ -388,14 +406,14 @@ export async function render(root, ctx) {
     const shown = items.filter(q => !q.more).map(q => {
       const sep = last && last !== q.group ? SEP : '';
       last = q.group;
-      return `${sep}<button type="button" class="qf${q.on ? ' on' : ''}" data-quick-i="${q.i}" aria-pressed="${q.on}"${tip(q)}>${esc(q.label)}</button>`;
+      return `${sep}<button type="button" class="qf${q.on ? ' on' : ''}" data-quick-i="${q.i}" data-quick-key="${esc(JSON.stringify(q.params))}" aria-pressed="${q.on}"${tip(q)}>${esc(q.label)}</button>`;
     }).join('');
     const hidden = items.filter(q => q.more);
     let group = null;
     const menuItems = hidden.map(q => {
       const head = q.group !== group ? `${group ? '<hr class="menu-sep">' : ''}<p class="menu-label">${MORE_LABELS[q.group] || ''}</p>` : '';
       group = q.group;
-      return `${head}<button type="button" class="menu-item check-item" data-quick-i="${q.i}" aria-pressed="${q.on}"${tip(q)}><span class="mcheck" aria-hidden="true">${icon('check', 12)}</span>${esc(q.label)}</button>`;
+      return `${head}<button type="button" class="menu-item check-item" data-quick-i="${q.i}" data-quick-key="${esc(JSON.stringify(q.params))}" aria-pressed="${q.on}"${tip(q)}><span class="mcheck" aria-hidden="true">${icon('check', 12)}</span>${esc(q.label)}</button>`;
     }).join('');
     const onHidden = hidden.filter(q => q.on).length;
     const open = !!state.quickMenu && hidden.length > 0;
@@ -558,9 +576,11 @@ export async function render(root, ctx) {
     const sort = state.params.sort || 'fit';
     const dir = state.params.dir;
     const wrap = $('[data-table]');
-    const work = emptyListWork(d, ctx.status, Boolean(wrap.querySelector('[data-work]')));
+    const box = wrap.querySelector('[data-work]');
+    const work = emptyListWork(d, ctx.status, Boolean(box));
     if (work) {
-      wrap.innerHTML = firstScanState(work);
+      // Already on screen: its bars move on from where they are rather than drawing again.
+      if (box) showWork(box, workMarkup(work)); else wrap.innerHTML = firstScanState(work);
       return;
     }
     if (!d.jobs.length && d.resume_matching?.active && d.resume_matching.pending_filtered) {
@@ -740,7 +760,8 @@ export async function render(root, ctx) {
           : LIST_KEYS.has(k) ? toggleListParam(state.params[k], v) || null : active ? null : v;
       }
       // Keep keyboard focus on the toggle after the row redraws (the More menu stays open).
-      state.refocus = `[data-quick-i="${quick.dataset.quickI}"]`;
+      // A family chip goes once its family is picked; the Interests button then names that family.
+      state.refocus = [`[data-quick-key="${CSS.escape(quick.dataset.quickKey)}"]`, '[data-act=interests]'];
       set(patch);
       return;
     }
@@ -858,7 +879,7 @@ export async function render(root, ctx) {
 
   function restoreFocus() {
     if (!state.refocus) return;
-    const target = root.querySelector(state.refocus);
+    const target = [state.refocus].flat().map(sel => root.querySelector(sel)).find(Boolean);
     state.refocus = null;
     if (target) {
       if (target.closest('.interest-pop')) toggleInterestPop(true);

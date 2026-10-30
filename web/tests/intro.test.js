@@ -175,7 +175,8 @@ async function onPage(run, {targets = {}, reduced = true, fetch = async () => { 
   const ids = new Map();
   const doc = {activeElement: null, body: new Stub(), hidden: false, createElement: () => new Stub(),
     querySelector: selector => targets[selector] || null,
-    getElementById: id => { if (!ids.has(id)) ids.set(id, new Stub()); return ids.get(id); },
+    // No toast area: a toast's timer would outlive the test and its stand-in document.
+    getElementById: id => { if (id === 'toasts') return null; if (!ids.has(id)) ids.set(id, new Stub()); return ids.get(id); },
     addEventListener: listen('document'), removeEventListener: unlisten('document')};
   const observers = [];
   class ResizeObserver {
