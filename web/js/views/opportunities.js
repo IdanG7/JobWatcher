@@ -109,13 +109,15 @@ export function rankingState(rm, samples = []) {
 }
 
 /** Background work to show in place of an empty list: any on a first scan, before anything is ranked; after that
- *  only a ranking pass with postings still to go, so a narrow search during a routine poll still says "no roles". */
-export function emptyListWork(data, status) {
+ *  only a ranking pass with postings still to go, so a narrow search during a routine poll still says "no roles".
+ *  Once shown it stays while any work runs, so the list does not flip as passes start and end. */
+export function emptyListWork(data, status, shown = false) {
   if (data.jobs.length) return null;
   const work = backgroundWork(status);
   const r = status?.ranking;
-  const left = r ? r.done < r.total : status?.pending > 0;
-  return work.length && (data.ranked_any === false || left) ? work : null;
+  // A poll starts a pass as each source lands, so postings left come and go while it runs.
+  const left = !status?.poll_running && (r ? r.done < r.total : status?.pending > 0 && !status?.error);
+  return work.length && (shown || data.ranked_any === false || left) ? work : null;
 }
 
 /** The results panel while Foothold collects and ranks with nothing to list yet. */
@@ -556,7 +558,7 @@ export async function render(root, ctx) {
     const sort = state.params.sort || 'fit';
     const dir = state.params.dir;
     const wrap = $('[data-table]');
-    const work = emptyListWork(d, ctx.status);
+    const work = emptyListWork(d, ctx.status, Boolean(wrap.querySelector('[data-work]')));
     if (work) {
       wrap.innerHTML = firstScanState(work);
       return;
@@ -882,8 +884,8 @@ export async function render(root, ctx) {
     status(s) {
       const d = state.data;
       if (!d || d.jobs.length) return;
-      const work = emptyListWork(d, s);
       const box = $('[data-work]');
+      const work = emptyListWork(d, s, Boolean(box));
       if (work && box) showWork(box, workMarkup(work));
       else if (work) drawTable();           // the list was drawn before the status showed the work
       // Roles show up as they are ranked, and the list fills once the work ends.

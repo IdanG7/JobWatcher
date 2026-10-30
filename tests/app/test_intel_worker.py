@@ -43,6 +43,26 @@ def send_back_for_facts(db_path):
     con.close()
 
 
+def add_postings(db_path, start, count):
+    """New postings with no facts yet, committed as a poll commits them."""
+    con = sqlite3.connect(db_path, timeout=30)
+    now = fixtures.watcher.now()
+    con.executemany("INSERT INTO jobs VALUES (?,?,?,?,?,?,?)",
+                    [("rbc", f"bulk{i}", f"Analyst {i}", "Toronto, ON", f"https://example.com/bulk{i}", now, now)
+                     for i in range(start, start + count)])
+    con.commit()
+    con.close()
+
+
+def assert_ranking_reports(test, reports, facts):
+    """A pass's (done, total) reports: both only grow, and none reads all done while postings are left."""
+    test.assertEqual((facts, facts), reports[-1])
+    for (done, total), (next_done, next_total) in zip(reports, reports[1:]):
+        test.assertLess(done, total)
+        test.assertLessEqual(done, next_done)
+        test.assertLessEqual(total, next_total)
+
+
 class ProtocolTests(unittest.TestCase):
     def test_event_lines_and_log_lines_are_told_apart(self):
         self.assertEqual(("pending", {"n": 3}), parse_line(EVENT + json.dumps({"kind": "pending", "n": 3})))
@@ -83,10 +103,26 @@ class WorkerTests(fixtures.ServiceFixture):
         self.assertEqual(before, intel_rows(self.db_path))
         kinds = [kind for kind, _ in self.events]
         self.assertEqual("indexing", kinds[0])
-        self.assertEqual(("pending", {"n": len(before)}), self.events[1])      # the backlog, counted first
+        self.assertEqual(("pending", {"n": len(before), "total": len(before)}), self.events[1])   # counted first
         self.assertEqual("done", kinds[-1])
         self.assertEqual(len(before), self.events[-1][1]["stats"]["facts"])
         self.assertFalse(self.worker.indexing)
+
+    def test_a_pass_that_takes_on_postings_a_poll_commits_reports_them(self):
+        add_postings(self.db_path, 0, 600)
+        reports = []
+
+        def emit(kind, **data):
+            self.events.append((kind, data))
+            if kind == "pending":
+                reports.append((data["total"] - data["n"], data["total"]))
+                if len(reports) == 2:           # the first batch is in, and a poll commits more
+                    add_postings(self.db_path, 600, 600)
+        self.worker.emit = emit
+        self.worker.refresh()
+        self.assertEqual((0, 600), reports[0])
+        self.assertEqual(1200, self.events[-1][1]["stats"]["facts"])
+        assert_ranking_reports(self, reports, 1200)
 
     def test_a_failed_pass_is_reported(self):
         with patch.object(intel_worker, "refresh_database", side_effect=sqlite3.OperationalError("locked")):

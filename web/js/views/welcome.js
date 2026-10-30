@@ -248,7 +248,7 @@ export async function render(root, ctx) {
     try {
       const result = await put('/api/profile', {profile: profileOut()});
       ctx.profile = result.profile;
-      if (firstRun) ctx.store.set(TOUR_KEY, 'due');      // the next page shows where things are
+      if (firstRun && ctx.store.get(TOUR_KEY) !== 'seen') ctx.store.set(TOUR_KEY, 'due');      // the next page shows where things are
       toast('You’re set up. Matches are being re-ranked.');
       ctx.changed();
       ctx.navigate(btn.dataset.then === 'resume' ? ['settings'] : ['opportunities'], btn.dataset.then === 'resume' ? {tab: 'resume'} : {});
@@ -288,7 +288,7 @@ export async function render(root, ctx) {
     else if (act === 'leave') {
       if (firstRun) {
         ctx.store.set('jw-setup-skipped', '1');      // don't ask again in this browser; Settings can run it
-        ctx.store.set(TOUR_KEY, 'due');
+        if (ctx.store.get(TOUR_KEY) !== 'seen') ctx.store.set(TOUR_KEY, 'due');
       }
       ctx.navigate(firstRun ? ['overview'] : ['settings'], firstRun ? {} : {tab: 'roles'});
     }

@@ -3,8 +3,11 @@ import {test} from 'node:test';
 
 import {stepAfter} from '../js/lib.js';
 import {BEATS, OPENING_MS, ROLES, barAt} from '../js/intro-opening.js';
-import {STEPS, firstRunRoute, introExit, introPlan} from '../js/views/intro.js';
-import {TOUR_STOPS, cardPlacement, spotRect, tourDue, tourStops} from '../js/tour.js';
+import {STEPS, firstRunRoute, introExit, introPlan, render as renderIntro} from '../js/views/intro.js';
+import {render as renderSetup} from '../js/views/welcome.js';
+import {TOUR_KEY, TOUR_STOPS, cardPlacement, spotRect, startTour, tourDue, tourStops} from '../js/tour.js';
+import {modalOpen, openModal} from '../js/ui.js';
+import {openPalette, paletteOpen} from '../js/palette.js';
 import {cardToShow} from '../js/whats-new.js';
 
 // ---------------------------------------------------------------- when the intro shows
@@ -124,4 +127,212 @@ test('the slip sits under the spotlight, flips above when there is no room, and 
   assert.deepEqual(cardPlacement({left: 100, top: 600, width: 90, height: 40}, card, view), {left: 100, top: 428, side: 'above'});
   // A window narrower than the slip still keeps its left margin.
   assert.equal(cardPlacement({left: 10, top: 6, width: 40, height: 40}, card, {width: 300, height: 700}).left, 16);
+});
+
+// ---------------------------------------------------------------- on the page
+// A stand-in for the parts of the DOM these screens touch: any selector finds an element.
+class Stub {
+  constructor(rect = {left: 0, top: 0, width: 0, height: 0}) {
+    Object.assign(this, {rect, style: {}, dataset: {}, children: [], listeners: {}, found: new Map(), animated: 0,
+      innerHTML: '', textContent: '', offsetWidth: 0, offsetHeight: 0, offsetTop: 0, isConnected: true, value: ''});
+    this.classList = {add() {}, remove() {}, toggle() {}, contains: () => false};
+  }
+  querySelector(selector) {
+    if (!this.found.has(selector)) this.found.set(selector, new Stub());
+    return this.found.get(selector);
+  }
+  querySelectorAll() { return []; }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  removeEventListener() {}
+  setAttribute() {}
+  removeAttribute() {}
+  closest() { return null; }
+  contains() { return false; }
+  focus() { document.activeElement = this; }
+  getBoundingClientRect() { return this.rect; }
+  getClientRects() { return [this.rect]; }
+  scrollIntoView() {}
+  append(child) { this.children.push(child); }
+  appendChild(child) { this.lastElementChild = child; }
+  remove() {}
+  animate() { this.animated++; return {finished: new Promise(() => {}), cancel() {}}; }
+}
+
+const keydown = (key, target = null) => ({key, target, shiftKey: false, defaultPrevented: false,
+  preventDefault() { this.defaultPrevented = true; }, stopPropagation() {}});
+const click = (root, act) => root.listeners.click.forEach(fn => fn({target: {closest: () => ({dataset: {act}})}}));
+const memory = (values = {}) => ({get: (key, fallback = null) => values[key] ?? fallback, set: (key, value) => { values[key] = value; }});
+const header = () => Object.fromEntries(TOUR_STOPS.map((stop, i) => [stop.target, new Stub({left: 100 + i * 100, top: 11, width: 80, height: 30})]));
+
+/** Runs `run` with the stand-in page as the globals, and puts the real ones back after. */
+async function onPage(run, {targets = {}, reduced = true, fetch = async () => { throw new Error('offline'); }} = {}) {
+  const on = [];        // [document or window, type, fn]
+  const listen = where => (type, fn) => { on.push([where, type, fn]); };
+  const unlisten = where => (type, fn) => {
+    const i = on.findIndex(([w, t, f]) => w === where && t === type && f === fn);
+    if (i >= 0) on.splice(i, 1);
+  };
+  const ids = new Map();
+  const doc = {activeElement: null, body: new Stub(), hidden: false, createElement: () => new Stub(),
+    querySelector: selector => targets[selector] || null,
+    getElementById: id => { if (!ids.has(id)) ids.set(id, new Stub()); return ids.get(id); },
+    addEventListener: listen('document'), removeEventListener: unlisten('document')};
+  const observers = [];
+  class ResizeObserver {
+    constructor(callback) { Object.assign(this, {callback, targets: [], connected: true}); observers.push(this); }
+    observe(target) { this.targets.push(target); }
+    disconnect() { this.connected = false; }
+  }
+  const globals = {document: doc, window: {scrollTo() {}}, matchMedia: () => ({matches: reduced}), innerWidth: 1200, innerHeight: 800,
+    addEventListener: listen('window'), removeEventListener: unlisten('window'), ResizeObserver, fetch,
+    requestAnimationFrame: () => 1, cancelAnimationFrame() {}};
+  const saved = Object.keys(globals).map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]);
+  Object.assign(globalThis, globals);
+  // Every keydown listener on the document, in order, as the browser calls them: stopPropagation stops none of them.
+  const press = key => {
+    const e = keydown(key, doc.activeElement);
+    for (const l of on.filter(([w, t]) => w === 'document' && t === 'keydown')) if (on.includes(l)) l[2](e);
+    return e;
+  };
+  const fire = type => on.filter(([w, t]) => w === 'window' && t === type).forEach(l => { if (on.includes(l)) l[2]({type}); });
+  try {
+    return await run({doc, on, press, fire, observers});
+  } finally {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor); else delete globalThis[name];
+    }
+  }
+}
+
+test('replayed after setup was skipped, the intro is not a first run: it closes back where you were', () => onPage(async () => {
+  const previous = {path: ['settings'], params: {tab: 'system'}};
+  for (const [store, label, to] of [[memory(), 'Skip intro', ['welcome']], [memory({'jw-setup-skipped': '1'}), 'Close', ['settings']]]) {
+    const root = new Stub();
+    const went = [];
+    const view = await renderIntro(root, {loadProfile: async () => ({saved: false}), store, previous, navigate: path => went.push(path)});
+    assert.match(root.innerHTML, new RegExp(`data-act="skip">${label}<`));
+    click(root, 'skip');
+    assert.deepEqual(went, [to]);
+    view.cleanup();
+  }
+}));
+
+test('during the opening, Enter or Space on Skip intro presses it; any other key jumps to the end', () => onPage(async () => {
+  const root = new Stub();
+  const view = await renderIntro(root, {loadProfile: async () => ({saved: false}), store: memory(), navigate() {}});
+  const box = root.querySelector('.intro-stage').querySelector('.intro-box');
+  const skip = new Stub();
+  skip.closest = selector => (selector === 'button, a' ? skip : null);
+  for (const key of ['Enter', ' ']) {
+    const e = keydown(key, skip);
+    view.onKey(e);
+    assert.equal(e.defaultPrevented, false);        // the button's own press goes through
+  }
+  assert.equal(box.animated, 0);
+  const e = keydown('Enter', new Stub());
+  view.onKey(e);
+  assert.equal(e.defaultPrevented, true);
+  assert.equal(box.animated, 1);        // gliding to the first step
+  view.cleanup();
+}, {reduced: false}));
+
+test('skipping setup again once the tour has run does not run it again', () => onPage(async () => {
+  for (const [before, after] of [[null, 'due'], ['seen', 'seen']]) {
+    const root = new Stub();
+    const store = memory(before ? {[TOUR_KEY]: before} : {});
+    const view = await renderSetup(root, {loadMeta: async () => ({taxonomy: [], families: [], cities: []}),
+      loadProfile: async () => ({saved: false, profile: {}}), store, navigate() {}});
+    click(root, 'leave');
+    assert.equal(store.get(TOUR_KEY), after);
+    view.cleanup();
+  }
+}));
+
+test('finishing setup again once the tour has run does not run it again', () => onPage(async () => {
+  for (const [before, after] of [[null, 'due'], ['seen', 'seen']]) {
+    const root = new Stub();
+    const store = memory(before ? {[TOUR_KEY]: before} : {});
+    const went = [];
+    const view = await renderSetup(root, {loadMeta: async () => ({taxonomy: [], families: [], cities: []}),
+      loadProfile: async () => ({saved: false, profile: {}}), store, navigate: path => went.push(path), changed() {}});
+    click(root, 'save');
+    await new Promise(resolve => setTimeout(resolve, 20));
+    assert.deepEqual(went, [['opportunities']]);
+    assert.equal(store.get(TOUR_KEY), after);
+    view.cleanup();
+  }
+}, {fetch: async () => ({ok: true, status: 200, headers: {get: () => null}, text: async () => JSON.stringify({profile: {}})})}));
+
+// A tour test that fails part way still ends its tour, so the next one starts its own.
+test('a dialog opened over the tour has the keys until it closes', () => onPage(async ({doc, press}) => {
+  let ended = 0;
+  assert.equal(startTour({onEnd: () => ended++}), true);
+  try {
+    const count = doc.body.children.at(-1).querySelector('.tour-card').querySelector('.tour-count');
+    openModal({title: 'Keyboard shortcuts', body: '', submitLabel: ''});
+    press('ArrowRight');
+    assert.equal(count.textContent, `1 of ${TOUR_STOPS.length}`);
+    press('Escape');      // closes the dialog only
+    assert.equal(modalOpen(), false);
+    assert.equal(ended, 0);
+    press('ArrowRight');
+    assert.equal(count.textContent, `2 of ${TOUR_STOPS.length}`);
+    press('Escape');
+    assert.equal(ended, 1);
+  } finally { press('Escape'); press('Escape'); }
+}, {targets: header()}));
+
+test('the palette opened over the tour has the keys, and a command that changes page ends the tour', () => onPage(async ({doc, press, fire}) => {
+  let ended = 0;
+  assert.equal(startTour({onEnd: () => ended++}), true);
+  try {
+    const count = doc.body.children.at(-1).querySelector('.tour-card').querySelector('.tour-count');
+    const went = [];
+    const palette = () => openPalette({navigate: path => went.push(path), route: {path: ['overview'], params: {}}});
+    palette();
+    const input = doc.activeElement;
+    press('ArrowRight');
+    assert.equal(count.textContent, `1 of ${TOUR_STOPS.length}`);
+    press('Tab');
+    assert.equal(doc.activeElement, input);
+    press('Escape');      // closes the palette only
+    assert.equal(paletteOpen(), false);
+    assert.equal(ended, 0);
+    press('ArrowRight');
+    assert.equal(count.textContent, `2 of ${TOUR_STOPS.length}`);
+    palette();
+    press('Enter');       // runs the first command: Today
+    assert.deepEqual(went, [['overview']]);
+    fire('hashchange');
+    assert.equal(ended, 1);
+  } finally { press('Escape'); press('Escape'); }
+}, {targets: header()}));
+
+test('the tour ends when the page changes under it', () => onPage(async ({on, fire, press, observers}) => {
+  let ended = 0;
+  startTour({onEnd: () => ended++});
+  try {
+    fire('hashchange');
+    assert.equal(ended, 1);
+    assert.deepEqual(on, []);       // no keys, resizes or page changes reach it after
+    assert.equal(observers.at(-1).connected, false);
+  } finally { press('Escape'); }
+}, {targets: header()}));
+
+test('the spotlight follows its target when the header changes size mid-stop', () => {
+  const targets = header();
+  return onPage(async ({doc, press, observers}) => {
+    startTour();
+    try {
+      const spot = doc.body.children.at(-1).querySelector('.tour-spot');
+      const [watch] = observers;
+      assert.deepEqual(watch.targets, TOUR_STOPS.map(stop => targets[stop.target]));
+      assert.equal(spot.style.width, '92px');
+      targets[TOUR_STOPS[0].target].rect = {left: 100, top: 11, width: 120, height: 30};       // its count came in
+      watch.callback([]);
+      assert.equal(spot.style.width, '132px');
+      press('Escape');
+      assert.equal(watch.connected, false);
+    } finally { press('Escape'); }
+  }, {targets});
 });

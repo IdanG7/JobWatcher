@@ -54,7 +54,7 @@ export const STEPS = [
 
 export async function render(root, ctx) {
   let firstRun = false;
-  try { firstRun = (await ctx.loadProfile()).saved === false; } catch { /* offline: the intro still reads, and ends in Settings' place */ }
+  try { firstRun = (await ctx.loadProfile()).saved === false && !ctx.store.get('jw-setup-skipped'); } catch { /* offline: the intro still reads, and ends in Settings' place */ }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const plan = introPlan({reduced});
   const state = {step: 0, opening: plan.opening};
@@ -165,8 +165,8 @@ export async function render(root, ctx) {
   return {
     onKey(e) {
       if (e.key === 'Escape') { e.preventDefault(); leave(); return; }
-      // During the opening any key jumps to its end; it never skips the walkthrough.
-      if (state.opening) { if (!['Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) { e.preventDefault(); settle(); } return; }
+      // During the opening any key jumps to its end; it never skips the walkthrough, unless it presses Skip intro.
+      if (state.opening) { if (!['Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key) && !e.target.closest?.('button, a')) { e.preventDefault(); settle(); } return; }
       const onButton = e.target.closest?.('button, a');
       if (e.key === 'ArrowRight' || (e.key === 'Enter' && !onButton)) { e.preventDefault(); go('next'); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); go('back'); }
