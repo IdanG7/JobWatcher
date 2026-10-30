@@ -42,6 +42,74 @@ function counts(p, {sources = false} = {}) {
   return stats;
 }
 
+const figure = n => Number(n || 0).toLocaleString('en-US');
+
+/** How far a poll is: sources fetched, then descriptions read. Its other phases have no count (value null). */
+function pollWork(p) {
+  const d = p.descriptions;
+  if (p.phase === 'fetching' && p.total) return {value: p.completed, max: p.total, count: `${figure(p.completed)} of ${figure(p.total)}`, unit: 'sources'};
+  if (p.phase === 'descriptions' && d?.total) return {value: d.completed, max: d.total, count: `${figure(d.completed)} of ${figure(d.total)}`, unit: 'descriptions'};
+  return {value: null, max: 0, count: ''};
+}
+
+/** How far a ranking pass is, out of the backlog it started with; until that is known, how many are left. */
+function rankWork(s) {
+  const r = s.ranking;
+  if (r?.total) return {value: Math.min(r.done, r.total), max: r.total, count: `${figure(r.done)} of ${figure(r.total)}`};
+  return {value: null, max: 0, count: s.pending > 0 ? `${figure(s.pending)} left` : ''};
+}
+
+/** The work under way, one entry each for collecting (a poll) and ranking (a pass over the backlog), which can
+ *  run at once: "Collecting · 34 of 120 sources", "Ranking · 1,200 of 4,800". */
+export function backgroundWork(s) {
+  const work = [];
+  const p = s?.progress;
+  if (s?.poll_running && p) {
+    const w = pollWork(p);
+    work.push({...w, key: `collect-${p.phase}`, label: 'Collecting',
+      count: w.value === null ? PHASES[p.phase] || 'Checking for jobs' : `${w.count} ${w.unit}`});
+  }
+  if (s?.indexing || s?.pending > 0) {
+    const w = rankWork(s);
+    work.push({...w, key: 'rank', label: 'Ranking', count: w.count || 'Scoring postings'});
+  }
+  return work;
+}
+
+/** A bar for work under way: filled to value of max, or sliding while how much is left is not known. */
+export function progressBar({key = '', label = '', value = null, max = 0}) {
+  const known = value !== null && max > 0;
+  const done = known ? `${+Math.min(100, Math.max(0, (value / max) * 100)).toFixed(2)}%` : '';
+  return `<div class="work-bar${known ? '' : ' indeterminate'}" role="progressbar" aria-label="${esc(label)}"${key ? ` data-bar="${esc(key)}"` : ''}`
+    + (known ? ` aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${value}" style="--done:${done}"` : '')
+    + '><i></i></div>';
+}
+
+/** Labelled bars for the work under way, one row each. */
+export function workMarkup(work) {
+  return work.map(w => `<div class="work-row"><p><b>${esc(w.label)}</b> · ${esc(w.count)}</p>${progressBar(w)}</div>`).join('');
+}
+
+const shown = new WeakMap();
+/** Put markup in el when it changed. A bar that was there already glides from its old value to the new one. */
+export function showWork(el, markup) {
+  if (shown.get(el) === markup) return;
+  shown.set(el, markup);
+  const was = new Map([...el.querySelectorAll('[data-bar]')].map(bar => [bar.dataset.bar, bar.style.getPropertyValue('--done')]));
+  el.innerHTML = markup;
+  for (const bar of el.querySelectorAll('[data-bar]')) {
+    const from = was.get(bar.dataset.bar), to = bar.style.getPropertyValue('--done');
+    if (!from || !to || from === to) continue;
+    bar.style.setProperty('--done', from);
+    bar.getBoundingClientRect();        // lay out the old width first, so the change to the new one transitions
+    bar.style.setProperty('--done', to);
+  }
+  // Every slide keeps time with the page, so a bar drawn again goes on from where it was instead of starting over.
+  for (const slide of el.querySelectorAll('.work-bar.indeterminate > i')) {
+    for (const animation of slide.getAnimations()) animation.startTime = 0;
+  }
+}
+
 export function collectionStatus(s) {
   const p = s.progress;
   if (s.offline) return {title: "Can't reach Foothold", detail: 'If it was closed, open Foothold from the Start menu. Reconnecting automatically.',
@@ -49,17 +117,13 @@ export function collectionStatus(s) {
   const error = s.error || p?.error;
   if (error) return errorStatus(error);
   if (s.poll_running && p) {
-    const model = {title: PHASES[p.phase] || 'Checking for jobs', stats: counts(p), progress: true, value: null, max: 1};
-    if (p.phase === 'fetching' && p.total) {
-      Object.assign(model, {count: `${p.completed} of ${p.total}`, value: p.completed, max: p.total, detail: nowChecking(p.sources)});
-    } else if (p.phase === 'descriptions' && p.descriptions?.total) {
-      Object.assign(model, {count: `${p.descriptions.completed} of ${p.descriptions.total}`, value: p.descriptions.completed, max: p.descriptions.total});
-    }
-    return model;
+    const w = pollWork(p);
+    return {...w, title: PHASES[p.phase] || 'Checking for jobs', stats: counts(p), progress: true, key: `poll-${p.phase}`,
+      detail: w.unit === 'sources' ? nowChecking(p.sources) : ''};
   }
   // After an update every saved posting is re-ranked; the count shows it is getting somewhere.
-  if (s.indexing || s.pending > 0) return {title: 'Ranking jobs', count: s.pending > 0 ? `${s.pending.toLocaleString('en-US')} left` : '',
-    detail: 'Scoring postings against your profile. Every tab stays usable.', progress: true, value: null, max: 1};
+  if (s.indexing || s.pending > 0) return {...rankWork(s), title: 'Ranking jobs', key: 'rank', progress: true,
+    detail: 'Scoring postings against your profile. Every tab stays usable.'};
   if (p?.phase === 'complete') return {title: 'Up to date', stats: counts(p, {sources: true}), progress: false,
     detail: s.last_poll ? `Last checked ${ageLong(s.last_poll)}.` : ''};
   return null;
@@ -71,7 +135,7 @@ export function collectionMarkup(status) {
   const stats = model.stats?.length ? `<dl class="collection-stats">${model.stats.map(stat =>
     `<div${stat.tone ? ` class="${stat.tone}"` : ''}><dt>${esc(stat.label)}</dt><dd>${esc(stat.value)}</dd></div>`).join('')}</dl>` : '';
   return `<div class="collection-heading"><strong>${esc(model.title)}</strong>${model.count ? `<span class="collection-count">${esc(model.count)}</span>` : ''}</div>`
-    + (model.progress ? `<progress aria-label="${esc(model.title)}" max="${model.max}"${model.value === null ? '' : ` value="${model.value}"`}></progress>` : '')
+    + (model.progress ? progressBar({...model, label: model.title}) : '')
     + stats
     + (model.detail ? `<p>${esc(model.detail)}</p>` : '')
     + (model.code ? `<code class="collection-code">${esc(model.code)}</code>` : '');

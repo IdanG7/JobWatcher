@@ -6,7 +6,7 @@ import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawe
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
 import {mountView} from './view-loader.js';
-import {collectionMarkup} from './collection-status.js';
+import {collectionMarkup, showWork} from './collection-status.js';
 import {checkWhatsNew, closeWhatsNew, openWhatsNew, whatsNewOpen} from './whats-new.js';
 import * as overview from './views/overview.js';
 import * as opportunities from './views/opportunities.js';
@@ -199,7 +199,7 @@ async function refreshStatus() {
     const panel = document.getElementById('collection-status');
     const markup = collectionMarkup(s) || idleMarkup(s);
     // Keep the live region quiet when the status has not changed.
-    if (panel.innerHTML !== markup) panel.innerHTML = markup;
+    showWork(panel, markup);
     panel.classList.toggle('collection-error', Boolean(statusError));
     current.view?.status?.(s);
     dot.className = `live-dot ${statusError ? 'warn' : busy ? 'busy' : 'ok'}`;
@@ -218,7 +218,7 @@ async function refreshStatus() {
     dot.className = 'live-dot warn';
     label.textContent = 'Offline';
     const panel = document.getElementById('collection-status');
-    panel.innerHTML = collectionMarkup({offline: true});
+    showWork(panel, collectionMarkup({offline: true}));
     panel.classList.add('collection-error');
   } finally {
     statusInFlight = false;

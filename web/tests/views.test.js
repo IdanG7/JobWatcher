@@ -16,7 +16,7 @@ test('an empty list while ranking shows progress and time left, not "no roles"',
   assert.equal(rankingTimeLeft([{t: 0, pending: 1000}, {t: minute, pending: 900}, {t: 1.5 * minute, pending: 1000},
     {t: 2 * minute, pending: 900}]), 'About 9 minutes left');
   const html = rankingState({unfiltered_total: 202948, pending_filtered: 148895}, []);
-  assert.match(html, /<progress max="202948" value="54053"/);
+  assert.match(html, /aria-valuemax="202948" aria-valuenow="54053"/);
   assert.match(html, /54,053<\/span> of <span class="figure">202,948<\/span> checked/);
   assert.match(html, /Estimating time left/);
   assert.doesNotMatch(html, /No roles match/);

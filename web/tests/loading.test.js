@@ -31,7 +31,7 @@ test('fetch progress shows real counts, active sources, failures, and escaped la
   const status = {poll_running: true, progress: {phase: 'fetching', total: 5, completed: 2, jobs: 100, new: 7, failed: 1, elapsed: 134,
     sources: {one: {state: 'running', label: '<RBC>'}, two: {state: 'running', label: '<RBC>'}, three: {state: 'queued', label: 'TD'}}}};
   const markup = collectionMarkup(status);
-  assert.match(markup, /value="2"/);
+  assert.match(markup, /aria-valuenow="2"/);
   assert.match(markup, /2 of 5/);
   assert.match(markup, /<dt>New jobs<\/dt><dd>7<\/dd>/);
   assert.match(markup, /<dt>Elapsed<\/dt><dd>2m 14s<\/dd>/);
@@ -41,7 +41,7 @@ test('fetch progress shows real counts, active sources, failures, and escaped la
   assert.doesNotMatch(collectionMarkup(status), /Failed/, 'no failure count when nothing failed');
   status.progress.phase = 'indexing';
   assert.equal(collectionStatus(status).value, null);
-  assert.doesNotMatch(collectionMarkup(status), / value=/, '100% sources is not 100% overall processing');
+  assert.doesNotMatch(collectionMarkup(status), /aria-valuenow/, '100% sources is not 100% overall processing');
 });
 
 test('completion, indexing, zero sources and server errors have useful states', () => {
