@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.13', date: '2026-10-30', items: [
+    {icon: 'chart', title: 'Real progress while Foothold works', link: '#/opportunities',
+      text: 'Bars now fill as sources are checked and roles ranked, with counts like 34 of 120.'},
+    {icon: 'file', title: 'Licences come from your resume', link: '#/settings?tab=resume',
+      text: 'Uploading a resume adds the licences it names, and Word resumes read more accurately.'},
+    {icon: 'spark', title: 'An intro and a tour of the app', link: '#/settings?tab=system',
+      text: 'New setups open with how Foothold works. Replay it, or the tour, in Settings › System.'},
+  ]},
   {version: '0.3.12', date: '2026-10-28', items: [
     {icon: 'heart', title: 'More Healthcare roles, by specialty', link: '#/settings?tab=roles',
       text: 'From the job sites of over 200 hospitals, labs, drug makers and more, in nine specialties.'},
