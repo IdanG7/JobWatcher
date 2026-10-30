@@ -238,6 +238,16 @@ export function debounce(fn, ms = 200) {
   return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }
 
+/** Pages that are part of onboarding (intro or setup). */
+export const ONBOARDING = new Set(['intro', 'welcome']);
+
+/** A walkthrough's step after 'next' or 'back' among `count` steps: {index}, plus done: true past the last. */
+export function stepAfter(index, action, count) {
+  if (action === 'back') return {index: Math.max(0, index - 1)};
+  if (action === 'next') return index + 1 < count ? {index: index + 1} : {index, done: true};
+  return {index};
+}
+
 /** Clean numbers for chart axes: niceMax(37) -> 40, niceMax(1234) -> 1500. */
 export function niceMax(value) {
   if (!value || value <= 0) return 1;

@@ -13,6 +13,7 @@ let jobs = null;
 const apps = new Map();          // key -> status
 const hidden = new Set();
 const watched = new Set(['meridian']);
+let firstRun = new URLSearchParams(location.search).has('first-run');
 let saved = [{id: 1, name: 'Toronto internships', params: {location: 'toronto', stage: 'internship'}, created_at: '2026-10-01', new_count: 3}];
 
 async function data() {
@@ -140,7 +141,9 @@ async function handle(url, method, body) {
   if (path === '/api/meta') return json(meta);
   if (path === '/api/status') return json({indexing: false, last_refresh: new Date().toISOString(), last_stats: {}, poll_running: false, last_poll: null, error: null, progress: null, version: 'preview', pending: 0});
   if (path === '/api/update') return json({current: 'preview', latest: null, state: 'idle', available: false});
-  if (path === '/api/profile') return json({profile: active.profile, defaults: active.profile});
+  // preview.html?first-run: no profile saved yet, so the intro and setup open, until setup saves one.
+  if (path === '/api/profile' && method === 'PUT') { firstRun = false; return json({profile: body.profile}); }
+  if (path === '/api/profile') return json({profile: active.profile, defaults: active.profile, ...(firstRun ? {saved: false} : {})});
   if (path === '/api/resume') return json({resume: null, enabled: profileKey !== 'none'});
   if (path === '/api/applications' && method === 'GET') return json({applications: [...apps].map(([key, status]) => ({key, status}))});
   if (path === '/api/applications' && method === 'POST') { apps.set(body.key, body.status || 'saved'); return json({ok: true}); }

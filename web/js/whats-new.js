@@ -53,9 +53,9 @@ export function earlierReleases(current, shown, notes = RELEASE_NOTES) {
   return releasesUpTo(current, notes).filter(r => compareVersions(r.version, oldest) < 0);
 }
 
-/** What the card shows for GET /api/whats-new, or null: nothing new, or first-run setup is on screen. */
+/** What the card shows for GET /api/whats-new, or null: nothing new, or the intro or setup is on screen. */
 export function cardToShow(info, routeName = '', notes = RELEASE_NOTES) {
-  if (!info?.version || routeName === 'welcome') return null;
+  if (!info?.version || routeName === 'welcome' || routeName === 'intro') return null;
   const releases = pendingReleases(info.version, info.seen, notes);
   return releases.length ? {current: info.version, seen: info.seen || null, releases} : null;
 }

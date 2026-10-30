@@ -1,13 +1,14 @@
 // Router, global state, theme, live status. Every view module exports
 // render(root, ctx) -> optional {update(params), onKey(e), cleanup()}.
 import {appWindow, freshly, get, openExternal, post} from './api.js';
-import {ageLong, buildHash, compact, esc, parseHash} from './lib.js';
+import {ONBOARDING, ageLong, buildHash, compact, esc, parseHash} from './lib.js';
 import {closeDrawer, drawerJob, drawerOpen, openDrawer, quickAction, reloadDrawer} from './detail.js';
 import {initPalette, openHelp, openPalette, paletteOpen} from './palette.js';
 import {errorState, hideTooltip, icon, modalOpen, toast} from './ui.js';
 import {mountView} from './view-loader.js';
 import {collectionMarkup} from './collection-status.js';
 import {checkWhatsNew, closeWhatsNew, openWhatsNew, whatsNewOpen} from './whats-new.js';
+import {TOUR_KEY, startTour, tourDue} from './tour.js';
 import * as overview from './views/overview.js';
 import * as opportunities from './views/opportunities.js';
 import * as applications from './views/applications.js';
@@ -17,10 +18,11 @@ import * as analytics from './views/analytics.js';
 import * as sources from './views/sources.js';
 import * as settings from './views/settings.js';
 import * as welcome from './views/welcome.js';
+import * as intro from './views/intro.js';
 
-const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings, welcome};
+const VIEWS = {overview, opportunities, applications, companies, calendar, analytics, sources, settings, welcome, intro};
 const TITLES = {overview: 'Today', opportunities: 'Opportunities', applications: 'Applications', companies: 'Companies',
-  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings', welcome: 'Set up'};
+  calendar: 'Recruiting Calendar', analytics: 'Analytics', sources: 'Sources', settings: 'Settings', welcome: 'Set up', intro: 'Welcome'};
 
 const store = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
@@ -76,6 +78,8 @@ function viewKey(r) {
 
 async function route() {
   const r = parseHash(location.hash);
+  // The intro's Done goes back to the last page that wasn't onboarding.
+  if (current.name && !ONBOARDING.has(current.name)) ctx.previous = ctx.route;
   ctx.route = r;
   const name = VIEWS[r.path[0]] ? r.path[0] : 'overview';
   const key = viewKey(r);
@@ -103,6 +107,11 @@ async function route() {
     current.view?.update?.(ctx.route.params);
     current.view?.status?.(ctx.status);
     window.scrollTo(0, 0);
+    // First-run setup just ended: show where things are, once.
+    if (tourDue(store.get(TOUR_KEY), name)) {
+      store.set(TOUR_KEY, 'seen');
+      setTimeout(() => startTour(), 700);
+    }
   } else {
     current.view?.update?.(r.params);
   }
@@ -421,6 +430,9 @@ async function boot() {
   ctx.applyTheme = () => { applyTheme(); current.view?.redraw?.(); };
   // Settings › System and the palette reopen the release notes.
   ctx.whatsNew = async () => { if (await openWhatsNew() === false) toast('This version has no release notes'); };
+  // Settings › System and the palette: the intro again, and the tour of the header.
+  ctx.intro = () => ctx.navigate(['intro']);
+  ctx.tour = () => { if (!startTour()) toast('The tour points at the header, which this screen hides'); };
   initPalette(ctx, {toggleTheme, pollNow, setDensity, whatsNew: ctx.whatsNew});
 
   // Each tab paints its loading/empty state immediately. Metadata and profile
@@ -428,9 +440,11 @@ async function boot() {
   route();
   loadMetadata();
   refreshNav();
-  // First run (no profile saved yet): offer setup, unless it was skipped in this browser.
+  // First run (no profile saved yet): the intro once, then setup, unless setup was skipped in this browser.
   ctx.loadProfile().then(data => {
-    if (data.saved === false && !store.get('jw-setup-skipped') && ctx.route.path[0] !== 'welcome') ctx.navigate(['welcome'], {}, {replace: true});
+    const start = intro.firstRunRoute({saved: data.saved, introSeen: Boolean(store.get(intro.INTRO_SEEN)),
+      setupSkipped: Boolean(store.get('jw-setup-skipped')), route: ctx.route.path[0]});
+    if (start) ctx.navigate([start], {}, {replace: true});
   }).catch(() => {});
   refreshStatus();
   const timers = [setInterval(refreshStatus, 2000), setInterval(refreshNav, 120000)];

@@ -5,6 +5,7 @@ import {put} from '../api.js';
 import {esc} from '../lib.js';
 import {errorState, icon, options, toast} from '../ui.js';
 import {FIELD_INFO, countryList as allCountries, fieldList, licencesFor, profileFields, skillGroupsFor, specialtyFamilies, suggestCycles} from '../fields.js';
+import {TOUR_KEY} from '../tour.js';
 
 const STAGES = [
   ['internship', 'Internships', 'Summer, co-op and off-cycle internships'],
@@ -247,6 +248,7 @@ export async function render(root, ctx) {
     try {
       const result = await put('/api/profile', {profile: profileOut()});
       ctx.profile = result.profile;
+      if (firstRun) ctx.store.set(TOUR_KEY, 'due');      // the next page shows where things are
       toast('You’re set up. Matches are being re-ranked.');
       ctx.changed();
       ctx.navigate(btn.dataset.then === 'resume' ? ['settings'] : ['opportunities'], btn.dataset.then === 'resume' ? {tab: 'resume'} : {});
@@ -284,7 +286,10 @@ export async function render(root, ctx) {
       draw();
     } else if (act === 'save') save(e.target.closest('[data-act=save]'));
     else if (act === 'leave') {
-      if (firstRun) ctx.store.set('jw-setup-skipped', '1');      // don't ask again in this browser; Settings can run it
+      if (firstRun) {
+        ctx.store.set('jw-setup-skipped', '1');      // don't ask again in this browser; Settings can run it
+        ctx.store.set(TOUR_KEY, 'due');
+      }
       ctx.navigate(firstRun ? ['overview'] : ['settings'], firstRun ? {} : {tab: 'roles'});
     }
   });

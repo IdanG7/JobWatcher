@@ -392,6 +392,8 @@ export async function render(root, ctx) {
 
     const system = panel('system', 'System', 'How Foothold runs on this computer.',
       `<div id="s-background">${backgroundHtml()}</div>${updatesHtml()}`
+      + group('Getting started', '', `<div class="set-row">${label('Tour of the app', 'Points out Opportunities, Applications, Live, Search and Settings in the header.')}<span class="set-control"><button type="button" class="btn sm" data-act="tour">Show me around</button></span></div>
+        <div class="set-row">${label('How Foothold works', 'The opening and four-step walkthrough from your first run.')}<span class="set-control"><button type="button" class="btn sm" data-act="intro">Play intro</button></span></div>`)
       + group('Privacy', '', block(`<ul class="reasons">
             <li>Applications, notes, contacts, events and this profile live only in <code>jobwatch.db</code> on this machine (git-ignored).</li>
             <li>The dashboard binds to 127.0.0.1 and rejects cross-origin and DNS-rebinding requests. Binding to a public interface prints a warning; there is no login.</li>
@@ -781,6 +783,13 @@ export async function render(root, ctx) {
       return;
     }
     if (e.target.closest('[data-act=whats-new]')) { ctx.whatsNew?.(); return; }
+    if (e.target.closest('[data-act=tour]')) { ctx.tour?.(); return; }
+    if (e.target.closest('[data-act=intro]')) {
+      if (baseline !== null && formValues() !== baseline
+        && !await confirmDialog('You have unsaved changes here. Leave them and play the intro?', {confirmLabel: 'Play intro', title: 'Unsaved changes'})) return;
+      ctx.intro?.();
+      return;
+    }
     const updateBtn = e.target.closest('[data-act=update-check]');
     if (updateBtn) {
       if (!updateBtn.disabled) await checkUpdates(updateBtn);
