@@ -508,11 +508,12 @@ class JobwatchService:
             finally:
                 self.status["indexing"] = False
 
-    def _ranking_left(self, n: int) -> None:
-        """A ranking pass's postings left. Its first count is the backlog it starts with, so done of total
-        follows from there."""
+    def _ranking_left(self, n: int, total: int | None = None) -> None:
+        """A ranking pass's postings left, of the pass's total. Without one, its first count is the backlog
+        it starts with, so done of total follows from there."""
         self._pending_cache = (time.time(), n)
-        total = max(n, self._ranking["total"]) if self._ranking else n
+        if total is None:
+            total = max(n, self._ranking["total"]) if self._ranking else n
         self._ranking = {"total": total, "done": total - n}
 
     def _refreshed(self, stats: dict) -> None:
@@ -566,7 +567,7 @@ class JobwatchService:
             self._ranking = None
             self.status["indexing"] = data["on"]
         elif kind == "pending":
-            self._ranking_left(data["n"])
+            self._ranking_left(data["n"], data.get("total"))
         elif kind == "done":
             self.status["indexing"] = False
             self._refreshed(data["stats"])

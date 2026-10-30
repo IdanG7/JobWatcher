@@ -69,7 +69,8 @@ export function backgroundWork(s) {
     work.push({...w, key: `collect-${p.phase}`, label: 'Collecting',
       count: w.value === null ? PHASES[p.phase] || 'Checking for jobs' : `${w.count} ${w.unit}`});
   }
-  if (s?.indexing || s?.pending > 0) {
+  // A pass that failed leaves its last count behind, which is not work under way.
+  if (s?.indexing || (s?.pending > 0 && !s?.error)) {
     const w = rankWork(s);
     work.push({...w, key: 'rank', label: 'Ranking', count: w.count || 'Scoring postings'});
   }

@@ -72,3 +72,27 @@ test('an empty list during a first scan shows the work, and the roles once it en
   assert.equal(emptyListWork(ranked, {indexing: true, ranking: {total: 0, done: 0}}), null, 'a pass with nothing to rank');
   assert.ok(emptyListWork(ranked, {pending: 50}));
 });
+
+test('during a poll an empty list keeps one state while ranking passes start and end', () => {
+  const poll = {poll_running: true, progress: {phase: 'fetching', total: 120, completed: 34}};
+  // Each source that lands starts a pass: indexing on, its backlog counted, its facts done, then a gap until the next.
+  const ticks = [{...poll, indexing: true, pending: 0, ranking: null}, {...poll, indexing: true, pending: 2400, ranking: {total: 2400, done: 0}},
+    {...poll, indexing: true, pending: 0, ranking: {total: 2400, done: 2400}}, {...poll, indexing: false, pending: 0, ranking: null}];
+  const ranked = {jobs: [], ranked_any: true};
+  assert.deepEqual(ticks.map(s => emptyListWork(ranked, s)), [null, null, null, null], 'a narrow search says "no roles" throughout');
+  assert.ok(ticks.every(s => emptyListWork({jobs: [], ranked_any: false}, s)), 'a first scan shows the work throughout');
+  // Once the work is shown it stays while anything runs, though the first roles ranked make ranked_any true.
+  assert.ok(ticks.every(s => emptyListWork(ranked, s, true)));
+  assert.equal(emptyListWork(ranked, {progress: {phase: 'complete'}}, true), null, 'the work ended: the roles, or "no roles"');
+  assert.equal(emptyListWork({jobs: [{key: 'a'}], ranked_any: true}, ticks[1], true), null);
+});
+
+test('a ranking pass that failed leaves no bar for work that is not running', () => {
+  const failed = {indexing: false, pending: 2400, ranking: null, error: 'OperationalError: database is locked'};
+  assert.deepEqual(backgroundWork(failed), []);
+  assert.equal(emptyListWork({jobs: [], ranked_any: true}, failed), null);
+  assert.equal(backgroundWork({pending: 2400})[0].count, '2,400 left', 'a count with no error is still work');
+  // The next pass is work again, but its stale count is not postings left before it counts its own.
+  assert.deepEqual(backgroundWork({...failed, indexing: true}).map(w => w.label), ['Ranking']);
+  assert.equal(emptyListWork({jobs: [], ranked_any: true}, {...failed, indexing: true}), null);
+});

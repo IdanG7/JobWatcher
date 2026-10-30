@@ -1,7 +1,8 @@
 // The tour: once after first-run setup, and again from Settings › System or the palette, a
 // spotlight steps through the header's main places with an ink slip saying what each is for.
 import {ONBOARDING, stepAfter} from './lib.js';
-import {modKey, trapFocus} from './ui.js';
+import {modKey, modalOpen, trapFocus} from './ui.js';
+import {paletteOpen} from './palette.js';
 
 export const TOUR_KEY = 'jw-tour';      // 'due' after first-run setup, 'seen' once it has started
 const PAD = 6;
@@ -103,6 +104,7 @@ export function startTour({onEnd = () => {}} = {}) {
   }
 
   function onKey(e) {
+    if (modalOpen() || paletteOpen()) return;      // a dialog opened over the tour has the keys
     if (e.key === 'Escape') close();
     else if (e.key === 'ArrowRight') go('next');
     else if (e.key === 'ArrowLeft') go('back');
@@ -117,6 +119,8 @@ export function startTour({onEnd = () => {}} = {}) {
     tour = null;
     document.removeEventListener('keydown', onKey, true);
     removeEventListener('resize', place);
+    removeEventListener('hashchange', close);
+    watch.disconnect();
     el.classList.add('leaving');
     setTimeout(() => el.remove(), reduced ? 0 : 160);
     if (opener?.isConnected) opener.focus({preventScroll: true});
@@ -129,6 +133,10 @@ export function startTour({onEnd = () => {}} = {}) {
   });
   document.addEventListener('keydown', onKey, true);
   addEventListener('resize', place);
+  addEventListener('hashchange', close);      // it points at this page's header
+  // A header control can change size mid-stop: Live's label, the counts.
+  const watch = new ResizeObserver(() => place());
+  stops.forEach(stop => { const target = document.querySelector(stop.target); if (target) watch.observe(target); });
   tour = {el, close};
   show(0);
   return true;

@@ -42,21 +42,22 @@ def parse_line(line: str):
         return None
 
 
-def count_pending_facts(con) -> int:
-    """Postings whose facts or fit are still to be computed."""
+def count_pending_facts(con, fits: bool = True) -> int:
+    """Postings whose facts or fit are still to be computed; without ``fits``, whose facts are (what a
+    facts pass still takes)."""
     from intel import FACTS_VERSION, config_fingerprint
     return con.execute(
-        """SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
+        f"""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
            WHERE j.title != '' AND (i.board IS NULL OR i.input_hash IS NULL OR i.facts_version != ?
-                                    OR i.kb_version != ? OR i.fit_detail IS NULL)""",
+                                    OR i.kb_version != ?{' OR i.fit_detail IS NULL' if fits else ''})""",
         (FACTS_VERSION, config_fingerprint())).fetchone()[0]
 
 
 def refresh_database(db_path, config: dict, force_score: bool = False, backlog=count_pending_facts,
                      on_remaining=None) -> dict:
     """One facts and scoring pass on a connection of its own: what the worker runs, and the server's
-    refresh_now() in its place. ``on_remaining(n)`` hears the backlog, ``backlog(con)`` counted first,
-    then how many postings are left as batches land."""
+    refresh_now() in its place. ``on_remaining(n, total)`` hears the backlog, ``backlog(con)`` counted
+    first, then how many postings are left of the pass's total as batches land."""
     con = sqlite3.connect(db_path, timeout=30)
     con.execute("PRAGMA busy_timeout=15000")
     con.execute("PRAGMA synchronous=NORMAL")   # WAL: safe, fewer disk flushes
@@ -65,8 +66,14 @@ def refresh_database(db_path, config: dict, force_score: bool = False, backlog=c
         progress = None
         if on_remaining is not None:
             pending = backlog(con)
-            on_remaining(pending)
-            progress = lambda done: on_remaining(max(0, pending - done))  # noqa: E731
+            on_remaining(pending, pending)
+
+            def report(done):
+                nonlocal pending
+                if done >= pending:     # all it counted is done, and a poll may have committed more since
+                    pending = done + count_pending_facts(con, fits=False)
+                on_remaining(pending - done, pending)
+            progress = report
         return IntelStore(con, config).refresh(force_score=force_score, on_progress=progress)
     finally:
         con.close()
@@ -117,7 +124,8 @@ class Worker:
         self.indexing = True
         self.emit("indexing", on=True)
         try:
-            stats = refresh_database(self.db_path, self.config, on_remaining=lambda n: self.emit("pending", n=n))
+            stats = refresh_database(self.db_path, self.config,
+                                     on_remaining=lambda n, total: self.emit("pending", n=n, total=total))
         except Exception as exc:    # reported, and tried again on the next pass
             self.indexing = False
             self.emit("error", text=f"{type(exc).__name__}: {exc}")

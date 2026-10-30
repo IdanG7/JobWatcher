@@ -82,6 +82,8 @@ async function route() {
   if (current.name && !ONBOARDING.has(current.name)) ctx.previous = ctx.route;
   ctx.route = r;
   const name = VIEWS[r.path[0]] ? r.path[0] : 'overview';
+  // The What's new card sits outside #view, over the page: it would stay on top of the intro and setup.
+  if (ONBOARDING.has(name) && whatsNewOpen()) closeWhatsNew();
   const key = viewKey(r);
   hideTooltip();
 

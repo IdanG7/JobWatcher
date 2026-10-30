@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from intel_worker import WorkerProcess
 from tests.app.test_dashboard import ServiceFixture
-from tests.app.test_intel_worker import send_back_for_facts
+from tests.app.test_intel_worker import add_postings, assert_ranking_reports, send_back_for_facts
 
 
 class RankingProgressTests(ServiceFixture):
@@ -36,6 +36,14 @@ class RankingProgressTests(ServiceFixture):
                     self.service._worker_event("done", {"stats": {"facts": 4800, "scored": 4800, "seconds": 9.0}})
         self.assertEqual({"total": 84, "done": 0}, self.service.status_info()["ranking"])
 
+    def test_the_worker_s_total_grows_with_postings_its_pass_takes_on(self):
+        self.service._worker_event("indexing", {"on": True})
+        for n, total in ((600, 600), (100, 600), (200, 1200)):
+            self.service._worker_event("pending", {"n": n, "total": total})
+        status = self.service.status_info()
+        self.assertEqual({"total": 1200, "done": 1000}, status["ranking"])
+        self.assertEqual(200, status["pending"])
+
     def test_a_failed_or_stopped_pass_leaves_no_bar(self):
         self.service._worker_event("indexing", {"on": True})
         self.service._worker_event("pending", {"n": 50})
@@ -52,8 +60,8 @@ class RankingProgressTests(ServiceFixture):
         seen = []
         record = self.service._ranking_left
 
-        def spy(n):
-            record(n)
+        def spy(*args):
+            record(*args)
             seen.append(self.service.status_info()["ranking"])
         with patch.object(self.service, "_ranking_left", side_effect=spy):
             stats = self.service.refresh_now()
@@ -62,6 +70,24 @@ class RankingProgressTests(ServiceFixture):
         self.assertEqual({"total": total, "done": 0}, seen[0])           # before any batch lands
         self.assertEqual({"total": total, "done": total}, seen[-1])
         self.assertIsNone(self.service.status_info()["ranking"])
+
+    def test_a_pass_here_reports_postings_a_poll_commits_while_it_runs(self):
+        add_postings(self.db_path, 0, 600)
+        self.service._pending_cache = None
+        seen = []
+        record = self.service._ranking_left
+
+        def spy(*args):
+            record(*args)
+            ranking = self.service.status_info()["ranking"]
+            seen.append((ranking["done"], ranking["total"]))
+            if len(seen) == 2:                  # the first batch is in, and a poll commits more
+                add_postings(self.db_path, 600, 600)
+        with patch.object(self.service, "_ranking_left", side_effect=spy):
+            stats = self.service.refresh_now()
+        self.assertEqual((0, 600), seen[0])
+        self.assertEqual(1200, stats["facts"])
+        assert_ranking_reports(self, seen, 1200)       # counted again, not from the backlog cached for status
 
     def test_a_first_scan_reports_collecting_and_ranking_together(self):
         worker = WorkerProcess([], on_event=None, on_exit=None, on_give_up=None)
