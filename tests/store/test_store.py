@@ -7,7 +7,9 @@ import time
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
+import intel_store
 import watcher
 from db_migrations import SCHEMA_VERSION, migrate
 from intel_store import (IntelStore, ensure_fts, record_changes, store_description, store_listing_note,
@@ -226,8 +228,10 @@ class StoreTests(unittest.TestCase):
         self.assertGreater(self.intel("rbc", "1", "fit"), self.intel("rbc", "2", "fit"))
 
     def test_refresh_is_incremental(self):
-        self.store.refresh()
-        again = self.store.refresh()
+        # One instant for both: a posting set exactly a day back is due again 10 ms after its boundary.
+        with patch.object(intel_store.time, "time", return_value=time.time()):
+            self.store.refresh()
+            again = self.store.refresh()
         self.assertEqual((0, 0), (again["facts"], again["scored"]))
         store_description(self.con, "rbc", "1", "Applications close October 30, 2026. Join our M&A team.")
         again = self.store.refresh()

@@ -543,11 +543,59 @@ def load_knowledge(config_dir: Path | str = CONFIG_DIR) -> Knowledge:
         return kn
 
 
+def _postings_read(node, path: tuple = ()):
+    """``node`` without what no posting's facts read: every _readme and each file's version, tracks.*.resume
+    (resume reading), each board's program_windows (Calendar, programs.py) and each licence's resume and degree
+    patterns (resume reading, licences.py). tests/store/test_fingerprint.py checks facts ignore them."""
+    if isinstance(node, list):
+        return [_postings_read(value, path) for value in node]
+    if not isinstance(node, dict):
+        return node
+    out = {}
+    for key, value in node.items():
+        here = path + (key,)
+        if (key == "_readme" or here == ("version",)
+                or (len(here) == 3 and here[0] == "tracks" and key == "resume")
+                or (len(here) == 3 and here[0] == "non_finance_families" and key == "program_windows")
+                or (len(here) == 6 and here[2] == "licences" and here[3] == "items" and key in ("resume", "degree"))):
+            continue
+        out[key] = _postings_read(value, here)
+    return out
+
+
+_FINGERPRINTS: dict[str, tuple[tuple, str]] = {}
+
+
 def config_fingerprint(config_dir: Path | str = CONFIG_DIR) -> str:
-    """Changes whenever classification inputs change (used to re-run facts)."""
+    """Changes whenever what postings' facts read from the knowledge files changes (used to re-run facts): their
+    parsed JSON, so layout and line endings don't count, without the parts only resume reading and Calendar use.
+    0.3.13 changed one resume pattern and re-read all 398k postings of an install (~7 h) for it."""
     import hashlib
     root = Path(config_dir)
+    stamp = tuple((root / name).stat().st_mtime_ns for name in FILES)
+    key = str(root.resolve())
+    cached = _FINGERPRINTS.get(key)
+    if cached and cached[0] == stamp:
+        return cached[1]
     digest = hashlib.sha1()
     for name in FILES:
-        digest.update((root / name).read_bytes())
-    return digest.hexdigest()[:12]
+        data = _postings_read(json.loads((root / name).read_text(encoding="utf-8")))
+        digest.update(json.dumps(data, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
+    _FINGERPRINTS[key] = (stamp, digest.hexdigest()[:12])
+    return _FINGERPRINTS[key][1]
+
+
+# Until 0.3.13 the fingerprint hashed the files' bytes. Each of these is a release's byte fingerprint (as shipped,
+# CRLF, and as checked out with LF) with config_fingerprint() of the same files: a posting carrying one is current
+# while config_fingerprint() is still its pair, so updating from that release re-reads nothing it didn't change.
+LEGACY_FINGERPRINTS = {
+    "f842896753da": "5c56de7ad2d6", "1f14a07e73dd": "5c56de7ad2d6",     # 0.3.12
+    "2ca05a78664b": "5c56de7ad2d6", "86e3b440423c": "5c56de7ad2d6",     # 0.3.13
+}
+
+
+def current_fingerprints(config_dir: Path | str = CONFIG_DIR) -> tuple[str, ...]:
+    """The kb_version values a posting's facts may carry and still be current: config_fingerprint(), then the
+    older byte fingerprints of files that postings read the same way."""
+    current = config_fingerprint(config_dir)
+    return (current, *sorted(old for old, new in LEGACY_FINGERPRINTS.items() if new == current))

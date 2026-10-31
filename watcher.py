@@ -4363,6 +4363,42 @@ def repair_workday_posted(con, config):
     return cleared
 
 
+PRUNE_TABLES = ("job_details", "job_text", "job_notes", "job_intel", "job_state")
+
+
+def prune(con, store=None) -> int:
+    """Closed postings stay visible as history until they age out; anything with an application record is kept
+    for the CRM. Their rows in the other tables (and the search index) go with them, by key: comparing every
+    table with jobs took 4.5 s a poll and found nothing. That sweep, for rows left without a posting any
+    other way, runs once a day. The clusters postings went from are re-picked, so a canonical posting's
+    duplicates stay listed, and scored again, as they shared its dates. Returns how many postings went."""
+    fts = bool(store and store.fts)
+    gone = con.execute("""DELETE FROM jobs WHERE last_seen < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)
+                          AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)
+                          RETURNING board, job_id""", (f"-{PRUNE_AFTER_DAYS} days",)).fetchall()
+    if gone:
+        clusters = {k for key in gone for (k,) in con.execute(
+            "SELECT cluster_key FROM job_intel WHERE board=? AND job_id=?", key) if k}
+        if fts:     # before job_intel, whose rowids it is keyed by
+            con.executemany("DELETE FROM job_fts WHERE rowid IN (SELECT rowid FROM job_intel WHERE board=? AND job_id=?)",
+                            gone)
+        for table in PRUNE_TABLES:
+            con.executemany(f"DELETE FROM {table} WHERE board=? AND job_id=?", gone)
+        if store:
+            store.recluster(clusters)
+            store.rescore_clusters(clusters)
+    swept = con.execute("SELECT v FROM kv WHERE k='orphan_sweep'").fetchone()
+    if not swept or swept[0] < (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(timespec="seconds"):
+        for table in PRUNE_TABLES:
+            con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
+                           SELECT 1 FROM jobs WHERE jobs.board={table}.board
+                           AND jobs.job_id={table}.job_id)""")
+        if fts:
+            con.execute("DELETE FROM job_fts WHERE rowid NOT IN (SELECT rowid FROM job_intel)")
+        con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('orphan_sweep', ?)", (now(),))
+    return len(gone)
+
+
 def cycle(config, con, progress=None, sources=None, ranking=None):
     """One poll.  ``sources`` defaults to those the saved profile's boards poll
     (intel/sources.py), read afresh each time so a Settings change applies next poll.
@@ -4378,6 +4414,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     broke = []
     ok_count = fail_count = skipped = 0
     change_count = closed_count = 0
+    status_changed = []         # postings closed or reopened, whose clusters are re-picked
 
     # respect per-board min_interval (big feeds like the 11MB listings repos
     # only change every ~15 min; no point fetching them every 45s)
@@ -4495,6 +4532,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                 life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
                                         {j["id"] for j in fresh}, discovered=bool(seeded))
                 closed_count += life["closed"]
+                status_changed += life["changed"]
 
                 if not seeded:
                     for j in jobs:          # a later echo from another source is not new either
@@ -4528,6 +4566,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     reranking = lambda: ranking and ranking()  # noqa: E731
     try:
         store = IntelStore(con, config)
+        store.recluster_postings(status_changed)
         found = [(b, j["id"]) for b, js in new_by_board.items() for j in js]
         store.facts_pass(keys=found)
         store.score_pass(keys=found if reranking() else None, commit_batches=True)
@@ -4654,19 +4693,9 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     except Exception as e:      # reminders must never stop the cycle
         log(f"! reminders failed: {type(e).__name__}: {e}")
 
-    # Closed postings stay visible as history until they age out; anything
-    # with an application record is kept for the CRM.
-    con.execute("""DELETE FROM jobs WHERE last_seen < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)
-                   AND (board || ':' || job_id) NOT IN (SELECT job_key FROM applications)""",
-                (f"-{PRUNE_AFTER_DAYS} days",))
-    for table in ("job_details", "job_text", "job_notes", "job_intel", "job_state"):
-        con.execute(f"""DELETE FROM {table} WHERE NOT EXISTS (
-                       SELECT 1 FROM jobs WHERE jobs.board={table}.board
-                       AND jobs.job_id={table}.job_id)""")
+    prune(con, store)
     con.execute("DELETE FROM job_changes WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)", (f"-{PRUNE_AFTER_DAYS} days",))
     con.execute("DELETE FROM alert_log WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', '-7 days')")
-    if store and store.fts:
-        con.execute("DELETE FROM job_fts WHERE rowid NOT IN (SELECT rowid FROM job_intel)")
     con.execute("DELETE FROM alerted WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)",
                 (f"-{PRUNE_AFTER_DAYS} days",))
     con.execute("DELETE FROM recent WHERE ts < strftime('%Y-%m-%dT%H:%M:%S', 'now', ?)",

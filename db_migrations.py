@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -207,8 +207,57 @@ def _v7_listing_notes(con: sqlite3.Connection) -> None:
                    attempts=0, last_error='' WHERE source='listing_metadata'""")
 
 
+def _v8_due_indexes(con: sqlite3.Connection) -> None:
+    """What a facts or scoring pass looks for (intel_store.facts_due, IntelStore._score_sql), found through
+    indexes instead of comparing every posting: 12.9 s a pass with nothing to do, ~1.4 s with them. No standalone
+    facts_version index: lists filter on facts_version=?, and without statistics the planner would take it
+    over the fit order.
+
+    A fit is computed again at rescore_at, when something it shows can next change (intel/scoring.py), instead
+    of every hour; NULL (scored before) is due. The triggers send postings back when an input the fit reads
+    changes outside the facts: a posted date (its duplicates share the earliest), an application's deadline.
+
+    Facts are built again when an input they read (intel/facts.py input_hash) changes, blank or not: a poll sent
+    a posting back only when a title, location or salary changed from one value to another, so a salary or place
+    that came or went, a new company name or posting day left facts from inputs it no longer had. Descriptions,
+    departments and listing notes are sent back where they are stored."""
+    _add_column(con, "job_intel", "rescore_at", "REAL")
+    for name, sql in {
+        "intel_versions": "job_intel(kb_version, facts_version)",
+        "intel_unhashed": "job_intel(input_hash) WHERE input_hash IS NULL",
+        "intel_unscored": "job_intel(fit_detail) WHERE fit_detail IS NULL",
+        "intel_profile_version": "job_intel(profile_version)",
+        "intel_rescore_at": "job_intel(rescore_at)",
+    }.items():
+        con.execute(f"CREATE INDEX IF NOT EXISTS {name} ON {sql}")
+    for trigger in (
+            """rescore_posted AFTER UPDATE OF posted ON job_details WHEN OLD.posted IS NOT NEW.posted BEGIN
+               UPDATE job_intel SET rescore_at=0
+               WHERE cluster_key=(SELECT cluster_key FROM job_intel WHERE board=NEW.board AND job_id=NEW.job_id);
+               END""",
+            """rescore_application_added AFTER INSERT ON applications BEGIN
+               UPDATE job_intel SET rescore_at=0 WHERE board=NEW.board AND job_id=NEW.job_id; END""",
+            """rescore_application_deadline AFTER UPDATE OF deadline ON applications
+               WHEN OLD.deadline IS NOT NEW.deadline BEGIN
+               UPDATE job_intel SET rescore_at=0 WHERE board=NEW.board AND job_id=NEW.job_id; END""",
+            """rescore_application_removed AFTER DELETE ON applications BEGIN
+               UPDATE job_intel SET rescore_at=0 WHERE board=OLD.board AND job_id=OLD.job_id; END""",
+            """facts_input_listing AFTER UPDATE OF title, location ON jobs
+               WHEN OLD.title IS NOT NEW.title OR OLD.location IS NOT NEW.location BEGIN
+               UPDATE job_intel SET input_hash=NULL
+               WHERE board=NEW.board AND job_id=NEW.job_id AND input_hash IS NOT NULL; END""",
+            # the posting date counts by its day, as input_hash reads it
+            """facts_input_details AFTER UPDATE OF company, salary, posted ON job_details
+               WHEN OLD.company IS NOT NEW.company OR OLD.salary IS NOT NEW.salary
+                 OR CAST(COALESCE(OLD.posted, 0) AS INTEGER) / 86400 IS NOT CAST(COALESCE(NEW.posted, 0) AS INTEGER) / 86400
+               BEGIN
+               UPDATE job_intel SET input_hash=NULL
+               WHERE board=NEW.board AND job_id=NEW.job_id AND input_hash IS NOT NULL; END"""):
+        con.execute(f"CREATE TRIGGER IF NOT EXISTS {trigger}")
+
+
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
-              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes}
+              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes, 8: _v8_due_indexes}
 
 
 def migrate(con: sqlite3.Connection) -> int:
