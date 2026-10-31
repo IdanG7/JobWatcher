@@ -18,12 +18,14 @@ incremental, so repeated calls are cheap.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from intel import (CONFIG_DIR, FACTS_VERSION, build_facts, config_fingerprint, input_hash,
+from intel import (CONFIG_DIR, FACTS_VERSION, build_facts, config_fingerprint, current_fingerprints, input_hash,
                    load_knowledge, merge_profile, profile_version, score_job)
 
 # Adapters that return the board's complete listing.  Only for these does
@@ -37,7 +39,7 @@ SOURCE_RANK = {"linkedin": 0, "github_listings": 1, "github_md": 1}
 DIRECT_RANK = 3
 INDIRECT_RANK = -1      # lists whose links often miss the posting (config: indirect_links)
 CHANGE_FIELDS = ("title", "location", "url", "salary")
-RESCORE_SECONDS = 3600
+RESCORE_AT_LEAST = 86400       # every fit is computed again at least this often (score_pass)
 CLOSE_AFTER_MISSES = 3
 CLOSE_AFTER_HOURS = 24
 
@@ -169,8 +171,9 @@ def forget_boards(con: sqlite3.Connection, boards: list[str]) -> int:
 
 def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], complete: bool,
                      ts: str, fresh_ids: set[str] = frozenset(), discovered: bool = False) -> dict:
-    """Mark discovery, reopenings and (for complete listings) closures."""
-    stats = {"possibly_closed": 0, "closed": 0, "reopened": 0}
+    """Mark discovery, reopenings and (for complete listings) closures. ``changed`` lists the postings whose
+    status changed, for IntelStore.recluster_postings: a cluster's pick ranks active members first."""
+    stats = {"possibly_closed": 0, "closed": 0, "reopened": 0, "changed": []}
     if fresh_ids:
         con.executemany(
             """INSERT INTO job_state(board, job_id, discovered) VALUES (?,?,?)
@@ -187,7 +190,11 @@ def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], co
         con.executemany("INSERT INTO job_changes(board, job_id, ts, kind, field, old, new) "
                         "VALUES (?,?,?,'reopened','status','closed','active')",
                         [(board, jid, ts) for (jid,) in reopen])
+        # rescored, as closing does: its fit no longer carries the closed penalty
+        con.executemany("UPDATE job_intel SET profile_version=NULL WHERE board=? AND job_id=?",
+                        [(board, jid) for (jid,) in reopen])
         stats["reopened"] = len(reopen)
+        stats["changed"] += [(board, jid) for (jid,) in reopen]
     con.executemany("UPDATE job_state SET missing_count=0 WHERE board=? AND job_id=? AND missing_count>0",
                     [(board, jid) for jid in seen_ids])
     if not complete:
@@ -217,6 +224,7 @@ def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], co
                          status, new_status))
             con.execute("UPDATE job_intel SET profile_version=NULL WHERE board=? AND job_id=?", (board, jid))
             stats[new_status] += 1
+            stats["changed"].append((board, jid))
     return stats
 
 
@@ -286,14 +294,132 @@ def facts_description(description: str, note: str) -> str:
     return "\n\n".join(part for part in ((description or "").strip(), (note or "").strip()) if part)
 
 
+BACKLOG_COLUMNS = """j.board, j.job_id, j.title, j.location, j.url, j.first_seen,
+                     COALESCE(d.company, REPLACE(j.board,'_',' ')), COALESCE(d.salary,''), d.posted,
+                     CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,''), i.cluster_key,
+                     COALESCE(n.note,'')"""
+PARALLEL_FACTS_FROM = 2000      # postings in a backlog before facts are built in processes of their own
+RECHECK_CHUNK = 5000            # postings read at a time by the one-time input check (reread_stale_inputs)
+
+
+def backlog_job(row) -> dict:
+    """The posting facts are built from, out of a row of BACKLOG_COLUMNS."""
+    board, job_id, title, location, url, _, company, salary, posted, description, department, _, note = row
+    return {"board": board, "id": job_id, "title": title, "location": location, "url": url,
+            "company": company, "salary": salary, "posted": posted,
+            # bytes: one damaged byte on disk must not stop indexing for everything
+            "description": facts_description(bytes(description).decode("utf-8", "replace"), note),
+            "department": department}
+
+_FACTS_CONTEXT = None           # in a facts process: (knowledge, sources, sections)
+_STDIN_ASIDE = [0, None, None]  # pools open, this process's stdin handle, the NUL file standing in for it
+_STDIN_LOCK = threading.Lock()
+
+
+def _stdin_aside(on: bool) -> None:
+    """Windows: a process started while a thread here waits on a read of this process's stdin pipe (the worker
+    reads its commands so) hangs as it starts, on the stdin it is given. While any facts pool is open, processes
+    started are given NUL instead; this process's own sys.stdin reads the pipe as before."""
+    if os.name != "nt":
+        return
+    import ctypes
+    import msvcrt
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.GetStdHandle.restype = ctypes.c_void_p
+    kernel32.GetStdHandle.argtypes = [ctypes.c_ulong]
+    kernel32.SetStdHandle.argtypes = [ctypes.c_ulong, ctypes.c_void_p]
+    std_input = 0xFFFFFFF6      # STD_INPUT_HANDLE
+    with _STDIN_LOCK:
+        if on:
+            if not _STDIN_ASIDE[0]:
+                nul = open(os.devnull, "rb")
+                _STDIN_ASIDE[1:] = [kernel32.GetStdHandle(std_input), nul]
+                kernel32.SetStdHandle(std_input, msvcrt.get_osfhandle(nul.fileno()))
+            _STDIN_ASIDE[0] += 1
+        elif _STDIN_ASIDE[0]:
+            _STDIN_ASIDE[0] -= 1
+            if not _STDIN_ASIDE[0]:
+                kernel32.SetStdHandle(std_input, _STDIN_ASIDE[1])
+                _STDIN_ASIDE[2].close()
+                _STDIN_ASIDE[1:] = [None, None]
+
+
+class _FactsPool:
+    """Processes that build facts, with stdin set aside while they run (_stdin_aside)."""
+
+    def __init__(self, workers: int, config_dir: str, boards: dict, sections: dict):
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+        _stdin_aside(True)
+        try:
+            self._pool = ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn"),
+                                             initializer=_facts_worker_start, initargs=(config_dir, boards, sections))
+        except BaseException:
+            _stdin_aside(False)
+            raise
+
+    def map(self, fn, items):
+        return self._pool.map(fn, items)
+
+    def shutdown(self, **kwargs) -> None:
+        try:
+            self._pool.shutdown(**kwargs)
+        finally:
+            _stdin_aside(False)
+
+
+def _facts_worker_start(config_dir: str, boards: dict, sections: dict) -> None:
+    global _FACTS_CONTEXT
+    _FACTS_CONTEXT = (load_knowledge(config_dir), boards, sections)
+
+
+def _facts_in_worker(jobs: list[dict]) -> list[dict]:
+    kn, boards, sections = _FACTS_CONTEXT
+    return [build_facts(job, kn, boards.get(job["board"], {}), sections.get(job["board"], "")) for job in jobs]
+
+
+def facts_pending(kb_current) -> tuple[str, list]:
+    """The condition on ``j`` (jobs) and ``i`` (its job_intel row, if any) for postings whose facts are still
+    to be computed."""
+    marks = ",".join("?" * len(kb_current))
+    return (f"""(i.board IS NULL OR i.input_hash IS NULL OR i.facts_version != ?
+                OR i.kb_version NOT IN ({marks}))""", [FACTS_VERSION, *kb_current])
+
+
+def facts_due(kb_current, fits: bool = False) -> tuple[str, list]:
+    """``j.rowid IN (...)``: the postings facts_pending picks, and with ``fits`` those whose fit is still to be
+    computed, found through indexes (db_migrations _v8_due_indexes) where != and NOT IN compare every posting.
+    NULLs stay out, as != leaves them."""
+    current = sorted(kb_current)
+    marks = ",".join("?" * len(current))
+    lookups = ["input_hash IS NULL", "kb_version < ?",
+               *["kb_version > ? AND kb_version < ?"] * (len(current) - 1), "kb_version > ?",
+               f"kb_version IN ({marks}) AND facts_version < ?", f"kb_version IN ({marks}) AND facts_version > ?",
+               "kb_version IS NULL AND facts_version < ?", "kb_version IS NULL AND facts_version > ?"]
+    args = [current[0], *[v for pair in zip(current, current[1:]) for v in pair], current[-1],
+            *current, FACTS_VERSION, *current, FACTS_VERSION, FACTS_VERSION, FACTS_VERSION]
+    if fits:
+        lookups.append("fit_detail IS NULL")
+    union = " UNION ALL ".join(f"SELECT rowid FROM job_intel WHERE {where}" for where in lookups)
+    return (f"""j.rowid IN (SELECT j1.rowid FROM job_intel i1 JOIN jobs j1 ON j1.board=i1.board AND j1.job_id=i1.job_id
+                            WHERE i1.rowid IN ({union})
+                            UNION ALL SELECT j2.rowid FROM jobs j2 WHERE NOT EXISTS
+                                (SELECT 1 FROM job_intel i2 WHERE i2.board=j2.board AND i2.job_id=j2.job_id))""", args)
+
+
 # ---------------------------------------------------------------- store
 class IntelStore:
     def __init__(self, con: sqlite3.Connection, config: dict, config_dir: Path | str = CONFIG_DIR,
                  profile: dict | None = None):
         self.con = con
         self.config = config
+        self.config_dir = config_dir
         self.kn = load_knowledge(config_dir)
+        # processes that build facts for a large backlog: half the cores, as polls and pages share them
+        self.facts_workers = max(1, min(6, (os.cpu_count() or 1) // 2))
+        self._pool_failed = False
         self.kb_version = config_fingerprint(config_dir)
+        self.kb_current = current_fingerprints(config_dir)    # kb_version values whose facts are still current
         self.boards = {k: v for k, v in (config.get("boards") or {}).items() if not k.startswith("_")}
         self.sections = board_sections(config)
         self._stored_profile = profile is None
@@ -314,57 +440,88 @@ class IntelStore:
                 if part:
                     done += self._facts_rows(part=part)
             return done
-        # Commit in chunks so a large backlog never holds the write lock long
-        # enough to starve the watcher (or the dashboard) of the database.
-        done = 0
-        while True:
-            step = 500 if limit is None else min(500, limit - done)
-            if step <= 0:
-                break
-            n = self._facts_rows(limit=step)
-            if incremental_score and n:
-                self._batch_scored += self.score_pass(commit_batches=True)
-            self.con.commit()
-            done += n
-            if on_progress:
-                on_progress(done)
-            if n < step:
-                break
+        # The backlog is listed once, in order, then read 500 postings at a time by key: listing it for every
+        # batch sorted every posting due again (3-5 s a batch, ~1 h of a full re-read). Postings a poll adds
+        # meanwhile are listed when these are done. Commit in chunks so a large backlog never holds the write
+        # lock long enough to starve the watcher (or the dashboard) of the database.
+        done, pool = 0, None
+        try:
+            while limit is None or done < limit:
+                listed = self._backlog_keys(None if limit is None else limit - done)
+                if pool is None and len(listed) >= PARALLEL_FACTS_FROM and self.facts_workers > 1:
+                    pool = self._facts_pool()
+                before = done
+                for chunk in range(0, len(listed), 500):
+                    n = self._facts_rows(part=listed[chunk:chunk + 500], pool=pool)
+                    if incremental_score and n:
+                        self._batch_scored += self.score_pass(commit_batches=True)
+                    self.con.commit()
+                    done += n
+                    if on_progress:
+                        on_progress(done)
+                if done == before:      # nothing listed, or another connection did it all
+                    break
+        finally:
+            if pool is not None:
+                pool.shutdown(cancel_futures=True)
         return done
 
-    def _facts_rows(self, limit: int | None = None, part: list[tuple[str, str]] | None = None) -> int:
-        scope, scope_args = "", []
-        if part:
-            scope = " AND (" + " OR ".join("(j.board=? AND j.job_id=?)" for _ in part) + ")"
-            scope_args = [v for pair in part for v in pair]
-        rows = self.con.execute(
-            f"""SELECT j.board, j.job_id, j.title, j.location, j.url, j.first_seen,
-                       COALESCE(d.company, REPLACE(j.board,'_',' ')), COALESCE(d.salary,''), d.posted,
-                       CAST(COALESCE(t.description,'') AS BLOB), COALESCE(t.department,''), i.cluster_key,
-                       COALESCE(n.note,'')
+    def _backlog_keys(self, limit: int | None) -> list[tuple[str, str]]:
+        sql, args = self._backlog_sql(limit, None, columns="j.board, j.job_id")
+        return self.con.execute(sql, args).fetchall()
+
+    def _facts_pool(self):
+        """Processes that build facts beside this one, for a large backlog (build_facts is ~2/3 of a re-read's
+        time); this connection still writes everything. None when they can't start."""
+        try:
+            return _FactsPool(self.facts_workers, str(self.config_dir), self.boards, self.sections)
+        except (OSError, ValueError, RuntimeError):
+            return None
+
+    def _build_facts(self, jobs: list[dict], pool) -> list[dict]:
+        if pool is not None and not self._pool_failed:
+            size = -(-len(jobs) // self.facts_workers)
+            try:
+                return [facts for part in pool.map(_facts_in_worker, [jobs[i:i + size]
+                                                                      for i in range(0, len(jobs), size)])
+                        for facts in part]
+            except Exception:      # a pool that broke (or never started) leaves the work here
+                self._pool_failed = True
+        return [build_facts(job, self.kn, self.boards.get(job["board"], {}), self.sections.get(job["board"], ""))
+                for job in jobs]
+
+    def _backlog_sql(self, limit: int | None, part: list[tuple[str, str]] | None,
+                     columns: str = BACKLOG_COLUMNS) -> tuple[str, list]:
+        if part:    # a few postings: their own rows, by key
+            due, args = facts_pending(self.kb_current)
+            due += " AND (" + " OR ".join("(j.board=? AND j.job_id=?)" for _ in part) + ")"
+            args += [v for pair in part for v in pair]
+        else:
+            due, args = facts_due(self.kb_current)
+        return (f"""SELECT {columns}
                 FROM jobs j
                 LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
                 LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
                 LEFT JOIN job_notes n ON n.board=j.board AND n.job_id=j.job_id
                 LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
-                WHERE j.title != '' AND (i.board IS NULL OR i.input_hash IS NULL
-                      OR i.facts_version != ? OR i.kb_version != ?){scope}
+                WHERE j.title != '' AND {due}
                 ORDER BY COALESCE(i.is_finance,0) DESC, COALESCE(d.posted, 0) DESC
-                {'LIMIT ' + str(int(limit)) if limit else ''}""",
-            (FACTS_VERSION, self.kb_version, *scope_args)).fetchall()
+                {'LIMIT ' + str(int(limit)) if limit else ''}""", args)
+
+    def _backlog(self, limit: int | None = None, part: list[tuple[str, str]] | None = None) -> list:
+        sql, args = self._backlog_sql(limit, part)
+        return self.con.execute(sql, args).fetchall()
+
+    def _facts_rows(self, limit: int | None = None, part: list[tuple[str, str]] | None = None, pool=None) -> int:
+        rows = self._backlog(limit, part)
         if not rows:
             return 0
         ts = utcnow()
         clusters = set()
         batch, fts_rows = [], []
-        for (board, job_id, title, location, url, first_seen, company, salary, posted,
-             description, department, old_cluster, note) in rows:
-            job = {"board": board, "id": job_id, "title": title, "location": location, "url": url,
-                   "company": company, "salary": salary, "posted": posted,
-                   # bytes: one damaged byte on disk must not stop indexing for everything
-                   "description": facts_description(bytes(description).decode("utf-8", "replace"), note),
-                   "department": department}
-            facts = build_facts(job, self.kn, self.boards.get(board, {}), self.sections.get(board, ""))
+        jobs = [backlog_job(row) for row in rows]
+        for row, job, facts in zip(rows, jobs, self._build_facts(jobs, pool)):
+            board, job_id, title, location, _, _, company, *_, old_cluster, _ = row
             cls, loc, cyc, comp = (facts["classification"], facts["location"], facts["cycle"],
                                    facts["compensation"])
             skills = " ".join(s["key"] for s in facts["skills"])
@@ -423,7 +580,60 @@ class IntelStore:
                 "INSERT INTO job_fts(rowid, body) SELECT rowid, ? FROM job_intel WHERE board=? AND job_id=?",
                 [(body, b, j) for b, j, body in fts_rows])
         self.recluster(clusters)
+        self.rescore_clusters(clusters)
         return len(rows)
+
+    def rescore_clusters(self, keys) -> None:
+        """Send these clusters' postings back for a score: duplicates share the earliest posting date and first
+        sighting, which move when a member joins, leaves or goes."""
+        keys = sorted(k for k in keys if k)
+        for chunk in range(0, len(keys), 400):
+            part = keys[chunk:chunk + 400]
+            self.con.execute(f"UPDATE job_intel SET rescore_at=0 WHERE cluster_key IN ({','.join('?' * len(part))})",
+                             part)
+
+    def reread_changed_sources(self) -> None:
+        """Read again the postings of sources whose settings that facts read (company_key, ats, company_type, the
+        section) changed since the last refresh. The first refresh only records them."""
+        settings = {b: [cfg.get("company_key"), cfg.get("ats"), cfg.get("company_type"), self.sections.get(b, "")]
+                    for b, cfg in sorted(self.boards.items())}
+        row = self.con.execute("SELECT v FROM kv WHERE k='source_fact_settings'").fetchone()
+        recorded = json.loads(row[0]) if row else None
+        if recorded == settings:
+            return
+        changed = [b for b, s in settings.items() if recorded is not None and recorded.get(b) != s]
+        for chunk in range(0, len(changed), 400):
+            part = changed[chunk:chunk + 400]
+            self.con.execute(f"UPDATE job_intel SET input_hash=NULL WHERE board IN ({','.join('?' * len(part))})",
+                             part)
+        self.con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('source_fact_settings', ?)",
+                         (json.dumps(settings, separators=(",", ":")),))
+
+    def reread_stale_inputs(self) -> None:
+        """Once: read again the postings whose facts were built from inputs they no longer have. A poll used to
+        send a posting back only when a field changed from one value to another (schema 8's triggers send it
+        back for any change); the full re-read after each update repaired the rest."""
+        if self.con.execute("SELECT 1 FROM kv WHERE k='inputs_rechecked'").fetchone():
+            return
+        stale, last = [], 0
+        while True:
+            rows = self.con.execute(
+                f"""SELECT i.rowid, i.input_hash, {BACKLOG_COLUMNS} FROM job_intel i
+                    JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
+                    LEFT JOIN job_details d ON d.board=i.board AND d.job_id=i.job_id
+                    LEFT JOIN job_text t ON t.board=i.board AND t.job_id=i.job_id
+                    LEFT JOIN job_notes n ON n.board=i.board AND n.job_id=i.job_id
+                    WHERE i.rowid > ? AND i.input_hash IS NOT NULL AND j.title != ''
+                    ORDER BY i.rowid LIMIT ?""", (last, RECHECK_CHUNK)).fetchall()
+            if not rows:
+                break
+            last = rows[-1][0]
+            stale += [rowid for rowid, stored, *row in rows if input_hash(backlog_job(row)) != stored]
+        for chunk in range(0, len(stale), 400):
+            part = stale[chunk:chunk + 400]
+            self.con.execute(f"UPDATE job_intel SET input_hash=NULL WHERE rowid IN ({','.join('?' * len(part))})",
+                             part)
+        self.con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('inputs_rechecked', '1')")
 
     # ---- clustering
     def source_rank(self, board: str) -> int:
@@ -433,16 +643,59 @@ class IntelStore:
         return SOURCE_RANK.get(cfg.get("ats", ""), DIRECT_RANK)
 
     def recluster_if_ranks_changed(self) -> None:
-        """Re-pick canonical members everywhere after source ranks change (config upgrade)."""
-        signature = json.dumps({b: self.source_rank(b) for b in sorted(self.boards)}, separators=(",", ":"))
+        """Re-pick canonical members after source ranks change (config upgrade): the clusters holding postings of
+        sources whose rank changed. A source added has no postings yet, so it moves nothing; a source removed
+        has had its postings deleted (forget_boards), so its clusters can't be found and every cluster is
+        re-picked, as with no ranks recorded."""
+        ranks = {b: self.source_rank(b) for b in sorted(self.boards)}
+        signature = json.dumps(ranks, separators=(",", ":"))
         row = self.con.execute("SELECT v FROM kv WHERE k='canonical_ranks'").fetchone()
+        if not self.con.execute("SELECT 1 FROM kv WHERE k='canonical_repaired'").fetchone():
+            # Picks went stale when a member closed or reopened (update_lifecycle didn't re-pick), until a
+            # full re-pick: once, so re-picking only what changed starts from current picks. Fits don't read them.
+            if row:
+                self._recluster_everything()
+            self.con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('canonical_repaired', '1')")
         if row and row[0] == signature:
             return
-        self.recluster([k for (k,) in self.con.execute(
-            "SELECT DISTINCT cluster_key FROM job_intel WHERE cluster_key IS NOT NULL")])
-        # rescore once so posted dates are shared across the re-picked duplicates
-        self.con.execute("UPDATE job_intel SET profile_version=NULL")
+        recorded = json.loads(row[0]) if row else None
+        if recorded is None or set(recorded) - set(ranks):
+            self._recluster_everything()
+            # rescore once so posted dates are shared across the re-picked duplicates
+            self.con.execute("UPDATE job_intel SET profile_version=NULL")
+        else:
+            changed = [b for b, rank in ranks.items() if recorded.get(b) != rank]
+            clusters = set()
+            for chunk in range(0, len(changed), 400):
+                part = changed[chunk:chunk + 400]
+                clusters.update(k for (k,) in self.con.execute(
+                    f"SELECT DISTINCT cluster_key FROM job_intel WHERE board IN ({','.join('?' * len(part))}) "
+                    "AND cluster_key IS NOT NULL", part))
+            clusters = sorted(clusters)
+            self.recluster(clusters)
+            for chunk in range(0, len(clusters), 400):
+                part = clusters[chunk:chunk + 400]
+                self.con.execute(f"UPDATE job_intel SET profile_version=NULL WHERE cluster_key IN "
+                                 f"({','.join('?' * len(part))})", part)
         self.con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('canonical_ranks', ?)", (signature,))
+
+    def _recluster_everything(self) -> None:
+        """Every cluster (~55 s for 300k), committed in chunks so a poll can write in between."""
+        keys = [k for (k,) in self.con.execute(
+            "SELECT DISTINCT cluster_key FROM job_intel WHERE cluster_key IS NOT NULL")]
+        for chunk in range(0, len(keys), 20000):
+            self.recluster(keys[chunk:chunk + 20000])
+            self.con.commit()
+
+    def recluster_postings(self, keys) -> None:
+        """Re-pick the clusters these postings are in (one closed, reopened or left)."""
+        clusters = set()
+        for chunk in range(0, len(keys), 400):
+            part = keys[chunk:chunk + 400]
+            clusters.update(k for (k,) in self.con.execute(
+                "SELECT cluster_key FROM job_intel WHERE " + " OR ".join("(board=? AND job_id=?)" for _ in part),
+                [v for pair in part for v in pair]))
+        self.recluster(clusters)
 
     def recluster(self, keys) -> None:
         keys = [k for k in keys if k]
@@ -451,7 +704,7 @@ class IntelStore:
             marks = ",".join("?" * len(part))
             members = self.con.execute(
                 f"""SELECT i.cluster_key, i.board, i.job_id, COALESCE(s.status,'active'),
-                           LENGTH(COALESCE(t.description,'')) > 0, j.first_seen
+                           LENGTH(COALESCE(t.description,'')) > 0, j.first_seen, i.is_canonical
                     FROM job_intel i
                     JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
                     LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
@@ -465,11 +718,55 @@ class IntelStore:
                 def rank(r):
                     return (r[3] == "active", self.source_rank(r[1]), r[4], -(iso_epoch(r[5]) or 0))
                 best = max(rows, key=rank)
-                for r in rows:
-                    updates.append((int(r is best), r[1], r[2]))
-            self.con.executemany("UPDATE job_intel SET is_canonical=? WHERE board=? AND job_id=?", updates)
+                # only the flags that move: a full re-pick rewrote 398k rows to move ~500
+                updates += [(int(r is best), r[1], r[2]) for r in rows if r[6] != int(r is best)]
+            if updates:
+                self.con.executemany("UPDATE job_intel SET is_canonical=? WHERE board=? AND job_id=?", updates)
 
     # ---- scoring
+    def _score_sql(self, now: float, force: bool, keys: list[tuple[str, str]] | None) -> tuple[str, list]:
+        if keys:    # a few postings: their own rows, by key
+            scope = " AND (" + " OR ".join("(i.board=? AND i.job_id=?)" for _ in keys) + ")"
+            scope_args = [v for pair in keys for v in pair]
+        elif force:
+            scope, scope_args = "", []
+        else:       # what the condition can pick, through indexes (db_migrations._v8_due_indexes)
+            scope = """ AND i.rowid IN (SELECT rowid FROM job_intel WHERE profile_version IS NULL
+                           UNION ALL SELECT rowid FROM job_intel WHERE profile_version < ?
+                           UNION ALL SELECT rowid FROM job_intel WHERE profile_version > ?
+                           UNION ALL SELECT rowid FROM job_intel WHERE rescore_at IS NULL
+                           UNION ALL SELECT rowid FROM job_intel WHERE rescore_at <= ?)"""
+            scope_args = [self.version, self.version, now]
+        # Duplicates share the earliest real posting date and first sighting, so a
+        # list that picked a job up late does not make it look new.
+        return (f"""SELECT i.board, i.job_id, i.facts,
+                       COALESCE((SELECT MIN(d2.posted) FROM job_intel i2 JOIN job_details d2
+                                 ON d2.board=i2.board AND d2.job_id=i2.job_id
+                                 WHERE i2.cluster_key=i.cluster_key), d.posted),
+                       COALESCE((SELECT MIN(j2.first_seen) FROM job_intel i2 JOIN jobs j2
+                                 ON j2.board=i2.board AND j2.job_id=i2.job_id
+                                 WHERE i2.cluster_key=i.cluster_key), j.first_seen),
+                       COALESCE(s.discovered,0), COALESCE(s.status,'active'),
+                       NULLIF(COALESCE(NULLIF(o.deadline,''), a.deadline), ''),
+                       i.company_key, i.input_hash, i.facts_version, i.kb_version,
+                       i.profile_version, i.scored_at, i.rescore_at
+                FROM job_intel i
+                JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
+                LEFT JOIN job_details d ON d.board=i.board AND d.job_id=i.job_id
+                LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
+                LEFT JOIN job_overrides o ON o.job_key=(i.board||':'||i.job_id)
+                LEFT JOIN applications a ON a.job_key=(i.board||':'||i.job_id)
+                WHERE i.facts IS NOT NULL AND i.facts_version=? AND (
+                    {'1=1 OR ' if force else ''}
+                    i.profile_version IS NULL OR i.profile_version != ?
+                    -- what it shows can have changed (score_pass sets when), or it was scored before that
+                    OR i.rescore_at IS NULL OR i.rescore_at <= ?){scope}""",
+                [FACTS_VERSION, self.version, now, *scope_args])
+
+    def _score_rows(self, now: float, force: bool = False, keys: list[tuple[str, str]] | None = None) -> list:
+        sql, args = self._score_sql(now, force, keys)
+        return self.con.execute(sql, args).fetchall()
+
     def score_pass(self, force: bool = False, keys: list[tuple[str, str]] | None = None,
                    *, commit_batches: bool = False) -> int:
         """Score jobs; background callers opt into short committed write batches.
@@ -509,56 +806,22 @@ class IntelStore:
                                  "AND profile_version != ?", (self.version,))
         if commit_batches:
             self.con.commit()  # version repair must not lock collection while scores are computed
-        now = time.time()
-        stale_before = now - RESCORE_SECONDS
-        recent_iso = (datetime.now(timezone.utc) - timedelta(days=32)).isoformat(timespec="seconds")
-        recent_epoch = now - 32 * 86400
-        horizon = (datetime.now(timezone.utc) - timedelta(days=2)).date().isoformat()
         if keys is not None and not keys:
             return 0
-        scope = " AND (" + " OR ".join("(i.board=? AND i.job_id=?)" for _ in keys) + ")" if keys else ""
-        scope_args = [v for pair in (keys or []) for v in pair]
-        rows = self.con.execute(
-            # Duplicates share the earliest real posting date and first sighting, so a
-            # list that picked a job up late does not make it look new.
-            f"""SELECT i.board, i.job_id, i.facts,
-                       COALESCE((SELECT MIN(d2.posted) FROM job_intel i2 JOIN job_details d2
-                                 ON d2.board=i2.board AND d2.job_id=i2.job_id
-                                 WHERE i2.cluster_key=i.cluster_key), d.posted),
-                       COALESCE((SELECT MIN(j2.first_seen) FROM job_intel i2 JOIN jobs j2
-                                 ON j2.board=i2.board AND j2.job_id=i2.job_id
-                                 WHERE i2.cluster_key=i.cluster_key), j.first_seen),
-                       COALESCE(s.discovered,0), COALESCE(s.status,'active'),
-                       NULLIF(COALESCE(NULLIF(o.deadline,''), a.deadline), ''),
-                       i.company_key, i.input_hash, i.facts_version, i.kb_version,
-                       i.profile_version, i.scored_at
-                FROM job_intel i
-                JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
-                LEFT JOIN job_details d ON d.board=i.board AND d.job_id=i.job_id
-                LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
-                LEFT JOIN job_overrides o ON o.job_key=(i.board||':'||i.job_id)
-                LEFT JOIN applications a ON a.job_key=(i.board||':'||i.job_id)
-                WHERE i.facts IS NOT NULL AND i.facts_version=? AND (
-                    {'1=1 OR ' if force else ''}
-                    i.profile_version IS NULL OR i.profile_version != ?
-                    OR (i.scored_at < ? AND (COALESCE(d.posted,0) > ? OR j.first_seen > ?
-                        OR i.deadline >= ? OR a.deadline >= ? OR o.deadline >= ?))
-                    -- the freshness curve runs to 60 days: older steps change daily at most
-                    OR (i.scored_at < ? AND (COALESCE(d.posted,0) > ? OR j.first_seen > ?))){scope}""",
-            (FACTS_VERSION, self.version, stale_before, recent_epoch, recent_iso, horizon, horizon, horizon,
-             now - 86400, now - 61 * 86400,
-             (datetime.now(timezone.utc) - timedelta(days=61)).isoformat(timespec="seconds"), *scope_args)).fetchall()
+        now = time.time()
+        rows = self._score_rows(now, force, keys)
         if not rows:
             return 0
-        since = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat(timespec="seconds")
-        changed = {(b, j) for b, j in self.con.execute(
-            "SELECT DISTINCT board, job_id FROM job_changes WHERE ts > ? AND kind NOT IN ('possibly_closed')",
-            (since,))}
+        since = datetime.fromtimestamp(now - 48 * 3600, timezone.utc).isoformat(timespec="seconds")
+        # the UPDATED badge's change, and when it turns two days old and the badge goes
+        changed = {(b, j): (iso_epoch(ts) or now) + 48 * 3600 + 0.01 for b, j, ts in self.con.execute(
+            "SELECT board, job_id, MAX(ts) FROM job_changes WHERE ts > ? AND kind NOT IN ('possibly_closed') "
+            "GROUP BY board, job_id", (since,))}
         updates = []
         matches = []
         damaged = []
         for (board, job_id, facts_json, posted, first_seen, discovered, status, override, ckey,
-             sampled_hash, facts_version, kb_version, scored_version, scored_at) in rows:
+             sampled_hash, facts_version, kb_version, scored_version, scored_at, sampled_rescore) in rows:
             try:
                 facts = json.loads(facts_json)
             except ValueError:
@@ -574,11 +837,14 @@ class IntelStore:
                 matches.append((board, job_id, int(match["matched"]), json.dumps(match), self.version))
             detail = {k: result[k] for k in ("subscores", "penalties", "reasons", "concerns", "raw_total",
                                              "urgency_label", "days_left", "posting_age_hours")}
+            # Daily at the least: what no rule here sends back for a score still lands within a day.
+            rescore_at = min(t for t in (result["rescore_at"], changed.get((board, job_id)), now + RESCORE_AT_LEAST)
+                             if t is not None and t > now)
             updates.append((result["fit"], json.dumps(detail, separators=(",", ":")), result["urgency"],
                             result["window_status"], " ".join(b.replace(" ", "_") for b in result["badges"]),
                             result["deadline"], dyn["posted"] or (dyn["first_seen"] if discovered else None),
-                            self.version, now, board, job_id, sampled_hash, facts_version, kb_version,
-                            facts_json, scored_version, scored_at, int(bool(resume)), self.version))
+                            self.version, now, rescore_at, board, job_id, sampled_hash, facts_version, kb_version,
+                            facts_json, scored_version, scored_at, sampled_rescore, int(bool(resume)), self.version))
         # A missing input hash sends the posting back to facts_pass; the facts guard skips one already rebuilt.
         self.con.executemany("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=? AND facts IS ?", damaged)
         applied = 0
@@ -590,9 +856,10 @@ class IntelStore:
                 # Save only if the sampled inputs and score revision still agree.
                 changed = self.con.execute(
                     """UPDATE job_intel SET fit=?, fit_detail=?, urgency=?, window_status=?, badges=?,
-                         eff_deadline=?, posted_ref=?, profile_version=?, scored_at=?
+                         eff_deadline=?, posted_ref=?, profile_version=?, scored_at=?, rescore_at=?
                        WHERE board=? AND job_id=? AND input_hash IS ? AND facts_version IS ?
                          AND kb_version IS ? AND facts IS ? AND profile_version IS ? AND scored_at IS ?
+                         AND rescore_at IS ?
                          AND (?=0 OR EXISTS (SELECT 1 FROM candidate_resume WHERE id=1 AND version=?))""",
                     updates[index]).rowcount
                 applied += changed
@@ -610,7 +877,9 @@ class IntelStore:
         t0 = time.time()
         self._batch_scored = 0
         resume = bool(self.con.execute("SELECT 1 FROM candidate_resume WHERE id=1").fetchone())
+        self.reread_stale_inputs()      # first: it reads every posting, so no write is waiting on it
         self.recluster_if_ranks_changed()
+        self.reread_changed_sources()
         self.con.commit()  # release upgrade writes before building facts for the backlog
         facts = self.facts_pass(max_facts, incremental_score=resume, on_progress=on_progress)
         scored = self.score_pass(force_score, commit_batches=True) + self._batch_scored

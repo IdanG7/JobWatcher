@@ -124,6 +124,13 @@ class WorkerTests(fixtures.ServiceFixture):
         self.assertEqual(1200, self.events[-1][1]["stats"]["facts"])
         assert_ranking_reports(self, reports, 1200)
 
+    def test_a_pass_with_nothing_to_do_counts_once(self):
+        with patch.object(intel_worker, "count_pending_facts", wraps=intel_worker.count_pending_facts) as count:
+            stats = intel_worker.refresh_database(self.db_path, self.service.config, backlog=count,
+                                                  on_remaining=lambda *_: None)
+        self.assertEqual(0, stats["facts"])
+        self.assertEqual(1, count.call_count)
+
     def test_a_failed_pass_is_reported(self):
         with patch.object(intel_worker, "refresh_database", side_effect=sqlite3.OperationalError("locked")):
             self.worker.refresh()

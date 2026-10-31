@@ -129,7 +129,9 @@ class IndexingConcurrencyTests(ServiceFixture):
             self.assertTrue(edited)
             self.assertIsNone(con.execute("SELECT profile_version FROM job_intel WHERE board='rbc' AND job_id='one'").fetchone()[0])
             self.assertIsNone(con.execute("SELECT 1 FROM resume_matches WHERE board='rbc' AND job_id='one'").fetchone())
-            self.assertEqual(1, store.score_pass(commit_batches=True))
+            # with the duplicate it left, whose shared posting date and first sighting it took along
+            self.assertEqual(2, store.score_pass(commit_batches=True))
+            self.assertEqual(0, store.score_pass(commit_batches=True))
             fit = con.execute("SELECT fit FROM job_intel WHERE board='rbc' AND job_id='one'").fetchone()[0]
             store.score_pass(force=True, keys=[('rbc', 'one')])
             self.assertEqual(fit, con.execute("SELECT fit FROM job_intel WHERE board='rbc' AND job_id='one'").fetchone()[0])

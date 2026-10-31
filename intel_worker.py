@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 import watcher
-from intel_store import IntelStore
+from intel_store import IntelStore, facts_due
 
 EVENT = "\x1efoothold "     # starts every event line; log text never does
 
@@ -45,12 +45,9 @@ def parse_line(line: str):
 def count_pending_facts(con, fits: bool = True) -> int:
     """Postings whose facts or fit are still to be computed; without ``fits``, whose facts are (what a
     facts pass still takes)."""
-    from intel import FACTS_VERSION, config_fingerprint
-    return con.execute(
-        f"""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
-           WHERE j.title != '' AND (i.board IS NULL OR i.input_hash IS NULL OR i.facts_version != ?
-                                    OR i.kb_version != ?{' OR i.fit_detail IS NULL' if fits else ''})""",
-        (FACTS_VERSION, config_fingerprint())).fetchone()[0]
+    from intel import current_fingerprints
+    due, args = facts_due(current_fingerprints(), fits)
+    return con.execute(f"SELECT COUNT(*) FROM jobs j WHERE j.title != '' AND {due}", args).fetchone()[0]
 
 
 def refresh_database(db_path, config: dict, force_score: bool = False, backlog=count_pending_facts,
@@ -70,7 +67,7 @@ def refresh_database(db_path, config: dict, force_score: bool = False, backlog=c
 
             def report(done):
                 nonlocal pending
-                if done >= pending:     # all it counted is done, and a poll may have committed more since
+                if done >= pending and done:    # all it counted is done, and a poll may have committed more since
                     pending = done + count_pending_facts(con, fits=False)
                 on_remaining(pending - done, pending)
             progress = report

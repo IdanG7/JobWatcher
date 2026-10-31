@@ -184,6 +184,7 @@ def _store_run(code, work, facts_db, config_path, epoch, out) -> None:
     con.execute("DELETE FROM kv WHERE k='canonical_ranks'")
     con.commit()
     store = store_module.IntelStore(con, config)
+    store.facts_workers = 1     # facts come precomputed (above), so none are built in processes of their own
     store.recluster_if_ranks_changed()
     store.facts_pass()
     con.commit()

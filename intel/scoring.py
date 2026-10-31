@@ -422,6 +422,28 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     if dyn.get("recent_change"):
         badges.append("UPDATED")
 
+    # ---- the earliest moment anything above can read differently (posting_age_hours aside, which isn't shown):
+    # the age text (hourly, then daily), the freshness steps, urgency's 12 and 48 hours and the stale penalty's
+    # 45 days all fall on those boundaries; the badges' day and two days; a deadline's window and days left, at
+    # UTC midnight. Each value changes as its boundary is reached or passed, so just after it (10 ms clears the
+    # rounding in now - ref; on the boundary itself it could still read the old value and skip that change).
+    edges = []
+    if ref:
+        elapsed = max(0.0, (now - ref) / 3600)
+        edges.append(ref + (int(elapsed) + 1) * 3600 if elapsed < 48 else ref + (int(elapsed // 24) + 1) * 86400)
+        edges += [ref + limit * 3600 for limit, _ in (STEEP if competitive else GENTLE)]
+    if dyn.get("discovered") and first_seen:
+        edges.append(first_seen + 86400)
+    if posted:
+        edges += [posted + 86400, posted + 172800]
+    if deadline:
+        try:
+            if date.fromisoformat(deadline) >= today:
+                edges.append(datetime.combine(today, datetime.min.time(), timezone.utc).timestamp() + 86400)
+        except ValueError:
+            pass
+    rescore_at = min((edge + 0.01 for edge in edges if edge + 0.01 > now), default=None)
+
     return {
         "fit": fit,
         "raw_total": total,
@@ -436,4 +458,5 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         "deadline": deadline,
         "days_left": days_left,
         "posting_age_hours": round(age_hours, 1) if age_hours is not None else None,
+        "rescore_at": rescore_at,
     }
