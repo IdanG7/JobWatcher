@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.14', date: '2026-10-31', items: [
+    {icon: 'pulse', title: 'Faster ranking in the background', link: '#/opportunities',
+      text: 'Ranking redoes only roles that can have changed, and updates no longer re-read every role.'},
+    {icon: 'refresh', title: 'Roles follow changes to their listing', link: '#/opportunities',
+      text: 'When a listing drops its pay or adds a place, the role now shows it and filters use it.'},
+    {icon: 'copy', title: 'The open copy of a role shows first', link: '#/opportunities',
+      text: 'When a role closes on one site but is still open on another, you now see the open one.'},
+  ]},
   {version: '0.3.13', date: '2026-10-30', items: [
     {icon: 'chart', title: 'Real progress while Foothold works', link: '#/opportunities',
       text: 'Bars now fill as sources are checked and roles ranked, with counts like 34 of 120.'},
