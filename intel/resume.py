@@ -334,18 +334,21 @@ _SECTION = re.compile(
     r"(?:licen[cs]es?|certifications?)\s*(?:&|and)\s*(?:licen[cs]es?|certifications?|training)|"
     r"skills|technical skills(?:\s*(?:&|and)\s*interests)?|skills\s*(?:&|and)\s*interests|leadership(?:\s*(?:&|and)\s*activities)?|activities|extracurricular|"
     r"projects|interests|languages|certifications|awards|summary|professional summary|career summary|"
-    r"summary of qualifications|profile|professional profile|objective)\s*:?\s*$", re.I)
-_SCHOOL = re.compile(r"\b(?:university|université|universite|college|école|ecole|institute|school of|"
+    r"summary of qualifications|profile|professional profile|objective|"
+    # French resumes (Quebec): the same sections
+    r"exp[ée]riences?(?: professionnelles?| de travail)?|parcours professionnel|formation|[ée]ducation|[ée]tudes|"
+    r"comp[ée]tences(?: techniques)?|langues|projets|b[ée]n[ée]volat|profil|sommaire)\s*:?\s*$", re.I)
+_SCHOOL = re.compile(r"\b(?:university|université|universite|college|collège|c[ée]gep|école|ecole|institute|school of|"
                      r"polytechnic|business school)\b", re.I)
 _DEGREES = [
     # A PharmD or an MD sets no level: they are neither a PhD nor a master's.
-    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of(?! (?:pharmacy|medicine|dental|optometry|veterinary)))\b", re.I)),
+    ("phd", re.compile(r"\b(?:ph\.?\s?d|doctor(?:ate)? of(?! (?:pharmacy|medicine|dental|optometry|veterinary))|doctorat)\b", re.I)),
     ("mba", re.compile(r"\bm\.?b\.?a\b", re.I)),
     ("masters", re.compile(r"\b(?:master(?:'?s)? of|m\.?sc|m\.?fin|m\.?eng|mmf|mfe|mmath|m\.?a\.? in|msf|master'?s|"
-                           r"m\.?p\.?h|msn)\b", re.I)),
+                           r"m\.?p\.?h|msn|ma[îi]trise)\b", re.I)),
     ("undergraduate", re.compile(r"\b(?:bachelor(?:'?s)?(?: of)?|b\.?com|bba|b\.?sc|b\.?a\.?(?: in| of|\b)|b\.?eng|b\.?math|"
                                  r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate|b\.?sc\.?n|bsn|b\.?h\.?sc|"
-                                 r"b\.?kin)\b", re.I)),
+                                 r"b\.?kin|baccalaur[ée]at)\b", re.I)),
 ]
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
@@ -386,9 +389,12 @@ def _sections(lines: list[str]) -> dict[str, list[str]]:
         m = _SECTION.match(line)
         if m and len(line) < 50:
             head = re.sub(r"\s+", " ", m.group(1).lower())
-            current = ("education" if "education" in head or head.startswith("academic") else
-                       "experience" if "experience" in head or "employment" in head or "history" in head else
-                       "skills" if "skill" in head else
+            current = ("education" if "education" in head or head.startswith(("academic", "formation", "éducation",
+                                                                                "études", "etudes")) else
+                       "experience" if ("experience" in head or "employment" in head or "history" in head
+                                        or head.startswith(("expérience", "experience", "parcours"))) else
+                       "skills" if "skill" in head or head.startswith(("compétence", "competence")) else
+                       "projects" if head == "projets" else
                        "certifications" if head.startswith(("certification", "licen")) else
                        "leadership" if "leadership" in head or head in ("activities", "extracurricular") else head)
             out.setdefault(current, [])
@@ -437,7 +443,7 @@ def _graduation(edu_text: str, full: str, range_text: str | None = None) -> tupl
                 year, month = insights.span_end(m)
                 if best is None or year > best[0]:
                     best = (year, month, m.group(0).strip())
-    return best if best else (None, None, None)
+    return best or (None, None, None)
 
 
 def _education(edu_lines: list[str], full: str) -> dict:
@@ -447,13 +453,17 @@ def _education(edu_lines: list[str], full: str) -> dict:
     lines = full.splitlines()
     near = [l for i, line in enumerate(lines) if _SCHOOL.search(line) or _degree_line(line) for l in lines[i:i + 2]]
     range_text = "\n".join(edu_lines or near)
+    # A certificate's school ("Data Analytics Certificate - Northgate College") is not the degree's.
     school = next((_BULLET.sub("", l).strip(" ,|") for l in (edu_lines or full.splitlines())
-                   if _SCHOOL.search(l) and len(l) < 120), None)
+                   if _SCHOOL.search(l) and len(l) < 120 and (_degree_line(l) or not _CREDENTIAL.search(l))), None)
     if school:
-        # "B.Sc., Social Sciences – University of Haifa, Israel 2003": the part that names the school
-        parts = [p.strip(" ,|") for p in re.split(r"\s{2,}|\t|\s*[|–—]\s+|\s+[|–—]\s*|,\s*(?:expected|(?:19|20)\d\d)",
+        # "B.Sc., Social Sciences – University of Haifa, Israel 2003", "MBA, Riverside University Business School":
+        # the part that names the school
+        parts = [p.strip(" ,|") for p in re.split(r"\s{2,}|\t|\s*[|–—]\s+|\s+[|–—]\s*|\s+-\s+|,\s*(?:expected|(?:19|20)\d\d)",
                                                   school) if p.strip(" ,|")]
         school = next((p for p in parts if _SCHOOL.search(p)), parts[0] if parts else school)
+        pieces = school.split(", ")
+        school = ", ".join(pieces[next((i for i, p in enumerate(pieces) if _SCHOOL.search(p)), 0):])
         school = insights.strip_city(re.sub(r"[\s,]+(?:19|20)\d\d$", "", school))
     level, degree_text = None, None
     for key, pattern in _DEGREES:
@@ -468,6 +478,8 @@ def _education(edu_lines: list[str], full: str) -> dict:
         m = pattern.search(text)
         if m:
             program = re.split(r"\s{2,}|,|\t|\(|\||–|—|\bminor\b|\bexpected\b", m.group(1), flags=re.I)[0].strip()
+            # "Statistics Sep 2021 – Apr 2026": the dates' month is not the program's
+            program = re.sub(rf"\s+{_MONTH}\.?$", "", program, flags=re.I)
             if program.lower() in ("arts", "science", "commerce") or len(program) < 3:
                 program = program.title()
             break
@@ -596,6 +608,10 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     lines = [l.rstrip() for l in text.split("\n")]
     sections = _sections(lines)
     top = [l for l in sections.get("_top", []) if l.strip()]
+    if not any(sections.get(block) for block in ("experience", "leadership", "projects")):
+        # No heading says where the work is: the lines before any section are it, all but the degree's.
+        sections = {**sections, "experience": [l for l in sections.get("_top", [])
+                                               if not (_SCHOOL.search(l) or _degree_line(l))]}
     edu_lines = sections.get("education", [])
     exp_lines = sections.get("experience", []) + sections.get("leadership", []) + sections.get("projects", [])
     education = _education(edu_lines, text)
@@ -606,7 +622,7 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
     interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"),
-                                  years=insights.work_years(entries), senior=insights.senior_title(entries))
+                                  years=insights.work_years(entries, kn), senior=insights.senior_title(entries))
     skills = extract_skills(text, kn, limit=60, tracks=tracks)
     licences = resume_licences(sections, entries, education, tracks, kn)
     cities: Counter = Counter()

@@ -86,8 +86,9 @@ _MON = r"\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|a
 # "Summer 2025", or a role line ending in a bare "2025" / "Aug 2025".
 _YEAR = r"(?:19|20)\d\d"     # an experienced candidate's roles can start in the 1990s
 _RANGE = re.compile(
-    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:{_YEAR})?|\b{_YEAR})\s*(?:-|–|—|to)\s*"
-    rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?(?P<end>{_YEAR}|present|current|now)\b"
+    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:{_YEAR})?|\b{_YEAR})\s*(?:-|–|—|to|à)\s*"
+    rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?"
+    rf"(?P<end>{_YEAR}|present|current|now|pr[ée]sent|actuel(?:lement)?|aujourd['’]hui)\b"
     rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>{_YEAR})\b"
     rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>{_YEAR})\s*\)?\s*$", re.I)
 _MONTH_NUMBERS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
@@ -284,10 +285,12 @@ EXPERIENCED_YEARS = 3   # years of work after school that make a resume an exper
 SENIOR_YEARS = 8        # ...and a senior one's (sooner with a senior title such as "Senior QA Test Lead")
 
 
-def work_years(entries: list[dict]) -> int:
-    """Years the experience section's jobs cover, overlaps counted once; internships and co-ops don't count."""
+def work_years(entries: list[dict], kn: Knowledge) -> int:
+    """Years the experience section's jobs cover, overlaps counted once. Internships and co-ops don't count, nor
+    jobs no board takes ("Mathematics Teacher"): a career changer is no senior hire in the new work."""
     spans = sorted((e["start"], e["end"]) for e in entries if e["block"] == "experience" and e.get("start")
-                   and e.get("end") and not _STUDENT_ROLE.search(e["title"]))
+                   and e.get("end") and not _STUDENT_ROLE.search(e["title"])
+                   and classify(e["title"], kn)["category"] != "other")
     merged: list[list[int]] = []
     for start, end in spans:
         if merged and start <= merged[-1][1]:

@@ -1762,7 +1762,11 @@ class JobwatchService:
         try:
             # a .docx's lines are whole paragraphs; a PDF's or pasted text's may be wrapped
             parsed = parse_resume(text, self.kn, wrapped="text" in payload or not filename.lower().endswith(".docx"))
-            if not (parsed["education"].get("level") and (parsed["skills"] or parsed["roles"])):
+            # Dated jobs, or a degree or school with something to match on: a resume with a college diploma or
+            # no schooling listed is still one; a fragment ("SKILLS / Excel") is not.
+            edu = parsed["education"]
+            if not (parsed["entries"]
+                    or ((edu.get("level") or edu.get("school")) and (parsed["skills"] or parsed["roles"]))):
                 raise ResumeError("could not recognize education and experience or skills; upload or paste the complete resume")
         except ResumeError as exc:
             raise ApiError(str(exc)) from exc
