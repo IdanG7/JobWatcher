@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .profile import CAMPUS_STAGES
 from .sources import profile_fields
 
 # Finance roles that need a background a resume must show; outside the
@@ -91,7 +92,8 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
             exclusions.append("Posting does not offer required sponsorship")
         elif any(auth.get(c) in (None, "unknown") for c in countries):
             review.append("Work authorization is unknown; posting offers no sponsorship")
-    if not facts.get("graduation"):
+    if not facts.get("graduation") and (not stages or CAMPUS_STAGES & set(stages)):
+        # A profile in the workforce (only entry, experienced or senior targets) has no graduation date to check.
         review.append("Graduation requirement is not stated")
     cycle = facts.get("cycle") or {}
     if cycle.get("inferred"):

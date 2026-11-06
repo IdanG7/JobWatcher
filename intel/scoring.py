@@ -18,6 +18,7 @@ from datetime import date, datetime, timezone
 from .cycle import window_status
 from .hours import EMPLOYMENT, EMPLOYMENT_LABELS
 from .knowledge import Knowledge
+from .profile import CAMPUS_STAGES
 from .sources import profile_fields
 
 FINANCE_TYPES = {"bulge_bracket", "elite_boutique", "middle_market_bank", "global_bank", "canadian_bank",
@@ -55,14 +56,20 @@ def _age_text(hours: float) -> str:
     return f"{int(hours // 24)} days ago"
 
 
-def _target_match(targets: list[str], category: str, sub: str | None) -> tuple[str, str | None]:
-    """'exact' (sub or whole category targeted), 'category' (sibling sub), or ''."""
+def _role_weight(weights: dict, target: str) -> float:
+    weight = weights.get(target, 1)
+    return max(0.0, min(1.0, float(weight))) if isinstance(weight, (int, float)) else 1.0
+
+
+def _target_match(targets: list[str], category: str, sub: str | None,
+                  weights: dict | None = None) -> tuple[str, str | None]:
+    """'exact' (sub or whole category targeted), 'category' (sibling sub), or ''. With both targeted, the one
+    weighted higher: a resume's QA & Test (x1.0) over a Software board an earlier resume left at x0.78."""
     if not category:
         return "", None
-    if category in targets:
-        return "exact", category
-    if sub and f"{category}.{sub}" in targets:
-        return "exact", f"{category}.{sub}"
+    exact = [t for t in (f"{category}.{sub}" if sub else None, category) if t and t in targets]
+    if exact:
+        return "exact", max(exact, key=lambda t: _role_weight(weights or {}, t))
     for target in targets:
         if target.split(".")[0] == category:
             return "category", target
@@ -114,7 +121,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
 
     # ---- role fit (25)
     role_label = cls["category_label"] + (f" — {cls['subcategory_label']}" if cls.get("subcategory_label") else "")
-    match, which = _target_match(targets, cls["category"], cls.get("subcategory"))
+    match, which = _target_match(targets, cls["category"], cls.get("subcategory"), profile.get("role_weights"))
     if cls.get("prior_only"):
         match, which = "", None
         pts, detail = 8, f"Division not named in the posting (the employer suggests {cls['category_label']})"
@@ -257,6 +264,9 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
             pts, detail = 0, f"{cyc['label']} is not one of your target cycles"
             if target_cycles and cyc.get("year"):
                 penalty("cycle_year", "Wrong recruiting year", 10, detail)
+    elif stage in stage_targets and not stage_targets & CAMPUS_STAGES:
+        # Experienced hiring runs all year: a profile in the workforce has no cycle to match, so none is missing.
+        pts, detail = 10, "Hires year-round: no recruiting cycle needed"
     elif stage in stage_targets:
         pts, detail = 5, "No recruiting cycle stated"
     else:

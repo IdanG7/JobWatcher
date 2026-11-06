@@ -16,6 +16,8 @@ from .hours import EMPLOYMENT
 
 WORK_AUTH_VALUES = ("citizen", "permanent_resident", "authorized", "needs_sponsorship", "unknown")
 STAGES = ("internship", "new_grad", "entry", "experienced", "senior")
+# Stages hired in recruiting cycles with a graduation date; a profile targeting neither is in the workforce.
+CAMPUS_STAGES = frozenset({"internship", "new_grad"})
 
 DEFAULT_PROFILE: dict = {
     "name": "My search",
@@ -155,7 +157,7 @@ def prune_profile(profile: dict, kn) -> dict:
     return out
 
 
-RULES_VERSION = 3      # raise when scoring or resume-match rules change, so installs rescore once
+RULES_VERSION = 5      # raise when scoring or resume-match rules change, so installs rescore once
 
 
 def profile_version(profile: dict, watched: list[str] | tuple[str, ...] = ()) -> str:

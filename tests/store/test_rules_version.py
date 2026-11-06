@@ -13,7 +13,7 @@ from intel.profile import RULES_VERSION
 # The rules' code for each RULES_VERSION. A change to that code fails this test: raise RULES_VERSION and record the
 # new hash beside it, or, when tools/board_gate.py shows every board's scores unchanged, record the new hash for the
 # current version.
-RULES_CODE = {3: "6388d472c47a"}
+RULES_CODE = {3: "6388d472c47a", 4: "78e3e35342a5", 5: "7bda7cba920b"}
 
 
 def code_of(obj) -> str:
