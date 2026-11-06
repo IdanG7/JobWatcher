@@ -6,6 +6,7 @@ from pathlib import Path
 
 from intel import load_knowledge
 from intel.sources import enabled_sources, groups_for, load_config, load_packs, polled_sources
+from tools.board_gate import MIXES
 from tools.source_history import boards_hash
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -67,8 +68,7 @@ class BoardPollingTests(unittest.TestCase):
 
     def test_a_mixed_profile_polls_the_union_of_its_boards(self):
         # Finance + Healthcare stops polling every source: Finance's packs plus Healthcare's groups.
-        for boards in (["finance", "healthcare"], ["software", "healthcare"], ["data_ml", "healthcare"],
-                       ["finance", "software"]):
+        for boards in MIXES:
             with self.subTest(boards=boards):
                 alone = set().union(*(self.polled({"fields": [b]}) for b in boards))
                 self.assertEqual(alone, set(self.polled({"fields": boards})))
