@@ -176,6 +176,9 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     elif stage == "entry" and ({"new_grad", "entry"} & stage_targets):
         pts, detail = 16, f"{level_label} — entry level{'' if lvl.get('board_level') else ' in finance'}"
         reasons.append("Entry-level title")
+    elif stage == "entry" and lvl.get("level") == "entry_to_practice" and stage_targets & {"experienced", "senior"}:
+        # 'Registered Nurse': a licensed occupation with no level named hires experienced staff too.
+        pts, detail = 16, f"{level_label} — licensed role with no level named, open to experienced staff"
     elif stage == "entry":
         pts, detail = 10, f"{level_label} — entry level, not a target stage"
     elif stage == "experienced":

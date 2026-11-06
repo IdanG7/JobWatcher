@@ -57,7 +57,10 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
             and relevant and cls.get("is_finance") and not cls.get("prior_only")):
         # A bare 'Analyst' title is the finance entry level and often a campus hire.
         review.append("Title does not say whether this is a new-grad role; check the experience required")
-    elif stage and stage not in ("unknown", "other") and stages and stage not in stages:
+    elif (stage and stage not in ("unknown", "other") and stages and stage not in stages
+          and (stage != "entry" or CAMPUS_STAGES & set(stages))):
+        # A profile in the workforce still sees a title that names no level ("Registered Nurse", "QA Analyst"):
+        # it reads as entry level, and the score ranks it below the target stages.
         exclusions.append(f"Career stage {stage.replace('_', ' ')} is outside your targets")
     elif not stage or stage == "unknown":
         review.append("Career stage is not stated")
