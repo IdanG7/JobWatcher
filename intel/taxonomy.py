@@ -194,16 +194,22 @@ def _other_work(title: str) -> bool:
 
 
 def _claim(kn: Knowledge, title: str, description: str, company_type: str, placed: str,
-           finance_prose: int = 0) -> Claim | None:
+           finance_prose: int = 0, department: str = "") -> Claim | None:
     """The first named rule by which a board takes this title from where it is placed ('finance' or a family)."""
+    claims = kn.claims
     if placed == "other" and _other_work(title):
-        return None
-    for claim in kn.claims:
+        # Tech or business work is no board's to take, but tech work is a tech board's evidence: 'IT Test Analyst'.
+        if _BUSINESS_OCCUPATION.search(title):
+            return None
+        claims = [claim for claim in claims if kn.board_track.get(claim.board) == "tech"]
+    for claim in claims:
         if placed not in claim.takes_from or not _hits(claim.title, title) or _hits(claim.unless, title):
+            continue
+        if _hits(claim.unless_department, department):
             continue
         if claim.sole_occupation and _other_occupation(title):
             continue
-        if claim.needs_evidence and not _hits(claim.subject, title):
+        if claim.needs_evidence and not _hits(claim.subject, title) and not _hits(claim.department, department):
             prose = bool(claim.description) and len(_hits(claim.description, description)) >= claim.min_description
             if not ((company_type in claim.employer_types or prose) and finance_prose < 2):
                 continue
@@ -305,11 +311,11 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     claim = None
     if is_finance:
         claim = _claim(kn, title, description, company_type, "finance",
-                       _finance_prose(kn, best_key, best["sub"], description))
+                       _finance_prose(kn, best_key, best["sub"], description), department)
         is_finance = claim is None
     if not is_finance:
         secondary = [] if claim else [k for k, r in ranked[:2] if r["score"] >= min_score]
-        claim = claim or _claim(kn, title, description, company_type, family)
+        claim = claim or _claim(kn, title, description, company_type, family, department=department)
         if claim:
             family = claim.board
         elif family == "other" and not _other_work(title):

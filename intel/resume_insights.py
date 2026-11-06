@@ -16,6 +16,7 @@ import re
 from datetime import date
 
 from .knowledge import Knowledge
+from .seniority import detect_seniority
 from .taxonomy import classify
 
 # (target role, weight, evidence pattern). Each distinct phrase counts once
@@ -83,11 +84,13 @@ _BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
 _MON = r"\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
 # Resume dates: "May 2025 – Aug 2025", "May – Aug 2026", "05/2026 – 08/2026",
 # "Summer 2025", or a role line ending in a bare "2025" / "Aug 2025".
+_YEAR = r"(?:19|20)\d\d"     # an experienced candidate's roles can start in the 1990s
 _RANGE = re.compile(
-    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:20\d\d)?|\b20\d\d)\s*(?:-|–|—|to)\s*"
-    rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?(?P<end>20\d\d|present|current|now)\b"
-    rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>20\d\d)\b"
-    rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>20\d\d)\s*\)?\s*$", re.I)
+    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:{_YEAR})?|\b{_YEAR})\s*(?:-|–|—|to|à)\s*"
+    rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?"
+    rf"(?P<end>{_YEAR}|present|current|now|pr[ée]sent|actuel(?:lement)?|aujourd['’]hui)\b"
+    rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>{_YEAR})\b"
+    rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>{_YEAR})\s*\)?\s*$", re.I)
 _MONTH_NUMBERS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 
 
@@ -104,6 +107,12 @@ def span_end(m: re.Match) -> tuple[int | None, int | None]:
     month = _MONTH_NUMBERS.get(month_text[:3].lower()) if month_text else (
         int(number) if number and 1 <= int(number) <= 12 else None)
     return year, month
+
+
+def span_start(m: re.Match) -> int:
+    """Start year of a _RANGE match: its first year ("Aug 2023 – Present" -> 2023, "May – Aug 2026" -> 2026)."""
+    first = re.search(_YEAR, m.group(0))
+    return int(first.group(0)) if first else span_end(m)[0]
 
 
 def without_dates(line: str, m: re.Match) -> str:
@@ -144,14 +153,15 @@ def experience_entries(sections: dict[str, list[str]], wrapped: bool = True) -> 
                 continue
             if _BULLET.match(raw):
                 if current is None:
-                    current = {"block": block, "company": company, "title": "", "end": None, "bullets": []}
+                    current = {"block": block, "company": company, "title": "", "start": None, "end": None,
+                               "bullets": []}
                     entries.append(current)
                 current["bullets"].append(_BULLET.sub("", line).strip())
                 continue
             dates = _RANGE.search(line)
             if dates:
                 current = {"block": block, "company": company, "title": without_dates(line, dates),
-                           "end": span_end(dates)[0], "bullets": []}
+                           "start": span_start(dates), "end": span_end(dates)[0], "bullets": []}
                 entries.append(current)
                 continue
             if wrapped and current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
@@ -271,13 +281,61 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge,
     return out[:8]
 
 
-def career_plan(graduation_year: int | None, graduation_month: int | None, today: date | None = None) -> dict:
-    """Stages and recruiting cycles that make sense for the graduation date."""
+EXPERIENCED_YEARS = 3   # years of work after school that make a resume an experienced hire's
+SENIOR_YEARS = 8        # ...and a senior one's (sooner with a senior title such as "Senior QA Test Lead")
+
+
+def work_years(entries: list[dict], kn: Knowledge) -> int:
+    """Years the experience section's jobs cover, overlaps counted once. Internships and co-ops don't count, nor
+    jobs no board takes ("Mathematics Teacher"): a career changer is no senior hire in the new work."""
+    spans = sorted((e["start"], e["end"]) for e in entries if e["block"] == "experience" and e.get("start")
+                   and e.get("end") and not _STUDENT_ROLE.search(e["title"])
+                   and classify(e["title"], kn)["category"] != "other")
+    merged: list[list[int]] = []
+    for start, end in spans:
+        if merged and start <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    return sum(max(end - start, 1) for start, end in merged)
+
+
+def senior_title(entries: list[dict]) -> bool:
+    """Whether the latest job's title is a senior level ("Senior …", "… Lead", "Manager", "Director")."""
+    jobs = [e for e in entries if e["block"] == "experience" and e.get("end") and e["title"]
+            and not _STUDENT_ROLE.search(e["title"])]
+    return bool(jobs) and detect_seniority(max(jobs, key=lambda e: e["end"])["title"])["stage"] == "senior"
+
+
+def career_plan(graduation_year: int | None, graduation_month: int | None, today: date | None = None,
+                years: int = 0, senior: bool = False) -> dict:
+    """Stages and recruiting cycles that make sense for the graduation date and ``years`` of work.
+
+    A student (graduating later) is planned by the graduation date alone, however long a part-time job ran.
+    Out of school, years of work make an experienced or senior hire, with no campus cycles to recruit for.
+    """
     today = today or date.today()
-    if not graduation_year:
+    months = None
+    if graduation_year:
+        grad = date(graduation_year, graduation_month or 5, 1)
+        months = (grad.year - today.year) * 12 + grad.month - today.month
+    if months is None or months <= 0:
+        # Out of school three years, or 5+ years of work (someone who went back for a degree late), or 3+ years
+        # with no degree date or one at least two years back.
+        graduated_long_ago = months is not None and months <= -36
+        if (years >= 5 or graduated_long_ago
+                or (years >= EXPERIENCED_YEARS and (months is None or months <= -24))):
+            at_senior = years >= SENIOR_YEARS or (senior and years >= 4)
+            stages = ["experienced", "senior"] if at_senior else ["entry", "experienced"]
+            kind = "experienced and senior roles" if at_senior else "entry-level and experienced roles"
+            note = (f"{years} years of experience: {kind}" if years
+                    else f"Graduated {graduation_year}: {kind}")
+            plan = {"stages": stages, "cycles": [], "note": note, "work_years": years, "experienced": True}
+            if months is not None:
+                plan["months_to_graduation"] = months
+            return plan
+    if months is None:
         return {}
-    grad = date(graduation_year, graduation_month or 5, 1)
-    months = (grad.year - today.year) * 12 + grad.month - today.month
     cycles: list[str] = []
     if months > 0:
         # internship terms that start after today and before graduation

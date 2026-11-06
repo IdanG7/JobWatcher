@@ -205,9 +205,10 @@ class Track:
 class Claim:
     """A named rule by which a board takes a title that another board, or Finance, places (taxonomy.json claims).
 
-    The title must name one of ``title``. With evidence configured, it also needs a ``subject`` in the title, or an
-    employer of one of ``employer_types``, or ``min_description`` distinct ``description`` phrases; when the title
-    is a finance one, the last two count only while the posting reads as finance in fewer than two phrases.
+    The title must name one of ``title``, and neither the title ``unless`` nor the department ``unless_department``.
+    With evidence configured, it also needs a ``subject`` in the title, a ``department`` phrase, or an employer of
+    one of ``employer_types``, or ``min_description`` distinct ``description`` phrases; when the title is a finance
+    one, the last two count only while the posting reads as finance in fewer than two phrases.
     """
     name: str
     board: str
@@ -220,10 +221,12 @@ class Claim:
     min_description: int = 0
     sole_occupation: bool = False       # not when the title also names a tech or business occupation
     subcategory: str | None = None
+    department: list = field(default_factory=list)
+    unless_department: list = field(default_factory=list)
 
     @property
     def needs_evidence(self) -> bool:
-        return bool(self.subject or self.employer_types or self.description)
+        return bool(self.subject or self.employer_types or self.description or self.department)
 
 
 @dataclass
@@ -343,7 +346,8 @@ class Knowledge:
             Claim(name, key, frozenset(rule["from"]), compile_fragments(rule["title"]),
                   compile_fragments(rule.get("unless")), compile_fragments(rule.get("subject")),
                   frozenset(rule.get("employer_types") or []), compile_fragments(rule.get("description")),
-                  rule.get("min_description", 0), bool(rule.get("sole_occupation")), rule.get("subcategory"))
+                  rule.get("min_description", 0), bool(rule.get("sole_occupation")), rule.get("subcategory"),
+                  compile_fragments(rule.get("department")), compile_fragments(rule.get("unless_department")))
             for key, node in self.families.items()
             for name, rule in (node.meta.get("claims") or {}).items() if not name.startswith("_")]
         self.stage_rules: dict[str, StageRules] = {}
