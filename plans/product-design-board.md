@@ -5469,6 +5469,17 @@ commit.
 - D35: each new adapter, in Phase 4. D40: a narrower `options` skill, once measured. D45 stays outside this work.
 - Everything else on the brief's "Stop and ask before" list.
 
+**Added on 2026-11-07, from Phase 3's Product and Design slices** (your answers; open postings, from the slices'
+simulations):
+- `product:software` 1: Apple's "Program Manager, Quality Data & Testing Lead, BPR: Supply Chain", which Software's
+  QA claim takes once D2 sends it off Product.
+- D2's tech subjects gain "technology" (JPMorgan's "Lead Technology Program Manager" stays on Product). With it,
+  `product:operations` is about 1,523, above the design's 1,423, because the tighter list was never simulated.
+- D8: `design:hardware` up to 2,212 (the widened Hardware words), and the remainder `design:software` 192 stays on
+  Software. Typing those employers is D27's "one at a time", later.
+- `design:product` 6: program managers that sit on Design today through bare "design".
+- `software:design` up to 35 and `design:operations` up to 45, a few above the design's 31 and 41.
+
 ---
 
 ## 15. Problems noticed, not fixed

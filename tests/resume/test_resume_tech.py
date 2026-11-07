@@ -188,11 +188,15 @@ class TechMatchTests(unittest.TestCase):
 
     def test_roles_nothing_places_in_a_field_are_not_matches(self):
         # "Illustrator, Intern" and "Revenue Management" internships matched a CS resume on a real install.
-        for title in ("Illustrator, Intern", "2027 Summer Internship - Business Technology"):
+        for title in ("2027 Summer Internship - Revenue Management", "2027 Summer Internship - Business Technology"):
             with self.subTest(title=title):
                 result = self.match(title)
                 self.assertFalse(result["matched"])
                 self.assertIn("Role doesn't name a field you recruit in", result["exclusions"])
+        # Design's words now place illustrators (plans/product-design-board.md, D14), outside this profile's fields.
+        result = self.match("Illustrator, Intern")
+        self.assertFalse(result["matched"])
+        self.assertIn("Design role is outside the fields you recruit in", result["exclusions"])
         # A finance profile still reviews them: vague titles are common in finance.
         finance = profile_from_resume(parse_resume(FINANCE_RESUME, KN), merge_profile(), KN)
         facts = build_facts({"title": "2027 Summer Internship - Business Technology", "location": "Toronto, ON",
