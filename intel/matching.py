@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .profile import CAMPUS_STAGES
 from .sources import profile_fields
 
 # Finance roles that need a background a resume must show; outside the
@@ -56,7 +57,10 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
             and relevant and cls.get("is_finance") and not cls.get("prior_only")):
         # A bare 'Analyst' title is the finance entry level and often a campus hire.
         review.append("Title does not say whether this is a new-grad role; check the experience required")
-    elif stage and stage not in ("unknown", "other") and stages and stage not in stages:
+    elif (stage and stage not in ("unknown", "other") and stages and stage not in stages
+          and (stage != "entry" or CAMPUS_STAGES & set(stages))):
+        # A profile in the workforce still sees a title that names no level ("Registered Nurse", "QA Analyst"):
+        # it reads as entry level, and the score ranks it below the target stages.
         exclusions.append(f"Career stage {stage.replace('_', ' ')} is outside your targets")
     elif not stage or stage == "unknown":
         review.append("Career stage is not stated")
@@ -91,7 +95,8 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
             exclusions.append("Posting does not offer required sponsorship")
         elif any(auth.get(c) in (None, "unknown") for c in countries):
             review.append("Work authorization is unknown; posting offers no sponsorship")
-    if not facts.get("graduation"):
+    if not facts.get("graduation") and (not stages or CAMPUS_STAGES & set(stages)):
+        # A profile in the workforce (only entry, experienced or senior targets) has no graduation date to check.
         review.append("Graduation requirement is not stated")
     cycle = facts.get("cycle") or {}
     if cycle.get("inferred"):

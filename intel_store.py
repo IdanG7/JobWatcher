@@ -230,11 +230,11 @@ def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], co
 
 def store_description(con: sqlite3.Connection, board: str, job_id: str, description: str,
                       department: str = "", source: str = "") -> bool:
-    """Persist a description; returns True when it changed (logged as an event)."""
-    import hashlib
+    """Persist a description; returns True when it changed (logged as an event, unless it
+    replaces a listing teaser: the posting's full text arriving is not an edit)."""
     text = (description or "").strip()
-    digest = hashlib.sha1(text.encode("utf-8", "ignore")).hexdigest()[:16] if text else ""
-    row = con.execute("SELECT content_hash FROM job_text WHERE board=? AND job_id=?",
+    digest = _text_digest(text)
+    row = con.execute("SELECT content_hash, source FROM job_text WHERE board=? AND job_id=?",
                       (board, job_id)).fetchone()
     ts = utcnow()
     if row and row[0] == digest:
@@ -247,10 +247,53 @@ def store_description(con: sqlite3.Connection, board: str, job_id: str, descript
              source=excluded.source, content_hash=excluded.content_hash, fetched_at=excluded.fetched_at,
              attempts=job_text.attempts+1, last_error=''""",
         (board, job_id, text, department or "", source, digest, ts))
-    if row and row[0]:
+    if row and row[0] and row[1] != TEASER:
         con.execute("INSERT INTO job_changes(board, job_id, ts, kind, field, old, new) "
                     "VALUES (?,?,?,'description_changed','description',?,?)",
                     (board, job_id, ts, row[0], digest))
+    con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    return True
+
+
+TEASER = "teaser"       # job_text.source of a listing's cut-down text, until the posting's own is read
+
+
+def _text_digest(text: str) -> str:
+    import hashlib
+    return hashlib.sha1(text.encode("utf-8", "ignore")).hexdigest()[:16] if text else ""
+
+
+def store_teaser(con: sqlite3.Connection, board: str, job_id: str, teaser: str, department: str = "") -> bool:
+    """Persist a listing's teaser (Oracle's ShortDescriptionStr, cut at 1,000 characters; Phenom's
+    descriptionTeaser; an iCIMS card's snippet) as
+    source 'teaser', which tells the poll's description fetch that the posting's own text is still
+    to be read. Storing it is not a fetch, so it uses up no attempt and starts no back-off; text
+    older polls kept as source 'listing' starts over the same way. A description read from the
+    posting is never replaced by its teaser. Returns True when the stored text changed."""
+    text = (teaser or "").strip()
+    digest = _text_digest(text)
+    row = con.execute("SELECT content_hash, source, description != '' FROM job_text WHERE board=? AND job_id=?",
+                      (board, job_id)).fetchone()
+    if row and row[2] and row[1] not in (TEASER, "listing", ""):
+        return store_department(con, board, job_id, department) if department else False
+    if row and row[0] == digest and row[1] == TEASER:
+        return False
+    restart = bool(row and row[2] and row[1] != TEASER)          # a listing's text from before teasers
+    con.execute(
+        """INSERT INTO job_text(board, job_id, description, department, source, content_hash, attempts)
+           VALUES (?,?,?,?,?,?,0)
+           ON CONFLICT(board, job_id) DO UPDATE SET description=excluded.description,
+             department=CASE WHEN excluded.department!='' THEN excluded.department ELSE job_text.department END,
+             source=excluded.source, content_hash=excluded.content_hash,
+             attempts=CASE WHEN ? THEN 0 ELSE job_text.attempts END,
+             fetched_at=CASE WHEN ? THEN NULL ELSE job_text.fetched_at END""",
+        (board, job_id, text, department or "", TEASER, digest, restart, restart))
+    if row and row[0] == digest:
+        return False                                            # the same text, only marked a teaser
+    if row and row[0]:
+        con.execute("INSERT INTO job_changes(board, job_id, ts, kind, field, old, new) "
+                    "VALUES (?,?,?,'description_changed','description',?,?)",
+                    (board, job_id, utcnow(), row[0], digest))
     con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
     return True
 

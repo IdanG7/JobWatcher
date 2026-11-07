@@ -101,6 +101,23 @@ class TaxonomyTests(unittest.TestCase):
         self.assertCategory(cls("Actuarial Analyst"), "insurance", "actuarial")
         self.assertCategory(cls("Wealth Management Associate"), "wealth", "wealth_management")
 
+    def test_compliance_title_is_compliance_whatever_desk_it_covers(self):
+        # Susquehanna's compliance postings name a desk, and their full text reads like the trading floor
+        # (taxonomy.json function_title).
+        desk = ("Partner with our sales and trading desks across global markets: cash equities, equity trading, "
+                "quantitative trading strategies, fixed income and MBS.")
+        for title in ("Compliance Officer - Equities", "Compliance Officer - Fixed Income",
+                      "Trading Compliance Advisory"):
+            result = cls(title, desk, "quant_firm")
+            self.assertCategory(result, "risk", "operational_risk")
+            self.assertGreaterEqual(result["confidence"], 0.5, result)
+        self.assertCategory(cls("Compliance Analyst, Wealth Management"), "risk", "operational_risk")
+        # a title Risk already takes keeps Risk's own subcategory
+        self.assertCategory(cls("Senior Associate, Compliance Model Governance"), "risk", "model_risk")
+        # function_unless: tax compliance is tax work
+        tax = "Prepare corporate tax returns and tax provisions, support the accounting close and reconcile the ledger."
+        self.assertCategory(cls("Tax Compliance Analyst", tax), "corporate_finance", "accounting")
+
     def test_untitled_summer_analyst_at_bank_is_low_confidence_finance(self):
         result = cls("Summer Analyst", company_type="bulge_bracket")
         self.assertTrue(result["is_finance"])
