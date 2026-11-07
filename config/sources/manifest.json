@@ -1,5 +1,5 @@
 {
-  "_readme": "Which boards (the fields picked in onboarding) poll which sources. A source's folder decides the boards allowed to poll it: finance/ only Finance, tech/ only the tech boards and Healthcare, shared/ all of them, health/ only Healthcare. A board polls only the groups it names, so adding a board to a folder's audience changes no other board. The Finance board polls every finance/ and shared/ pack: every source it polled in 0.3.7, settings unchanged, plus the shared/ employers whose feeds also carry finance roles (a finance firm's tech feed, a tech firm's whole feed); an employer with no finance roles goes in tech/. The finance firms' shared groups sit in the tech filters beside bank_technology. Every other board names the pack groups (file names) it polls: core always, plus the groups of the filters picked (Software, Backend), or of every filter when none is picked. 'everything' polls every pack. A source in no pack (one the user added) is always polled.",
+  "_readme": "Which boards (the fields picked in onboarding) poll which sources. A source's folder decides the boards allowed to poll it: finance/ only Finance, tech/ only the tech boards and Healthcare, shared/ all of them, health/ only Healthcare, product_design/ only Product and Design. A board polls only the groups it names, so adding a board to a folder's audience changes no other board. The Finance board polls every finance/ and shared/ pack: every source it polled in 0.3.7, settings unchanged, plus the shared/ employers whose feeds also carry finance roles (a finance firm's tech feed, a tech firm's whole feed); an employer with no finance roles goes in tech/. The finance firms' shared groups sit in the tech filters beside bank_technology. Every other board names the pack groups (file names) it polls: core always, plus the groups of the filters picked (Software, Backend), or of every filter when none is picked. 'everything' polls every pack. A source in no pack (one the user added) is always polled.",
   "version": 1,
   "folders": {
     "finance": {
@@ -13,6 +13,9 @@
     },
     "health": {
       "fields": ["healthcare"]
+    },
+    "product_design": {
+      "fields": ["product", "design"]
     }
   },
   "fields": {
@@ -54,10 +57,10 @@
       }
     },
     "product": {
-      "groups": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech"]
+      "groups": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech", "financial_services_tech", "health_tech", "devices_iot", "gaming", "security", "semiconductors", "defense_aerospace", "data_infrastructure", "robotics_autonomy", "ai_infrastructure", "cloud_infrastructure", "ai_labs", "ratings_data", "bank_technology", "asset_managers"]
     },
     "design": {
-      "groups": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech"]
+      "groups": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech", "financial_services_tech", "health_tech", "devices_iot", "gaming", "security", "defense_aerospace", "robotics_autonomy", "ai_labs", "bank_technology"]
     },
     "sales": {
       "everything": true

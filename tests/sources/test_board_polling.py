@@ -1,4 +1,4 @@
-"""What each board polls: existing boards exactly as in v0.3.11, Healthcare from its own groups."""
+"""What each board polls: existing boards exactly as in v0.3.11; Healthcare, Product and Design from their own groups."""
 
 import json
 import unittest
@@ -11,6 +11,8 @@ from tools.source_history import boards_hash
 
 ROOT = Path(__file__).resolve().parents[2]
 V0_3_11 = json.loads(Path(__file__).with_name("board_polling_v0_3_11.json").read_text(encoding="utf-8"))
+OWN_GROUPS = {"product", "design"}      # poll their own groups since D28 (plans/product-design-board.md)
+OWN_FOLDERS = ("health/", "product_design/")
 
 
 class BoardPollingTests(unittest.TestCase):
@@ -29,16 +31,40 @@ class BoardPollingTests(unittest.TestCase):
         return out
 
     def test_every_existing_board_polls_what_it_polled_in_0_3_11_with_the_same_settings(self):
-        # Boards that poll every source also gain the health/ packs, and nothing else changes.
+        # Boards that poll every source also gain the health/ and product_design/ packs, and nothing else changes.
+        # Product and Design poll more since D28: the next test.
         every = set(enabled_sources(self.config))
         for name, expected in V0_3_11["profiles"].items():
+            if OWN_GROUPS & set(expected["fields"]):
+                continue
             with self.subTest(profile=name):
                 polled = self.polled({"fields": expected["fields"], "target_roles": expected["target_roles"]})
-                kept = {k: cfg for k, cfg in polled.items() if not self.packs.source_pack.get(k, "").startswith("health/")}
+                kept = {k: cfg for k, cfg in polled.items() if not self.packs.source_pack.get(k, "").startswith(OWN_FOLDERS)}
                 self.assertEqual(V0_3_11["lists"][expected["hash"]], sorted(kept))
                 self.assertEqual(expected["hash"], boards_hash(kept))
                 if len(kept) < len(polled):
                     self.assertEqual(every, set(polled))
+
+    def test_product_and_design_poll_their_own_groups_and_every_source_they_polled_in_0_3_11(self):
+        # D28: All of Product names 24 groups, All of Design the same 24 minus 6, and neither polls less than in
+        # 0.3.11, with the same settings.
+        product, design = (set(self.packs.fields[board]["groups"]) for board in ("product", "design"))
+        self.assertEqual({"semiconductors", "data_infrastructure", "ai_infrastructure", "cloud_infrastructure",
+                          "ratings_data", "asset_managers"}, product - design)
+        self.assertLessEqual(design, product)
+        for board, groups in (("product", product), ("design", design)):
+            with self.subTest(board=board):
+                expected = V0_3_11["profiles"][board]
+                profile = {"fields": expected["fields"], "target_roles": expected["target_roles"]}
+                self.assertEqual(groups, groups_for(board, profile, self.kn, self.packs))
+                polled = self.polled(profile)
+                self.assertEqual({key for key, p in self.packs.packs.items()
+                                  if p.group in groups and board in self.packs.folders[p.folder]},
+                                 {self.packs.source_pack[name] for name in polled})
+                self.assertEqual(0, self.folder(polled).get("finance", 0))
+                before = V0_3_11["lists"][expected["hash"]]
+                self.assertLessEqual(set(before), set(polled))
+                self.assertEqual(expected["hash"], boards_hash({name: polled[name] for name in before}))
 
     def test_healthcare_polls_its_own_groups_and_no_finance_source(self):
         manifest = json.loads((ROOT / "config" / "sources" / "manifest.json").read_text(encoding="utf-8"))["fields"]["healthcare"]

@@ -267,8 +267,8 @@ class DashboardServiceTests(ServiceFixture):
         self.assertEqual(("", True), (rows["demo_quant"]["pack"], rows["demo_quant"]["polled"]))   # your own
         packs = {p["key"]: p for p in result["packs"]}
         self.assertEqual(["Finance"], packs["finance/canadian_banks"]["boards"])
-        self.assertEqual(["Software"], packs["tech/gaming"]["boards"])
-        self.assertEqual(["Finance", "Software", "AI & Data"], packs["shared/ai_labs"]["boards"])
+        self.assertEqual(["Software", "Product", "Design"], packs["tech/gaming"]["boards"])    # Product, Design: D28
+        self.assertEqual(["Finance", "Software", "AI & Data", "Product", "Design"], packs["shared/ai_labs"]["boards"])
         self.assertIn("Sales & Growth", result["every_pack"])
         # Open roles count for the profile's boards, not always for finance.
         self.assertEqual((["Finance"], 1), (result["boards"], rows["rbc"]["board_jobs"]))

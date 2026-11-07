@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 2.** You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07 (14.7). Branch
+Status: **Phase 2 done, waiting for your go-ahead on Phase 3** (section 13). You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5231,6 +5231,28 @@ from that record.
        on a small synthetic DB (section 11)
      - the placement check on the baseline ids: no change
    - I stop and show the output.
+   - **Done on 2026-11-07** (`E:\product-design-board\phase2\`):
+     - `polled-compare`, bundled and installed config: passed. Product 319 → 679, Design 319 → 559,
+       Product + Design 319 → 679, Finance + Product 536 → 759, Software + Product and Software + Design 713 → 742,
+       as section 7.3 counted for option E. Every other profile polls the same list with both hashes unchanged, and
+       no profile loses a source.
+     - Upgrade: the new `test_upgrading_a_0_3_14_install_keeps_every_source_setting_and_posting` passes, but at
+       `sources_version` 11 `upgrade_sources` returns early (11.2). Run once from an install at 10, on the same
+       synthetic install, the upgrade went to 11 and removed 0 sources, changed 0 settings, added 0 and kept every
+       row (1,015 postings, 1 application).
+     - Placement on the 73,863 baseline ids, `main` against the branch: no change. 73,863 → 73,863, missing 0,
+       added 0, moved 0, changed 0, label changes 0, stage changes 0 (432 s).
+     - Tests changed: `test_board_polling.py` (Product and Design leave the 0.3.11 pin; a new test checks their
+       groups and that they keep every 0.3.11 source with its settings; `product_design/` joins `health/` in the
+       everything boards' exemption), `test_source_packs.py` (`product_design/` packs need a verified date),
+       `test_dashboard.py` (the Sources view lists Product and Design on `tech/gaming` and `shared/ai_labs`) and
+       `test_portable.py` (the 0.3.14 upgrade test, with `tests/sources/v0_3_14_sources.json`). Lines 210 and 255
+       of `test_portable.py` change with the first pack commit (11.2).
+     - Suites: Python 806 tests OK, JS 116/116, `watcher --check` OK (1,014 sources).
+     - `main` moved to `1758343` after the branch point: software QA titles, compliance titles to Operational Risk,
+       senior and experienced resumes, workforce scoring, and Oracle, Phenom and iCIMS teasers. It changes
+       `config/taxonomy.json`, `config/skills.json`, `intel/resume.py`, `intel/resume_insights.py`,
+       `intel/scoring.py` and `watcher.py`, and no file under `config/sources/`, so Phase 2 doesn't depend on it.
 3. **Filters, employer types, skills, stage rules and claims,** as approved in section 14, with classifier tests.
    Each test is a realistic title or a near-miss from another board. No existing test's expected value changes
    except the counts the design changes. Each changed test is named in the report, with why it changed and what it
