@@ -7,7 +7,7 @@ from intel import analyze, load_knowledge, merge_profile, score_job, validate_pr
 from intel.companies import resolve_company, slug
 from intel.facts import build_facts
 from intel.sources import load_packs
-from intel.taxonomy import classify
+from intel.taxonomy import classify, family_of
 
 KN = load_knowledge()
 NOW = time.time()
@@ -95,7 +95,10 @@ class SpecialtyTests(unittest.TestCase):
             self.assertEqual("hardware", cls(title)["family"], title)
         self.assertSpecialty("Machine Learning Engineer, Robotics", "data_ml", "ml_engineering")
         self.assertEqual("software", cls("Robotics Process Automation Developer")["family"])
-        self.assertEqual("software", cls("Product Manager, Embedded Payments")["family"])     # a business title: as before
+        self.assertEqual("software", family_of("Product Manager, Embedded Payments", KN))     # a business title: as before
+        # ...and Product's PM claim takes it from Software (plans/product-design-board.md, D3).
+        self.assertEqual(("product", "pm_over_topic"),
+                         (cls("Product Manager, Embedded Payments")["family"], cls("Product Manager, Embedded Payments")["rule"]))
 
     def test_an_employer_type_leans_a_specialty_but_names_none_alone(self):
         unreal = "Build gameplay systems in Unreal Engine."
