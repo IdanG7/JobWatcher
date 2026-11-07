@@ -451,5 +451,34 @@ class NewEmployerSourceTests(unittest.TestCase):
         self.assertTrue(jobs.complete)
 
 
+class _WindowsDatetime(datetime):
+    """Windows' datetime.timestamp() raises OSError for a naive date before 1970 (local time)."""
+    def timestamp(self):
+        if self.tzinfo is None and self.year < 1970:
+            raise OSError(22, "Invalid argument")
+        return super().timestamp()
+
+
+class PostingDateTests(unittest.TestCase):
+    def test_a_date_the_platform_cannot_convert_is_unknown(self):
+        with patch("watcher.datetime", _WindowsDatetime):
+            self.assertIsNone(watcher._iso_epoch("1900-01-02"))
+            self.assertEqual(datetime(2026, 10, 21, 10, tzinfo=timezone.utc).timestamp(),
+                             watcher._iso_epoch("2026-10-21T10:00:00+00:00"))
+
+    @patch("watcher.requests.get")
+    def test_oracle_placeholder_posting_date_does_not_stop_the_read(self, get):
+        # WSP's Oracle feed (2026-11-07) dates 14 of 4,194 postings 1900-01-02; the read used to raise.
+        get.side_effect = [response({"items": [{"TotalJobsCount": 2, "requisitionList": [
+            {"Id": "1", "Title": "Structural EIT", "PostedDate": "1900-01-02"},
+            {"Id": "2", "Title": "Civil Co-op", "PostedDate": "2026-10-21T10:00:00+00:00"}]}]})]
+        with patch("watcher.datetime", _WindowsDatetime):
+            jobs = watcher.fetch_oracle_hcm({"host": "x", "site": "x"})
+        self.assertEqual(["1", "2"], [j["id"] for j in jobs])
+        self.assertIsNone(jobs[0]["posted"])
+        self.assertEqual(datetime(2026, 10, 21, 10, tzinfo=timezone.utc).timestamp(), jobs[1]["posted"])
+        self.assertTrue(jobs.complete)
+
+
 if __name__ == "__main__":
     unittest.main()
