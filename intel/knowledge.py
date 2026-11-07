@@ -337,6 +337,12 @@ class Knowledge:
                 re.compile(resume["degree"], re.I) if resume.get("degree") else None,
                 [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []],
                 re.compile(resume["role_words"], re.I) if resume.get("role_words") else None)
+        # Control functions a finance title names ('Compliance Officer - Equities'): (group, subcategory, words, unless).
+        self.function_titles: list[tuple[str, str, list, list]] = [
+            (node.parent, node.key, compile_fragments(node.meta["function_title"]),
+             compile_fragments(node.meta.get("function_unless")))
+            for node in self.subcategories.values()
+            if node.meta.get("function_title") and node.parent in self.categories]
         # Tier 2: words that place a title no board placed ('Registered Nurse'), checked after Finance and every
         # board's own title words.
         self.fallback_titles: list[tuple[str, list]] = [
