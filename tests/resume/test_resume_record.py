@@ -47,9 +47,10 @@ class ResumeRecordTests(unittest.TestCase):
         self.assertEqual(nursing["parsed"]["education"], a["results"]["nursing/docx"]["result"]["parsed"]["education"])
         # The profile a resume proposes starts from the saved one.
         self.assertNotEqual(nursing["changes"], a["results"]["nursing/text@healthcare"]["result"]["changes"])
-        # A refused resume still records what the parser read (the PharmD sets no education level).
+        # The PharmD sets no education level, and a resume without one is read (987ecc9), not refused.
         pharmacy = a["results"]["pharmacy/text"]["result"]
-        self.assertIn("could not recognize", pharmacy["error"])
+        self.assertNotIn("error", pharmacy)
+        self.assertEqual(["healthcare"], pharmacy["profile"]["fields"])
         self.assertIsNone(pharmacy["parsed"]["education"]["level"])
         self.assertTrue(pharmacy["parsed"]["roles"])
         code, out = self.compare(self.dir / "a.json", self.dir / "b.json")
