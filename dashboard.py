@@ -846,7 +846,9 @@ class JobwatchService:
         with self._describe_lock:
             if key in self._describing:
                 return True
-            if (job["description"].strip() or not self.fetch_on_open or not cfg or cfg.get("disabled")
+            # a listing's teaser (Oracle's) is fetched past like a missing description
+            if ((job["description"].strip() and job.get("description_source") != watcher.TEASER)
+                    or not self.fetch_on_open or not cfg or cfg.get("disabled")
                     or not watcher.describable(cfg, on_open=True) or len(self._describing) >= 4):
                 return False
             if not force and text and (text["attempts"] >= watcher.DESCRIPTION_ATTEMPTS

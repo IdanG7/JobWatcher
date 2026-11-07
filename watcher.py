@@ -43,8 +43,8 @@ import requests
 
 from intel import load_knowledge
 from intel.sources import enabled_sources, load_config, load_packs, polled_sources
-from intel_store import (COMPLETE_LISTING_ATS, IntelStore, load_profile, record_changes, store_department,
-                         store_description, store_listing_note, update_lifecycle)
+from intel_store import (COMPLETE_LISTING_ATS, TEASER, IntelStore, load_profile, record_changes, store_department,
+                         store_description, store_listing_note, store_teaser, update_lifecycle)
 
 HERE = Path(__file__).parent
 DB_PATH = HERE / "jobwatch.db"
@@ -1094,7 +1094,10 @@ def fetch_oracle_hcm(cfg):
                 "location": j.get("PrimaryLocation") or "",
                 "url": url_tmpl.format(id=jid),
                 "posted": _iso_epoch(j.get("PostedDate")),
+                # ShortDescriptionStr is cut at 1,000 characters (often a sentence or two): the
+                # posting's own text comes from its record (detail_oracle_hcm).
                 "description": html_to_text(j.get("ShortDescriptionStr") or ""),
+                "teaser": True,
             })
         if _consume_page(out, page, seen, "Oracle", limit):
             break
@@ -3103,16 +3106,24 @@ def description_retry_before():
 
 
 def save_description(con, board, job_id, result):
-    """Store a fetch_description result (the caller commits)."""
+    """Store a fetch_description result (the caller commits). False when it was empty and only
+    a listing's teaser is stored: the teaser stays, and the fetch counts as a failed attempt."""
     text, dept = result[0], result[1]
     meta = result[2] if len(result) > 2 else {}
+    if not (text or "").strip() and con.execute(
+            "SELECT 1 FROM job_text WHERE board=? AND job_id=? AND source=?", (board, job_id, TEASER)).fetchone():
+        record_description_error(con, board, job_id, ValueError("the posting's record has no description"))
+        return False
     store_description(con, board, job_id, text, dept, source="detail")
-    # an unchanged description is not rewritten; still record the visit
-    con.execute("UPDATE job_text SET fetched_at=? WHERE board=? AND job_id=?", (now(), board, job_id))
+    # an unchanged description is not rewritten; still record the visit (and a posting whose own
+    # text is just its teaser is read: it is not fetched again)
+    con.execute("UPDATE job_text SET fetched_at=?, source=CASE WHEN source=? THEN 'detail' ELSE source END "
+                "WHERE board=? AND job_id=?", (now(), TEASER, board, job_id))
     if meta.get("posted"):
         # an exact posting date from the detail record beats a listing estimate
         con.execute("UPDATE job_details SET posted=? WHERE board=? AND job_id=?", (meta["posted"], board, job_id))
         con.execute("UPDATE job_intel SET input_hash=NULL WHERE board=? AND job_id=?", (board, job_id))
+    return True
 
 
 def record_description_error(con, board, job_id, error):
@@ -3131,6 +3142,8 @@ FINANCE_COMPANY_TYPES = ("bulge_bracket", "elite_boutique", "middle_market_bank"
 def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, sources=None):
     """Fetch descriptions for the postings that benefit most, politely.
 
+    Postings with no text are fetched, and so are those holding only their listing's teaser
+    (source 'teaser', Oracle's), in the same order.
     Priority: tracked applications, then finance roles, then finance
     employers, newest first.  A per-board cap spreads load; failures back
     off for six hours and give up after three attempts.  ``fetched`` (a list)
@@ -3152,29 +3165,29 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, s
     marks = ",".join("?" * len(boards))
     dmarks = ",".join("?" * len(dated))
     types = ",".join("?" * len(FINANCE_COMPANY_TYPES))
+    # The per-board cap is applied before the budget: a few sources with thousands of postings due
+    # (Oracle's teasers) would otherwise fill every candidate and leave the rest of the budget unused.
+    order = "tracked DESC, finance DESC, finance_firm DESC, posted DESC"
     rows = con.execute(f"""
-        SELECT j.board, j.job_id, j.url FROM jobs j
-        JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
-        LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
-        LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
-        LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
-        LEFT JOIN applications a ON a.job_key=(j.board||':'||j.job_id)
-        WHERE j.board IN ({marks}) AND j.title != '' AND COALESCE(s.status,'active') != 'closed'
-          AND (t.board IS NULL OR (COALESCE(t.description,'')='' AND t.attempts < ?
-                                   AND COALESCE(t.fetched_at,'') < ?)
-               OR (d.posted IS NULL AND j.board IN ({dmarks}) AND COALESCE(t.fetched_at,'') < ?))
-        ORDER BY a.job_key IS NOT NULL DESC, i.is_finance DESC,
-                 i.company_type IN ({types}) DESC, COALESCE(d.posted, 0) DESC
-        LIMIT ?""", [*boards, DESCRIPTION_ATTEMPTS, retry_before, *dated, date_before,
-                     *FINANCE_COMPANY_TYPES, budget * 4]).fetchall()
-    picked, per = [], {}
-    for board, job_id, url in rows:
-        if per.get(board, 0) >= per_board:
-            continue
-        per[board] = per.get(board, 0) + 1
-        picked.append((board, job_id, url))
-        if len(picked) >= budget:
-            break
+        WITH due AS (
+            SELECT j.board, j.job_id, j.url, a.job_key IS NOT NULL AS tracked, i.is_finance AS finance,
+                   i.company_type IN ({types}) AS finance_firm, COALESCE(d.posted, 0) AS posted
+            FROM jobs j
+            JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
+            LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
+            LEFT JOIN job_details d ON d.board=j.board AND d.job_id=j.job_id
+            LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+            LEFT JOIN applications a ON a.job_key=(j.board||':'||j.job_id)
+            WHERE j.board IN ({marks}) AND j.title != '' AND COALESCE(s.status,'active') != 'closed'
+              AND (t.board IS NULL OR ((COALESCE(t.description,'')='' OR t.source=?) AND t.attempts < ?
+                                       AND COALESCE(t.fetched_at,'') < ?)
+                   OR (d.posted IS NULL AND j.board IN ({dmarks}) AND COALESCE(t.fetched_at,'') < ?)))
+        SELECT board, job_id, url FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY board ORDER BY {order}) AS nth FROM due)
+        WHERE nth <= ? ORDER BY {order} LIMIT ?""",
+                       [*FINANCE_COMPANY_TYPES, *boards, TEASER, DESCRIPTION_ATTEMPTS, retry_before,
+                        *dated, date_before, per_board, budget]).fetchall()
+    picked = rows
     if not picked:
         return 0
 
@@ -3199,10 +3212,10 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, s
                 con.commit()
                 report_progress(progress, "descriptions", completed=completed, total=len(picked))
                 continue
-            save_description(con, board, job_id, result)
-            if fetched is not None:
-                fetched.append((board, job_id))
-            done += 1
+            if save_description(con, board, job_id, result):
+                if fetched is not None:
+                    fetched.append((board, job_id))
+                done += 1
             con.commit()
             report_progress(progress, "descriptions", completed=completed, total=len(picked))
     con.commit()
@@ -4502,6 +4515,8 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                     # one, nor wipe a description fetched since.
                     if "listing_note" in j:
                         store_listing_note(con, name, j["id"], j["listing_note"], j.get("department") or "")
+                    elif (j.get("description") or "").strip() and j.get("teaser"):
+                        store_teaser(con, name, j["id"], j["description"], j.get("department") or "")
                     elif (j.get("description") or "").strip():
                         store_description(con, name, j["id"], j["description"], j.get("department") or "",
                                           source="listing")
