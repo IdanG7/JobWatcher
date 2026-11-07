@@ -130,7 +130,8 @@ def _iso_epoch(s):
         return None
     try:
         return datetime.fromisoformat(str(s).replace("Z", "+00:00")).timestamp()
-    except ValueError:
+    except (ValueError, OSError, OverflowError):
+        # Windows can't convert a date with no zone before 1970 (WSP's placeholder 1900-01-02)
         return None
 
 
