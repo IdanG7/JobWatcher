@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 1, waiting for your approval** of the 46 decisions in section 14 (D1–D46). Branch
+Status: **Phase 2.** You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5294,8 +5294,8 @@ profiles review, is marked in bold. The section column points to the detail. A f
 the research run behind a section rather than its text; those rows say "not simulated" or "judgement" where the
 run did.
 
-None of these is decided. After your answers I record them here, each with its date and the moves it allows, in a
-commit of its own, before Phase 2.
+You approved all 46 as recommended on 2026-11-07. Section 14.7 records what that allows; the rows below stay as
+they were put to you.
 
 ### 14.1 Title words and moves (sections 3 and 4)
 
@@ -5375,6 +5375,77 @@ D37 to D39 change shared reader code (Stop and ask), so each needs your yes, get
 | **D44** | **Copy that is wrong for every board without Finance.** The first-run headline "2027 finance recruiting · Toronto & New York". The apply note, which doesn't say that types, stages and languages are replaced. "No finance skills detected" (1,373 open Product postings) and "— outside finance" in Why lines. "Entry level in finance" (58 Product, 78 Design stored entry postings). | **Fix all four.** The headline goes in `setupProfile`, not `DEFAULT_PROFILE`. The wording edits in `scoring.py` move no fit, so they record a new `RULES_CODE` hash under the current `RULES_VERSION` | 10.2, 5.3 |
 | **D45** | **Capital One's pay sentence reads as part-time** on 1,953 open postings across every board, Finance included (251 Product, 44 Design). | **A separate change, outside this work** (it is a shared reader and needs `FACTS_VERSION`) | 5.1, 15 |
 | **D46** | **One facts recompute.** The taxonomy, companies and skills edits change the fingerprint, so the first start after the release re-reads all ~410k stored postings once: about 1.5 h with `main`'s facts pool, the estimate in `plans/efficiency-review.md` (0.3.13 took about 7.4 h on one core, before the pool). Everything that postings read lands in one release. | **Accept it, and let me run a first start on a DB copy on E: in Phase 6** (about 1.5 h, with a resume applied and a poll during the re-read) and report the measured time | 13 |
+
+### 14.7 Approved on 2026-11-07
+
+You approved every decision as recommended ("Approve all"). This is what that allows.
+
+**Moves the placement check allows** (`--allow <from>:<to>` in Phase 3 and later). The counts are the design's open
+counts. They come from variants that were not simulated together, so Phase 3 recounts them with every decision in.
+A move outside these pairs, or a pair whose count comes out well above the design's, comes back to you before the
+commit.
+
+| Allow | Decisions | Design's count (open) |
+|---|---|---|
+| `other:product` | D1, D2 (B1's claim), D4 | 731 (P7), less what the exclusions drop |
+| `operations:product` | D1, D4 | 173 (P7), the 123 product ops among them |
+| `finance:product` | D1, D6 | 244 (P7 without product strategy, with V3), plus 5 PMT titles and 1 product builder |
+| `software:product` | D1, D3 | 689 (P7), plus up to 420 through the program claim |
+| `data_ml:product` | D3 | 81, plus up to 40 |
+| `hardware:product` | D3 | 46, plus up to 130 |
+| `sales:product` | D1, D4 | 48, less the 29 heads and directors the exclusions drop |
+| `design:product` | D1, D4 | 14, less 6 heads and directors |
+| `people_legal:product` | D1 | 7, less 2 |
+| `product:operations` | D2, D5 | 1,413 (B1), and 10 executive assistants |
+| `product:sales` | D2, D5 | 76, and 1 (JFrog's assistant) |
+| `product:design` | D2 | 36 |
+| `product:healthcare` | D5 | 7 clinical program managers, through a Healthcare claim |
+| `product:hardware` | D8 | 1 |
+| `other:operations` | D2 | 416 |
+| `finance:operations` | D2 | 39 |
+| `software:operations` | D2 | 14 |
+| `design:hardware` | D8 | 1,747 |
+| `design:other` | D8, D10, D11 | 877, less the 94 game designers D12 keeps |
+| `design:software` | D8, D10, D11 | 672 |
+| `design:sales` | D8, D10 | 62 |
+| `design:operations` | D8, D10, D11 | 42, less 1 game designer |
+| `design:healthcare` | D8, D11 | 24, the 3 arts therapists among them |
+| `design:people_legal` | D8, D11 | 12, the 8 recruiters among them |
+| `software:hardware` | D8 | 14 |
+| `other:design` | D13, D14 | 35 (46, less the 9 game-studio art directors and the 2 wrong titles) |
+| `software:design` | D13 | 31 |
+| `finance:design` | D6, D13 | 20 (D13's 12 among them) |
+| `healthcare:design` | D13 | 1 |
+| `sales:design` | D13 | 1 |
+
+**Not allowed:**
+- `design:finance` (D9 keeps the 44 on Design), and S&P's Finance filter change (D9's `index design`). No Finance
+  posting changes filter.
+- `hardware:design` (D13 approves no Hardware move) and `healthcare:product` (D1's exclusions drop both; D15).
+- Filter changes on any other board (D27's 8 entries make none).
+- D5's two other titles, a hospital pharmacy coordinator and a Fidelity paralegal: no decision covers them, so they
+  stay on Product as on `main`.
+
+**Other changes allowed:**
+- Stages and labels on Product and Design (D17 to D22), with D17's optional rule for the 6 "Senior … Development
+  Program Manager" titles. No stage change on another board.
+- The label changes of D27's 8 entries: 1,674 stored postings typed (Finance 88, "other" 364, Product 108, Design 60).
+- What profiles poll: only product, design, product+design, finance+product, software+product and software+design
+  change (D28 to D30). Every other profile keeps its list and both hashes.
+- Other boards' data: Operations' title words take plain program managers (D2), Hardware gets title words and a
+  claim (D8), and Healthcare gets a claim for clinical program managers (D5). Each is named in its commit.
+- Code: `intel/programs.py` shows each window key once (D23); the degree and `_PROGRAM` fixes (D37), level `other`
+  (D38) and the headings (D39), each in its own commit, proved with `resume_record compare`; the views (D43); the
+  copy (D44), under the current `RULES_VERSION`. One facts recompute (D46), measured on a DB copy in Phase 6.
+
+**Still asked before it is done:**
+- D5: a family-level `unless` in `family_of`, if the assistant exclusion needs one. I show it first.
+- D8: the remainder that still goes to Software once Hardware's words are widened, and the 15 side moves.
+- D18: the MBA rule is taken only if it works as a `summer_associate`-keyed level with its full-time guard.
+- D24: each further type that should share the track. D27: each entry beyond the 8.
+- D31's (c) for JPMorgan and Citi, and D32's medtech option, only if you ask.
+- D35: each new adapter, in Phase 4. D40: a narrower `options` skill, once measured. D45 stays outside this work.
+- Everything else on the brief's "Stop and ask before" list.
 
 ---
 
