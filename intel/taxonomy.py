@@ -193,6 +193,14 @@ def _other_work(title: str) -> bool:
     return _other_occupation(title) or bool(_SOFTWARE_WORK.search(title))
 
 
+def _function(kn: Knowledge, title: str) -> tuple[str, str] | None:
+    """The control function a finance title names (taxonomy.json function_title): ('risk', 'operational_risk')."""
+    for category, sub, words, unless in kn.function_titles:
+        if _hits(words, title) and not _hits(unless, title):
+            return category, sub
+    return None
+
+
 def _claim(kn: Knowledge, title: str, description: str, company_type: str, placed: str,
            finance_prose: int = 0, department: str = "") -> Claim | None:
     """The first named rule by which a board takes this title from where it is placed ('finance' or a family)."""
@@ -241,7 +249,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
         cat_score, cat_evidence = _node_score(cat, finance_title, department, description, weights, family)
         title_signal = bool(_title_hits(cat, finance_title, family))
         best_sub, best_sub_score, best_sub_evidence = None, 0.0, []
-        sub_scores = {}
+        sub_scores, sub_evidence = {}, {}
         for full, sub in kn.subcategories.items():
             if sub.parent != key:
                 continue
@@ -249,7 +257,7 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
             if _title_hits(sub, finance_title, family):
                 title_signal = True
             score += priors.get(full, 0) if (score or cat_score or generic) else 0
-            sub_scores[sub.key] = score
+            sub_scores[sub.key], sub_evidence[sub.key] = score, evidence
             # ties go to the specific product over a generic bucket (FX over S&T)
             best_generic = best_sub and kn.subcategories[f"{key}.{best_sub}"].meta.get("generic")
             if score > best_sub_score or (score and score == best_sub_score and best_generic
@@ -269,6 +277,9 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
             "score": total, "sub": best_sub if best_sub_score > 0 else None,
             "evidence": cat_evidence + best_sub_evidence, "title_signal": title_signal,
             "secondary_subs": runner_ups[:2] if best_sub_score > 0 else [],
+            # for a control function the title names (_function)
+            "base": total - best_sub_score, "cat_evidence": cat_evidence,
+            "sub_scores": sub_scores, "sub_evidence": sub_evidence,
         }
 
     ranked = sorted(results.items(), key=lambda kv: (
@@ -305,6 +316,17 @@ def classify(title: str, kn: Knowledge, description: str = "", department: str =
     if not is_finance and family == "other" and generic and finance_priors and best["score"] > 0:
         # 'Summer Analyst' at a bank with no division named: finance, low confidence
         is_finance = True
+    function = _function(kn, finance_title) if is_finance else None
+    if function and best_key != function[0] and results[function[0]]["sub_scores"].get(function[1], 0) > 0:
+        # 'Compliance Officer - Equities' is compliance work, whatever desk its title and prose name. A title the
+        # function's group already took keeps that group's own choice ('Compliance Model Governance': Model Risk).
+        best_key, sub = function
+        r = results[best_key]
+        others = [k for k in (r["sub"], *r["secondary_subs"]) if k and k != sub]
+        best = {**r, "score": r["base"] + r["sub_scores"][sub], "sub": sub,
+                "evidence": r["cat_evidence"] + r["sub_evidence"][sub], "secondary_subs": others[:2]}
+        ranked = [(best_key, best)] + [(k, v) for k, v in ranked if k != best_key]
+        second_score = 0  # the title settles the group: the desk's words are not doubt
 
     # 'Research Associate, Cell Biology' is lab work that Equity Research's title words also cover: a board's
     # named rule takes it (plans/healthcare-board.md, D1). Finance is otherwise decided exactly as before.

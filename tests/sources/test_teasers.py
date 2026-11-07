@@ -2,6 +2,7 @@
 poll stores it as a teaser and its description fetch still reads the posting's own record.
 Responses are trimmed from JPMorgan Chase's live Oracle feed (jpmc.fa.oraclecloud.com, CX_1001),
 recorded 2026-11-07; the listing's TotalJobsCount (7,115) is cut to the two postings kept."""
+import json
 import tempfile
 import threading
 import unittest
@@ -248,6 +249,137 @@ class OpenTeaserTests(ServiceFixture):
         job = self.service.job_detail("demo_quant:two")
         self.assertEqual(("detail", False), (job["description_source"], job["description_pending"]))
         self.assertIn("pricing models", job["description"])
+
+
+# Phenom (jobs.rbc.com) and iCIMS (careers-sig.icims.com), trimmed from responses recorded 2026-11-07.
+RBC = {"ats": "phenom", "host": "jobs.rbc.com", "url": "https://jobs.rbc.com/ca/en/job/{id}", "company_key": "rbc"}
+RBC_TEASER = ("Become part of our team as an Investment Advisor, helping clients achieve their financial goals "
+              "through tailored planning and financial advice. Build and maintain relationships with high-net-worth "
+              "individuals and manage complex portfolios. Ideal for candidates with strong relationship-building "
+              "skills and 4-6 years of outbound sales experience.")
+RBC_APPLY = "https://rbc.wd3.myworkdayjobs.com/RBCGLOBAL1/job/WATERLOO-Ontario-Canada/Investment-Advisor_R-0000177201/apply"
+PHENOM_PAGE = {"refineSearch": {"status": 200, "hits": 2, "totalHits": 2, "data": {"jobs": [
+    {"jobId": "R-0000177201", "reqId": "R-0000177201", "title": "Investment Advisor", "locale": "en_CA",
+     "category": "Customer Service | Client Advice | Sales", "subCategory": "Sales and Advisory",
+     "descriptionTeaser": RBC_TEASER, "applyUrl": RBC_APPLY, "postedDate": "2026-06-16T00:00:00.000+0000",
+     "cityStateCountry": "WATERLOO, Ontario, Canada", "country": "Canada"},
+    {"jobId": "R-0000177693", "reqId": "R-0000177693", "title": "Investment Advisor", "locale": "en_CA",
+     "category": "Customer Service | Client Advice | Sales", "subCategory": "Sales and Advisory",
+     "descriptionTeaser": RBC_TEASER, "applyUrl": RBC_APPLY.replace("WATERLOO", "NORFOLK-COUNTY")
+                                                          .replace("177201", "177693"),
+     "postedDate": "2026-06-18T00:00:00.000+0000", "cityStateCountry": "NORFOLK COUNTY, Ontario, Canada"}]}}}
+WORKDAY_RECORD = {"jobPostingInfo": {
+    "title": "Investment Advisor", "location": "WATERLOO, Ontario, Canada", "postedOn": "Posted 30+ Days Ago",
+    "startDate": "2026-06-16", "timeType": "Full time", "jobReqId": "R-0000177201",
+    "jobDescription": (
+        '<div><p style="text-align:left"><b><u>Job Description</u></b></p></div><div><p><b>Grow your business, your '
+        "way - with RBC</b></p><p>As an Investment Advisor at RBC Dominion Securities, you can help your clients reach "
+        "their goals, while we help you reach yours.<br /><br /><b>What you do best:</b></p><ul><li><p>You have "
+        "excellent people and problem-solving skills that help you build and maintain client relationships.</p></li>"
+        "</ul><p><b>A few details about what we're looking for:</b></p><ul><li><p>You have 4-6 years of outbound sales "
+        "experience and are comfortable earning 100% commission.</p></li></ul></div>")}}
+SIG_SNIPPET = ("As an intern on our Accounting team, you will have the opportunity to expand your accounting "
+               "knowledge while learning how to prepare and reconcile financial statements and general ledgers.")
+SIG_SEARCH = f'''<div>Page 1 of 1</div><ul class="iCIMS_JobsTable"><li class="iCIMS_JobCardItem">
+<div class="row"><div class="col-xs-12 title">
+<a href="https://careers-sig.icims.com/jobs/10966/accounting-internship%3a-summer-2027/job?in_iframe=1" class="iCIMS_Anchor"
+ title="10966 - Accounting Internship: Summer 2027"><span class="sr-only field-label">Title</span><h3 >
+Accounting Internship: Summer 2027</h3></a></div>
+<div class="col-xs-12 description">
+{SIG_SNIPPET} &nbsp;You will work on projects that give you exposure to multiple departments...</div>
+<div class="col-xs-12 additionalFields"><dl class="iCIMS_JobHeaderGroup"><div class="iCIMS_JobHeaderTag">
+<dt class="iCIMS_JobHeaderField">Experience Level</dt><dd class="iCIMS_JobHeaderData"><span >
+Interns + Co-ops</span></dd></div></dl></div></div></li>
+<li class="iCIMS_JobCardItem"><div class="row"><div class="col-xs-12 title">
+<a href="https://careers-sig.icims.com/jobs/10970/tax-analyst/job?in_iframe=1" class="iCIMS_Anchor"><h3 >Tax Analyst</h3></a>
+</div></div></li></ul>'''
+SIG_POSTING = ('<!doctype html><html><head><script type="application/ld+json">'
+               + json.dumps({
+                   "@context": "http://schema.org", "@type": "JobPosting", "title": "Accounting Internship: Summer 2027",
+                   "datePosted": "2026-06-29T04:00:00.000Z", "occupationalCategory": "Interns + Co-ops",
+                   "description": f"<h2>Overview</h2>\n<p>{SIG_SNIPPET} You will work on projects that give you exposure "
+                                  "to multiple departments (such as trading, operations and technology).</p>\n"
+                                  "<h2>What we're looking for</h2>\n<ul><li>Pursuing a bachelor's degree in "
+                                  "accounting</li><li>Strong Excel skills</li></ul>"})
+               + "</script></head><body><div id='root'></div></body></html>")
+
+
+def poll(config, get, post=None, con=None):
+    """A cycle with HTTP replaced, the poll's own description fetch left out (called by the test)."""
+    con = con or watcher.db_open(":memory:")
+    with tempfile.TemporaryDirectory() as tmp:
+        subs = Path(tmp) / "subs.json"
+        subs.write_text("{}")
+        with patch.object(watcher, "SUBSCRIBERS", subs), patch.object(watcher, "EPHEMERAL", False), \
+                patch.object(watcher.requests, "get", side_effect=get), \
+                patch.object(watcher.requests, "post", side_effect=post), \
+                patch("watcher.enrich_descriptions", return_value=0):
+            watcher.cycle(config, con)
+    return con
+
+
+class PageTeaserTests(unittest.TestCase):
+    def row(self, con, board, job_id):
+        return con.execute("SELECT description, source, attempts, department, last_error FROM job_text "
+                           "WHERE board=? AND job_id=?", (board, job_id)).fetchone()
+
+    def test_phenom_teasers_are_read_through_the_employer_s_workday(self):
+        from tests.sources.test_descriptions import response
+        config = {"boards": {"rbc": RBC}, "filters": {}, "profile": {}}
+        self.assertTrue(watcher.describable(RBC))
+
+        def get(url, **kw):
+            if url.endswith("/wday/cxs/rbc/RBCGLOBAL1/job/WATERLOO-Ontario-Canada/Investment-Advisor_R-0000177201"):
+                return response(url, payload=WORKDAY_RECORD)
+            return response(url, status=404)                       # the second posting has closed
+
+        post = lambda url, **kw: response(url, payload=PHENOM_PAGE)  # noqa: E731
+        con = poll(config, get, post)
+        self.assertEqual((RBC_TEASER, "teaser", 0, "Customer Service | Client Advice | Sales", ""),
+                         self.row(con, "rbc", "R-0000177201"))
+        with patch.object(watcher.requests, "get", side_effect=get):
+            self.assertEqual(1, watcher.enrich_descriptions(config, con))
+        full, source, attempts, department, _ = self.row(con, "rbc", "R-0000177201")
+        self.assertTrue(full.startswith("Job Description"))
+        self.assertIn("As an Investment Advisor at RBC Dominion Securities", full)
+        self.assertIn("• You have 4-6 years of outbound sales experience", full)
+        self.assertEqual(("detail", 1, "Customer Service | Client Advice | Sales"), (source, attempts, department))
+        self.assertEqual(watcher._date_epoch("2026-06-16"), con.execute(
+            "SELECT posted FROM job_details WHERE job_id='R-0000177201'").fetchone()[0])  # Workday's exact date
+        self.assertEqual((RBC_TEASER, "teaser", 1), self.row(con, "rbc", "R-0000177693")[:3])  # kept; backs off
+        self.assertIn("404", self.row(con, "rbc", "R-0000177693")[4])
+        poll(config, get, post, con)
+        self.assertEqual((full, "detail"), self.row(con, "rbc", "R-0000177201")[:2])
+        self.assertEqual([], con.execute("SELECT * FROM job_changes WHERE kind='description_changed'").fetchall())
+
+    def test_icims_snippets_are_teasers_and_the_posting_page_is_read(self):
+        from tests.sources.test_descriptions import response
+        config = {"boards": {"sig": {"ats": "icims", "host": "careers-sig.icims.com"}}, "filters": {}, "profile": {}}
+        pages = []
+
+        def get(url, **kw):
+            pages.append(url)
+            if url.endswith("/jobs/search"):
+                return response(url, SIG_SEARCH)
+            return response(url, SIG_POSTING if "/jobs/10966/" in url else "<html><body></body></html>")
+
+        with patch.object(watcher.requests, "get", side_effect=get):
+            jobs = watcher.fetch_icims(config["boards"]["sig"])
+        self.assertEqual([("10966", True), ("10970", False)], [(j["id"], j["teaser"]) for j in jobs])
+        self.assertTrue(jobs[0]["description"].startswith(SIG_SNIPPET))
+        con = poll(config, get)
+        self.assertEqual("teaser", self.row(con, "sig", "10966")[1])
+        self.assertIsNone(self.row(con, "sig", "10970"))            # no text: fetched as before
+        pages.clear()
+        with patch.object(watcher.requests, "get", side_effect=get):
+            fetched = []
+            watcher.enrich_descriptions(config, con, fetched=fetched)
+        self.assertIn("https://careers-sig.icims.com/jobs/10966/job?in_iframe=1", pages)
+        self.assertIn(("sig", "10966"), fetched)
+        full, source = self.row(con, "sig", "10966")[:2]
+        self.assertEqual("detail", source)
+        self.assertIn("Overview", full)
+        self.assertIn("• Strong Excel skills", full)
 
 
 if __name__ == "__main__":
