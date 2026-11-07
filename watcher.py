@@ -914,7 +914,10 @@ def fetch_phenom(cfg):
                     "location": loc if isinstance(loc, str) else "; ".join(loc),
                     "url": j.get("applyUrl") or url_tmpl.format(id=jid),
                     "posted": _iso_epoch(j.get("postedDate")),
+                    # a summary of ~350 characters: the posting's own text is read from its link
+                    # (most lead to the employer's Workday)
                     "description": html_to_text(j.get("descriptionTeaser") or ""),
+                    "teaser": True,
                     "department": j.get("category") or "",
                 })
             offset += len(posts)
@@ -1430,14 +1433,16 @@ def fetch_icims(cfg):
             title = re.search(r"<h3[^>]*>(.*?)</h3>", link.group(3), re.S | re.I)
             loc = re.search(r"Job Locations</span>\s*</dt>\s*<dd[^>]*>(.*?)</dd>", card, re.S | re.I)
             posted = re.search(r'<span title="(\d{1,2}/\d{1,2}/\d{4})', card)
-            # Some portals (Susquehanna) show a description snippet instead of location and date.
+            # Some portals (Susquehanna) show a description snippet instead of location and date,
+            # cut at ~800 characters ("..."): a teaser, so the posting's page is still read.
             snippet = re.search(r'<div\b[^>]*class="[^"]*\bdescription\b[^"]*"[^>]*>(.*?)</div>', card, re.S | re.I)
             page.append({"id": link.group(2),
                          "title": html_to_text(title.group(1) if title else link.group(3)),
                          "location": _icims_location(html_to_text(loc.group(1))) if loc else "",
                          "url": html.unescape(link.group(1)).split("?", 1)[0],
                          "posted": _us_date_epoch(posted.group(1)) if posted else None,
-                         "description": html_to_text(snippet.group(1)) if snippet else ""})
+                         "description": html_to_text(snippet.group(1)) if snippet else "",
+                         "teaser": bool(snippet)})
         if _consume_page(out, page, seen, "iCIMS", limit):
             break
         page_no += 1
@@ -2976,10 +2981,11 @@ DETAIL_FETCHERS = {
 }
 # Fetched only when the user opens a posting, never in the poll's batches.
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
-# Sources whose listings carry no description: each posting's own link is read
-# instead (community lists link to employers' ATS pages, often via a redirect).
+# Sources whose listings carry no description, or only a teaser (Phenom, iCIMS snippets): each
+# posting's own link is read instead (community lists link to employers' ATS pages, often via a
+# redirect; Phenom's mostly to the employer's Workday, read through its API).
 PAGE_DETAIL_ATS = {"bofa", "github_md", "github_listings", "avature", "radancy", "icims", "successfactors", "marqeta",
-                   "atlassian", "kula", "paradox", "successfactors_portal", "hopkins_medicine"}
+                   "atlassian", "kula", "paradox", "successfactors_portal", "hopkins_medicine", "phenom"}
 # Links that only redirect to the posting; the page they land on otherwise is a job board.
 REDIRECT_HOSTS = ("zapply.jobs",)
 PAGE_MAX_BYTES = 5_000_000
@@ -3143,7 +3149,7 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, s
     """Fetch descriptions for the postings that benefit most, politely.
 
     Postings with no text are fetched, and so are those holding only their listing's teaser
-    (source 'teaser', Oracle's), in the same order.
+    (source 'teaser': Oracle, Phenom, iCIMS snippets), in the same order.
     Priority: tracked applications, then finance roles, then finance
     employers, newest first.  A per-board cap spreads load; failures back
     off for six hours and give up after three attempts.  ``fetched`` (a list)

@@ -264,7 +264,8 @@ def _text_digest(text: str) -> str:
 
 
 def store_teaser(con: sqlite3.Connection, board: str, job_id: str, teaser: str, department: str = "") -> bool:
-    """Persist a listing's teaser (Oracle's ShortDescriptionStr, cut at 1,000 characters) as
+    """Persist a listing's teaser (Oracle's ShortDescriptionStr, cut at 1,000 characters; Phenom's
+    descriptionTeaser; an iCIMS card's snippet) as
     source 'teaser', which tells the poll's description fetch that the posting's own text is still
     to be read. Storing it is not a fetch, so it uses up no attempt and starts no back-off; text
     older polls kept as source 'listing' starts over the same way. A description read from the
