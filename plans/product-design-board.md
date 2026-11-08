@@ -5480,6 +5480,18 @@ simulations):
 - `design:product` 6: program managers that sit on Design today through bare "design".
 - `software:design` up to 35 and `design:operations` up to 45, a few above the design's 31 and 41.
 
+**Added on 2026-11-08, from the placement check of slices A to C** (your answers; open postings, counted on the
+sample against `main` 937bbc2):
+- `data_ml:design` 1: ServiceNow's "Sr. Staff Product Designer, AI/ML" (closed, so 0 open). D13's designer claim
+  takes it; Phase 1 found no designer on AI & Data, so the pair was never listed.
+- Pairs a little above the counts above, allowed as measured: `product:operations` 1,533, `other:operations` 435,
+  `finance:operations` 40, `other:design` 38, `software:design` 36 and `software:operations` 15.
+- Stages off Product and Design: the 6 JPMorgan "Program Management Associate" postings D2 sends from Finance to
+  Operations (`finance:operations`) go from Experienced, a bank rank on Finance, to Entry there. These 6 are the only
+  stage changes off the two boards. About 30 "Development Program Manager" and "Internship/Early Career Program
+  Manager" titles D2 sends from Product to Operations keep `main`'s misreads there. Both are left to Operations
+  (section 15.1).
+
 ---
 
 ## 15. Problems noticed, not fixed
@@ -5507,6 +5519,11 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
   "Office of the CPO".
 - **Level words that name a team** ("Early Career Program Manager", "Internship Program Manager") are read as the
   posting's level. A real campus hire, "Campus - Full Time - Product Manager", reads Senior (D20).
+- **Program managers D2 sends to Operations are read with Operations' levels**, which D17 to D20 don't change. On the
+  sample, 6 JPMorgan "Program Management Associate" postings that leave Finance go from Experienced to Entry, and
+  about 30 "Development Program Manager" and "Internship/Early Career Program Manager" titles that leave Product keep
+  the misreads above (Rotational Analyst, Intern, New Grad) (`E:\product-design-board\phase3\main_vs_abc.txt`). You
+  chose to leave them to Operations on 2026-11-08.
 - **Plural titles land in "other"**, which Finance reviews, on every board whose words have no plural:
   "Product Managers" (Microsoft ×3), "Senior Program Managers" (Intel), "Senior Product Designers" (FIS). Title only:
   "Motion Designers", "Graphic Designers", "Product Analysts", and the brief's "Recruiters", "Paralegals" and "Account
