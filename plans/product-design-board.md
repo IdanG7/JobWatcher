@@ -5497,8 +5497,9 @@ from that record.
      family of its `nke` Workday site, which `nike` (technology families) and `nike_finance` don't read.
      - `amazon_design`: the `design` category, 307 / 307 to its last match. Design 157 (Product & UX Design 99;
        Visual, Brand & Motion 28; Design Engineering 12; UX Research 6; Industrial Design 1; Content Design 1;
-       no filter 10), Hardware 64 and Software 52 (design engineers for data centres, warehouses, robotics and networks),
-       "other" 23 (civil engineers, video and creative roles), Operations 5, Product 4, Sales 2; none on Finance.
+       no filter 10), Hardware 64 and Software 52 (design engineers for data centres, warehouses, robotics and
+       networks), "other" 23 (civil engineers, video and creative roles), Operations 5, Product 4, Sales 2; none
+       on Finance.
      - `amazon_product`: a "product manager" search of `project-program-product-management-non-tech`, 163 / 163.
        Product 140 (Product Management 119, Technical PM & TPM 18, APM & Programs 2, Product Operations 1),
        "other" 10, Operations 7, Finance 3 (two compliance roles and a payments product manager), Sales 2,
@@ -5554,10 +5555,11 @@ from that record.
      - LinkedIn lock time, measured: Product's two 263 s, Design's two 190 s, all four 452 s (section 7.5
        extrapolated about 9 and 18 minutes). The poll-time report gives LinkedIn its own line.
      - Placement, `main` against the packs (`place\main_vs_p4k.txt`): the same as for the Amazon and Nike
-       commit (missing 0, 0 moves outside 14.7, 9,050 allowed, label changes 443). Against that commit: no change.
+       commit (missing 0, 0 moves outside 14.7, 9,050 allowed, label changes 443). Against that commit: no
+       change.
      - Source history: records the bundle's 1,130 sources; against the Amazon and Nike commit it adds only the
-       4 names, and no existing source's history changes. Tests: 963 and 116 pass; `test_board_polling.py`: Product names
-       27 groups and Design 23.
+       4 names, and no existing source's history changes. Tests: 963 and 116 pass; `test_board_polling.py`:
+       Product names 27 groups and Design 23.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
