@@ -108,11 +108,11 @@ class BoardPollingTests(unittest.TestCase):
     def test_product_design_packs_hold_employers_on_the_product_design_track(self):
         # As health/ does for Healthcare: every employer a product_design/ source reads, LinkedIn aside, has a type
         # on the P&D track (plans/product-design-board.md, section 6). Visa's and Mastercard's early-career boards
-        # are the exceptions: fintech employers, allowed by name (section 14.7).
+        # and T-Mobile's are the exceptions: fintech and telecom employers, allowed by name (section 14.7).
         folder = {name: cfg for pack in self.packs.packs.values() if pack.folder == "product_design"
                   for name, cfg in pack.sources.items() if cfg["ats"] != "linkedin"}
-        for name in ("visa_early_careers", "mastercard_campus"):
-            self.assertEqual("fintech", self.kn.companies[folder.pop(name)["company_key"]].type)
+        for name, kind in (("visa_early_careers", "fintech"), ("mastercard_campus", "fintech"), ("t_mobile", "telecom")):
+            self.assertEqual(kind, self.kn.companies[folder.pop(name)["company_key"]].type)
         self.assertTrue(folder)
         for name, cfg in folder.items():
             with self.subTest(source=name):

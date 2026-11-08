@@ -1177,6 +1177,9 @@
     {"key": "costar_group", "name": "CoStar Group", "type": "consumer_tech", "country": "US", "hq": "Arlington", "aliases": ["=costar group"]},
     {"key": "id_me", "name": "ID.me", "type": "enterprise_saas", "country": "US", "hq": "McLean", "aliases": ["=id me"]},
     {"key": "c3_ai", "name": "C3 AI", "type": "enterprise_saas", "country": "US", "hq": "Redwood City", "aliases": ["=c3 ai"]},
-    {"key": "workday", "name": "Workday", "type": "enterprise_saas", "country": "US", "hq": "Pleasanton", "aliases": ["=workday"]}
+    {"key": "workday", "name": "Workday", "type": "enterprise_saas", "country": "US", "hq": "Pleasanton", "aliases": ["=workday"]},
+    {"key": "opensesame", "name": "OpenSesame", "type": "enterprise_saas", "country": "US", "hq": "Atlanta", "aliases": ["=opensesame"]},
+    {"key": "clearwater_analytics", "name": "Clearwater Analytics", "type": "enterprise_saas", "country": "US", "hq": "Boise", "aliases": ["=clearwater analytics"]},
+    {"key": "t_mobile", "name": "T-Mobile", "type": "telecom", "country": "US", "hq": "Bellevue", "aliases": ["=t mobile"]}
   ]
 }

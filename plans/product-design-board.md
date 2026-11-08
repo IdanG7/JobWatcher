@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2), `consumer_tech` (1), `product_core` (2) and `design_core` (2) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2), `consumer_tech` (1), `product_core` (2), `design_core` (2) and the sweep's `enterprise_saas` (2) and T-Mobile are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5560,6 +5560,45 @@ from that record.
      - Source history: records the bundle's 1,130 sources; against the Amazon and Nike commit it adds only the
        4 names, and no existing source's history changes. Tests: 963 and 116 pass; `test_board_polling.py`:
        Product names 27 groups and Design 23.
+   - **The sweep of list-only employers (8.6), 2026-11-08**: `product_design/enterprise_saas.json` (OpenSesame,
+     Clearwater Analytics) and T-Mobile in `product_design/consumer_tech.json`, each with an entry: your yes on
+     each (D27, 14.7).
+     - Ranking (`scripts\sweep_rank.py`, on the branch's placement and the live copy): 274 employers have open
+       Product or Design postings only through lists or LinkedIn, 735 distinct by title and place. 42 have 4 or
+       more; the other 232 have 1 to 3 (336 postings), which the lists carry.
+     - `opensesame`: Greenhouse, 20 / 20. Product 2 (AI Product Builder Intern; Product Manager, Strategy &
+       Growth), Sales 11, "other" 4, AI & Data 1, Operations 1, Software 1.
+     - `clearwater_analytics`: Workday `clearwateranalytics.wd1` / `Clearwater_Analytics_Careers`, the site
+       cwan.com's own job feed uses, 277 / 277. Product 23 (Product Management 13, APM & Programs 7, Technical
+       PM & TPM 3), Design 4, Finance 21 (investment-accounting roles), "other" 130, Software 59, Operations 19,
+       Sales 13, People & Legal 4, AI & Data 4; 3 postings carry no place.
+     - `t_mobile`: Workday `tmobile.wd1` / `External` (about 2,400 postings, 2,234 of them retail sales),
+       narrowed by `Job_Family_Group` to Product Management Technical, Product Management, Product Development
+       and Intern: 60 / 60. Product 22, Design 4 (a UX design internship, a UX researcher, two content
+       designers), Software 16, "other" 6, Sales 5, AI & Data 4, Finance 2, People & Legal 1; 1 posting carries
+       no place. careers.t-mobile.com answers 403; the Workday host reads.
+     - Employers (`entries\sweep_*.json`): OpenSesame and Clearwater Analytics `enterprise_saas` (as SS&C, FIS
+       and Workiva), T-Mobile `telecom` (as Verizon and AT&T), each with one `=` alias from its one stored
+       name. They type 119 stored list postings (T-Mobile 71, Clearwater 39, OpenSesame 9): 0 moves, 0
+       renames. Typed `fintech`, Clearwater would move 3 stored "Data Management & Reporting Intern" postings
+       from "other" to Finance, so it isn't. T-Mobile is off the P&D track: the folder test names it beside
+       Visa and Mastercard.
+     - Not added (`sweep\report.md`; the `enterprise_saas` note lists them): Meta, IBM and Tesla (the LinkedIn
+       company searches read them); TikTok and Tencent (no reader for their own sites); Etsy, NBCUniversal and
+       Publicis Groupe (SmartRecruiters, robots.txt); Cox (jobs.coxenterprises.com renders its list in the
+       browser; the Radancy paths answer 404); Copart (a bot wall); Fox (a custom site, ATS not identified);
+       Questrade (its `shared/` decision is open); CACI (already read as `caci_international`, section 15).
+       Off the P&D track, their rows mostly technical PM and engineering designers: Vertiv (Oracle HCM, readable),
+       Parsons, Johnson Controls, Caterpillar, Schweitzer Engineering Laboratories, Cummins, Symbotic, Emerson,
+       AspenTech, Guidehouse, Credence, Thornton Tomasetti and Oshkosh. Finance employers, whose source would
+       change what Finance polls or keep their Finance roles behind Product and Design: Allstate, BNY, KeyBanc,
+       State Street, M&T Bank, PNC, Travelers, Brown & Brown, D. E. Shaw, LSEG and DriveWealth. RELX and Nelnet:
+       small, off the track.
+     - Placement, `main` against the packs (`place\main_vs_p4l.txt`): missing 0, 0 moves outside 14.7, 9,050
+       allowed, label changes 443, as before; inside the boards 29 more type labels (223). Against the LinkedIn
+       commit: 0 moves, 37 label changes on Product (`enterprise_saas` 21, `telecom` 16), 0 renamed.
+     - Source history: records the bundle's 1,133 sources; against the LinkedIn commit it adds only the 3
+       names, and no existing source's history changes. Tests: 963 and 116 pass.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
@@ -5795,6 +5834,8 @@ sample against `main` 937bbc2):
 - The folder test's exceptions: Visa's and Mastercard's early-career boards (`visa_early_careers`,
   `mastercard_campus`) sit in `product_design/` though both employers are `fintech`, a type off the P&D track.
 - A Workday entry (`enterprise_saas`, `=workday`), so its early-career site joins `early_career_programs` (D27).
+- From the sweep (D27): OpenSesame and Clearwater Analytics (`enterprise_saas`, in `product_design/`; Clearwater
+  there, not in `shared/`), and T-Mobile (`telecom`, a folder-test exception beside Visa and Mastercard).
 
 ---
 

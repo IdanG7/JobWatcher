@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "6bed6b2b5da16cd4",
+  "hash": "0da50572d712b022",
   "names": [
    "10x_genomics",
    "1password",
@@ -369,6 +369,7 @@
    "citi_tech",
    "city_of_toronto",
    "clearco",
+   "clearwater_analytics",
    "clickhouse",
    "clickup",
    "clinton_health_access_initiative",
@@ -839,6 +840,7 @@
    "onto_innovation",
    "openai",
    "openevidence",
+   "opensesame",
    "opentext",
    "optiver_us",
    "oracle",
@@ -1095,6 +1097,7 @@
    "synopsys",
    "synthesia",
    "sysmex_america",
+   "t_mobile",
    "tailscale",
    "take_two",
    "takeda",
@@ -1503,6 +1506,7 @@
   "citi_tech": 10,
   "city_of_toronto": 11,
   "clearco": 10,
+  "clearwater_analytics": 12,
   "clickhouse": 1,
   "clickup": 10,
   "clinton_health_access_initiative": 11,
@@ -1975,6 +1979,7 @@
   "onto_innovation": 10,
   "openai": 1,
   "openevidence": 1,
+  "opensesame": 12,
   "opentext": 10,
   "optiver_us": 1,
   "oracle": 10,
@@ -2231,6 +2236,7 @@
   "synopsys": 10,
   "synthesia": 10,
   "sysmex_america": 11,
+  "t_mobile": 12,
   "tailscale": 10,
   "take_two": 10,
   "takeda": 11,
@@ -7955,6 +7961,38 @@
   ],
   "token": [
    "clearco"
+  ]
+ },
+ "clearwater_analytics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "clearwater_analytics"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "host": [
+   "clearwateranalytics.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Clearwater_Analytics_Careers"
+  ],
+  "tenant": [
+   "clearwateranalytics"
   ]
  },
  "clickhouse": {
@@ -19715,6 +19753,29 @@
    "openevidence"
   ]
  },
+ "opensesame": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "opensesame"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "opensesame"
+  ]
+ },
  "opentext": {
   "ats": [
    "phenom"
@@ -25648,6 +25709,51 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "t_mobile": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "t_mobile"
+  ],
+  "facets": [
+   {
+    "Job_Family_Group": [
+     "92a7d1c6b8651001696685c2c59e0000",
+     "426b19690b7b1036f85c9c0f4dd30a29",
+     "426b19690b7b1036f85c8cb4b9730a21",
+     "426b19690b7b1036f85c59a787b10a19"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "host": [
+   "tmobile.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "T-Mobile product, design and intern roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "tmobile"
   ]
  },
  "tailscale": {
