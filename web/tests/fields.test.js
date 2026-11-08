@@ -29,6 +29,10 @@ test('each field shows the skill groups that fit it; no field picked shows them 
   assert.ok(groups(['data_ml']).has('quant') && groups(['data_ml']).has('ml'));
   assert.ok(groups(['hardware']).has('hardware'));
   assert.ok(!groups(['finance']).has('web'));
+  // Product and Design show their own groups instead of Finance's tools, so a first run keeps no Excel or Bloomberg (D42).
+  assert.deepEqual([...groups(['product'])].sort(), ['design_tools', 'industrial_tools', 'product_tools', 'programming', 'research_methods', 'soft']);
+  assert.deepEqual([...groups(['design'])].sort(), ['design_tools', 'industrial_tools', 'product_tools', 'research_methods', 'soft']);
+  assert.ok(groups(['product', 'finance']).has('tools'));
   const both = groups(['software', 'finance']);
   assert.ok(both.has('modeling') && both.has('programming'));
   assert.deepEqual([...groups(['people_legal', 'unknown'])], ['soft']);
@@ -72,10 +76,11 @@ test('finance employer types keep their sections and tech types are listed apart
     ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
     ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
     ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']]]);
-  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare']);
-  const [tech, health] = tracks;
+  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare', 'product_design']);
+  const [tech, health, pd] = tracks;
   assert.equal(tech.employer_heading, 'Tech employer types');
-  assert.deepEqual(tech.boards, ['software', 'data_ml', 'hardware', 'product', 'design']);
+  // Product and Design have their own track since D24 (plans/product-design-board.md 6.1).
+  assert.deepEqual(tech.boards, ['software', 'data_ml', 'hardware']);
   assert.deepEqual(tech.sections.map(([name]) => name), ['Tech']);
   assert.equal(tech.sections[0][1].length, 20);
   assert.ok(tech.sections[0][1].includes('big_tech') && !tech.sections[0][1].includes('quant_firm'));
@@ -84,6 +89,11 @@ test('finance employer types keep their sections and tech types are listed apart
   assert.deepEqual(health.boards, ['healthcare']);
   assert.equal(health.sections[0][1].length, 13);
   assert.ok(['hospital', 'research_lab', 'health_tech'].every(k => health.sections[0][1].includes(k)));
+  // Product & Design: the four tech types it shares (still listed under Tech too) and its own two (D24, D25).
+  assert.equal(pd.employer_heading, 'Product & Design employer types');
+  assert.deepEqual(pd.boards, ['product', 'design']);
+  assert.deepEqual(pd.sections, [['Product & Design', ['big_tech', 'enterprise_saas', 'consumer_tech', 'high_growth_startup',
+    'design_studio', 'consumer_products']]]);
   // A finance type without a section lands in "Other"; a track with no types shows nothing.
   const types = [{key: 'bulge_bracket', tracks: ['finance'], section: 'Banks'}, {key: 'new_finance_type', tracks: ['finance']},
     {key: 'big_tech', tracks: ['tech']}, {key: 'unknown'}];

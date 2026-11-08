@@ -498,23 +498,91 @@
   {
    "key": "product",
    "label": "Product",
-   "track": "tech",
+   "track": "product_design",
    "skill_groups": [
-    "tools",
+    "product_tools",
+    "research_methods",
+    "design_tools",
+    "industrial_tools",
     "programming",
     "soft"
    ],
-   "subcategories": []
+   "subcategories": [
+    {
+     "key": "product_management",
+     "label": "Product Management",
+     "note": "Product managers, product owners and product leaders"
+    },
+    {
+     "key": "technical_pm",
+     "label": "Technical PM & TPM",
+     "note": "Technical product managers, and technical and engineering program managers"
+    },
+    {
+     "key": "apm_programs",
+     "label": "APM & Programs",
+     "note": "APM and rotational programs, PM internships and co-ops, and new-grad PM roles"
+    },
+    {
+     "key": "product_ops",
+     "label": "Product Operations",
+     "note": "Product operations"
+    },
+    {
+     "key": "product_analytics",
+     "label": "Product Analytics",
+     "note": "Product analysts and product analytics, not data scientists"
+    }
+   ]
   },
   {
    "key": "design",
    "label": "Design",
-   "track": "tech",
+   "track": "product_design",
    "skill_groups": [
-    "tools",
+    "design_tools",
+    "research_methods",
+    "industrial_tools",
+    "product_tools",
     "soft"
    ],
-   "subcategories": []
+   "subcategories": [
+    {
+     "key": "product_design",
+     "label": "Product & UX Design",
+     "note": "Product, UX, UI, interaction, experience and service design, design systems and design leads"
+    },
+    {
+     "key": "ux_research",
+     "label": "UX Research",
+     "note": "UX and user research, usability and quantitative UX research"
+    },
+    {
+     "key": "visual_brand",
+     "label": "Visual, Brand & Motion",
+     "note": "Graphic, brand, visual and motion design, art direction and illustration"
+    },
+    {
+     "key": "content_design",
+     "label": "Content Design & UX Writing",
+     "note": "UX writing, content design and conversation design"
+    },
+    {
+     "key": "design_engineering",
+     "label": "Design Engineering",
+     "note": "Design engineers and technologists who build prototypes and design systems, and UX engineers"
+    },
+    {
+     "key": "industrial_design",
+     "label": "Industrial Design",
+     "note": "Industrial design, CMF, and vehicle exterior and interior design"
+    },
+    {
+     "key": "game_design",
+     "label": "Game Design",
+     "note": "Game, level, narrative and systems designers"
+    }
+   ]
   },
   {
    "key": "sales",
@@ -565,9 +633,7 @@
    "boards": [
     "data_ml",
     "software",
-    "hardware",
-    "product",
-    "design"
+    "hardware"
    ]
   },
   {
@@ -576,6 +642,15 @@
    "employer_heading": "Healthcare & Science employer types",
    "boards": [
     "healthcare"
+   ]
+  },
+  {
+   "key": "product_design",
+   "label": "Product & Design",
+   "employer_heading": "Product & Design employer types",
+   "boards": [
+    "product",
+    "design"
    ]
   }
  ],
@@ -749,7 +824,8 @@
    "label": "Big Tech",
    "group": "Big Tech",
    "tracks": [
-    "tech"
+    "tech",
+    "product_design"
    ]
   },
   {
@@ -797,7 +873,8 @@
    "label": "Enterprise Software",
    "group": "Enterprise Software",
    "tracks": [
-    "tech"
+    "tech",
+    "product_design"
    ]
   },
   {
@@ -805,7 +882,8 @@
    "label": "Consumer Tech",
    "group": "Consumer Tech",
    "tracks": [
-    "tech"
+    "tech",
+    "product_design"
    ]
   },
   {
@@ -845,7 +923,8 @@
    "label": "High-Growth Startup",
    "group": "Startups",
    "tracks": [
-    "tech"
+    "tech",
+    "product_design"
    ]
   },
   {
@@ -907,6 +986,22 @@
    ]
   },
   {
+   "key": "design_studio",
+   "label": "Design Studio & Agency",
+   "group": "Design Studios & Agencies",
+   "tracks": [
+    "product_design"
+   ]
+  },
+  {
+   "key": "consumer_products",
+   "label": "Consumer Products",
+   "group": "Consumer Products",
+   "tracks": [
+    "product_design"
+   ]
+  },
+  {
    "key": "hospital",
    "label": "Hospital & Health System",
    "group": "Hospitals & Health Systems",
@@ -965,6 +1060,14 @@
   {
    "key": "public_health_agency",
    "label": "Public Health Agency",
+   "group": "Public Health",
+   "tracks": [
+    "healthcare"
+   ]
+  },
+  {
+   "key": "health_consulting",
+   "label": "Health Consulting",
    "group": "Public Health",
    "tracks": [
     "healthcare"
@@ -1797,6 +1900,31 @@
    "group": "cs"
   },
   {
+   "key": "jira",
+   "label": "Jira",
+   "group": "cs"
+  },
+  {
+   "key": "confluence",
+   "label": "Confluence",
+   "group": "cs"
+  },
+  {
+   "key": "api_testing",
+   "label": "API Testing",
+   "group": "cs"
+  },
+  {
+   "key": "test_management",
+   "label": "Test Management Tools",
+   "group": "cs"
+  },
+  {
+   "key": "uft",
+   "label": "UFT / QTP",
+   "group": "cs"
+  },
+  {
    "key": "embedded_systems",
    "label": "Embedded Systems & Firmware",
    "group": "hardware"
@@ -2145,6 +2273,161 @@
    "key": "hl7_fhir",
    "label": "HL7 / FHIR",
    "group": "health_data"
+  },
+  {
+   "key": "figma",
+   "label": "Figma",
+   "group": "design_tools"
+  },
+  {
+   "key": "sketch_xd",
+   "label": "Sketch / Adobe XD",
+   "group": "design_tools"
+  },
+  {
+   "key": "adobe_cc",
+   "label": "Adobe Creative Cloud",
+   "group": "design_tools"
+  },
+  {
+   "key": "adobe_design_apps",
+   "label": "Photoshop / Illustrator / InDesign",
+   "group": "design_tools"
+  },
+  {
+   "key": "after_effects",
+   "label": "After Effects & Premiere",
+   "group": "design_tools"
+  },
+  {
+   "key": "prototyping",
+   "label": "Interactive Prototyping",
+   "group": "design_tools"
+  },
+  {
+   "key": "wireframing",
+   "label": "Wireframing",
+   "group": "design_tools"
+  },
+  {
+   "key": "design_systems",
+   "label": "Design Systems",
+   "group": "design_tools"
+  },
+  {
+   "key": "interaction_design",
+   "label": "Interaction Design",
+   "group": "design_tools"
+  },
+  {
+   "key": "information_architecture",
+   "label": "Information Architecture",
+   "group": "design_tools"
+  },
+  {
+   "key": "typography",
+   "label": "Typography",
+   "group": "design_tools"
+  },
+  {
+   "key": "motion_graphics",
+   "label": "Motion Graphics",
+   "group": "design_tools"
+  },
+  {
+   "key": "accessibility",
+   "label": "Accessibility (WCAG)",
+   "group": "design_tools"
+  },
+  {
+   "key": "user_research",
+   "label": "User Research",
+   "group": "research_methods"
+  },
+  {
+   "key": "usability_testing",
+   "label": "Usability Testing",
+   "group": "research_methods"
+  },
+  {
+   "key": "journey_mapping",
+   "label": "Journey Mapping",
+   "group": "research_methods"
+  },
+  {
+   "key": "survey_design",
+   "label": "Survey Design",
+   "group": "research_methods"
+  },
+  {
+   "key": "roadmaps",
+   "label": "Product Roadmaps",
+   "group": "product_tools"
+  },
+  {
+   "key": "prds",
+   "label": "PRDs",
+   "group": "product_tools"
+  },
+  {
+   "key": "product_strategy",
+   "label": "Product Strategy",
+   "group": "product_tools"
+  },
+  {
+   "key": "ab_testing",
+   "label": "A/B Testing",
+   "group": "product_tools"
+  },
+  {
+   "key": "product_analytics_tools",
+   "label": "Amplitude / Mixpanel",
+   "group": "product_tools"
+  },
+  {
+   "key": "google_analytics",
+   "label": "Google Analytics",
+   "group": "product_tools"
+  },
+  {
+   "key": "looker",
+   "label": "Looker",
+   "group": "product_tools"
+  },
+  {
+   "key": "pmp",
+   "label": "PMP",
+   "group": "product_tools"
+  },
+  {
+   "key": "solidworks",
+   "label": "SolidWorks",
+   "group": "industrial_tools"
+  },
+  {
+   "key": "rhino",
+   "label": "Rhino",
+   "group": "industrial_tools"
+  },
+  {
+   "key": "keyshot",
+   "label": "KeyShot",
+   "group": "industrial_tools"
+  },
+  {
+   "key": "cad",
+   "label": "3D CAD",
+   "group": "industrial_tools"
+  },
+  {
+   "key": "cmf",
+   "label": "CMF",
+   "group": "industrial_tools"
+  },
+  {
+   "key": "dfm",
+   "label": "Design for Manufacturing",
+   "group": "industrial_tools"
   }
  ],
  "skill_groups": {
@@ -2164,7 +2447,11 @@
   "clinical": "Clinical",
   "lab": "Lab Techniques",
   "regulatory": "Regulatory & Quality",
-  "health_data": "Health Data"
+  "health_data": "Health Data",
+  "design_tools": "Design Tools & Craft",
+  "research_methods": "Research Methods",
+  "product_tools": "Product & Analytics",
+  "industrial_tools": "Industrial Design Tools"
  },
  "statuses": [
   {

@@ -152,7 +152,9 @@ class CsResumeTests(unittest.TestCase):
         self.assertTrue(all(field_of(r) in {"hardware", "software"} for r in profile["target_roles"]))
         self.assertEqual(1.0, max(profile["role_weights"].values()))
         self.assertTrue(profile["target_company_types"])
-        self.assertTrue(all(KN.type_tracks(t) == ["tech"] for t in profile["target_company_types"]))
+        # Tech employers only; Big Tech is also on the Product & Design track (D24), and no type is a finance one.
+        self.assertTrue(all(KN.type_tracks(t)[0] == "tech" and "finance" not in KN.type_tracks(t)
+                            for t in profile["target_company_types"]))
         self.assertIn("embedded_systems", profile["skills"])
         # Another school: the old program and GPA don't carry over.
         self.assertEqual({"level": "undergraduate", "school": "Toronto Lakeshore University", "program": "Computer Science",

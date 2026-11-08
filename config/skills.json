@@ -18,7 +18,11 @@
     "clinical": "Clinical",
     "lab": "Lab Techniques",
     "regulatory": "Regulatory & Quality",
-    "health_data": "Health Data"
+    "health_data": "Health Data",
+    "design_tools": "Design Tools & Craft",
+    "research_methods": "Research Methods",
+    "product_tools": "Product & Analytics",
+    "industrial_tools": "Industrial Design Tools"
   },
   "skills": [
     {"key": "financial_modeling", "label": "Financial Modeling", "group": "modeling", "synonyms": ["financial model(l)?ing", "financial models?", "operating models?", "building (financial )?models"]},
@@ -212,6 +216,41 @@
     {"key": "bioconductor", "label": "Bioconductor", "group": "health_data", "track": "healthcare", "synonyms": ["bioconductor"]},
     {"key": "gwas", "label": "GWAS", "group": "health_data", "track": "healthcare", "synonyms": ["gwas", "genome ?wide association"]},
     {"key": "medical_coding", "label": "Medical Coding", "group": "health_data", "track": "healthcare", "synonyms": ["icd ?10( ?(cm|ca))?", "medical coding"]},
-    {"key": "hl7_fhir", "label": "HL7 / FHIR", "group": "health_data", "track": "healthcare", "synonyms": ["hl7", "fhir"]}
+    {"key": "hl7_fhir", "label": "HL7 / FHIR", "group": "health_data", "track": "healthcare", "synonyms": ["hl7", "fhir"]},
+
+    {"key": "figma", "label": "Figma", "group": "design_tools", "track": "product_design", "synonyms": ["figma", "figjam"]},
+    {"key": "sketch_xd", "label": "Sketch / Adobe XD", "group": "design_tools", "track": "product_design", "synonyms": ["adobe xd", "sketch app", "(figma|invision|zeplin|framer|axure|adobe xd) ?(,|/|or|and|&) ?sketch", "sketch ?(,|/|or|and|&) ?(figma|invision|zeplin|framer|axure|adobe xd|principle)"]},
+    {"key": "adobe_cc", "label": "Adobe Creative Cloud", "group": "design_tools", "track": "product_design", "synonyms": ["adobe creative (cloud|suite)", "adobe cc", "creative (cloud|suite)", "adobe suite"]},
+    {"key": "adobe_design_apps", "label": "Photoshop / Illustrator / InDesign", "group": "design_tools", "track": "product_design", "synonyms": ["photoshop", "adobe illustrator", "indesign", "illustrator ?(,|/|and|&) ?(photoshop|indesign|after effects|figma)", "(photoshop|indesign|figma) ?(,|/|and|&) ?illustrator"]},
+    {"key": "after_effects", "label": "After Effects & Premiere", "group": "design_tools", "track": "product_design", "synonyms": ["after effects", "premiere pro", "adobe premiere"]},
+    {"key": "prototyping", "label": "Interactive Prototyping", "group": "design_tools", "track": "product_design", "synonyms": ["(interactive|clickable|high ?fidelity|low ?fidelity|hi ?fi|lo ?fi|ui|ux|figma|rapid|paper) prototyp(e|es|ing)", "prototyp(e|es|ing) (tools?|in figma)", "protopie", "invision", "axure", "wirefram(e|es|ing) ?(,|/|and|&) ?prototyp(e|es|ing)", "prototyp(e|es|ing) ?(,|/|and|&) ?(wirefram(e|es|ing)|user testing|usability testing)"]},
+    {"key": "wireframing", "label": "Wireframing", "group": "design_tools", "track": "product_design", "synonyms": ["wire ?fram(e|es|ed|ing)"]},
+    {"key": "design_systems", "label": "Design Systems", "group": "design_tools", "track": "product_design", "synonyms": ["design systems?", "component librar(y|ies)", "pattern librar(y|ies)", "design tokens?"]},
+    {"key": "interaction_design", "label": "Interaction Design", "group": "design_tools", "track": "product_design", "synonyms": ["interaction design", "ixd", "micro ?interactions?"]},
+    {"key": "information_architecture", "label": "Information Architecture", "group": "design_tools", "track": "product_design", "synonyms": ["information architecture", "card sort(s|ing)?", "tree test(s|ing)?"]},
+    {"key": "typography", "label": "Typography", "group": "design_tools", "track": "product_design", "synonyms": ["typography", "typographic", "type ?setting"]},
+    {"key": "motion_graphics", "label": "Motion Graphics", "group": "design_tools", "track": "product_design", "synonyms": ["motion graphics?", "motion design", "(2d|3d|ui|character) animation"]},
+    {"key": "accessibility", "label": "Accessibility (WCAG)", "group": "design_tools", "track": "product_design", "synonyms": ["wcag", "a11y", "wai ?aria", "accessible design", "inclusive design(?! culture)", "section 508", "accessibility (standards?|guidelines?|best practices|compliance|audits?|testing|reviews?|principles)", "(?<!ensuring\\s)(web|digital|product|ux|ui|design|mobile) accessibility(?! for (people|persons|individuals|candidates|applicants))"]},
+
+    {"key": "user_research", "label": "User Research", "group": "research_methods", "track": "product_design", "synonyms": ["user research", "ux research", "design research", "user interviews?", "customer interviews?", "contextual inquir(y|ies)", "ethnograph(y|ic)", "diary stud(y|ies)"]},
+    {"key": "usability_testing", "label": "Usability Testing", "group": "research_methods", "track": "product_design", "synonyms": ["usability (test(s|ing)?|stud(y|ies)|sessions?|evaluations?)", "user testing", "heuristic evaluations?"]},
+    {"key": "journey_mapping", "label": "Journey Mapping", "group": "research_methods", "track": "product_design", "synonyms": ["(customer|user|patient) journey (maps?|mapping)", "journey (maps?|mapping)", "service blueprint(s|ing)?", "experience maps?"]},
+    {"key": "survey_design", "label": "Survey Design", "group": "research_methods", "track": "product_design", "synonyms": ["survey (design|research|methodolog(y|ies))", "qualtrics", "survey ?monkey"]},
+
+    {"key": "roadmaps", "label": "Product Roadmaps", "group": "product_tools", "track": "product_design", "synonyms": ["product roadmaps?", "roadmap (planning|prioriti[sz]ation)", "(own|owns|owning|define|defines|defining|build|builds|building|drive|drives|driving|set|sets|setting) (the |a |our )?(product )?roadmaps?"]},
+    {"key": "prds", "label": "PRDs", "group": "product_tools", "track": "product_design", "synonyms": ["prds?", "product requirements? (documents?|docs?|specifications?)"]},
+    {"key": "product_strategy", "label": "Product Strategy", "group": "product_tools", "track": "product_design", "synonyms": ["product strateg(y|ies)", "product vision"]},
+    {"key": "ab_testing", "label": "A/B Testing", "group": "product_tools", "track": "product_design", "synonyms": ["a ?/ ?b test(s|ing)?", "split test(s|ing)?", "multivariate test(s|ing)?", "experimentation (platforms?|frameworks?)", "(product|growth|online) experiment(s|ation)"]},
+    {"key": "product_analytics_tools", "label": "Amplitude / Mixpanel", "group": "product_tools", "track": "product_design", "synonyms": ["amplitude", "mixpanel", "heap analytics", "pendo", "fullstory", "posthog"]},
+    {"key": "google_analytics", "label": "Google Analytics", "group": "product_tools", "track": "product_design", "synonyms": ["google analytics", "ga4", "google tag manager"]},
+    {"key": "looker", "label": "Looker", "group": "product_tools", "track": "product_design", "synonyms": ["looker( studio)?"]},
+    {"key": "pmp", "label": "PMP", "group": "product_tools", "track": "product_design", "synonyms": ["pmp", "project management professional"]},
+
+    {"key": "solidworks", "label": "SolidWorks", "group": "industrial_tools", "track": "product_design", "synonyms": ["solid ?works"]},
+    {"key": "rhino", "label": "Rhino", "group": "industrial_tools", "track": "product_design", "synonyms": ["rhino( ?3d|ceros)?", "grasshopper 3d"]},
+    {"key": "keyshot", "label": "KeyShot", "group": "industrial_tools", "track": "product_design", "synonyms": ["key ?shot"]},
+    {"key": "cad", "label": "3D CAD", "group": "industrial_tools", "track": "product_design", "synonyms": ["(?<!\\d\\s)(?<!\\d\\s\\s)(?<![\\d$(])cad(?!\\s?\\$)(?![\\s\\-]?\\d)(?! in canada)", "creo", "catia", "fusion 360", "autodesk alias", "alias autostudio", "computer aided design"]},
+    {"key": "cmf", "label": "CMF", "group": "industrial_tools", "track": "product_design", "synonyms": ["cmf", "colou?r,? materials?,? (and|&) finish(es)?"]},
+    {"key": "dfm", "label": "Design for Manufacturing", "group": "industrial_tools", "track": "product_design", "synonyms": ["design for (manufactur(e|ing|ability)|assembly)", "dfma?", "injection mou?ld(ing|ed|s)?"]}
   ]
 }
