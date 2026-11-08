@@ -74,7 +74,7 @@
         "visual_brand": ["gaming", "defense_aerospace", "financial_services_tech"],
         "content_design": ["financial_services_tech"],
         "design_engineering": [],
-        "industrial_design": ["devices_iot", "robotics_autonomy", "defense_aerospace"],
+        "industrial_design": ["devices_iot", "robotics_autonomy", "defense_aerospace", "industrial_design"],
         "game_design": ["gaming"]
       }
     },

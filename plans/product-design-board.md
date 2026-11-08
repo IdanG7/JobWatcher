@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources) and `design_studios` (34) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34) and `industrial_design` (33) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5399,6 +5399,45 @@ from that record.
      - Placement, `main` against the packs (`place\main_vs_p4e.txt`): missing 0, 0 moves outside 14.7, 9,050
        allowed; label changes 423 → 425. Against the studios commit's placement: 0 moves, 7 label changes.
      - Source history: 1,083 sources; against the last commit it adds only the 20 names.
+   - **`industrial_design`, 2026-11-08**: 33 sources, the Design filter Industrial Design's own group (7.4), 8 of
+     them Canadian (D33 asks for 6 and 2). Type `consumer_products`, and `design_studio` for Teague. Each feed was
+     read once, complete. Stanley Black & Decker and Brunswick are read through a "designer" search, Milwaukee Tool
+     (TTI's Milwaukee site) and 3M through an "industrial design" search, MillerKnoll through 9 design and product
+     job families; each narrowed read has a label. Nanoleaf had no openings.
+     - Live postings (`cand\industrial_final.census.json`): 1,933; 91 land on Design (Visual & Brand 25, Product
+       Design 20, Industrial Design 19, no filter 23, 4 others) and 33 on Product. 59 land on Finance, about 14 of
+       them misreads: Arc'teryx's "Assistant Store Manager | West Edmonton, AB" and a transportation manager (FP&A),
+       Milwaukee's two "Commodity Manager – Packaging" (Commodities), 3M's "USAC Area Portfolio Manager",
+       SharkNinja's "Manager, Media Investment Strategy" and Weber's "Asset Management and Production Specialist"
+       (Asset Management), Hasbro's "Digital Asset & Workflow Systems Specialist" (Digital Assets), Polaris' "Quality
+       Auditor" (Accounting), and product-compliance roles at Stanley Black & Decker, Brunswick, Bose and Polaris
+       (Operational Risk). No markup and no test titles; every posting has a place.
+     - Adding `consumer_products` to `design_occupation` changes none of these postings, so the claim is left as
+       it is (`art_direction` names the type since the studios pack).
+     - Employers: 33 entries with `=` aliases. "Brunswick" matches only "Brunswick" and "Brunswick Corporation",
+       not Brunswick Group or the University of New Brunswick; "Specialized" not Textron Specialized Vehicles;
+       "Arlo" takes no "Arlo Technologies" alias, whose one stored posting keeps its key.
+     - Entries check (`entries\industrial_*.json`): 483 stored list postings (Stanley Black & Decker 174,
+       Brunswick 150, Bose 53, SharkNinja 48, Polaris 46, and 12 more): 0 moves, the type's Industrial Design prior
+       included; 483 label changes ("other" 251, Software 61, Hardware 49, AI & Data 32, Sales 22, People & Legal
+       22, Design 21, Operations 12, Finance 7, Product 6); 3 renamed ("Stanley Black & Decker, Inc.", "Brunswick
+       Corporation", "Arc'teryx Equipment").
+     - Placement, `main` against the packs (`place\main_vs_p4f.txt`): missing 0, 0 moves outside 14.7, 9,050
+       allowed; label changes 425 → 442. Against the Lever commit's placement: 0 moves, 61 label changes, 1 renamed.
+     - Source history: 1,116 sources; against the last commit it adds only the 33 names. Tests: 963 and 116 pass;
+       `test_board_polling.py`: Design names 21 groups, two of them (`design_studios`, `industrial_design`) not
+       Product's.
+     - Not added: Canada Goose and Trek (store and factory boards: 2 of 96 and 0 of 207 roles in product or
+       design); Whirlpool and John Deere (Eightfold, read whole, 10 a page: 4 and 0 product or design roles of 216
+       and 288); Galvion and JetZero (no product or design role; defence helmets and aircraft); Dorel Home (not on
+       Dayforce's job search); Oshkosh (its "designer" search returns welders); Dyson (its design roles are in the UK
+       and Asia); lululemon (a store-led Avature board); Harley-Davidson (a store-and-dealer SuccessFactors board,
+       not narrowed); Solo Brands (UKG on a host `fetch_ukg` doesn't read); Delve and Design Concepts (JazzHR),
+       Priority Designs (YourPayrollHR), Therabody (corporate board not found); Kohler, Teknion, Keilhauer, Danby,
+       Smart Design, Ammunition, fuseproject, Ziba and Lee Valley (no board an adapter reads); Brompton (UK).
+     - Eightfold's robots.txt (Whirlpool, John Deere) begins `Disallow: /` and then allows `/api/apply` and
+       `/api/pcsx`. Python's `robotparser` lets the first rule win and calls those paths disallowed; RFC 9309, where
+       the longest rule wins, allows them. Both sites were read once, alone.
      - Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (Workable
        `connected`: a software consultancy with no openings, whose entry would retype 8 stored Thoughtworks
        postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host,

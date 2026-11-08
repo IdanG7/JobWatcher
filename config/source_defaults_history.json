@@ -76,6 +76,41 @@
    "2k"
   ]
  },
+ "3m": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "3m"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "3m.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "3M design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "industrial design"
+  ],
+  "site": [
+   "Search"
+  ],
+  "tenant": [
+   "3m"
+  ]
+ },
  "6sense": {
   "ats": [
    "greenhouse"
@@ -100,12 +135,13 @@
   ]
  },
  "__shipped__": {
-  "hash": "198d5caf0314181d",
+  "hash": "ca3fb606dc33ad81",
   "names": [
    "10x_genomics",
    "1password",
    "1x_technologies",
    "2k",
+   "3m",
    "6sense",
    "abbott_medtech",
    "abcellera",
@@ -183,9 +219,11 @@
    "aptiv",
    "aqr",
    "arc_institute",
+   "arc_teryx_equipment",
    "arctic_wolf",
    "area_17",
    "arize_ai",
+   "arlo",
    "arm",
    "armis",
    "array_technologies",
@@ -212,6 +250,7 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "bauer_hockey",
    "bausch_lomb",
    "baxter_international",
    "bayer",
@@ -249,6 +288,7 @@
    "boeing",
    "booz_allen_hamilton",
    "borrowell",
+   "bose",
    "boston_dynamics",
    "boston_medical_center",
    "boston_scientific",
@@ -265,6 +305,7 @@
    "browserbase",
    "bruker",
    "bruker_international",
+   "brunswick",
    "bugcrowd",
    "buildkite",
    "bumble",
@@ -289,6 +330,7 @@
    "caseware",
    "catalent",
    "cato_networks",
+   "ccm_hockey",
    "cdc_foundation",
    "cdpq",
    "cdpq_students",
@@ -445,6 +487,7 @@
    "fanduel",
    "fantasy",
    "fastly",
+   "fender",
    "fhi_360",
    "fico",
    "fidelity",
@@ -519,15 +562,19 @@
    "hackerone",
    "halton_healthcare",
    "hamilton_health_sciences",
+   "harding_display",
+   "hark",
    "harness",
    "harvard_university",
    "harvey",
+   "hasbro",
    "headway",
    "health_canada",
    "health_sciences_north",
    "health_standards_organization",
    "hebbia",
    "helion_energy",
+   "herschel_supply",
    "hex",
    "heygen",
    "hhmi",
@@ -574,6 +621,7 @@
    "ionq",
    "iqvia",
    "irhythm_technologies",
+   "irobot",
    "ironclad",
    "isomorphic_labs",
    "jackson_laboratory",
@@ -617,6 +665,7 @@
    "lambda_labs",
    "landor",
    "langchain",
+   "lasko_products",
    "lattice_semiconductor",
    "launchdarkly",
    "lazard",
@@ -698,6 +747,8 @@
    "microsoft_finance",
    "midjourney",
    "mila",
+   "millerknoll",
+   "milwaukee_tool",
    "mimecast",
    "miovision",
    "mirego",
@@ -727,6 +778,7 @@
    "msci_us",
    "myriad_genetics",
    "nabla",
+   "nanoleaf",
    "nasdaq",
    "natera",
    "national_bank",
@@ -787,6 +839,7 @@
    "otter_ai",
    "oura",
    "outreach",
+   "owlet",
    "pacbio",
    "pagerduty",
    "palantir",
@@ -796,10 +849,12 @@
    "path",
    "pathai",
    "patreon",
+   "pax_labs",
    "paxos",
    "paychex",
    "paypal",
    "pdt_partners",
+   "peak_design",
    "peloton",
    "pendo",
    "penumbra",
@@ -817,11 +872,13 @@
    "plane",
    "planet",
    "planetscale",
+   "plaud",
    "playstation",
    "plooto",
    "point72",
    "pointclickcare",
    "poka_labs",
+   "polaris",
    "poolside",
    "poshmark",
    "posthog",
@@ -843,6 +900,7 @@
    "public_com",
    "public_health_agency_of_canada",
    "public_health_ontario",
+   "puffco",
    "pure_storage",
    "qiagen",
    "qlik",
@@ -938,6 +996,7 @@
    "serve_robotics",
    "servicenow",
    "shared_health_manitoba",
+   "sharkninja",
    "sherpa",
    "shield_ai",
    "shoppers_drug_mart",
@@ -981,10 +1040,12 @@
    "southlake_health",
    "sp_global",
    "spacex",
+   "specialized",
    "speechify",
    "speechmatics",
    "speedy_ai",
    "speedy_swe",
+   "spin_master",
    "spotify",
    "spring_health",
    "squarepoint",
@@ -998,6 +1059,7 @@
    "standard_biotools",
    "stanford_children_s_health",
    "stanford_health_care",
+   "stanley_black_decker",
    "starburst",
    "steamclock_software",
    "stepstone",
@@ -1031,6 +1093,7 @@
    "td",
    "td_students",
    "td_tech",
+   "teague",
    "teleflex",
    "telus",
    "temporal",
@@ -1056,10 +1119,12 @@
    "toast",
    "tobogganlabs",
    "together_ai",
+   "tonal",
    "top_hat",
    "torq",
    "tower_research",
    "tractable",
+   "traeger",
    "transunion",
    "tribalscale",
    "trillium_health_partners",
@@ -1080,6 +1145,7 @@
    "udemy",
    "uipath",
    "ukg",
+   "umbra",
    "unbounce",
    "unisys",
    "unitedhealth_group",
@@ -1136,6 +1202,7 @@
    "wealthfront",
    "wealthsimple",
    "weaviate",
+   "weber",
    "webflow",
    "weights_and_biases",
    "wells_fargo",
@@ -1162,6 +1229,7 @@
    "xaira_therapeutics",
    "yale_university",
    "yelp",
+   "yeti",
    "yipitdata",
    "you_com",
    "yugabytedb",
@@ -1193,6 +1261,7 @@
   "1password": 1,
   "1x_technologies": 10,
   "2k": 10,
+  "3m": 12,
   "6sense": 10,
   "abbott_medtech": 11,
   "abcellera": 11,
@@ -1270,9 +1339,11 @@
   "aptiv": 10,
   "aqr": 1,
   "arc_institute": 11,
+  "arc_teryx_equipment": 12,
   "arctic_wolf": 10,
   "area_17": 12,
   "arize_ai": 10,
+  "arlo": 12,
   "arm": 10,
   "armis": 10,
   "array_technologies": 10,
@@ -1299,6 +1370,7 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "bauer_hockey": 12,
   "bausch_lomb": 11,
   "baxter_international": 11,
   "bayer": 11,
@@ -1336,6 +1408,7 @@
   "boeing": 10,
   "booz_allen_hamilton": 10,
   "borrowell": 10,
+  "bose": 12,
   "boston_dynamics": 10,
   "boston_medical_center": 11,
   "boston_scientific": 11,
@@ -1352,6 +1425,7 @@
   "browserbase": 1,
   "bruker": 11,
   "bruker_international": 11,
+  "brunswick": 12,
   "bugcrowd": 10,
   "buildkite": 10,
   "bumble": 10,
@@ -1376,6 +1450,7 @@
   "caseware": 12,
   "catalent": 11,
   "cato_networks": 10,
+  "ccm_hockey": 12,
   "cdc_foundation": 11,
   "cdpq": 6,
   "cdpq_students": 6,
@@ -1532,6 +1607,7 @@
   "fanduel": 10,
   "fantasy": 12,
   "fastly": 1,
+  "fender": 12,
   "fhi_360": 11,
   "fico": 10,
   "fidelity": 6,
@@ -1606,15 +1682,19 @@
   "hackerone": 10,
   "halton_healthcare": 11,
   "hamilton_health_sciences": 11,
+  "harding_display": 12,
+  "hark": 12,
   "harness": 10,
   "harvard_university": 11,
   "harvey": 1,
+  "hasbro": 12,
   "headway": 10,
   "health_canada": 11,
   "health_sciences_north": 11,
   "health_standards_organization": 11,
   "hebbia": 10,
   "helion_energy": 10,
+  "herschel_supply": 12,
   "hex": 10,
   "heygen": 1,
   "hhmi": 11,
@@ -1661,6 +1741,7 @@
   "ionq": 10,
   "iqvia": 11,
   "irhythm_technologies": 11,
+  "irobot": 12,
   "ironclad": 10,
   "isomorphic_labs": 10,
   "jackson_laboratory": 11,
@@ -1704,6 +1785,7 @@
   "lambda_labs": 1,
   "landor": 12,
   "langchain": 10,
+  "lasko_products": 12,
   "lattice_semiconductor": 10,
   "launchdarkly": 1,
   "lazard": 6,
@@ -1787,6 +1869,8 @@
   "microsoft_finance": 10,
   "midjourney": 1,
   "mila": 10,
+  "millerknoll": 12,
+  "milwaukee_tool": 12,
   "mimecast": 10,
   "miovision": 10,
   "mirego": 12,
@@ -1816,6 +1900,7 @@
   "msci_us": 6,
   "myriad_genetics": 11,
   "nabla": 10,
+  "nanoleaf": 12,
   "nasdaq": 1,
   "natera": 10,
   "national_bank": 2,
@@ -1876,6 +1961,7 @@
   "otter_ai": 10,
   "oura": 10,
   "outreach": 10,
+  "owlet": 12,
   "pacbio": 11,
   "pagerduty": 10,
   "palantir": 1,
@@ -1885,10 +1971,12 @@
   "path": 11,
   "pathai": 10,
   "patreon": 10,
+  "pax_labs": 12,
   "paxos": 10,
   "paychex": 10,
   "paypal": 1,
   "pdt_partners": 1,
+  "peak_design": 12,
   "peloton": 1,
   "pendo": 10,
   "penumbra": 11,
@@ -1906,11 +1994,13 @@
   "plane": 10,
   "planet": 10,
   "planetscale": 1,
+  "plaud": 12,
   "playstation": 10,
   "plooto": 12,
   "point72": 1,
   "pointclickcare": 12,
   "poka_labs": 12,
+  "polaris": 12,
   "poolside": 1,
   "poshmark": 10,
   "posthog": 10,
@@ -1932,6 +2022,7 @@
   "public_com": 10,
   "public_health_agency_of_canada": 11,
   "public_health_ontario": 11,
+  "puffco": 12,
   "pure_storage": 10,
   "qiagen": 11,
   "qlik": 10,
@@ -2027,6 +2118,7 @@
   "serve_robotics": 10,
   "servicenow": 1,
   "shared_health_manitoba": 11,
+  "sharkninja": 12,
   "sherpa": 12,
   "shield_ai": 1,
   "shoppers_drug_mart": 11,
@@ -2070,10 +2162,12 @@
   "southlake_health": 11,
   "sp_global": 6,
   "spacex": 1,
+  "specialized": 12,
   "speechify": 10,
   "speechmatics": 10,
   "speedy_ai": 1,
   "speedy_swe": 1,
+  "spin_master": 12,
   "spotify": 1,
   "spring_health": 10,
   "squarepoint": 1,
@@ -2087,6 +2181,7 @@
   "standard_biotools": 11,
   "stanford_children_s_health": 11,
   "stanford_health_care": 11,
+  "stanley_black_decker": 12,
   "starburst": 1,
   "steamclock_software": 12,
   "stepstone": 1,
@@ -2120,6 +2215,7 @@
   "td": 1,
   "td_students": 2,
   "td_tech": 10,
+  "teague": 12,
   "teleflex": 11,
   "telus": 10,
   "temporal": 10,
@@ -2145,10 +2241,12 @@
   "toast": 10,
   "tobogganlabs": 12,
   "together_ai": 1,
+  "tonal": 12,
   "top_hat": 10,
   "torq": 10,
   "tower_research": 1,
   "tractable": 10,
+  "traeger": 12,
   "transunion": 10,
   "tribalscale": 12,
   "trillium_health_partners": 11,
@@ -2169,6 +2267,7 @@
   "udemy": 10,
   "uipath": 10,
   "ukg": 10,
+  "umbra": 12,
   "unbounce": 12,
   "unisys": 10,
   "unitedhealth_group": 10,
@@ -2225,6 +2324,7 @@
   "wealthfront": 10,
   "wealthsimple": 1,
   "weaviate": 10,
+  "weber": 12,
   "webflow": 1,
   "weights_and_biases": 10,
   "wells_fargo": 1,
@@ -2251,6 +2351,7 @@
   "xaira_therapeutics": 11,
   "yale_university": 11,
   "yelp": 10,
+  "yeti": 12,
   "yipitdata": 10,
   "you_com": 10,
   "yugabytedb": 10,
@@ -4025,6 +4126,29 @@
    "arcinstitute"
   ]
  },
+ "arc_teryx_equipment": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "arc_teryx_equipment"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arcteryx.com"
+  ]
+ },
  "arctic_wolf": {
   "ats": [
    "workday"
@@ -4098,6 +4222,35 @@
   ],
   "token": [
    "arizeai"
+  ]
+ },
+ "arlo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "arlo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "arlo.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External_Careers"
+  ],
+  "tenant": [
+   "arlo"
   ]
  },
  "arm": {
@@ -4668,6 +4821,29 @@
   ],
   "token": [
    "baseten"
+  ]
+ },
+ "bauer_hockey": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "bauer_hockey"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bauerhockeycascademaveriklacrosse"
   ]
  },
  "bausch_lomb": {
@@ -5663,6 +5839,35 @@
    2
   ]
  },
+ "bose": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bose"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "boseallaboutme.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Bose_Careers"
+  ],
+  "tenant": [
+   "boseallaboutme"
+  ]
+ },
  "boston_dynamics": {
   "ats": [
    "workday"
@@ -6043,6 +6248,41 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "brunswick": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "brunswick"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "brunswick.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Brunswick design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "designer"
+  ],
+  "site": [
+   "search"
+  ],
+  "tenant": [
+   "brunswick"
   ]
  },
  "bugcrowd": {
@@ -6626,6 +6866,32 @@
   ],
   "token": [
    "catonetworks"
+  ]
+ },
+ "ccm_hockey": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "ccmhockey"
+  ],
+  "company_key": [
+   "ccm_hockey"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "cdc_foundation": {
@@ -10338,6 +10604,29 @@
    "fastly"
   ]
  },
+ "fender": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "fender"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fender"
+  ]
+ },
  "fhi_360": {
   "ats": [
    "workday"
@@ -12060,6 +12349,55 @@
    "2"
   ]
  },
+ "harding_display": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "hardingdis"
+  ],
+  "company_key": [
+   "harding_display"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
+ "hark": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hark"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hark"
+  ]
+ },
  "harness": {
   "ats": [
    "greenhouse"
@@ -12112,6 +12450,29 @@
   ],
   "token": [
    "harvey"
+  ]
+ },
+ "hasbro": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hasbro"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hasbro"
   ]
  },
  "headway": {
@@ -12260,6 +12621,29 @@
   ],
   "token": [
    "helion"
+  ]
+ },
+ "herschel_supply": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "herschel_supply"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "herschelsupplyco"
   ]
  },
  "hex": {
@@ -13387,6 +13771,35 @@
    "irhythmtech"
   ]
  },
+ "irobot": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "irobot"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "irobot.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "iRobot"
+  ],
+  "tenant": [
+   "irobot"
+  ]
+ },
  "ironclad": {
   "ats": [
    "ashby"
@@ -14432,6 +14845,29 @@
   ],
   "token": [
    "langchain"
+  ]
+ },
+ "lasko_products": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "lasko_products"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "laskoproducts"
   ]
  },
  "lattice_semiconductor": {
@@ -16823,6 +17259,88 @@
    2
   ]
  },
+ "millerknoll": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "millerknoll"
+  ],
+  "facets": [
+   {
+    "jobFamily": [
+     "a2c789a5ddb91001eb41e45eac1f0000",
+     "a2c789a5ddb91001e7a59877bed30000",
+     "a2c789a5ddb91001eb55c493141b0000",
+     "a2c789a5ddb91001e7e7c3bb2c830000",
+     "a2c789a5ddb91001e8c90655ba560000",
+     "a2c789a5ddb91001ea924f8762910000",
+     "a2c789a5ddb91001ebffa80648e90000",
+     "a2c789a5ddb91001e81191cd2c5c0000",
+     "a2c789a5ddb91001e7b1735a8c3c0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "millerknoll.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "MillerKnoll design and product roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MillerKnoll"
+  ],
+  "tenant": [
+   "millerknoll"
+  ]
+ },
+ "milwaukee_tool": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "milwaukee_tool"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "tti.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Milwaukee Tool design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "industrial design"
+  ],
+  "site": [
+   "Milwaukee"
+  ],
+  "tenant": [
+   "tti"
+  ]
+ },
  "mimecast": {
   "ats": [
    "workday"
@@ -17570,6 +18088,29 @@
   ],
   "token": [
    "nabla"
+  ]
+ },
+ "nanoleaf": {
+  "account": [
+   "nanoleaf"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "nanoleaf"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "nasdaq": {
@@ -18979,6 +19520,29 @@
    "outreach"
   ]
  },
+ "owlet": {
+  "account": [
+   "owlet-baby-care-1"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "owlet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "pacbio": {
   "ats": [
    "workday"
@@ -19210,6 +19774,29 @@
    "patreon"
   ]
  },
+ "pax_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "pax_labs"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "paxlabs"
+  ]
+ },
  "paxos": {
   "ats": [
    "ashby"
@@ -19282,6 +19869,29 @@
   ],
   "token": [
    "pdtpartners"
+  ]
+ },
+ "peak_design": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "peak_design"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "peakdesign"
   ]
  },
  "peloton": {
@@ -19645,6 +20255,29 @@
    "planetscale"
   ]
  },
+ "plaud": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "plaud"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Plaud"
+  ]
+ },
  "playstation": {
   "ats": [
    "greenhouse"
@@ -19747,6 +20380,35 @@
   ],
   "token": [
    "poka"
+  ]
+ },
+ "polaris": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "polaris"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "polaris.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PolarisJobs"
+  ],
+  "tenant": [
+   "polaris"
   ]
  },
  "poolside": {
@@ -20261,6 +20923,29 @@
   ],
   "tenant": [
    "publichealthontario"
+  ]
+ },
+ "puffco": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "puffco"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "puffco"
   ]
  },
  "pure_storage": {
@@ -22511,6 +23196,29 @@
    "https://careers.wrha.mb.ca/search/"
   ]
  },
+ "sharkninja": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sharkninja"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sharkninjaoperatingllc"
+  ]
+ },
  "sherpa": {
   "ats": [
    "ashby"
@@ -23523,6 +24231,35 @@
    "spacex"
   ]
  },
+ "specialized": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "specialized"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "specialized.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Specialized_External_Career_Site"
+  ],
+  "tenant": [
+   "specialized"
+  ]
+ },
  "speechify": {
   "ats": [
    "greenhouse"
@@ -23615,6 +24352,35 @@
   "track": [
    "__missing__",
    "tech"
+  ]
+ },
+ "spin_master": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "spin_master"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "spinmaster.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SpinMaster_Careers"
+  ],
+  "tenant": [
+   "spinmaster"
   ]
  },
  "spotify": {
@@ -23905,6 +24671,41 @@
   ],
   "url": [
    "https://careers.stanfordhealthcare.org/us/en/job/{id}"
+  ]
+ },
+ "stanley_black_decker": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "stanley_black_decker"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "sbdinc.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Stanley Black & Decker design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "designer"
+  ],
+  "site": [
+   "Stanley_Black_Decker_Career_Site"
+  ],
+  "tenant": [
+   "sbdinc"
   ]
  },
  "starburst": {
@@ -24665,6 +25466,29 @@
    "td"
   ]
  },
+ "teague": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "teague"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "teague"
+  ]
+ },
  "teleflex": {
   "ats": [
    "successfactors"
@@ -25309,6 +26133,29 @@
    "togetherai"
   ]
  },
+ "tonal": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "tonal"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tonal"
+  ]
+ },
  "top_hat": {
   "ats": [
    "ashby"
@@ -25384,6 +26231,29 @@
   ],
   "token": [
    "tractable"
+  ]
+ },
+ "traeger": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "traeger"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "traegergrills"
   ]
  },
  "transunion": {
@@ -25832,6 +26702,29 @@
   ],
   "host": [
    "apply.ukg.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "umbra": {
+  "account": [
+   "umbra"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "umbra"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
   ],
   "min_interval": [
    1800
@@ -27051,6 +27944,35 @@
    "weaviate"
   ]
  },
+ "weber": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "weber"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "weber.wd115.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "WB"
+  ],
+  "tenant": [
+   "weber"
+  ]
+ },
  "webflow": {
   "ats": [
    "greenhouse"
@@ -27629,6 +28551,35 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "yeti": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "yeti"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "yeticoolers.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "YETI"
+  ],
+  "tenant": [
+   "yeticoolers"
   ]
  },
  "yipitdata": {
