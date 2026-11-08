@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 3 done, waiting for your go-ahead on Phase 4** (section 13). You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): the first pack, `canadian_product_design`, is in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5311,6 +5311,48 @@ from that record.
    - A title census on each new source's live postings. Postings that land on Finance are counted apart.
    - After the per-filter research, the sweep of the top employers (section 8).
    - The per-profile poll time, before and after, with LinkedIn's time on its own line.
+   - **`canadian_product_design`, 2026-11-08** (`E:\product-design-board\phase4\`): 24 sources, core for both
+     boards. Each feed was read once with the app's reader, complete (read equals total where the ATS gives one),
+     and saved to `phase4etch\`. robots.txt allows every request path: Kula, Gem and Jobvite were checked by
+     hand, and Gem's robots.txt answers 403, read as no rules, as Ashby's 401 is.
+     - Live postings (`cand\canadian_final.census.json`, with the new types): 505. 24 land on Product and 14 on
+       Design: Product Management 19, Technical PM 4, APM & Programs 1; Product Design 9, Visual & Brand 2, Design
+       Engineering 2, Content Design 1. 28 land on Finance, about 6 of them misreads: Relay Financial's three
+       "Account Executive (Accounting & Bookkeeping)" and its "Manager, Channel Sales (Accounting & Bookkeeping)",
+       AppDirect's "Gestionnaire principal(e), stratégie Web et expérience IA" (Quant) and Zafin's "Market
+       Research Analyst" (Equity Research). No markup and no test titles; every posting has a place, and the French
+       titles read cleanly.
+     - Employers: 24 entries with `=` aliases, keyed by the slug their stored postings resolve to. Types:
+       enterprise_saas 18, consumer_tech 5, high_growth_startup 1 (TobogganLabs), all on the P&D track. Interac,
+       Zafin, Relay Financial and Venn take enterprise_saas, D26's tech type, not canadian_tech, because that type
+       is on the tech track only. A name that would catch another employer is longer: "Paper Education", not
+       "Paper" (FreshCut Paper); "Relay Financial" (a Raleigh "Relay" has 12 stored postings); "Jane App" (Jane
+       Street).
+     - Entries check (`entries\canadian_*.json`): the 75 stored postings the entries match, all from lists (SOTI
+       54, Interac 8, Bree 7, Poka 2, TextNow 2, TobogganLabs 2): 0 moves, 75 label changes (Software 42, Product
+       19, AI & Data 8, Operations 3, "other" 2, Finance 1), 3 renamed ("Interac Corp." on one Finance posting,
+       "Poka Labs" on two Software postings).
+     - Placement, `main` against the pack (`place\main_vs_p4a.txt`): as Phase 3's, missing 0, 0 moves outside
+       14.7, 9,050 allowed; label changes 418 → 423. Against Phase 3's placement: 0 moves, 24 label changes.
+     - Source history: sources_version 12, hash `14de9babb3856036`, 1,038 sources; the diff adds only the 24 names.
+     - Tests: 962 and 116 pass. The folder test (`test_board_polling.py`) holds every non-LinkedIn employer in
+       `product_design/` to the P&D track.
+     - Waiting on your answer: 11 Lever boards (Wave HQ, PointClickCare, Potloc, Fullscript, Achievers, Maple,
+       Caseware, ShyftLabs, Magnet Forensics, Smile.io, Plooto; 31 P&D postings before typing). api.lever.co's
+       robots.txt asks for `Crawl-delay: 1`, and `fetch_lever` has no pause (39 existing sources).
+     - Not added, by what blocks it:
+       - No adapter: Dialogue (Rippling), Vena (Pinpoint), Ratehub and Mogo (JazzHR).
+       - robots.txt: Assent (SmartRecruiters). Blocked: Shopify (its careers site can't be read).
+       - Another board's employer, your call: Questrade, a finance employer (Dayforce `qfg`: 79 read, 20 Finance,
+         8 P&D), whose home would be `shared/`. Loblaw Digital: a second source on `loblaw_pharmacy`'s Paradox
+         feed, narrowed to `cf_req_bu` "Loblaw Digital" (16 read, 3 P&D), is verified, but Loblaw Companies is
+         `pharmacy_consumer` on the Healthcare track, so it can only go in `shared/`.
+       - Few P&D roles: Mejuri (189 read, 1 P&D, 185 store roles), Knix (40 read, 2), Clarity, formerly Hiive
+         (trading and analyst roles only).
+       - Misreads: Fulfillment IQ (15 of its 29 roles are warehouse "solution design" leads that land on Design,
+         and Workable lists a role once per location: 54 rows, 29 ids).
+       - No working board: Super.com, 7shifts, Helcim. Name clash: Solace (Ottawa) with Solace Health. Already
+         polled: Mila, BenchSci.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.

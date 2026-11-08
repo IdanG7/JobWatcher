@@ -46,11 +46,11 @@ class BoardPollingTests(unittest.TestCase):
                     self.assertEqual(every, set(polled))
 
     def test_product_and_design_poll_their_own_groups_and_every_source_they_polled_in_0_3_11(self):
-        # D28: All of Product names 24 groups, All of Design the same 24 minus 6, and neither polls less than in
+        # D28: All of Product names 25 groups, All of Design the same 25 minus 6, and neither polls less than in
         # 0.3.11, with the same settings. Since Phase 3 they are core plus their filters' groups (option E).
         product, design = (set(self.packs.fields[board]["core"]).union(*self.packs.fields[board]["filters"].values())
                            for board in ("product", "design"))
-        self.assertEqual((24, 18), (len(product), len(design)))
+        self.assertEqual((25, 19), (len(product), len(design)))
         self.assertEqual({"semiconductors", "data_infrastructure", "ai_infrastructure", "cloud_infrastructure",
                           "ratings_data", "asset_managers"}, product - design)
         self.assertLessEqual(design, product)
@@ -103,6 +103,16 @@ class BoardPollingTests(unittest.TestCase):
                                                                self.kn, self.packs))
         self.assertEqual({*self.packs.fields["design"]["core"], "gaming"},
                          groups_for("design", {"fields": ["design"], "target_roles": ["design.game_design"]}, self.kn, self.packs))
+
+    def test_product_design_packs_hold_employers_on_the_product_design_track(self):
+        # As health/ does for Healthcare: every employer a product_design/ source reads, LinkedIn aside, has a type
+        # on the P&D track (plans/product-design-board.md, section 6).
+        folder = [(name, cfg) for pack in self.packs.packs.values() if pack.folder == "product_design"
+                  for name, cfg in pack.sources.items() if cfg["ats"] != "linkedin"]
+        self.assertTrue(folder)
+        for name, cfg in folder:
+            with self.subTest(source=name):
+                self.assertIn("product_design", self.kn.type_tracks(self.kn.companies[cfg["company_key"]].type))
 
     def test_finance_polls_no_tech_or_health_source(self):
         folders = self.folder(self.polled({"fields": ["finance"]}))

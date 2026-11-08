@@ -170,9 +170,9 @@ class PortableTests(unittest.TestCase):
                 self.assertEqual(bundled["boards"]["linkedin_us"]["queries"], config["boards"]["linkedin_us"]["queries"])
 
     def test_upgrading_a_0_3_7_install_keeps_every_source_and_posting_and_adds_tech_ones(self):
-        # The sources moved from config.json into config/sources packs, and later releases add
-        # tech/ and shared/ sources (sources_version 10) and health/ ones (11): a 0.3.7 install keeps its sources,
-        # settings and postings, and its Finance board polls what it did plus the shared/ additions.
+        # The sources moved from config.json into config/sources packs, and later releases add tech/ and
+        # shared/ sources (sources_version 10), health/ ones (11) and product_design/ ones (12): a 0.3.7 install
+        # keeps its sources, settings and postings, and its Finance board polls what it did plus the shared/ additions.
         root = Path(__file__).resolve().parents[2]
         bundled = clean_config(load_config(root / "config.json"))
         history = (root / "config" / "source_defaults_history.json").read_text(encoding="utf-8")
@@ -207,7 +207,7 @@ class PortableTests(unittest.TestCase):
         self.assertEqual(bundled["sources_version"], config["sources_version"])
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual({"tech", "shared", "health"}, {folder(name) for name in added})
+        self.assertEqual({"tech", "shared", "health", "product_design"}, {folder(name) for name in added})
         self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= added)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
@@ -252,7 +252,7 @@ class PortableTests(unittest.TestCase):
         added = set(packs.source_pack) - set(old)
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"health"})
+        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"health", "product_design"})
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 796, "job_intel": 796, "job_fts": 796, "applications": 1}, postings)
         self.assertEqual(set(bundled["boards"]), set(packs.source_pack))

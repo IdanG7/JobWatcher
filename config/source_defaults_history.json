@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "f5dd3640f5c29200",
+  "hash": "14de9babb3856036",
   "names": [
    "10x_genomics",
    "1password",
@@ -112,6 +112,7 @@
    "abnormal_security",
    "abridge",
    "absci",
+   "absolute_security",
    "absorb_lms",
    "abt_global",
    "acorns",
@@ -167,6 +168,7 @@
    "apollo",
    "apollo_io",
    "apotex",
+   "appdirect",
    "appian",
    "apple",
    "apple_finance",
@@ -196,6 +198,8 @@
    "aurora",
    "autodesk",
    "automation_anywhere",
+   "autotrader_ca",
+   "axonify",
    "axonius",
    "backstory",
    "bank_of_america",
@@ -245,6 +249,7 @@
    "box",
    "braintrust",
    "braze",
+   "bree",
    "brex",
    "bristol_myers_squibb",
    "broad_institute",
@@ -401,6 +406,7 @@
    "dyno_therapeutics",
    "e2b",
    "ebay",
+   "ecobee",
    "edwards_lifesciences",
    "eikon_therapeutics",
    "elastic",
@@ -422,6 +428,7 @@
    "exa_ai",
    "exabeam",
    "expedia_group",
+   "explorance",
    "f5",
    "faire",
    "fanduel",
@@ -514,6 +521,7 @@
    "hinge_health",
    "honeycomb_io",
    "honeywell",
+   "hootsuite",
    "hopper",
    "houlihan_lokey",
    "houlihan_lokey_campus",
@@ -541,6 +549,7 @@
    "intel",
    "intel_early",
    "intellia_therapeutics",
+   "interac",
    "intercom",
    "intuit",
    "intuitive_surgical",
@@ -552,6 +561,7 @@
    "isomorphic_labs",
    "jackson_laboratory",
    "jam_city",
+   "jane_app",
    "jane_street",
    "jefferies_campus",
    "jfrog",
@@ -754,6 +764,7 @@
    "pagerduty",
    "palantir",
    "palo_alto_networks",
+   "paper_education",
    "parexel",
    "path",
    "pathai",
@@ -781,6 +792,7 @@
    "planetscale",
    "playstation",
    "point72",
+   "poka_labs",
    "poolside",
    "poshmark",
    "posthog",
@@ -790,6 +802,7 @@
    "premier_research",
    "priceline",
    "procore_technologies",
+   "procurify",
    "profound_medical",
    "proofpoint",
    "providence",
@@ -826,6 +839,7 @@
    "regard",
    "regeneron",
    "relativity_space",
+   "relay_financial",
    "relay_therapeutics",
    "render",
    "replit",
@@ -891,6 +905,7 @@
    "serve_robotics",
    "servicenow",
    "shared_health_manitoba",
+   "sherpa",
    "shield_ai",
    "shoppers_drug_mart",
    "sickkids",
@@ -926,6 +941,7 @@
    "sonos",
    "sony",
    "sophos",
+   "soti",
    "sourcegraph",
    "southlake_health",
    "sp_global",
@@ -988,6 +1004,7 @@
    "terrapower",
    "teva",
    "texas_instruments",
+   "textnow",
    "the_aerospace",
    "the_home_depot",
    "the_new_york_times",
@@ -999,6 +1016,7 @@
    "thumbtack",
    "tines",
    "toast",
+   "tobogganlabs",
    "together_ai",
    "top_hat",
    "torq",
@@ -1023,6 +1041,7 @@
    "udemy",
    "uipath",
    "ukg",
+   "unbounce",
    "unisys",
    "unitedhealth_group",
    "unity",
@@ -1045,11 +1064,14 @@
    "vatic_labs",
    "vector_institute",
    "veeva_systems",
+   "vendasta",
+   "venn",
    "vercel",
    "verizon",
    "verkada",
    "viam",
    "viavi_solutions",
+   "vidyard",
    "vir_biotechnology",
    "virtu",
    "visa",
@@ -1084,6 +1106,7 @@
    "workato",
    "workday_hq",
    "workiva",
+   "workleap",
    "workos",
    "world_labs",
    "worldpay",
@@ -1098,6 +1121,7 @@
    "yipitdata",
    "you_com",
    "yugabytedb",
+   "zafin",
    "zapier",
    "zapply_ca_intern",
    "zapply_ca_jobs",
@@ -1117,7 +1141,7 @@
    "zscaler",
    "zuora"
   ],
-  "version": 11
+  "version": 12
  },
  "__since__": {
   "10x_genomics": 11,
@@ -1130,6 +1154,7 @@
   "abnormal_security": 10,
   "abridge": 1,
   "absci": 11,
+  "absolute_security": 12,
   "absorb_lms": 10,
   "abt_global": 11,
   "acorns": 10,
@@ -1185,6 +1210,7 @@
   "apollo": 6,
   "apollo_io": 10,
   "apotex": 11,
+  "appdirect": 12,
   "appian": 10,
   "apple": 10,
   "apple_finance": 10,
@@ -1214,6 +1240,8 @@
   "aurora": 1,
   "autodesk": 1,
   "automation_anywhere": 10,
+  "autotrader_ca": 12,
+  "axonify": 12,
   "axonius": 10,
   "backstory": 10,
   "bank_of_america": 6,
@@ -1263,6 +1291,7 @@
   "box": 10,
   "braintrust": 1,
   "braze": 10,
+  "bree": 12,
   "brex": 1,
   "bristol_myers_squibb": 11,
   "broad_institute": 11,
@@ -1419,6 +1448,7 @@
   "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
+  "ecobee": 12,
   "edwards_lifesciences": 11,
   "eikon_therapeutics": 11,
   "elastic": 1,
@@ -1440,6 +1470,7 @@
   "exa_ai": 10,
   "exabeam": 10,
   "expedia_group": 10,
+  "explorance": 12,
   "f5": 10,
   "faire": 1,
   "fanduel": 10,
@@ -1532,6 +1563,7 @@
   "hinge_health": 1,
   "honeycomb_io": 10,
   "honeywell": 10,
+  "hootsuite": 12,
   "hopper": 10,
   "houlihan_lokey": 1,
   "houlihan_lokey_campus": 1,
@@ -1559,6 +1591,7 @@
   "intel": 1,
   "intel_early": 1,
   "intellia_therapeutics": 11,
+  "interac": 12,
   "intercom": 10,
   "intuit": 10,
   "intuitive_surgical": 10,
@@ -1570,6 +1603,7 @@
   "isomorphic_labs": 10,
   "jackson_laboratory": 11,
   "jam_city": 10,
+  "jane_app": 12,
   "jane_street": 1,
   "jefferies_campus": 6,
   "jfrog": 10,
@@ -1774,6 +1808,7 @@
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
+  "paper_education": 12,
   "parexel": 11,
   "path": 11,
   "pathai": 10,
@@ -1801,6 +1836,7 @@
   "planetscale": 1,
   "playstation": 10,
   "point72": 1,
+  "poka_labs": 12,
   "poolside": 1,
   "poshmark": 10,
   "posthog": 10,
@@ -1810,6 +1846,7 @@
   "premier_research": 11,
   "priceline": 10,
   "procore_technologies": 10,
+  "procurify": 12,
   "profound_medical": 11,
   "proofpoint": 10,
   "providence": 11,
@@ -1846,6 +1883,7 @@
   "regard": 10,
   "regeneron": 11,
   "relativity_space": 10,
+  "relay_financial": 12,
   "relay_therapeutics": 11,
   "render": 10,
   "replit": 10,
@@ -1911,6 +1949,7 @@
   "serve_robotics": 10,
   "servicenow": 1,
   "shared_health_manitoba": 11,
+  "sherpa": 12,
   "shield_ai": 1,
   "shoppers_drug_mart": 11,
   "sickkids": 11,
@@ -1946,6 +1985,7 @@
   "sonos": 10,
   "sony": 10,
   "sophos": 10,
+  "soti": 12,
   "sourcegraph": 10,
   "southlake_health": 11,
   "sp_global": 6,
@@ -2008,6 +2048,7 @@
   "terrapower": 10,
   "teva": 11,
   "texas_instruments": 10,
+  "textnow": 12,
   "the_aerospace": 10,
   "the_home_depot": 10,
   "the_new_york_times": 10,
@@ -2019,6 +2060,7 @@
   "thumbtack": 10,
   "tines": 10,
   "toast": 10,
+  "tobogganlabs": 12,
   "together_ai": 1,
   "top_hat": 10,
   "torq": 10,
@@ -2043,6 +2085,7 @@
   "udemy": 10,
   "uipath": 10,
   "ukg": 10,
+  "unbounce": 12,
   "unisys": 10,
   "unitedhealth_group": 10,
   "unity": 10,
@@ -2065,11 +2108,14 @@
   "vatic_labs": 1,
   "vector_institute": 11,
   "veeva_systems": 10,
+  "vendasta": 12,
+  "venn": 12,
   "vercel": 1,
   "verizon": 10,
   "verkada": 1,
   "viam": 10,
   "viavi_solutions": 10,
+  "vidyard": 12,
   "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
@@ -2104,6 +2150,7 @@
   "workato": 10,
   "workday_hq": 1,
   "workiva": 10,
+  "workleap": 12,
   "workos": 10,
   "world_labs": 10,
   "worldpay": 10,
@@ -2118,6 +2165,7 @@
   "yipitdata": 10,
   "you_com": 10,
   "yugabytedb": 10,
+  "zafin": 12,
   "zapier": 10,
   "zapply_ca_intern": 1,
   "zapply_ca_jobs": 1,
@@ -2255,6 +2303,29 @@
   ],
   "token": [
    "absci"
+  ]
+ },
+ "absolute_security": {
+  "account": [
+   "ql9aVfwj"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "absolute_security"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "absorb_lms": {
@@ -3505,6 +3576,29 @@
    "https://careers.apotex.com/search/"
   ]
  },
+ "appdirect": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "appdirect"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "appdirect"
+  ]
+ },
  "appian": {
   "ats": [
    "greenhouse"
@@ -4145,6 +4239,52 @@
   ],
   "tenant": [
    "automationanywhere"
+  ]
+ },
+ "autotrader_ca": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "autotrader_ca"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "autotradercanada"
+  ]
+ },
+ "axonify": {
+  "account": [
+   "axonify"
+  ],
+  "ats": [
+   "gem"
+  ],
+  "company_key": [
+   "axonify"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "axonius": {
@@ -5443,6 +5583,29 @@
   ],
   "token": [
    "braze"
+  ]
+ },
+ "bree": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "bree"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bree"
   ]
  },
  "brex": {
@@ -9153,6 +9316,46 @@
    "ebay"
   ]
  },
+ "ecobee": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ecobee"
+  ],
+  "facets": [
+   {
+    "locations": [
+     "39f98e6dce941001ea81b35655790000",
+     "c631a51d674a1000e13d1e766b8e0000"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "generac.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "ecobee (Generac) Toronto"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "generac"
+  ]
+ },
  "edwards_lifesciences": {
   "ats": [
    "workday"
@@ -9676,6 +9879,29 @@
   ],
   "tenant": [
    "expedia"
+  ]
+ },
+ "explorance": {
+  "account": [
+   "explorance"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "explorance"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "f5": {
@@ -11751,6 +11977,29 @@
    "Honeywell"
   ]
  },
+ "hootsuite": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hootsuite"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hootsuite"
+  ]
+ },
  "hopper": {
   "ats": [
    "ashby"
@@ -12431,6 +12680,35 @@
    "intelliatx"
   ]
  },
+ "interac": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "interac"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "interac.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Interac"
+  ],
+  "tenant": [
+   "interac"
+  ]
+ },
  "intercom": {
   "ats": [
    "greenhouse"
@@ -12718,6 +12996,29 @@
   ],
   "token": [
    "jamcity"
+  ]
+ },
+ "jane_app": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "jane_app"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "jane"
   ]
  },
  "jane_street": {
@@ -18062,6 +18363,35 @@
    "paloaltonetworks"
   ]
  },
+ "paper_education": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "paper_education"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "paper.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Paper_Careers"
+  ],
+  "tenant": [
+   "paper"
+  ]
+ },
  "parexel": {
   "ats": [
    "workday"
@@ -18636,6 +18966,29 @@
    "both"
   ]
  },
+ "poka_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "poka_labs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "poka"
+  ]
+ },
  "poolside": {
   "ats": [
    "ashby"
@@ -18847,6 +19200,29 @@
   ],
   "tenant": [
    "procore"
+  ]
+ },
+ "procurify": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "procurify"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "procurify"
   ]
  },
  "profound_medical": {
@@ -19758,6 +20134,29 @@
   ],
   "token": [
    "relativity"
+  ]
+ },
+ "relay_financial": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "relay_financial"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "relayfi"
   ]
  },
  "relay_therapeutics": {
@@ -21260,6 +21659,29 @@
    "https://careers.wrha.mb.ca/search/"
   ]
  },
+ "sherpa": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "sherpa"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "joinsherpa"
+  ]
+ },
  "shield_ai": {
   "ats": [
    "lever"
@@ -22077,6 +22499,35 @@
   ],
   "token": [
    "sophos"
+  ]
+ },
+ "soti": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "soti"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "soti.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "soti"
   ]
  },
  "sourcegraph": {
@@ -23521,6 +23972,29 @@
    "CX"
   ]
  },
+ "textnow": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "textnow"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "textnowinc"
+  ]
+ },
  "the_aerospace": {
   "ats": [
    "workday"
@@ -23835,6 +24309,29 @@
   ],
   "token": [
    "toast"
+  ]
+ },
+ "tobogganlabs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tobogganlabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tobogganlabs"
   ]
  },
  "together_ai": {
@@ -24353,6 +24850,29 @@
    2
   ]
  },
+ "unbounce": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "unbounce"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "unbounce"
+  ]
+ },
  "unisys": {
   "ats": [
    "workday"
@@ -24844,6 +25364,52 @@
    "veeva"
   ]
  },
+ "vendasta": {
+  "account": [
+   "vendasta"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "vendasta"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "venn": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "venn"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "venn"
+  ]
+ },
  "vercel": {
   "ats": [
    "greenhouse"
@@ -24933,6 +25499,29 @@
   ],
   "tenant": [
    "viavisolutions"
+  ]
+ },
+ "vidyard": {
+  "account": [
+   "vidyard"
+  ],
+  "ats": [
+   "kula"
+  ],
+  "company_key": [
+   "vidyard"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "vir_biotechnology": {
@@ -25691,6 +26280,29 @@
    "workiva"
   ]
  },
+ "workleap": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "workleap"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "workleap"
+  ]
+ },
  "workos": {
   "ats": [
    "ashby"
@@ -25978,6 +26590,29 @@
   ],
   "token": [
    "yugabyte"
+  ]
+ },
+ "zafin": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "zafin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "zafinlabsamericasinc"
   ]
  },
  "zapier": {
