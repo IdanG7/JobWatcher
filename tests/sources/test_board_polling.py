@@ -47,8 +47,10 @@ class BoardPollingTests(unittest.TestCase):
 
     def test_product_and_design_poll_their_own_groups_and_every_source_they_polled_in_0_3_11(self):
         # D28: All of Product names 24 groups, All of Design the same 24 minus 6, and neither polls less than in
-        # 0.3.11, with the same settings.
-        product, design = (set(self.packs.fields[board]["groups"]) for board in ("product", "design"))
+        # 0.3.11, with the same settings. Since Phase 3 they are core plus their filters' groups (option E).
+        product, design = (set(self.packs.fields[board]["core"]).union(*self.packs.fields[board]["filters"].values())
+                           for board in ("product", "design"))
+        self.assertEqual((24, 18), (len(product), len(design)))
         self.assertEqual({"semiconductors", "data_infrastructure", "ai_infrastructure", "cloud_infrastructure",
                           "ratings_data", "asset_managers"}, product - design)
         self.assertLessEqual(design, product)
@@ -87,6 +89,20 @@ class BoardPollingTests(unittest.TestCase):
         for name, cfg in health:
             with self.subTest(source=name):
                 self.assertIn("healthcare", self.kn.type_tracks(self.kn.companies[cfg["company_key"]].type))
+
+    def test_product_and_design_name_each_of_their_filters_and_a_filter_adds_only_its_groups(self):
+        # Option E (D28): the filters are the taxonomy's, in order. A picked filter polls core and its own groups;
+        # APM & Programs and Design Engineering have none of their own until Phase 4's packs, so they poll core.
+        tree = {f["key"]: f for f in self.kn.family_tree()}
+        for board, alone in (("product", "apm_programs"), ("design", "design_engineering")):
+            with self.subTest(board=board):
+                rule = self.packs.fields[board]
+                self.assertEqual([s["key"] for s in tree[board]["subcategories"]], list(rule["filters"]))
+                self.assertEqual([], rule["filters"][alone])
+                self.assertEqual(set(rule["core"]), groups_for(board, {"fields": [board], "target_roles": [f"{board}.{alone}"]},
+                                                               self.kn, self.packs))
+        self.assertEqual({*self.packs.fields["design"]["core"], "gaming"},
+                         groups_for("design", {"fields": ["design"], "target_roles": ["design.game_design"]}, self.kn, self.packs))
 
     def test_finance_polls_no_tech_or_health_source(self):
         folders = self.folder(self.polled({"fields": ["finance"]}))

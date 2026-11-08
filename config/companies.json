@@ -1061,6 +1061,14 @@
     {"key": "houston_methodist", "name": "Houston Methodist", "type": "hospital", "country": "US", "hq": "Houston", "aliases": ["=houston methodist", "=houston methodist hospital"]},
     {"key": "boston_medical_center", "name": "Boston Medical Center", "type": "hospital", "country": "US", "hq": "Boston", "aliases": ["=boston medical center", "=boston medical center health system"]},
     {"key": "children_s_national", "name": "Children's National", "type": "hospital", "country": "US", "hq": "Washington", "aliases": ["=children s national hospital", "=children s national", "=children s national health system"]},
-    {"key": "nationwide_children_s", "name": "Nationwide Children's", "type": "hospital", "country": "US", "hq": "Columbus", "aliases": ["=nationwide children s hospital", "=nationwide children s"]}
+    {"key": "nationwide_children_s", "name": "Nationwide Children's", "type": "hospital", "country": "US", "hq": "Columbus", "aliases": ["=nationwide children s hospital", "=nationwide children s"]},
+    {"key": "figma", "name": "Figma", "type": "enterprise_saas", "country": "US", "hq": "San Francisco", "aliases": ["=figma"]},
+    {"key": "adobe", "name": "Adobe", "type": "big_tech", "country": "US", "hq": "San Jose", "aliases": ["=adobe"]},
+    {"key": "webflow", "name": "Webflow", "type": "enterprise_saas", "country": "US", "hq": "San Francisco", "aliases": ["=webflow"]},
+    {"key": "notion", "name": "Notion", "type": "enterprise_saas", "country": "US", "hq": "San Francisco", "aliases": ["=notion"]},
+    {"key": "duolingo", "name": "Duolingo", "type": "consumer_tech", "country": "US", "hq": "Pittsburgh", "aliases": ["=duolingo"]},
+    {"key": "asana", "name": "Asana", "type": "enterprise_saas", "country": "US", "hq": "San Francisco", "aliases": ["=asana"]},
+    {"key": "airbnb", "name": "Airbnb", "type": "consumer_tech", "country": "US", "hq": "San Francisco", "aliases": ["=airbnb"]},
+    {"key": "spotify", "name": "Spotify", "type": "consumer_tech", "country": "SE", "hq": "Stockholm", "aliases": ["=spotify"]}
   ]
 }
