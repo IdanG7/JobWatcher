@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "cba7f00e46bca549",
+  "hash": "492e199f36085766",
   "names": [
    "10x_genomics",
    "1password",
@@ -184,8 +184,10 @@
    "alteryx",
    "altos_labs",
    "amazon",
+   "amazon_design",
    "amazon_finance",
    "amazon_newgrad",
+   "amazon_product",
    "amazon_tech",
    "ambarella",
    "ambience_healthcare",
@@ -804,6 +806,7 @@
    "nextracker",
    "niantic_spatial",
    "nike",
+   "nike_design",
    "nike_finance",
    "nokia",
    "northrop_grumman",
@@ -1311,8 +1314,10 @@
   "alteryx": 10,
   "altos_labs": 11,
   "amazon": 1,
+  "amazon_design": 12,
   "amazon_finance": 10,
   "amazon_newgrad": 1,
+  "amazon_product": 12,
   "amazon_tech": 10,
   "ambarella": 10,
   "ambience_healthcare": 10,
@@ -1933,6 +1938,7 @@
   "nextracker": 10,
   "niantic_spatial": 10,
   "nike": 10,
+  "nike_design": 12,
   "nike_finance": 10,
   "nokia": 10,
   "northrop_grumman": 10,
@@ -3286,6 +3292,40 @@
    "software engineer intern"
   ]
  },
+ "amazon_design": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "categories": [
+   [
+    "design"
+   ]
+  ],
+  "company_key": [
+   "amazon"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "label": [
+   "Amazon design roles"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   ""
+  ]
+ },
  "amazon_finance": {
   "ats": [
    "amazon_jobs"
@@ -3336,6 +3376,40 @@
   ],
   "query": [
    "software development engineer"
+  ]
+ },
+ "amazon_product": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "categories": [
+   [
+    "project-program-product-management-non-tech"
+   ]
+  ],
+  "company_key": [
+   "amazon"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "label": [
+   "Amazon non-tech product manager roles"
+  ],
+  "max": [
+   3000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "product manager"
   ]
  },
  "amazon_tech": {
@@ -18750,6 +18824,45 @@
   ],
   "label": [
    "Nike technology roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "nke"
+  ],
+  "tenant": [
+   "nike"
+  ]
+ },
+ "nike_design": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "nike"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "cd128a2666561000bad388d2f6030000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "host": [
+   "nike.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Nike design roles"
   ],
   "min_interval": [
    1800

@@ -1,0 +1,9 @@
+{
+  "title": "Big tech design and product reads",
+  "verified": "2026-11-08",
+  "note": "Product and Design core, as tech/ and shared/ big_tech are. Second sources at Amazon, on the amazon.jobs feed Amazon's four sources read: its design category, and a 'product manager' search of its non-tech product and program management category. Both were read to their last match on 2026-11-08 (307 / 307 and 163 / 163); an amazon.jobs search is never marked complete, as for Amazon's other sources. Not added: the rest of the non-tech category (927 of its 1,090 postings; the whole category puts 200 on Product, 445 on Operations and 89 on Finance, and the 60 Product postings the search leaves out are program managers for data centres and logistics).",
+  "boards": {
+    "amazon_design": {"ats": "amazon_jobs", "query": "", "max": 2000, "categories": ["design"], "company_key": "amazon", "min_interval": 1800, "group": "Big Tech", "priority": 1, "geography": "global", "label": "Amazon design roles"},
+    "amazon_product": {"ats": "amazon_jobs", "query": "product manager", "max": 3000, "categories": ["project-program-product-management-non-tech"], "company_key": "amazon", "min_interval": 1800, "group": "Big Tech", "priority": 1, "geography": "global", "label": "Amazon non-tech product manager roles"}
+  }
+}

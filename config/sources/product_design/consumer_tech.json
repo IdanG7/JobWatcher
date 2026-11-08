@@ -1,0 +1,8 @@
+{
+  "title": "Consumer brand design reads",
+  "verified": "2026-11-08",
+  "note": "Product and Design core, as tech/ and shared/ consumer_tech are. Nike's Design job category on its nke Workday site, which nike (technology families) and nike_finance don't read; read whole on 2026-11-08 (70 / 70). Not added: Nike's Product Development Group (59 postings, 5 in product or design: footwear and apparel product creation); Walmart's product and design job families (97 of their 112 postings are in the Technology category walmart_global_tech reads, and the other 15 are product-marketing, photo-studio and creative roles, 2 of them designers).",
+  "boards": {
+    "nike_design": {"ats": "workday", "host": "nike.wd1.myworkdayjobs.com", "tenant": "nike", "site": "nke", "facets": {"jobFamilyGroup": ["cd128a2666561000bad388d2f6030000"]}, "company_key": "nike", "min_interval": 1800, "group": "Consumer Tech", "priority": 2, "geography": "global", "label": "Nike design roles"}
+  }
+}

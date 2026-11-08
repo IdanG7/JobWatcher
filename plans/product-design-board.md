@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33) and `early_career_programs` (7) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2) and `consumer_tech` (1) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5491,6 +5491,33 @@ from that record.
        NBCUniversal (robots.txt); LinkedIn (only through a LinkedIn company search; its APM program ended in 2025).
        Clearwater Analytics, Cox, Yahoo, Grammarly, Wayfair, AppLovin, Solace Health, CDK Global, Dick's Sporting
        Goods, Amplify and Medline have no early-career board: their main boards go to the sweep (8.6).
+   - **`big_tech` and `consumer_tech`, 2026-11-08** (D34): 3 second sources, each with a label, in groups Product
+     and Design core already poll (a pack's group is its file's name, as for `tech/` and `shared/`), so the
+     manifest is unchanged. Amazon's two read amazon.jobs, as its four sources do; Nike's reads the Design job
+     family of its `nke` Workday site, which `nike` (technology families) and `nike_finance` don't read.
+     - `amazon_design`: the `design` category, 307 / 307 to its last match. Design 157 (Product & UX Design 99;
+       Visual, Brand & Motion 28; Design Engineering 12; UX Research 6; Industrial Design 1; Content Design 1;
+       no filter 10), Hardware 64 and Software 52 (design engineers for data centres, warehouses, robotics and networks),
+       "other" 23 (civil engineers, video and creative roles), Operations 5, Product 4, Sales 2; none on Finance.
+     - `amazon_product`: a "product manager" search of `project-program-product-management-non-tech`, 163 / 163.
+       Product 140 (Product Management 119, Technical PM & TPM 18, APM & Programs 2, Product Operations 1),
+       "other" 10, Operations 7, Finance 3 (two compliance roles and a payments product manager), Sales 2,
+       Software 1. The whole category is left out for its 445 Operations and 89 Finance postings (item 4, above).
+     - `nike_design`: the `jobFamilyGroup` facet for Design, 70 / 70, complete. Design 48 (Product & UX Design
+       19; Visual, Brand & Motion 18; Industrial Design 3; no filter 8), "other" 19, AI & Data 2, Healthcare 1;
+       none on Finance. 11 of the 19 are apparel designers: Design's title rule leaves out apparel and fashion
+       design (`nd:fashion_textile_travel`, section 4.2), so they stay on "other". 2 are colour-design leads
+       ("Director, Core Studio Color Design"), whose titles the rule doesn't take either; the other 6 are
+       footwear research, materials and innovation roles and a production artist.
+     - Not added (D34): Nike's Product Development Group (59 postings, 5 in product or design: footwear and
+       apparel product creation); Walmart's product and design job families (112 postings: 97 in the Technology
+       category `walmart_global_tech` reads; the other 15 are product-marketing, photo-studio and creative
+       roles, 2 of them designers).
+     - No employer entry changes, so there is no entries check. Placement, `main` against the packs
+       (`place\main_vs_p4j.txt`): the same as for the Workday commit (missing 0, 0 moves outside 14.7,
+       9,050 allowed, label changes 443). Against the Workday commit: no change at all.
+     - Source history: records the bundle's 1,126 sources; against the Workday commit it adds only the 3 names,
+       and no existing source's history changes. Tests: 963 and 116 pass.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
