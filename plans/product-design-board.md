@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 2 done, waiting for your go-ahead on Phase 3** (section 13). You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07 (14.7). Branch
+Status: **Phase 3 done, waiting for your go-ahead on Phase 4** (section 13). You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5265,6 +5265,45 @@ from that record.
      moves are checked against the approved list before they are reported (brief, Target state item 2).
    - Every new skill's hit rate on Product and Design postings, and on the other boards of its track.
    - The fingerprint changes here, so the release re-reads every stored posting once (D46).
+   - **Done on 2026-11-08** (`E:\product-design-board\phase3\`), after merging `main` at `937bbc2`. The commits:
+     Product's words, filters and claims (`236f44f`); Design's, with Hardware's design engineers (`649deb4`); the
+     levels (`67f57e1`); D27's 8 employers and the source filters (`7349d89`); the track, types and skills
+     (`f16ef39`); the resume skill change (`6449cad`); and the records in this file.
+     - Sample: 73,917 ids, taken with both checkouts' words, and `main` placed again on them.
+     - Placement, `main` against the branch (`main_vs_d24.txt`): 73,917 → 73,917, missing 0, added 0, **0 moves
+       outside 14.7**. 9,050 allowed moves, 2,494 of them change what Finance shows (to or from Finance or
+       "other"). Inside Product and Design, 10,762 filter or rule changes. Off them, 418 label changes (D27's 8
+       employers only, name and type) and 6 stage changes (14.7's JPMorgan postings). The track, types, skills
+       and resume change add nothing to the placement: the comparison is identical to the one before them.
+     - Open postings per move (`open_pairs.py`): `design:hardware` 2,212, `product:operations` 1,533,
+       `software:product` 1,105, `design:other` 719, `other:product` 693, `other:operations` 435,
+       `finance:product` 244, `design:software` 192, `hardware:product` 176, `operations:product` 141,
+       `data_ml:product` 112, `product:sales` 76, `design:sales` 61, `finance:operations` 40, `other:design` 38,
+       `design:operations` 36, `software:design` 36, `design:healthcare` 24, `finance:design` 19,
+       `sales:product` 18, `design:product` 16, `product:design` 15, `software:operations` 15,
+       `software:hardware` 14, `design:people_legal` 12, `people_legal:product` 7, `product:healthcare` 7, and
+       1 each for `sales:design`, `healthcare:design` and `product:software`. `data_ml:design`'s one is closed.
+       Each is within 14.7.
+     - Stage rules: section 5's counts taken again on the branch's code (`sliceC\measure.txt`), in `67f57e1`.
+     - D27: 1,674 stored postings typed and 1,404 renamed, nothing else (`sliceD\entries_compare_final.txt`).
+     - D24's points, for a P&D profile with no target types: on the stored placement, 2,549 Product and 3,066
+       Design postings go from 7 to 4, as 6.1 counted; on the branch's placement 2,415 and 763, since D8 sends the
+       chip and mechanical design engineers to Hardware. For finance+product, 3,354 Finance postings too (14.7).
+     - D42's skills on open postings with a description (`sliceD\skill_rates_v3.txt`): Figma and design systems
+       32.4% of Design, interaction design 18.2%, user research 18.0%, prototyping 17.4%; product strategy 22.8% of
+       Product and roadmaps 20.9%. They read on no other board's postings. A P&D skill falls past the 24-skill
+       limit on 1 posting.
+     - Resumes: `resume_record compare` against the record before slice D: 384 of 384 unchanged. The new fixtures
+       (`test_resume_product_design.py`) read a UX, PM, CS+PM, HCI and role-word resume on the track.
+     - Polled: all 20 sample profiles poll what Phase 2 recorded, bundled and installed config.
+     - Existing tests changed: `test_tech_taxonomy.py` and `test_resume_tech.py` (D3's claim takes "Product
+       Manager, Embedded Payments" from Software; an illustrator intern is a Design role now, D14; a Hardware
+       resume's types are tech's, Big Tech also on the P&D track), `test_boards.py` and `fields.test.js` (tech's
+       boards are Software, AI & Data and Hardware; the P&D track and its sections and skill groups),
+       `test_board_polling.py` (core and filters), and `test_resume_record.py` (main now reads the PharmD
+       fixture, `0c0485c`).
+     - Left for later: the facts recompute's time (D46, Phase 6), and `web/js/preview/meta.json`'s cities, kept
+       as they were (no city marked target).
 4. **Sources, one filter at a time:** research, verify, add, commit, with the placement check before each commit.
    - Up to 4 research agents at once, one per filter. They don't fetch Eightfold sites: I fetch those one at a time.
    - With the first pack commit, `sources_version` goes to 12. After each pack commit,
@@ -5491,6 +5530,15 @@ sample against `main` 937bbc2):
   stage changes off the two boards. About 30 "Development Program Manager" and "Internship/Early Career Program
   Manager" titles D2 sends from Product to Operations keep `main`'s misreads there. Both are left to Operations
   (section 15.1).
+
+**Added on 2026-11-08, from slice D (D24, D25, D42)** (your answers):
+- Code: `intel/taxonomy.py` `_claim` lets a claim on the P&D track take tech work from "other", as a tech board's
+  claim does. Only Product's and Design's claims are affected. Without it, 5 stored GM and Ford vehicle interior
+  designers fall from Design to "other".
+- Shared resume reader: a resume that opens the P&D track also reads tech-track skills, as P&D postings do (a
+  track's `resume.skills_also`). Only P&D resumes change; the 384 recorded readings don't.
+- Fit: a finance+product profile scores Finance postings at the 16 tech types the P&D track doesn't share 4 company
+  points instead of 7, as a Finance-only profile does: 3,354 stored (2,977 open). Placement is unchanged.
 
 ---
 
