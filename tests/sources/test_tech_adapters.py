@@ -164,14 +164,30 @@ class PhenomCategoryTests(unittest.TestCase):
         self.assertEqual({}, post.call_args.kwargs["json"]["selected_fields"])
 
 
+@patch("watcher.time.sleep")
 class LeverRegionTests(unittest.TestCase):
+    def setUp(self):
+        watcher._lever_next = 0.0
+        self.addCleanup(setattr, watcher, "_lever_next", 0.0)     # no later test waits on these requests' turn
+
     @patch("watcher.requests.get")
-    def test_an_eu_board_is_read_from_levers_eu_api(self, get):
+    def test_an_eu_board_is_read_from_levers_eu_api(self, get, sleep):
         get.return_value = response([{"id": "a1", "text": "Quantum Engineer", "hostedUrl": "https://jobs.eu.lever.co/q/a1"}])
         self.assertEqual(["a1"], [j["id"] for j in watcher.fetch_lever({"token": "quantinuum", "region": "eu"})])
         self.assertEqual("https://api.eu.lever.co/v0/postings/quantinuum?mode=json", get.call_args.args[0])
         watcher.fetch_lever({"token": "belvedere"})
         self.assertEqual("https://api.lever.co/v0/postings/belvedere?mode=json", get.call_args.args[0])
+
+    @patch("watcher.requests.get")
+    def test_lever_requests_take_turns_a_second_apart(self, get, sleep):
+        # api.lever.co's robots.txt asks for a Crawl-delay of 1: listings and opened postings, in both regions.
+        get.side_effect = [response([]), response({"descriptionPlain": "Design", "categories": {}}), response([])]
+        watcher.fetch_lever({"token": "belvedere"})
+        self.assertEqual("Design", watcher.detail_lever({"token": "belvedere"}, "337314ee")[0])
+        watcher.fetch_lever({"token": "quantinuum", "region": "eu"})
+        self.assertEqual(3, get.call_count)
+        self.assertEqual(2, sleep.call_count)
+        self.assertTrue(all(0.9 < c.args[0] <= 1.0 for c in sleep.call_args_list), sleep.call_args_list)
 
 
 class LinkedInCompanyTests(unittest.TestCase):

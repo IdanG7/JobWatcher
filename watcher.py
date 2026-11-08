@@ -274,10 +274,27 @@ def _lever_text(j):
     return "\n".join(p for p in parts if p).strip()
 
 
+# api.lever.co's robots.txt asks for a Crawl-delay of 1, so every Lever request (listings and
+# opened postings, both regions) takes its turn here, a second after the one before.
+LEVER_SPACING = 1.0
+_lever_lock = threading.Lock()
+_lever_next = 0.0
+
+
+def _lever_get(url, **kw):
+    global _lever_next
+    with _lever_lock:
+        now = time.monotonic()
+        if now < _lever_next:
+            time.sleep(_lever_next - now)
+        _lever_next = time.monotonic() + LEVER_SPACING
+    return requests.get(url, **kw)
+
+
 def fetch_lever(cfg):
     host = "api.eu.lever.co" if cfg.get("region") == "eu" else "api.lever.co"
     url = f"https://{host}/v0/postings/{cfg['token']}?mode=json"
-    r = requests.get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r = _lever_get(url, headers={"User-Agent": UA}, timeout=TIMEOUT)
     r.raise_for_status()
     return [{
         "id": str(j["id"]),
@@ -2798,8 +2815,8 @@ def detail_oracle_hcm(cfg, job_id):
 
 def detail_lever(cfg, job_id):
     host = "api.eu.lever.co" if cfg.get("region") == "eu" else "api.lever.co"
-    r = requests.get(f"https://{host}/v0/postings/{cfg['token']}/{job_id}",
-                     headers={"User-Agent": UA}, timeout=TIMEOUT)
+    r = _lever_get(f"https://{host}/v0/postings/{cfg['token']}/{job_id}",
+                   headers={"User-Agent": UA}, timeout=TIMEOUT)
     r.raise_for_status()
     data = r.json()
     cats = data.get("categories") or {}
