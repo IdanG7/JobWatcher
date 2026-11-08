@@ -46,15 +46,15 @@ class BoardPollingTests(unittest.TestCase):
                     self.assertEqual(every, set(polled))
 
     def test_product_and_design_poll_their_own_groups_and_every_source_they_polled_in_0_3_11(self):
-        # D28: All of Product names 26 groups, All of Design the same minus 6 plus its studios and industrial design
-        # employers, and neither polls less than in 0.3.11, with the same settings. Since Phase 3 they are core
-        # plus their filters' groups (option E).
+        # D28: All of Product names 27 groups, All of Design the same minus 7 plus its studios, its industrial design
+        # employers and its LinkedIn searches (D30), and neither polls less than in 0.3.11, with the same settings.
+        # Since Phase 3 they are core plus their filters' groups (option E).
         product, design = (set(self.packs.fields[board]["core"]).union(*self.packs.fields[board]["filters"].values())
                            for board in ("product", "design"))
-        self.assertEqual((26, 22), (len(product), len(design)))
+        self.assertEqual((27, 23), (len(product), len(design)))
         self.assertEqual({"semiconductors", "data_infrastructure", "ai_infrastructure", "cloud_infrastructure",
-                          "ratings_data", "asset_managers"}, product - design)
-        self.assertEqual({"design_studios", "industrial_design"}, design - product)
+                          "ratings_data", "asset_managers", "product_core"}, product - design)
+        self.assertEqual({"design_studios", "industrial_design", "design_core"}, design - product)
         for board, groups in (("product", product), ("design", design)):
             with self.subTest(board=board):
                 expected = V0_3_11["profiles"][board]

@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2) and `consumer_tech` (1) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2), `consumer_tech` (1), `product_core` (2) and `design_core` (2) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5518,6 +5518,46 @@ from that record.
        9,050 allowed, label changes 443). Against the Workday commit: no change at all.
      - Source history: records the bundle's 1,126 sources; against the Workday commit it adds only the 3 names,
        and no existing source's history changes. Tests: 963 and 116 pass.
+   - **`product_core` and `design_core`, 2026-11-08** (D30): the four LinkedIn searches of section 7.5, with its
+     queries and `linkedin_us_health`'s settings, no `company_key`. Product's core names `product_core` and
+     Design's `design_core`, so a Product-only profile polls two of them and a Design-only profile the other two.
+     Checked again against the 13 LinkedIn sources: no query repeats one for the same location (the two
+     `*_hard_to_reach` company searches have an empty keyword). Each was read once with the app's reader; a
+     LinkedIn search is never complete, and no query request failed. Postings are distinct by id.
+     - `linkedin_us_product`, 265 in 154 s: Product 217 (APM & Programs 120, Product Management 75, Product
+       Analytics 12, Technical PM & TPM 5, Product Operations 5), "other" 18, AI & Data 12, Operations 9,
+       Finance 6, Sales 2, Software 1.
+     - `linkedin_canada_product`, 214 in 108 s: Product 112 (Product Management 55, Technical PM & TPM 36, APM &
+       Programs 19, Product Analytics 2), "other" 49, Finance 21, AI & Data 12, Operations 8, Software 6, Sales
+       5, Healthcare 1. The co-op queries match loosely: the rest are general co-op and intern postings.
+     - `linkedin_us_design`, 256 in 89 s: Design 224 (Product & UX Design 91; Visual, Brand & Motion 50; Content
+       Design 41; Industrial Design 27; UX Research 12; no filter 3), "other" 22, Sales 3, Finance 2, Software 2,
+       Operations 1, AI & Data 1, Hardware 1.
+     - `linkedin_canada_design`, 236 in 101 s: Design 141 (Product & UX Design 69; Visual, Brand & Motion 48; UX
+       Research 11; no filter 10; Industrial Design 2; Content Design 1), "other" 33, Hardware 23 (mechanical
+       design co-ops), Software 20, Finance 9, Product 3, Sales 2, People & Legal 2, Healthcare 1, AI & Data 1,
+       Operations 1.
+     - No posting that lands on Product or Design lacks a product or design word, and none is an engineering,
+       interior or marketing role (`linkedin\off_board.txt`).
+     - New to Foothold (`linkedin\overlap.txt`, against the live copy, last polled 2026-10-31): of the 694 that
+       land on their own board, 508 match no stored LinkedIn id and no open posting with the same title and
+       employer (US Product 127 of 217, Canada Product 83 of 112, US Design 174 of 224, Canada Design 124 of
+       141). Many of the rest are postings the new-grad and intern lists also carry.
+     - Finance landings: 38 (RBC Amplify business analysts, American Express campus programs, insurance and
+       banking product internships). Seven are research roles Finance's rules take first: "UX Quantitative
+       Research Intern" 3 times (quant research), "User Research Analyst" twice and "Customer Experience
+       Research Analyst" (equity research), and "Customer Researcher, Payments" (payments). Finance stays as
+       it is (section 14), so they are left there.
+     - Design roles that land on "other": French titles Design's words don't read ("Stagiaire, design
+       industriel", "Stagiaire, en design graphique", "Graphiste débutant(e)", "Concepteur des interfaces
+       utilisateurs"), and "Experience Researcher" and "Player Experience, Research II". Not changed here.
+     - LinkedIn lock time, measured: Product's two 263 s, Design's two 190 s, all four 452 s (section 7.5
+       extrapolated about 9 and 18 minutes). The poll-time report gives LinkedIn its own line.
+     - Placement, `main` against the packs (`place\main_vs_p4k.txt`): the same as for the Amazon and Nike
+       commit (missing 0, 0 moves outside 14.7, 9,050 allowed, label changes 443). Against that commit: no change.
+     - Source history: records the bundle's 1,130 sources; against the Amazon and Nike commit it adds only the
+       4 names, and no existing source's history changes. Tests: 963 and 116 pass; `test_board_polling.py`: Product names
+       27 groups and Design 23.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.

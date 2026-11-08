@@ -1,0 +1,9 @@
+{
+  "title": "LinkedIn design searches",
+  "verified": "2026-11-08",
+  "note": "The Design board's own LinkedIn searches. Each feed was fetched successfully on 2026-11-08. LinkedIn public guest search: a partial keyword and date window. Student and early-career searches for product, UX, graphic, content and industrial design and UX research (Canada: co-op terms, UX designer, user researcher and graphic designer). Not added: 'design co-op' (mostly engineering co-ops), and the queries of the 13 existing LinkedIn sources, none of which is repeated.",
+  "boards": {
+    "linkedin_us_design": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["product design intern", "UX designer intern", "UX researcher intern", "graphic design intern", "content designer", "industrial design intern"], "group": "LinkedIn", "priority": 1, "geography": "us", "label": "LinkedIn \u00b7 United States \u00b7 Design"},
+    "linkedin_canada_design": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["UX design co-op", "product design intern", "UX designer", "user researcher", "graphic designer", "industrial design co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada", "label": "LinkedIn \u00b7 Canada \u00b7 Design"}
+  }
+}

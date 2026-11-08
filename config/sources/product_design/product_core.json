@@ -1,0 +1,9 @@
+{
+  "title": "LinkedIn product searches",
+  "verified": "2026-11-08",
+  "note": "The Product board's own LinkedIn searches. Each feed was fetched successfully on 2026-11-08. LinkedIn public guest search: a partial keyword and date window. Student and early-career searches for product management, APM, growth, product operations and product analyst roles (Canada: co-op terms, technical product manager and product owner). Not added: 'rotational product manager' (no stored titles), 'product co-op' (mostly engineering co-ops), and the queries of the 13 existing LinkedIn sources, none of which is repeated.",
+  "boards": {
+    "linkedin_us_product": {"ats": "linkedin", "location": "United States", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["product management intern", "associate product manager", "product manager new grad", "growth product manager", "product operations intern", "product analyst intern"], "group": "LinkedIn", "priority": 1, "geography": "us", "label": "LinkedIn \u00b7 United States \u00b7 Product"},
+    "linkedin_canada_product": {"ats": "linkedin", "location": "Canada", "recency": "r2592000", "pages": 5, "seed_recency": "r7776000", "seed_pages": 8, "min_interval": 1800, "queries": ["product management intern", "product manager co-op", "associate product manager", "technical product manager", "product analyst co-op", "product owner co-op"], "group": "LinkedIn", "priority": 1, "geography": "canada", "label": "LinkedIn \u00b7 Canada \u00b7 Product"}
+  }
+}

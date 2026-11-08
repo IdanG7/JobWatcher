@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "492e199f36085766",
+  "hash": "6bed6b2b5da16cd4",
   "names": [
    "10x_genomics",
    "1password",
@@ -687,16 +687,20 @@
    "linear",
    "linkedin_canada",
    "linkedin_canada_data",
+   "linkedin_canada_design",
    "linkedin_canada_hard_to_reach",
    "linkedin_canada_hardware",
    "linkedin_canada_health",
+   "linkedin_canada_product",
    "linkedin_canada_software",
    "linkedin_quant",
    "linkedin_us",
    "linkedin_us_data",
+   "linkedin_us_design",
    "linkedin_us_hard_to_reach",
    "linkedin_us_hardware",
    "linkedin_us_health",
+   "linkedin_us_product",
    "linkedin_us_software",
    "liquid_ai",
    "lithic",
@@ -1817,17 +1821,21 @@
   "linear": 1,
   "linkedin_canada": 1,
   "linkedin_canada_data": 10,
+  "linkedin_canada_design": 12,
   "linkedin_canada_hard_to_reach": 10,
   "linkedin_canada_hardware": 10,
   "linkedin_canada_health": 11,
+  "linkedin_canada_product": 12,
   "linkedin_canada_software": 10,
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
   "linkedin_us": 1,
   "linkedin_us_data": 10,
+  "linkedin_us_design": 12,
   "linkedin_us_hard_to_reach": 10,
   "linkedin_us_hardware": 10,
   "linkedin_us_health": 11,
+  "linkedin_us_product": 12,
   "linkedin_us_software": 10,
   "linkedin_us_tech": 7,
   "liquid_ai": 10,
@@ -15477,6 +15485,51 @@
    "r7776000"
   ]
  },
+ "linkedin_canada_design": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Design"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "UX design co-op",
+    "product design intern",
+    "UX designer",
+    "user researcher",
+    "graphic designer",
+    "industrial design co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_canada_hard_to_reach": {
   "ats": [
    "linkedin"
@@ -15606,6 +15659,51 @@
     "research assistant",
     "regulatory affairs co-op",
     "biomedical engineering co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_canada_product": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Product"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product management intern",
+    "product manager co-op",
+    "associate product manager",
+    "technical product manager",
+    "product analyst co-op",
+    "product owner co-op"
    ]
   ],
   "recency": [
@@ -15827,6 +15925,51 @@
    "r7776000"
   ]
  },
+ "linkedin_us_design": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Design"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product design intern",
+    "UX designer intern",
+    "UX researcher intern",
+    "graphic design intern",
+    "content designer",
+    "industrial design intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_us_hard_to_reach": {
   "ats": [
    "linkedin"
@@ -15955,6 +16098,51 @@
     "research assistant biology",
     "regulatory affairs intern",
     "public health intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_us_product": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Product"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product management intern",
+    "associate product manager",
+    "product manager new grad",
+    "growth product manager",
+    "product operations intern",
+    "product analyst intern"
    ]
   ],
   "recency": [
