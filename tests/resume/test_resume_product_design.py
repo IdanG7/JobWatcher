@@ -135,6 +135,17 @@ class TrackGateTests(unittest.TestCase):
         # A tech degree opens tech only.
         self.assertNotIn("product_design", read(CS_PM.replace("Product Manager Intern", "Data Analyst Intern"))[1])
 
+    def test_a_pd_resume_also_reads_tech_skills_as_pd_postings_do(self):
+        # P&D postings read tech's skills (tech.skills_from names both boards); so a resume that opens only the P&D
+        # track reads them too: Jira and Agile on the PM resume, HTML & CSS on the UX resume. No other track does.
+        self.assertEqual({"tech": frozenset(), "healthcare": frozenset(), "product_design": frozenset({"tech"})},
+                         {key: track.skills_also for key, track in KN.tracks.items()})
+        self.assertLessEqual({"product", "design"}, KN.tracks["tech"].skills_from)
+        for text, expected in ((PM, {"jira", "agile"}), (UX, {"html_css"})):
+            parsed, tracks = read(text)
+            self.assertEqual(frozenset({"product_design"}), tracks)
+            self.assertLessEqual(expected, {s["key"] for s in parsed["skills"]})
+
 
 class RoleWordTests(unittest.TestCase):
     def test_pd_titles_without_a_common_role_word_are_roles_on_the_track(self):

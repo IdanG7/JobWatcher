@@ -194,6 +194,7 @@ class Track:
     degree: re.Pattern | None = None
     signals: list[tuple[str, float, re.Pattern]] = field(default_factory=list)
     role_words: re.Pattern | None = None    # words that make a resume line a role, read only while the track is open
+    skills_also: frozenset[str] = frozenset()   # other tracks whose skills a resume that opens this one reads
 
     @property
     def resume(self) -> bool:
@@ -336,7 +337,8 @@ class Knowledge:
                 entry.get("employer_noun") or "", frozenset(entry.get("skills_from") or []),
                 re.compile(resume["degree"], re.I) if resume.get("degree") else None,
                 [(role, weight, re.compile(pattern, re.I)) for role, weight, pattern in resume.get("signals") or []],
-                re.compile(resume["role_words"], re.I) if resume.get("role_words") else None)
+                re.compile(resume["role_words"], re.I) if resume.get("role_words") else None,
+                frozenset(resume.get("skills_also") or []))
         # Control functions a finance title names ('Compliance Officer - Equities'): (group, subcategory, words, unless).
         self.function_titles: list[tuple[str, str, list, list]] = [
             (node.parent, node.key, compile_fragments(node.meta["function_title"]),

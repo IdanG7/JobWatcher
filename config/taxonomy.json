@@ -455,6 +455,7 @@
       "employer_noun": "recognized product and design employer",
       "skills_from": ["product", "design"],
       "resume": {
+        "skills_also": ["tech"],
         "degree": "(?<!minor in )(?<!minors in )(?<!minor: )\\b(?:(?:interaction|industrial|graphic|communications?) design|human[- –]computer interaction|hci)\\b",
         "role_words": "\\b(?:owners?|writers?|strategists?|directors?|leads?|illustrators?|technologists?|apms?|artists?)\\b",
         "signals": [
