@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "ff99d26e0a3a3107",
+  "hash": "cba7f00e46bca549",
   "names": [
    "10x_genomics",
    "1password",
@@ -1221,6 +1221,7 @@
    "wolff_olins",
    "womens_college_hospital",
    "workato",
+   "workday_early_career",
    "workday_hq",
    "workiva",
    "workleap",
@@ -2349,6 +2350,7 @@
   "wolff_olins": 12,
   "womens_college_hospital": 11,
   "workato": 10,
+  "workday_early_career": 12,
   "workday_hq": 1,
   "workiva": 10,
   "workleap": 12,
@@ -28451,6 +28453,38 @@
   ],
   "token": [
    "workato"
+  ]
+ },
+ "workday_early_career": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "workday"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "workday.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Workday early careers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Workday_Early_Career"
+  ],
+  "tenant": [
+   "workday"
   ]
  },
  "workday_hq": {

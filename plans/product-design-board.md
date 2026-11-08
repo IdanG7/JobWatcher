@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33) and `early_career_programs` (6) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33) and `early_career_programs` (7) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5445,29 +5445,37 @@ from that record.
        (group-wide boards of TELUS Digital and Wepoint), Designit (Wipro's board, no site found), Domain7 (merged
        into Versett); Sid Lee (no openings, main board unconfirmed); and 13 studios with no board an adapter reads
        (the pack's note lists them). Teague goes to `industrial_design`.
-   - **`early_career_programs`, 2026-11-08**: 6 sources, the group of Product's APM & Programs filter; Design
+   - **`early_career_programs`, 2026-11-08**: 7 sources, the group of Product's APM & Programs filter; Design
      names it under Product Design and UX Research (D33's "Design names it too": where its design interns land).
-     SOTI's Next Gen site and Visa's and Mastercard's early-career sites are second sources, each with a label
-     (D34); CoStar Group's Campus site, ID.me's university board and C3 AI's Ascend board are new employers. Each
-     was read once, whole (20 / 20, 42 / 42, 24 / 24, 1 / 1, 9, 3), with distinct ids.
-     - Live postings (`cand\early_career_final.census.json`): 99; 13 land on Product (APM & Programs 11, Product
-       Management 2), none on Design. 43 land on Finance: Visa's 28 (Consulting & Analytics, Issuing, client
-       services and controllership interns and graduates) and Mastercard's 15 (consulting, implementation and
-       account-management Launch programs), as `visa` and `mastercard` place the same kinds of roles today. No
-       markup and no test titles; every posting has a place.
+     SOTI's Next Gen site, Visa's and Mastercard's early-career sites and Workday's are second sources, each with
+     a label (D34); CoStar Group's Campus site, ID.me's university board and C3 AI's Ascend board are new
+     employers. Each was read once, whole (20 / 20, 42 / 42, 24 / 24, 10 / 10, 1 / 1, 9, 3), with distinct ids.
+     - Live postings (`cand\early_career_final.census.json`): 109; 14 land on Product (APM & Programs 12, Product
+       Management 2), 1 on Design (Product Design: Workday's UX Designer Intern). 43 land on Finance: Visa's 28
+       (Consulting & Analytics, Issuing, client services and controllership interns and graduates) and
+       Mastercard's 15 (consulting, implementation and account-management Launch programs), as `visa` and
+       `mastercard` place the same kinds of roles today. No markup and no test titles; every posting has a place.
      - 16 of Mastercard Campus's 24 postings are also on its CorporateCareers site, which `mastercard` reads (same
-       title and place); 6 of Visa's 42 share a title and place with a posting `visa` stored. A direct posting's
-       company string is its source's name, so these are not folded into one alert by company, title and place.
+       title and place); 6 of Visa's 42 share a title and place with a posting `visa` stored, and 2 of Workday's
+       10 with one `workday_hq` stored (support and sales; its product and design interns are only on this site).
+       A direct posting's company string is its source's name, so these are not folded into one alert by
+       company, title and place.
      - Visa and Mastercard are `fintech`: the folder test names their two boards as exceptions (14.7).
-     - Employers: CoStar Group (`consumer_tech`, as Zillow and Compass), ID.me and C3 AI (`enterprise_saas`), each
-       with `=` aliases from its stored names ("CoStar Group", "ID.me", "C3.ai" and "C3 AI").
+     - Employers: CoStar Group (`consumer_tech`, as Zillow and Compass), ID.me, C3 AI and Workday
+       (`enterprise_saas`), each with `=` aliases from its stored names ("CoStar Group"; "ID.me"; "C3.ai" and
+       "C3 AI"; "Workday" and "Workday Inc"). Workday's is your yes of 2026-11-08 (D27, 14.7); `workday_hq`, which
+       has no `company_key`, is not edited, so its 614 stored postings keep their own key.
      - Entries check (`entries\early_*.json`): 113 stored list postings (CoStar 61, ID.me 26, C3 AI 26): 0 moves;
        113 label changes (Software 54, Product 21, AI & Data 15, "other" 12, Hardware 11); 22 renamed ("C3.ai").
+       Workday's (`entries\workday_p4*.json`): 80 stored list postings, already keyed `workday`: 0 moves; 80 label
+       changes (Software 26, AI & Data 17, Sales 17, Product 9, "other" 5, People & Legal 3, Operations 2, Design 1);
+       42 renamed ("Workday Inc").
      - Placement, `main` against the packs (`place\main_vs_p4h.txt`): missing 0, 0 moves outside 14.7, 9,050
        allowed; label changes 442 → 443. Against the industrial commit's placement: 0 moves, 22 label changes
-       (Product 21, Software 1), 6 renamed.
-     - Source history: records the bundle's 1,122 sources; against the last commit it adds only the 6 names
-       (the file also keeps 2 retired names). Tests: 963 and 116
+       (Product 21, Software 1), 6 renamed. With Workday (`place\main_vs_p4i.txt`): the same against `main`;
+       against the pack's first commit, 0 moves, 10 label changes (Product 9, Design 1), 6 renamed.
+     - Source history: records the bundle's 1,123 sources; against the industrial commit it adds only the 7
+       names (the file also keeps 2 retired names). Tests: 963 and 116
        pass; `test_board_polling.py`: Product names 26 groups and Design 22, and APM & Programs polls core and
        this pack.
      - Amazon (D34) was read too: its `design` category (307 / 307: Design 157, Hardware 64, Software 52) and a
@@ -5477,9 +5485,7 @@ from that record.
        search is read to its last match and never marked complete, as for Amazon's four sources. Both are
        Amazon's own design and product roles, not early-career boards, so they go in the Big Tech pack with D34's
        Walmart and Nike reads.
-     - Not added: Workday's early-career site (10 / 10; Workday has no entry: an entry `=workday` would type 80
-       stored list postings and rename 42, "Workday Inc", with 0 moves, and `workday_hq`'s 614 keep their key;
-       asked first, D27); Samsara's recruiting-programs board (no openings; D34 drops it); Zynga's early-careers
+     - Not added: Samsara's recruiting-programs board (no openings; D34 drops it); Zynga's early-careers
        board (one opening, not in product or design; a gaming employer); nCino's early-talent board (one opening,
        not in product or design; banking software, `fintech`); TikTok (D35); T-Mobile (ATS not identified); Etsy and
        NBCUniversal (robots.txt); LinkedIn (only through a LinkedIn company search; its APM program ended in 2025).
@@ -5719,6 +5725,7 @@ sample against `main` 937bbc2):
   (`628e3e7`).
 - The folder test's exceptions: Visa's and Mastercard's early-career boards (`visa_early_careers`,
   `mastercard_campus`) sit in `product_design/` though both employers are `fintech`, a type off the P&D track.
+- A Workday entry (`enterprise_saas`, `=workday`), so its early-career site joins `early_career_programs` (D27).
 
 ---
 
