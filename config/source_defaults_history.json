@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "ca3fb606dc33ad81",
+  "hash": "ff99d26e0a3a3107",
   "names": [
    "10x_genomics",
    "1password",
@@ -310,6 +310,7 @@
    "buildkite",
    "bumble",
    "bungie",
+   "c3_ai_ascend",
    "caci_international",
    "cadence",
    "calendly",
@@ -394,6 +395,7 @@
    "coreweave",
    "cortex",
    "corti",
+   "costar_campus",
    "coupa_software",
    "coursera",
    "coveo",
@@ -597,6 +599,7 @@
    "humana_clinical",
    "humber_river_health",
    "icf",
+   "id_me_university",
    "ideo",
    "ideogram",
    "illumina",
@@ -724,6 +727,7 @@
    "mass_general_brigham",
    "mass_general_brigham_students",
    "mastercard",
+   "mastercard_campus",
    "mastercard_early",
    "match_group",
    "material_security",
@@ -1036,6 +1040,7 @@
    "sony",
    "sophos",
    "soti",
+   "soti_next_gen",
    "sourcegraph",
    "southlake_health",
    "sp_global",
@@ -1182,6 +1187,7 @@
    "vir_biotechnology",
    "virtu",
    "visa",
+   "visa_early_careers",
    "visier",
    "vml",
    "voleon",
@@ -1430,6 +1436,7 @@
   "buildkite": 10,
   "bumble": 10,
   "bungie": 10,
+  "c3_ai_ascend": 12,
   "caci_international": 10,
   "cadence": 10,
   "calendly": 1,
@@ -1514,6 +1521,7 @@
   "coreweave": 10,
   "cortex": 10,
   "corti": 10,
+  "costar_campus": 12,
   "coupa_software": 10,
   "coursera": 10,
   "coveo": 10,
@@ -1717,6 +1725,7 @@
   "humana_clinical": 11,
   "humber_river_health": 11,
   "icf": 11,
+  "id_me_university": 12,
   "ideo": 12,
   "ideogram": 10,
   "illumina": 11,
@@ -1846,6 +1855,7 @@
   "mass_general_brigham": 11,
   "mass_general_brigham_students": 11,
   "mastercard": 1,
+  "mastercard_campus": 12,
   "mastercard_early": 1,
   "match_group": 10,
   "material_security": 10,
@@ -2158,6 +2168,7 @@
   "sony": 10,
   "sophos": 10,
   "soti": 12,
+  "soti_next_gen": 12,
   "sourcegraph": 10,
   "southlake_health": 11,
   "sp_global": 6,
@@ -2304,6 +2315,7 @@
   "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
+  "visa_early_careers": 12,
   "visier": 10,
   "vml": 12,
   "voleon": 1,
@@ -6377,6 +6389,32 @@
    "bungie"
   ]
  },
+ "c3_ai_ascend": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "c3_ai"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "label": [
+   "C3 AI Ascend internships"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "c3ascend"
+  ]
+ },
  "caci_international": {
   "ats": [
    "workday"
@@ -8412,6 +8450,38 @@
   ],
   "token": [
    "corti"
+  ]
+ },
+ "costar_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "costar_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "costar.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "CoStar Group campus programs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Costar_Campus"
+  ],
+  "tenant": [
+   "costar"
   ]
  },
  "coupa_software": {
@@ -13206,6 +13276,32 @@
    "https://careers.icf.com/us/en/job/{id}"
   ]
  },
+ "id_me_university": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "id_me"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "label": [
+   "ID.me university recruiting"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "idmeuniversityrecruiting"
+  ]
+ },
  "ideo": {
   "ats": [
    "greenhouse"
@@ -16695,6 +16791,38 @@
   ],
   "site": [
    "CorporateCareers"
+  ],
+  "tenant": [
+   "mastercard"
+  ]
+ },
+ "mastercard_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mastercard"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "mastercard.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mastercard campus programs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Campus"
   ],
   "tenant": [
    "mastercard"
@@ -24136,6 +24264,38 @@
    "soti"
   ]
  },
+ "soti_next_gen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "soti"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "soti.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "SOTI Next Gen (students and interns)"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SOTI-Next-Gen"
+  ],
+  "tenant": [
+   "soti"
+  ]
+ },
  "sourcegraph": {
   "ats": [
    "greenhouse"
@@ -27508,6 +27668,38 @@
   ],
   "site": [
    "Visa"
+  ],
+  "tenant": [
+   "visa"
+  ]
+ },
+ "visa_early_careers": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "visa"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "visa.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Visa early careers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Visa_Early_Careers"
   ],
   "tenant": [
    "visa"

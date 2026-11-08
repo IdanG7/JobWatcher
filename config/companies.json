@@ -1173,6 +1173,9 @@
     {"key": "peak_design", "name": "Peak Design", "type": "consumer_products", "country": "US", "hq": "San Francisco", "aliases": ["=peak design"]},
     {"key": "weber", "name": "Weber", "type": "consumer_products", "country": "US", "hq": "Palatine", "aliases": ["=weber", "=weber stephen products"]},
     {"key": "owlet", "name": "Owlet", "type": "consumer_products", "country": "US", "hq": "Lehi", "aliases": ["=owlet", "=owlet baby care"]},
-    {"key": "teague", "name": "Teague", "type": "design_studio", "country": "US", "hq": "Seattle", "aliases": ["=teague"]}
+    {"key": "teague", "name": "Teague", "type": "design_studio", "country": "US", "hq": "Seattle", "aliases": ["=teague"]},
+    {"key": "costar_group", "name": "CoStar Group", "type": "consumer_tech", "country": "US", "hq": "Arlington", "aliases": ["=costar group"]},
+    {"key": "id_me", "name": "ID.me", "type": "enterprise_saas", "country": "US", "hq": "McLean", "aliases": ["=id me"]},
+    {"key": "c3_ai", "name": "C3 AI", "type": "enterprise_saas", "country": "US", "hq": "Redwood City", "aliases": ["=c3 ai"]}
   ]
 }
