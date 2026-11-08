@@ -1120,6 +1120,26 @@
     {"key": "media_monks", "name": "Media.Monks", "type": "design_studio", "country": "NL", "hq": "Amsterdam", "aliases": ["=media monks", "=mediamonks", "=monks"]},
     {"key": "dept", "name": "DEPT Agency", "type": "design_studio", "country": "NL", "hq": "Amsterdam", "aliases": ["=dept", "=dept agency"]},
     {"key": "wolff_olins", "name": "Wolff Olins", "type": "design_studio", "country": "GB", "hq": "London", "aliases": ["=wolff olins"]},
-    {"key": "ustwo", "name": "ustwo", "type": "design_studio", "country": "GB", "hq": "London", "aliases": ["=ustwo"]}
+    {"key": "ustwo", "name": "ustwo", "type": "design_studio", "country": "GB", "hq": "London", "aliases": ["=ustwo"]},
+    {"key": "wave_hq", "name": "Wave HQ", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=wave hq", "=wave financial"]},
+    {"key": "pointclickcare", "name": "PointClickCare", "type": "enterprise_saas", "country": "CA", "hq": "Mississauga", "aliases": ["=pointclickcare"]},
+    {"key": "potloc", "name": "Potloc", "type": "enterprise_saas", "country": "CA", "hq": "Montreal", "aliases": ["=potloc"]},
+    {"key": "fullscript", "name": "Fullscript", "type": "enterprise_saas", "country": "CA", "hq": "Ottawa", "aliases": ["=fullscript"]},
+    {"key": "achievers", "name": "Achievers", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=achievers"]},
+    {"key": "maple", "name": "Maple (telehealth)", "type": "consumer_tech", "country": "CA", "hq": "Toronto", "aliases": ["=maple (telehealth)"]},
+    {"key": "caseware", "name": "Caseware", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=caseware", "=caseware international"]},
+    {"key": "shyftlabs", "name": "ShyftLabs", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=shyftlabs"]},
+    {"key": "magnet_forensics", "name": "Magnet Forensics", "type": "enterprise_saas", "country": "CA", "hq": "Waterloo", "aliases": ["=magnet forensics"]},
+    {"key": "smile_io", "name": "Smile.io", "type": "enterprise_saas", "country": "CA", "hq": "Kitchener", "aliases": ["=smile io"]},
+    {"key": "plooto", "name": "Plooto", "type": "enterprise_saas", "country": "CA", "hq": "Toronto", "aliases": ["=plooto"]},
+    {"key": "thinkingbox", "name": "Thinkingbox", "type": "design_studio", "country": "CA", "hq": "Vancouver", "aliases": ["=thinkingbox"]},
+    {"key": "apply_digital", "name": "Apply Digital", "type": "design_studio", "country": "CA", "hq": "Vancouver", "aliases": ["=apply digital"]},
+    {"key": "mirego", "name": "Mirego", "type": "design_studio", "country": "CA", "hq": "Quebec City", "aliases": ["=mirego"]},
+    {"key": "osedea", "name": "Osedea", "type": "design_studio", "country": "CA", "hq": "Montreal", "aliases": ["=osedea"]},
+    {"key": "instrument", "name": "Instrument", "type": "design_studio", "country": "US", "hq": "Portland", "aliases": ["=instrument"]},
+    {"key": "fantasy", "name": "Fantasy", "type": "design_studio", "country": "US", "hq": "New York", "aliases": ["=fantasy"]},
+    {"key": "active_theory", "name": "Active Theory", "type": "design_studio", "country": "US", "hq": "Los Angeles", "aliases": ["=active theory"]},
+    {"key": "viget", "name": "Viget", "type": "design_studio", "country": "US", "hq": "Falls Church", "aliases": ["=viget"]},
+    {"key": "superside", "name": "Superside", "type": "design_studio", "country": "US", "hq": "San Francisco", "aliases": ["=superside"]}
   ]
 }

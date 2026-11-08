@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "4787407be26807b5",
+  "hash": "198d5caf0314181d",
   "names": [
    "10x_genomics",
    "1password",
@@ -115,7 +115,9 @@
    "absolute_security",
    "absorb_lms",
    "abt_global",
+   "achievers",
    "acorns",
+   "active_theory",
    "ada",
    "addepar",
    "adobe",
@@ -174,6 +176,7 @@
    "apple_finance",
    "applied_intuition",
    "applied_materials",
+   "apply_digital",
    "applyboard",
    "appnovation",
    "apptronik",
@@ -283,6 +286,7 @@
    "carlyle",
    "carta",
    "cartesia",
+   "caseware",
    "catalent",
    "cato_networks",
    "cdc_foundation",
@@ -439,6 +443,7 @@
    "f5",
    "faire",
    "fanduel",
+   "fantasy",
    "fastly",
    "fhi_360",
    "fico",
@@ -469,6 +474,7 @@
    "freshbooks",
    "freshworks",
    "fueled",
+   "fullscript",
    "fullstory",
    "garmin",
    "gates_foundation",
@@ -555,6 +561,7 @@
    "inflection_ai",
    "insitro",
    "instacart",
+   "instrument",
    "insulet",
    "intel",
    "intel_early",
@@ -657,9 +664,11 @@
    "magic",
    "magna_finance",
    "magna_international",
+   "magnet_forensics",
    "mammoth_biosciences",
    "man_group",
    "manulife",
+   "maple",
    "march_of_dimes",
    "marqeta",
    "marvell",
@@ -691,6 +700,7 @@
    "mila",
    "mimecast",
    "miovision",
+   "mirego",
    "miro",
    "mistplay",
    "mistral",
@@ -772,6 +782,7 @@
    "orca_security",
    "orium",
    "oscar_health",
+   "osedea",
    "otpp",
    "otter_ai",
    "oura",
@@ -807,12 +818,15 @@
    "planet",
    "planetscale",
    "playstation",
+   "plooto",
    "point72",
+   "pointclickcare",
    "poka_labs",
    "poolside",
    "poshmark",
    "posthog",
    "postman",
+   "potloc",
    "precision_for_medicine",
    "prefect",
    "premier_research",
@@ -927,6 +941,7 @@
    "sherpa",
    "shield_ai",
    "shoppers_drug_mart",
+   "shyftlabs",
    "sickkids",
    "siemens_canada",
    "siemens_finance",
@@ -946,6 +961,7 @@
    "singlestore",
    "skydio",
    "smartsheet",
+   "smile_io",
    "smith_nephew",
    "snap",
    "snaplogic",
@@ -997,6 +1013,7 @@
    "sun_life_students",
    "suno",
    "supabase",
+   "superside",
    "swarmia",
    "sweetgreen",
    "sword_health",
@@ -1032,6 +1049,7 @@
    "thermo_fisher_scientific",
    "thinkific",
    "thinking_machines",
+   "thinkingbox",
    "thomson_reuters",
    "thumbtack",
    "tines",
@@ -1094,6 +1112,7 @@
    "viam",
    "viavi_solutions",
    "vidyard",
+   "viget",
    "vir_biotechnology",
    "virtu",
    "visa",
@@ -1111,6 +1130,7 @@
    "waters",
    "waters_international",
    "wattpad",
+   "wave_hq",
    "waymo",
    "wayve",
    "wealthfront",
@@ -1182,7 +1202,9 @@
   "absolute_security": 12,
   "absorb_lms": 10,
   "abt_global": 11,
+  "achievers": 12,
   "acorns": 10,
+  "active_theory": 12,
   "ada": 10,
   "addepar": 10,
   "adobe": 1,
@@ -1241,6 +1263,7 @@
   "apple_finance": 10,
   "applied_intuition": 10,
   "applied_materials": 10,
+  "apply_digital": 12,
   "applyboard": 10,
   "appnovation": 12,
   "apptronik": 10,
@@ -1350,6 +1373,7 @@
   "carlyle": 6,
   "carta": 10,
   "cartesia": 1,
+  "caseware": 12,
   "catalent": 11,
   "cato_networks": 10,
   "cdc_foundation": 11,
@@ -1506,6 +1530,7 @@
   "f5": 10,
   "faire": 1,
   "fanduel": 10,
+  "fantasy": 12,
   "fastly": 1,
   "fhi_360": 11,
   "fico": 10,
@@ -1536,6 +1561,7 @@
   "freshbooks": 10,
   "freshworks": 10,
   "fueled": 12,
+  "fullscript": 12,
   "fullstory": 10,
   "garmin": 10,
   "gates_foundation": 11,
@@ -1622,6 +1648,7 @@
   "inflection_ai": 10,
   "insitro": 10,
   "instacart": 1,
+  "instrument": 12,
   "insulet": 11,
   "intel": 1,
   "intel_early": 1,
@@ -1726,9 +1753,11 @@
   "magic": 10,
   "magna_finance": 10,
   "magna_international": 10,
+  "magnet_forensics": 12,
   "mammoth_biosciences": 11,
   "man_group": 1,
   "manulife": 6,
+  "maple": 12,
   "march_of_dimes": 11,
   "marqeta": 1,
   "marvell": 10,
@@ -1760,6 +1789,7 @@
   "mila": 10,
   "mimecast": 10,
   "miovision": 10,
+  "mirego": 12,
   "miro": 10,
   "mistplay": 10,
   "mistral": 10,
@@ -1841,6 +1871,7 @@
   "orca_security": 10,
   "orium": 12,
   "oscar_health": 1,
+  "osedea": 12,
   "otpp": 6,
   "otter_ai": 10,
   "oura": 10,
@@ -1876,12 +1907,15 @@
   "planet": 10,
   "planetscale": 1,
   "playstation": 10,
+  "plooto": 12,
   "point72": 1,
+  "pointclickcare": 12,
   "poka_labs": 12,
   "poolside": 1,
   "poshmark": 10,
   "posthog": 10,
   "postman": 1,
+  "potloc": 12,
   "precision_for_medicine": 11,
   "prefect": 10,
   "premier_research": 11,
@@ -1996,6 +2030,7 @@
   "sherpa": 12,
   "shield_ai": 1,
   "shoppers_drug_mart": 11,
+  "shyftlabs": 12,
   "sickkids": 11,
   "siemens_canada": 10,
   "siemens_finance": 10,
@@ -2015,6 +2050,7 @@
   "singlestore": 10,
   "skydio": 10,
   "smartsheet": 1,
+  "smile_io": 12,
   "smith_nephew": 11,
   "snap": 10,
   "snaplogic": 10,
@@ -2066,6 +2102,7 @@
   "sun_life_students": 6,
   "suno": 1,
   "supabase": 1,
+  "superside": 12,
   "swarmia": 10,
   "sweetgreen": 1,
   "sword_health": 10,
@@ -2101,6 +2138,7 @@
   "thermo_fisher_scientific": 11,
   "thinkific": 10,
   "thinking_machines": 10,
+  "thinkingbox": 12,
   "thomson_reuters": 10,
   "thumbtack": 10,
   "tines": 10,
@@ -2163,6 +2201,7 @@
   "viam": 10,
   "viavi_solutions": 10,
   "vidyard": 12,
+  "viget": 12,
   "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
@@ -2180,6 +2219,7 @@
   "waters": 11,
   "waters_international": 11,
   "wattpad": 10,
+  "wave_hq": 12,
   "waymo": 1,
   "wayve": 10,
   "wealthfront": 10,
@@ -2427,6 +2467,29 @@
    "JoinAbt"
   ]
  },
+ "achievers": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "achievers"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "achievers"
+  ]
+ },
  "acorns": {
   "ats": [
    "ashby"
@@ -2448,6 +2511,29 @@
   ],
   "token": [
    "acorns"
+  ]
+ },
+ "active_theory": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "active_theory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "activetheory"
   ]
  },
  "ada": {
@@ -3779,6 +3865,29 @@
   ],
   "tenant": [
    "amat"
+  ]
+ },
+ "apply_digital": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "apply_digital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "applydigital"
   ]
  },
  "applyboard": {
@@ -6448,6 +6557,29 @@
   ],
   "token": [
    "cartesia"
+  ]
+ },
+ "caseware": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "caseware"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "caseware"
   ]
  },
  "catalent": {
@@ -10175,6 +10307,29 @@
    "fanduel"
   ]
  },
+ "fantasy": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "fantasy"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fantasy"
+  ]
+ },
  "fastly": {
   "ats": [
    "greenhouse"
@@ -10809,6 +10964,29 @@
   ],
   "token": [
    "fueledcareers"
+  ]
+ },
+ "fullscript": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "fullscript"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fullscript"
   ]
  },
  "fullstory": {
@@ -12856,6 +13034,29 @@
   ],
   "token": [
    "instacart"
+  ]
+ },
+ "instrument": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "instrument"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "instrument"
   ]
  },
  "insulet": {
@@ -15766,6 +15967,29 @@
    "magna"
   ]
  },
+ "magnet_forensics": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "magnet_forensics"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "magnetforensics"
+  ]
+ },
  "mammoth_biosciences": {
   "ats": [
    "lever"
@@ -15839,6 +16063,29 @@
   ],
   "tenant": [
    "manulife"
+  ]
+ },
+ "maple": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "maple"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "getmaple"
   ]
  },
  "march_of_dimes": {
@@ -16626,6 +16873,29 @@
   ],
   "token": [
    "miovision"
+  ]
+ },
+ "mirego": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "mirego"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mirego"
   ]
  },
  "miro": {
@@ -18588,6 +18858,29 @@
    "both"
   ]
  },
+ "osedea": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "osedea"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "osedea"
+  ]
+ },
  "otpp": {
   "ats": [
    "workday"
@@ -19375,6 +19668,29 @@
    "sonyinteractiveentertainmentglobal"
   ]
  },
+ "plooto": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "plooto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "plooto"
+  ]
+ },
  "point72": {
   "ats": [
    "greenhouse"
@@ -19385,6 +19701,29 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "pointclickcare": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "pointclickcare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "pointclickcare"
   ]
  },
  "poka_labs": {
@@ -19488,6 +19827,29 @@
   ],
   "tenant": [
    "postman"
+  ]
+ },
+ "potloc": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "potloc"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Potloc"
   ]
  },
  "precision_for_medicine": {
@@ -22212,6 +22574,29 @@
    2
   ]
  },
+ "shyftlabs": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "shyftlabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "shyftlabs"
+  ]
+ },
  "sickkids": {
   "ats": [
    "peoplesoft"
@@ -22646,6 +23031,29 @@
   ],
   "token": [
    "smartsheet"
+  ]
+ },
+ "smile_io": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "smile_io"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Smile.io"
   ]
  },
  "smith_nephew": {
@@ -23805,6 +24213,29 @@
    "supabase"
   ]
  },
+ "superside": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "superside"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "superside"
+  ]
+ },
  "swarmia": {
   "ats": [
    "ashby"
@@ -24704,6 +25135,29 @@
   ],
   "token": [
    "ThinkingMachines"
+  ]
+ },
+ "thinkingbox": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "thinkingbox"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "thinkingbox"
   ]
  },
  "thomson_reuters": {
@@ -26083,6 +26537,29 @@
    2
   ]
  },
+ "viget": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "viget"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "viget"
+  ]
+ },
  "vir_biotechnology": {
   "ats": [
    "greenhouse"
@@ -26464,6 +26941,29 @@
   ],
   "token": [
    "wattpad"
+  ]
+ },
+ "wave_hq": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "wave_hq"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "waveapps"
   ]
  },
  "waymo": {

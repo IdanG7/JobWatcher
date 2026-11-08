@@ -1,7 +1,7 @@
 {
   "title": "Design studios and agencies",
   "verified": "2026-11-08",
-  "note": "Design board only. Each feed was fetched successfully on 2026-11-08. Product, brand and digital studios and agencies in Canada and the US, and the global networks' boards (Media.Monks, DEPT). VML is read through its Canadian English board and OLIVER through its North American one. Bridgeable, Steamclock Software, Wolff Olins and ustwo had no openings on 2026-11-08. Teague is in industrial_design. Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (a software consultancy with no openings, whose entry would retype Thoughtworks' stored postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host): no adapter; Publicis (robots.txt); WillowTree (TELUS Digital's group-wide board), nventive (Wepoint's group-wide board), Designit (Wipro's board, no site found) and Domain7 (merged into Versett); Sid Lee (no openings, main board unconfirmed); Upstatement, Work & Co, Pentagram, Collins, Smart Design, Rangle, Ammunition, fuseproject, Normative, Akendi, Plank, Cossette and Giant Ant (no board an adapter reads).",
+  "note": "Design board only. Each feed was fetched successfully on 2026-11-08. Product, brand and digital studios and agencies in Canada and the US, and the global networks' boards (Media.Monks, DEPT). VML is read through its Canadian English board and OLIVER through its North American one. Bridgeable, Steamclock Software, Wolff Olins, ustwo and Fantasy had no openings on 2026-11-08. Teague is in industrial_design. Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (a software consultancy with no openings, whose entry would retype Thoughtworks' stored postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host): no adapter; Publicis (robots.txt); WillowTree (TELUS Digital's group-wide board), nventive (Wepoint's group-wide board), Designit (Wipro's board, no site found) and Domain7 (merged into Versett); Sid Lee (no openings, main board unconfirmed); Upstatement, Work & Co, Pentagram, Collins, Smart Design, Rangle, Ammunition, fuseproject, Normative, Akendi, Plank, Cossette and Giant Ant (no board an adapter reads).",
   "boards": {
     "metalab": {"ats": "greenhouse", "token": "metalab", "min_interval": 1800, "company_key": "metalab", "group": "Design Studios", "priority": 2, "geography": "canada"},
     "critical_mass": {"ats": "greenhouse", "token": "criticalmass", "min_interval": 1800, "company_key": "critical_mass", "group": "Design Studios", "priority": 2, "geography": "canada"},
@@ -27,6 +27,15 @@
     "media_monks": {"ats": "greenhouse", "token": "monks", "min_interval": 1800, "company_key": "media_monks", "group": "Design Studios", "priority": 2, "geography": "global"},
     "dept": {"ats": "greenhouse", "token": "dept", "min_interval": 1800, "company_key": "dept", "group": "Design Studios", "priority": 2, "geography": "global"},
     "wolff_olins": {"ats": "workable", "account": "wolff-olins", "min_interval": 1800, "company_key": "wolff_olins", "group": "Design Studios", "priority": 2, "geography": "global"},
-    "ustwo": {"ats": "workable", "account": "ustwo", "min_interval": 1800, "company_key": "ustwo", "group": "Design Studios", "priority": 2, "geography": "global"}
+    "ustwo": {"ats": "workable", "account": "ustwo", "min_interval": 1800, "company_key": "ustwo", "group": "Design Studios", "priority": 2, "geography": "global"},
+    "thinkingbox": {"ats": "lever", "token": "thinkingbox", "min_interval": 1800, "company_key": "thinkingbox", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "apply_digital": {"ats": "lever", "token": "applydigital", "min_interval": 1800, "company_key": "apply_digital", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "mirego": {"ats": "lever", "token": "mirego", "min_interval": 1800, "company_key": "mirego", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "osedea": {"ats": "lever", "token": "osedea", "min_interval": 1800, "company_key": "osedea", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "instrument": {"ats": "lever", "token": "instrument", "min_interval": 1800, "company_key": "instrument", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "fantasy": {"ats": "lever", "token": "fantasy", "min_interval": 1800, "company_key": "fantasy", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "active_theory": {"ats": "lever", "token": "activetheory", "min_interval": 1800, "company_key": "active_theory", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "viget": {"ats": "lever", "token": "viget", "min_interval": 1800, "company_key": "viget", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "superside": {"ats": "lever", "token": "superside", "min_interval": 1800, "company_key": "superside", "group": "Design Studios", "priority": 2, "geography": "global"}
   }
 }

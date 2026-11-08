@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` and `design_studios` are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources) and `design_studios` (34) are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5338,9 +5338,8 @@ from that record.
      - Source history: sources_version 12, hash `14de9babb3856036`, 1,038 sources; the diff adds only the 24 names.
      - Tests: 962 and 116 pass. The folder test (`test_board_polling.py`) holds every non-LinkedIn employer in
        `product_design/` to the P&D track.
-     - Waiting on your answer: 11 Lever boards (Wave HQ, PointClickCare, Potloc, Fullscript, Achievers, Maple,
-       Caseware, ShyftLabs, Magnet Forensics, Smile.io, Plooto; 31 P&D postings before typing). api.lever.co's
-       robots.txt asks for `Crawl-delay: 1`, and `fetch_lever` has no pause (39 existing sources).
+     - The 11 Lever boards joined after the pause (below): Wave HQ, PointClickCare, Potloc, Fullscript, Achievers,
+       Maple, Caseware, ShyftLabs, Magnet Forensics, Smile.io, Plooto. The pack holds 35 sources.
      - Not added, by what blocks it:
        - No adapter: Dialogue (Rippling), Vena (Pinpoint), Ratehub and Mogo (JazzHR).
        - robots.txt: Assent (SmartRecruiters). Blocked: Shopify (its careers site can't be read).
@@ -5379,8 +5378,27 @@ from that record.
        Designer", on Design).
      - Tests: 962 and 116 pass. `test_board_polling.py`: Design names 20 groups, Product 25, and
        `design_studios` is the one Design has that Product lacks.
-     - Waiting with the Lever boards: Thinkingbox (15 Design postings), Apply Digital, Mirego, Osedea,
-       Instrument, Fantasy, Active Theory, Viget, Superside.
+     - The 9 Lever boards joined after the pause (below): Thinkingbox, Apply Digital, Mirego, Osedea, Instrument,
+       Fantasy (no openings), Active Theory, Viget, Superside. The pack holds 34 sources, 15 of them Canadian.
+   - **The Lever pause and its 20 boards, 2026-11-08** (your yes): api.lever.co and api.eu.lever.co ask for
+     `Crawl-delay: 1`. Every Lever request, listings and the postings opened for list links, now takes its turn
+     through one lock, a second after the one before (`628e3e7`, as Eightfold's requests do). What each Lever source
+     reads is unchanged; when many Lever boards are due at once, up to all 10 poll workers can wait their turn, and
+     the poll-time measurement counts it.
+     - Live postings (`cand\lever_final.census.json`): 351. The 11 Canadian boards: 26 on Product, 5 on Design, 6
+       on Healthcare (PointClickCare), 30 on Finance. The 9 studios: 32 on Design (Visual & Brand 25), 2 on Product,
+       1 on Finance. Of the 31 Finance landings about 10 are misreads: Caseware's sales and solutions roles
+       ("Strategic Account Manager", "Head of Canadian Solutions", "Product Domain Specialist" and 4 more) read as
+       Accounting, ShyftLabs' "Technical Lead" as Underwriting, and Plooto's "IT Administrator" and "Staff
+       Customer Experience Strategist" as Payments. No markup, no test titles, every posting has a place.
+     - Employers: 20 entries, `=` aliases. "Maple (telehealth)" has no bare "Maple" alias: two stored postings
+       name Maple Leaf Sports & Entertainment, and New York's Maple is another employer.
+     - Entries check (`entries\lever_*.json`): 63 stored list postings (Magnet Forensics 19, ShyftLabs 14,
+       PointClickCare 12, Viget 10, Fullscript 6, Achievers 1, Mirego 1): 0 moves, 63 label changes (Software 31,
+       AI & Data 13, Finance 6, Product 4, "other" 4, Sales 3, Design 1, Operations 1), 0 renamed.
+     - Placement, `main` against the packs (`place\main_vs_p4e.txt`): missing 0, 0 moves outside 14.7, 9,050
+       allowed; label changes 423 → 425. Against the studios commit's placement: 0 moves, 7 label changes.
+     - Source history: 1,083 sources; against the last commit it adds only the 20 names.
      - Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (Workable
        `connected`: a software consultancy with no openings, whose entry would retype 8 stored Thoughtworks
        postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host,

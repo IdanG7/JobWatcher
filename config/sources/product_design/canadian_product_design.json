@@ -26,6 +26,17 @@
     "absolute_security": {"ats": "jobvite", "account": "ql9aVfwj", "min_interval": 1800, "company_key": "absolute_security", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
     "paper_education": {"ats": "workday", "host": "paper.wd3.myworkdayjobs.com", "tenant": "paper", "site": "Paper_Careers", "min_interval": 1800, "company_key": "paper_education", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
     "ecobee": {"ats": "workday", "host": "generac.wd5.myworkdayjobs.com", "tenant": "generac", "site": "External", "facets": {"locations": ["39f98e6dce941001ea81b35655790000", "c631a51d674a1000e13d1e766b8e0000"]}, "min_interval": 1800, "company_key": "ecobee", "group": "Canadian Product & Design", "priority": 2, "geography": "canada", "label": "ecobee (Generac) Toronto"},
-    "vidyard": {"ats": "kula", "account": "vidyard", "min_interval": 1800, "company_key": "vidyard", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"}
+    "vidyard": {"ats": "kula", "account": "vidyard", "min_interval": 1800, "company_key": "vidyard", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "wave_hq": {"ats": "lever", "token": "waveapps", "min_interval": 1800, "company_key": "wave_hq", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "pointclickcare": {"ats": "lever", "token": "pointclickcare", "min_interval": 1800, "company_key": "pointclickcare", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "potloc": {"ats": "lever", "token": "Potloc", "min_interval": 1800, "company_key": "potloc", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "fullscript": {"ats": "lever", "token": "fullscript", "min_interval": 1800, "company_key": "fullscript", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "achievers": {"ats": "lever", "token": "achievers", "min_interval": 1800, "company_key": "achievers", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "maple": {"ats": "lever", "token": "getmaple", "min_interval": 1800, "company_key": "maple", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "caseware": {"ats": "lever", "token": "caseware", "min_interval": 1800, "company_key": "caseware", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "shyftlabs": {"ats": "lever", "token": "shyftlabs", "min_interval": 1800, "company_key": "shyftlabs", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "magnet_forensics": {"ats": "lever", "token": "magnetforensics", "min_interval": 1800, "company_key": "magnet_forensics", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "smile_io": {"ats": "lever", "token": "Smile.io", "min_interval": 1800, "company_key": "smile_io", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"},
+    "plooto": {"ats": "lever", "token": "plooto", "min_interval": 1800, "company_key": "plooto", "group": "Canadian Product & Design", "priority": 2, "geography": "canada"}
   }
 }
