@@ -268,7 +268,8 @@ class ClaimTests(unittest.TestCase):
 
     def test_art_directors_join_design_except_at_game_studios(self):
         for title, ctype in (("Art Director", "consumer_tech"), ("Lead Art Director", "enterprise_saas"),
-                             ("Art Directors", "unknown"), ("Senior Art Director (Contract)", "fintech")):
+                             ("Art Directors", "unknown"), ("Senior Art Director (Contract)", "fintech"),
+                             ("Senior Art Director - Social", "design_studio"), ("Art Director", "consumer_products")):
             self.assertClaimed(title, "visual_brand", "art_direction", company_type=ctype)
         for title in ("Art Director", "Senior Art Director"):
             self.assertEqual("other", board(cls(title, company_type="gaming")), title)

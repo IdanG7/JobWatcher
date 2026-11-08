@@ -1,0 +1,32 @@
+{
+  "title": "Design studios and agencies",
+  "verified": "2026-11-08",
+  "note": "Design board only. Each feed was fetched successfully on 2026-11-08. Product, brand and digital studios and agencies in Canada and the US, and the global networks' boards (Media.Monks, DEPT). VML is read through its Canadian English board and OLIVER through its North American one. Bridgeable, Steamclock Software, Wolff Olins and ustwo had no openings on 2026-11-08. Teague is in industrial_design. Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (a software consultancy with no openings, whose entry would retype Thoughtworks' stored postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host): no adapter; Publicis (robots.txt); WillowTree (TELUS Digital's group-wide board), nventive (Wepoint's group-wide board), Designit (Wipro's board, no site found) and Domain7 (merged into Versett); Sid Lee (no openings, main board unconfirmed); Upstatement, Work & Co, Pentagram, Collins, Smart Design, Rangle, Ammunition, fuseproject, Normative, Akendi, Plank, Cossette and Giant Ant (no board an adapter reads).",
+  "boards": {
+    "metalab": {"ats": "greenhouse", "token": "metalab", "min_interval": 1800, "company_key": "metalab", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "critical_mass": {"ats": "greenhouse", "token": "criticalmass", "min_interval": 1800, "company_key": "critical_mass", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "konrad_group": {"ats": "greenhouse", "token": "konradgroup", "min_interval": 1800, "company_key": "konrad_group", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "orium": {"ats": "greenhouse", "token": "orium", "min_interval": 1800, "company_key": "orium", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "appnovation": {"ats": "greenhouse", "token": "appnovation", "min_interval": 1800, "company_key": "appnovation", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "bridgeable": {"ats": "workable", "account": "bridgeable", "min_interval": 1800, "company_key": "bridgeable", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "steamclock_software": {"ats": "workable", "account": "steamclock", "min_interval": 1800, "company_key": "steamclock_software", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "vml": {"ats": "greenhouse", "token": "vmlcanadaen", "min_interval": 1800, "company_key": "vml", "group": "Design Studios", "priority": 2, "geography": "canada", "label": "VML Canada"},
+    "tribalscale": {"ats": "greenhouse", "token": "tribalscale", "min_interval": 1800, "company_key": "tribalscale", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "zulu_alpha_kilo": {"ats": "greenhouse", "token": "zulualphakilo", "min_interval": 1800, "company_key": "zulu_alpha_kilo", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "rethink": {"ats": "bamboohr", "account": "rethinkcanada", "min_interval": 1800, "company_key": "rethink", "group": "Design Studios", "priority": 2, "geography": "canada"},
+    "ideo": {"ats": "greenhouse", "token": "ideo", "min_interval": 1800, "company_key": "ideo", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "huge": {"ats": "greenhouse", "token": "hugeinc", "min_interval": 1800, "company_key": "huge", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "code_and_theory": {"ats": "greenhouse", "token": "codeandtheory", "min_interval": 1800, "company_key": "code_and_theory", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "fueled": {"ats": "greenhouse", "token": "fueledcareers", "min_interval": 1800, "company_key": "fueled", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "prophet": {"ats": "greenhouse", "token": "prophet", "min_interval": 1800, "company_key": "prophet", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "landor": {"ats": "greenhouse", "token": "landor", "min_interval": 1800, "company_key": "landor", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "big_spaceship": {"ats": "workable", "account": "bigspaceship", "min_interval": 1800, "company_key": "big_spaceship", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "area_17": {"ats": "workable", "account": "a17", "min_interval": 1800, "company_key": "area_17", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "oliver": {"ats": "greenhouse", "token": "oliverusa", "min_interval": 1800, "company_key": "oliver", "group": "Design Studios", "priority": 2, "geography": "us", "label": "OLIVER North America"},
+    "r_ga": {"ats": "greenhouse", "token": "rga", "min_interval": 1800, "company_key": "r_ga", "group": "Design Studios", "priority": 2, "geography": "us"},
+    "media_monks": {"ats": "greenhouse", "token": "monks", "min_interval": 1800, "company_key": "media_monks", "group": "Design Studios", "priority": 2, "geography": "global"},
+    "dept": {"ats": "greenhouse", "token": "dept", "min_interval": 1800, "company_key": "dept", "group": "Design Studios", "priority": 2, "geography": "global"},
+    "wolff_olins": {"ats": "workable", "account": "wolff-olins", "min_interval": 1800, "company_key": "wolff_olins", "group": "Design Studios", "priority": 2, "geography": "global"},
+    "ustwo": {"ats": "workable", "account": "ustwo", "min_interval": 1800, "company_key": "ustwo", "group": "Design Studios", "priority": 2, "geography": "global"}
+  }
+}

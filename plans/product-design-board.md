@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): the first pack, `canadian_product_design`, is in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phase 4 in progress** (section 13): `canadian_product_design` and `design_studios` are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5325,9 +5325,10 @@ from that record.
      - Employers: 24 entries with `=` aliases, keyed by the slug their stored postings resolve to. Types:
        enterprise_saas 18, consumer_tech 5, high_growth_startup 1 (TobogganLabs), all on the P&D track. Interac,
        Zafin, Relay Financial and Venn take enterprise_saas, D26's tech type, not canadian_tech, because that type
-       is on the tech track only. A name that would catch another employer is longer: "Paper Education", not
-       "Paper" (FreshCut Paper); "Relay Financial" (a Raleigh "Relay" has 12 stored postings); "Jane App" (Jane
-       Street).
+       is on the tech track only. Every alias is exact (`=`), so an entry's name, being one of them, matches only
+       a company string that is exactly it. Where the short name is another employer's too, the entry is longer:
+       "Relay Financial" (12 stored postings say exactly "Relay", a Raleigh firm), "Paper Education" and "Jane
+       App".
      - Entries check (`entries\canadian_*.json`): the 75 stored postings the entries match, all from lists (SOTI
        54, Interac 8, Bree 7, Poka 2, TextNow 2, TobogganLabs 2): 0 moves, 75 label changes (Software 42, Product
        19, AI & Data 8, Operations 3, "other" 2, Finance 1), 3 renamed ("Interac Corp." on one Finance posting,
@@ -5353,6 +5354,40 @@ from that record.
          and Workable lists a role once per location: 54 rows, 29 ids).
        - No working board: Super.com, 7shifts, Helcim. Name clash: Solace (Ottawa) with Solace Health. Already
          polled: Mila, BenchSci.
+   - **`design_studios`, 2026-11-08**: 25 sources, core for Design only (7.4), 11 of them Canadian (D33 asks
+     for 8 and 3). Each feed was read once, complete; each Greenhouse and Workable board's name is the studio's.
+     Bridgeable, Steamclock Software, Wolff Olins and ustwo had no openings. VML is read through its Canadian
+     English board and OLIVER through its North American one, each with a label.
+     - Live postings (`cand\studios_final.census.json`): 916; 142 land on Design (Visual & Brand 49, Product
+       Design 41, Design Engineering 4, Content Design 2, Industrial Design 1, no filter 45) and 23 on Product.
+       12 land on Finance, about 3 of them misreads: Rethink's "Directeur.trice de la stratégie (médias sociaux)"
+       and Landor's "Stage planning stratégique" (Quant), and a Media.Monks "HR Generalist | Vaga Temporária …"
+       (Wealth). No markup and no test titles, every posting has a place; French, German, Portuguese and Japanese
+       titles read cleanly. Rethink's French "Directeur.trice artistique" stays on "other": Design's art director
+       words are English.
+     - `art_direction` (Design's claim, 3.x) names every employer type but `gaming`, except the two D25 added. With
+       a `design_studio` type, 4 live art directors left Design (VML, Big Spaceship, Media.Monks, DEPT). The claim
+       now names `design_studio` and `consumer_products`; no stored posting had either type before this phase.
+       Adding them to `design_occupation` changes no studio posting, so it is left as it is.
+     - Employers: 25 entries, type `design_studio`, every alias exact, so a name matches only exactly (the
+       review read `_load_companies`). "DEPT Agency", "OLIVER Agency" and "Rethink Canada" are the studios' longer
+       names: "Dept", "Oliver" and "Rethink" alone are other employers' too.
+     - Entries check (`entries\studios_*.json`): 11 stored list postings (TribalScale 7, Konrad Group 2, VML 2):
+       0 moves, 11 label changes, 0 renamed.
+     - Placement, `main` against the pack (`place\main_vs_p4d.txt`): as before, missing 0, 0 moves outside 14.7,
+       9,050 allowed. Against the Canadian pack's placement: 0 moves, 1 label change (TribalScale's "AI Product
+       Designer", on Design).
+     - Tests: 962 and 116 pass. `test_board_polling.py`: Design names 20 groups, Product 25, and
+       `design_studios` is the one Design has that Product lacks.
+     - Waiting with the Lever boards: Thinkingbox (15 Design postings), Apply Digital, Mirego, Osedea,
+       Instrument, Fantasy, Active Theory, Viget, Superside.
+     - Not added: Human Agency (its board posts one fund-manager role per city); Thoughtworks Canada (Workable
+       `connected`: a software consultancy with no openings, whose entry would retype 8 stored Thoughtworks
+       postings); Moment Factory (Cegid HR), lg2 (Recruitee), Siegel+Gale (Breezy) and frog (Greenhouse's EU host,
+       which `fetch_greenhouse` doesn't read): no adapter; Publicis (robots.txt); WillowTree and nventive
+       (group-wide boards of TELUS Digital and Wepoint), Designit (Wipro's board, no site found), Domain7 (merged
+       into Versett); Sid Lee (no openings, main board unconfirmed); and 13 studios with no board an adapter reads
+       (the pack's note lists them). Teague goes to `industrial_design`.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.

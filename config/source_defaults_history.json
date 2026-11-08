@@ -100,7 +100,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "14de9babb3856036",
+  "hash": "4787407be26807b5",
   "names": [
    "10x_genomics",
    "1password",
@@ -175,11 +175,13 @@
    "applied_intuition",
    "applied_materials",
    "applyboard",
+   "appnovation",
    "apptronik",
    "aptiv",
    "aqr",
    "arc_institute",
    "arctic_wolf",
+   "area_17",
    "arize_ai",
    "arm",
    "armis",
@@ -221,6 +223,7 @@
    "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
+   "big_spaceship",
    "biogen",
    "biontech",
    "bitgo",
@@ -251,6 +254,7 @@
    "braze",
    "bree",
    "brex",
+   "bridgeable",
    "bristol_myers_squibb",
    "broad_institute",
    "broadcom",
@@ -323,6 +327,7 @@
    "cloudflare",
    "clover_health",
    "cockroach_labs",
+   "code_and_theory",
    "coder",
    "cognex",
    "cognition",
@@ -350,6 +355,7 @@
    "cresta",
    "cribl",
    "crispr_therapeutics",
+   "critical_mass",
    "crowdstrike",
    "crusoe",
    "cursor",
@@ -378,6 +384,7 @@
    "dell",
    "demandbase",
    "denali_therapeutics",
+   "dept",
    "derec4_newgrad27",
    "descript",
    "deutsche_bank",
@@ -461,6 +468,7 @@
    "freenome",
    "freshbooks",
    "freshworks",
+   "fueled",
    "fullstory",
    "garmin",
    "gates_foundation",
@@ -530,11 +538,13 @@
    "hpe",
    "hrt",
    "hubspot",
+   "huge",
    "hugging_face",
    "humana",
    "humana_clinical",
    "humber_river_health",
    "icf",
+   "ideo",
    "ideogram",
    "illumina",
    "illumio",
@@ -588,6 +598,7 @@
    "koho",
    "komodo_health",
    "kong",
+   "konrad_group",
    "krea_ai",
    "kymera_therapeutics",
    "kyndryl",
@@ -597,6 +608,7 @@
    "labelbox",
    "lam_research",
    "lambda_labs",
+   "landor",
    "langchain",
    "lattice_semiconductor",
    "launchdarkly",
@@ -663,11 +675,13 @@
    "mda_space",
    "medallia",
    "medavie_health_services",
+   "media_monks",
    "medtronic",
    "memorial_sloan_kettering",
    "merck",
    "mercor",
    "mercury",
+   "metalab",
    "microchip",
    "micron",
    "microsoft",
@@ -745,6 +759,7 @@
    "oklo",
    "okta",
    "old_mission",
+   "oliver",
    "olympus_americas",
    "omada_health",
    "ontario_health",
@@ -755,6 +770,7 @@
    "optiver_us",
    "oracle",
    "orca_security",
+   "orium",
    "oscar_health",
    "otpp",
    "otter_ai",
@@ -805,6 +821,7 @@
    "procurify",
    "profound_medical",
    "proofpoint",
+   "prophet",
    "providence",
    "providence_health_care",
    "psiquantum",
@@ -824,6 +841,7 @@
    "quera_computing",
    "quest_diagnostics",
    "quora",
+   "r_ga",
    "rady_children_s_hospital",
    "railway",
    "ramp",
@@ -844,6 +862,7 @@
    "render",
    "replit",
    "resmed",
+   "rethink",
    "retool",
    "revvity",
    "rexall",
@@ -964,6 +983,7 @@
    "stanford_children_s_health",
    "stanford_health_care",
    "starburst",
+   "steamclock_software",
    "stepstone",
    "steris",
    "stockx",
@@ -1023,6 +1043,7 @@
    "tower_research",
    "tractable",
    "transunion",
+   "tribalscale",
    "trillium_health_partners",
    "trimble",
    "tripadvisor",
@@ -1051,6 +1072,7 @@
    "university_of_washington",
    "unstructured_io",
    "upstart",
+   "ustwo",
    "vancouver_coastal_health",
    "vanderbilt_university_medical_center",
    "vanguard",
@@ -1076,6 +1098,7 @@
    "virtu",
    "visa",
    "visier",
+   "vml",
    "voleon",
    "voxel51",
    "voyager_space",
@@ -1102,6 +1125,7 @@
    "william_blair",
    "william_osler_health_system",
    "wiz",
+   "wolff_olins",
    "womens_college_hospital",
    "workato",
    "workday_hq",
@@ -1139,6 +1163,7 @@
    "zoominfo",
    "zoox",
    "zscaler",
+   "zulu_alpha_kilo",
    "zuora"
   ],
   "version": 12
@@ -1217,11 +1242,13 @@
   "applied_intuition": 10,
   "applied_materials": 10,
   "applyboard": 10,
+  "appnovation": 12,
   "apptronik": 10,
   "aptiv": 10,
   "aqr": 1,
   "arc_institute": 11,
   "arctic_wolf": 10,
+  "area_17": 12,
   "arize_ai": 10,
   "arm": 10,
   "armis": 10,
@@ -1263,6 +1290,7 @@
   "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
+  "big_spaceship": 12,
   "biogen": 11,
   "biontech": 11,
   "bitgo": 10,
@@ -1293,6 +1321,7 @@
   "braze": 10,
   "bree": 12,
   "brex": 1,
+  "bridgeable": 12,
   "bristol_myers_squibb": 11,
   "broad_institute": 11,
   "broadcom": 10,
@@ -1365,6 +1394,7 @@
   "cloudflare": 1,
   "clover_health": 11,
   "cockroach_labs": 1,
+  "code_and_theory": 12,
   "coder": 10,
   "cognex": 10,
   "cognition": 10,
@@ -1392,6 +1422,7 @@
   "cresta": 10,
   "cribl": 10,
   "crispr_therapeutics": 11,
+  "critical_mass": 12,
   "crowdstrike": 10,
   "crusoe": 1,
   "cursor": 1,
@@ -1420,6 +1451,7 @@
   "dell": 10,
   "demandbase": 10,
   "denali_therapeutics": 11,
+  "dept": 12,
   "derec4_newgrad27": 1,
   "descript": 1,
   "deutsche_bank": 6,
@@ -1503,6 +1535,7 @@
   "freenome": 11,
   "freshbooks": 10,
   "freshworks": 10,
+  "fueled": 12,
   "fullstory": 10,
   "garmin": 10,
   "gates_foundation": 11,
@@ -1572,11 +1605,13 @@
   "hpe": 10,
   "hrt": 1,
   "hubspot": 10,
+  "huge": 12,
   "hugging_face": 10,
   "humana": 10,
   "humana_clinical": 11,
   "humber_river_health": 11,
   "icf": 11,
+  "ideo": 12,
   "ideogram": 10,
   "illumina": 11,
   "illumio": 10,
@@ -1630,6 +1665,7 @@
   "koho": 10,
   "komodo_health": 10,
   "kong": 10,
+  "konrad_group": 12,
   "krea_ai": 10,
   "kymera_therapeutics": 11,
   "kyndryl": 10,
@@ -1639,6 +1675,7 @@
   "labelbox": 10,
   "lam_research": 10,
   "lambda_labs": 1,
+  "landor": 12,
   "langchain": 10,
   "lattice_semiconductor": 10,
   "launchdarkly": 1,
@@ -1707,11 +1744,13 @@
   "mda_space": 10,
   "medallia": 10,
   "medavie_health_services": 11,
+  "media_monks": 12,
   "medtronic": 11,
   "memorial_sloan_kettering": 11,
   "merck": 11,
   "mercor": 1,
   "mercury": 1,
+  "metalab": 12,
   "microchip": 10,
   "micron": 10,
   "microsoft": 1,
@@ -1789,6 +1828,7 @@
   "oklo": 10,
   "okta": 10,
   "old_mission": 1,
+  "oliver": 12,
   "olympus_americas": 11,
   "omada_health": 10,
   "ontario_health": 11,
@@ -1799,6 +1839,7 @@
   "optiver_us": 1,
   "oracle": 10,
   "orca_security": 10,
+  "orium": 12,
   "oscar_health": 1,
   "otpp": 6,
   "otter_ai": 10,
@@ -1849,6 +1890,7 @@
   "procurify": 12,
   "profound_medical": 11,
   "proofpoint": 10,
+  "prophet": 12,
   "providence": 11,
   "providence_health_care": 11,
   "psiquantum": 10,
@@ -1868,6 +1910,7 @@
   "quera_computing": 10,
   "quest_diagnostics": 11,
   "quora": 10,
+  "r_ga": 12,
   "rady_children_s_hospital": 11,
   "railway": 10,
   "ramp": 1,
@@ -1888,6 +1931,7 @@
   "render": 10,
   "replit": 10,
   "resmed": 11,
+  "rethink": 12,
   "retool": 1,
   "revvity": 11,
   "rexall": 11,
@@ -2008,6 +2052,7 @@
   "stanford_children_s_health": 11,
   "stanford_health_care": 11,
   "starburst": 1,
+  "steamclock_software": 12,
   "stepstone": 1,
   "steris": 11,
   "stockx": 10,
@@ -2067,6 +2112,7 @@
   "tower_research": 1,
   "tractable": 10,
   "transunion": 10,
+  "tribalscale": 12,
   "trillium_health_partners": 11,
   "trimble": 10,
   "tripadvisor": 10,
@@ -2095,6 +2141,7 @@
   "university_of_washington": 11,
   "unstructured_io": 10,
   "upstart": 1,
+  "ustwo": 12,
   "vancouver_coastal_health": 11,
   "vanderbilt_university_medical_center": 11,
   "vanguard": 6,
@@ -2120,6 +2167,7 @@
   "virtu": 1,
   "visa": 10,
   "visier": 10,
+  "vml": 12,
   "voleon": 1,
   "voxel51": 10,
   "voyager_space": 10,
@@ -2146,6 +2194,7 @@
   "william_blair": 1,
   "william_osler_health_system": 11,
   "wiz": 10,
+  "wolff_olins": 12,
   "womens_college_hospital": 11,
   "workato": 10,
   "workday_hq": 1,
@@ -2183,6 +2232,7 @@
   "zoominfo": 10,
   "zoox": 1,
   "zscaler": 10,
+  "zulu_alpha_kilo": 12,
   "zuora": 10
  },
  "abbott_medtech": {
@@ -3760,6 +3810,29 @@
    "applyboard"
   ]
  },
+ "appnovation": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "appnovation"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "appnovation"
+  ]
+ },
  "apptronik": {
   "ats": [
    "greenhouse"
@@ -3870,6 +3943,29 @@
   ],
   "tenant": [
    "arcticwolf"
+  ]
+ },
+ "area_17": {
+  "account": [
+   "a17"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "area_17"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "arize_ai": {
@@ -4822,6 +4918,29 @@
    "beyondtrust"
   ]
  },
+ "big_spaceship": {
+  "account": [
+   "bigspaceship"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "big_spaceship"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "biogen": {
   "ats": [
    "workday"
@@ -5614,6 +5733,29 @@
   ],
   "token": [
    "brex"
+  ]
+ },
+ "bridgeable": {
+  "account": [
+   "bridgeable"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "bridgeable"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "bristol_myers_squibb": {
@@ -7417,6 +7559,29 @@
    "cockroachlabs"
   ]
  },
+ "code_and_theory": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "code_and_theory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "codeandtheory"
+  ]
+ },
  "coder": {
   "ats": [
    "ashby"
@@ -8031,6 +8196,29 @@
   ],
   "tenant": [
    "crisprtx"
+  ]
+ },
+ "critical_mass": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "critical_mass"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "criticalmass"
   ]
  },
  "crowdstrike": {
@@ -8704,6 +8892,29 @@
   ],
   "tenant": [
    "dnli"
+  ]
+ },
+ "dept": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "dept"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dept"
   ]
  },
  "derec4_newgrad27": {
@@ -10577,6 +10788,29 @@
    "freshworks"
   ]
  },
+ "fueled": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "fueled"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fueledcareers"
+  ]
+ },
  "fullstory": {
   "ats": [
    "ashby"
@@ -12217,6 +12451,29 @@
    "hubspotjobs"
   ]
  },
+ "huge": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "huge"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hugeinc"
+  ]
+ },
  "hugging_face": {
   "account": [
    "huggingface"
@@ -12385,6 +12642,29 @@
   ],
   "url": [
    "https://careers.icf.com/us/en/job/{id}"
+  ]
+ },
+ "ideo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ideo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ideo"
   ]
  },
  "ideogram": {
@@ -13653,6 +13933,29 @@
    "kong"
   ]
  },
+ "konrad_group": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "konrad_group"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "konradgroup"
+  ]
+ },
  "krea_ai": {
   "ats": [
    "ashby"
@@ -13882,6 +14185,29 @@
   ],
   "token": [
    "lambda"
+  ]
+ },
+ "landor": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "landor"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "landor"
   ]
  },
  "langchain": {
@@ -15920,6 +16246,29 @@
    "medaviehs"
   ]
  },
+ "media_monks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "media_monks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "monks"
+  ]
+ },
  "medtronic": {
   "ats": [
    "workday"
@@ -16021,6 +16370,29 @@
   ],
   "token": [
    "mercury"
+  ]
+ },
+ "metalab": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "metalab"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "metalab"
   ]
  },
  "microchip": {
@@ -17955,6 +18327,32 @@
    "oldmissioncapital"
   ]
  },
+ "oliver": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "oliver"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "label": [
+   "OLIVER North America"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "oliverusa"
+  ]
+ },
  "olympus_americas": {
   "ats": [
    "successfactors_portal"
@@ -18153,6 +18551,29 @@
   ],
   "token": [
    "orcasecurity"
+  ]
+ },
+ "orium": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "orium"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "orium"
   ]
  },
  "oscar_health": {
@@ -19278,6 +19699,29 @@
    "proofpoint"
   ]
  },
+ "prophet": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "prophet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "prophet"
+  ]
+ },
  "providence": {
   "ats": [
    "oracle_hcm"
@@ -19776,6 +20220,29 @@
    "quora"
   ]
  },
+ "r_ga": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "r_ga"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "rga"
+  ]
+ },
  "rady_children_s_hospital": {
   "ats": [
    "radancy"
@@ -20264,6 +20731,29 @@
   ],
   "tenant": [
    "resmed"
+  ]
+ },
+ "rethink": {
+  "account": [
+   "rethinkcanada"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "rethink"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "retool": {
@@ -23017,6 +23507,29 @@
    "starburst"
   ]
  },
+ "steamclock_software": {
+  "account": [
+   "steamclock"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "steamclock_software"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "stepstone": {
   "ats": [
    "greenhouse"
@@ -24448,6 +24961,29 @@
    "transunion"
   ]
  },
+ "tribalscale": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tribalscale"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tribalscale"
+  ]
+ },
  "trillium_health_partners": {
   "ats": [
    "oracle_hcm"
@@ -25092,6 +25628,29 @@
    "upstart"
   ]
  },
+ "ustwo": {
+  "account": [
+   "ustwo"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "ustwo"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "vancouver_coastal_health": {
   "ats": [
    "icims"
@@ -25605,6 +26164,32 @@
   ],
   "token": [
    "visier"
+  ]
+ },
+ "vml": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "vml"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "label": [
+   "VML Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "vmlcanadaen"
   ]
  },
  "voleon": {
@@ -26179,6 +26764,29 @@
   ],
   "token": [
    "wizinc"
+  ]
+ },
+ "wolff_olins": {
+  "account": [
+   "wolff-olins"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "wolff_olins"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "womens_college_hospital": {
@@ -27103,6 +27711,29 @@
   ],
   "token": [
    "zscaler"
+  ]
+ },
+ "zulu_alpha_kilo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "zulu_alpha_kilo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "zulualphakilo"
   ]
  },
  "zuora": {

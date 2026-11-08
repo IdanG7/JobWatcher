@@ -67,7 +67,7 @@
       }
     },
     "design": {
-      "core": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech", "canadian_product_design"],
+      "core": ["big_tech", "lists", "enterprise_saas", "sales_marketing_software", "consumer_tech", "developer_tools", "ai_apps", "canadian_tech", "fintech", "canadian_product_design", "design_studios"],
       "filters": {
         "product_design": ["financial_services_tech", "health_tech", "devices_iot", "gaming", "security", "defense_aerospace", "robotics_autonomy", "bank_technology", "ai_labs"],
         "ux_research": ["financial_services_tech", "health_tech"],
