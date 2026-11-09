@@ -5663,6 +5663,21 @@ from that record.
        "Director - Design Manager" at Qualcomm), the construction and facilities design managers at Intel and
        Micron (to "other" changes what Finance shows), and Intel's "ADCE Packaging Design Architect": Intel and
        Skyworks have no company entry, so no employer type.
+   - **The rule review, 2026-11-09** (your "Approve all" and answers): section 14.8's "Applied" blocks.
+   - **The description check, 2026-11-09** (8.9, the brief's "Descriptions and titles"):
+     - Method: the branch's 119 new sources use 12 ATSes, all of which `main` reads elsewhere, but every one is new
+       to these two boards. For each, three postings were read as the drawer shows them. Where the listing has
+       text (Amazon, Ashby, Gem, Jobvite, Lever, Dayforce), that text is the source. Otherwise `fetch_description`
+       fetched it live (Greenhouse, Workday, Workable, BambooHR, Kula, and LinkedIn on one query and one page).
+       Script: `phase4\scripts\desc_check.py`; results: `phase4\desc\desc_check.json`.
+     - Result: every posting shows the real description, 1,500 to 11,000 characters, French ones included. No
+       title holds markup, and every row has a place.
+       - Area 17's Workable posting from the 2026-11-08 read had closed (404), so two of its live postings were
+         read instead.
+       - Workday rows for several cities read "2 Locations", as Workday's do on `main`.
+     - Left: AppDirect's Greenhouse text keeps `&nbsp;` and `&mdash;`, which the drawer shows as typed (15.2).
+   - **`main` merged, 2026-11-09:** `9e9201b`, the 0.3.15 release, touches only `version.py` and the release notes.
+     Nothing the placement check reads changed, so its `main` side stands. Both suites pass after the merge.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
@@ -6242,6 +6257,10 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
 - **Two plans say postings from sources a profile stops polling are never deleted:** `plans/healthcare-board.md`
   (~528) and `plans/cs-tech-sources.md` (~225). `prune()` (`watcher.py` ~4369) deletes them 90 days after their last
   poll unless they have an application. Section 7.8 states what happens. The two plans aren't edited here.
+- **Greenhouse descriptions keep HTML entities.** `detail_greenhouse` unescapes Greenhouse's `content` once, and
+  some boards escape it twice. "&nbsp;" and "&mdash;" stay in the text, and the drawer shows them as typed:
+  7,277 stored descriptions on the installed copy (Anduril 1,373, Stripe 401, Datadog 379, Samsara 284), and
+  AppDirect's among the new sources. Changing a detail fetcher is yours to decide.
 
 ### 15.3 Views and copy
 
