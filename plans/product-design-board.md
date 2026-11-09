@@ -5905,6 +5905,85 @@ sample against `main` 937bbc2):
 
 ---
 
+### 14.8 The rule review, 2026-11-08 (your request: "a huge review on all the rules we set in place")
+
+Nine reviewers read every placed open posting (73,917, placement `phase4\place\placed_p4n.db` after the chip
+designers' commit) in nine slices: Product in five (product_management and technical_pm in halves, the other
+filters with Product's rules), Design whole with its rules, and three slices of other boards' postings whose titles
+name a product, design or program word (Software, AI & Data, Healthcare, Finance and People & Legal; Operations,
+Sales and "other"; Hardware). Each counted its patterns from the data and checked the cause by running the
+classifier; I re-ran the headline cases (24 probes) and each reproduced. Reports: `phase4\review\reports\`.
+Counts are open postings, from a slice unless they say board-wide; each fix is recounted by the placement check
+before its commit, and a count well above the one here comes back to you. **Bold** marks a fix that changes what
+Finance shows (a posting onto or off Finance or "other").
+
+What holds: Product's own PM and TPM words, `pm_over_topic`, and Design's product, UX, visual, content, research
+and game words place their titles well; D2, D8, D10 and D11 hold; nothing claimable is left on Finance. What
+doesn't: two program claims take non-technical program managers, Product's level words let common forms fall to
+the shared rules (which read "Manager" as Senior), the filters miss word orders ("Product Manager - Technical",
+"Designer, Brand"), and Design's generic words still pull in engineering, building and business titles.
+
+#### Product: board
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R1 | `program_tech_evidence` and `program_over_topic` take non-technical program managers into Technical PM: supply chain, logistics, procurement, GTM, channel, marketing, HR, finance, legal, EHS, data-center construction and facilities. About 245 (178 in the first half, 67 in the second). `program_tech_evidence`'s 3 description phrases ("cloud", "infrastructure", "jira") are met by almost any program manager at a tech employer (106 of its 233 in the second half got in on the description alone), and its title subjects ("data center", "network", "technology") and `program_over_topic`'s ("Cloud", "Hardware") name the employer's org, not the work | An `unless` of non-technical program words on both claims, guarded so a title that says technical stays (a trial on `program_tech_evidence` alone moved 127 board-wide, all to Operations); and an Operations claim from Software, Hardware and AI & Data for supply-chain, logistics, procurement and facilities program titles, so they don't fall back to Software. Not Finance |
+| R2 | The `unless` word "developers?" in `pm_over_topic` and `program_over_topic` blocks "Developer Experience / Platform / Tools / Velocity": 64 PMs and TPMs stay on Software | Fire it only at the end of a segment (simulated: 64 Software → Product, 62 to Technical PM; Citi's "Product Manager/Developer" stays). Not Finance |
+| R3 | Product titles no word or claim reads: product line managers (board-wide 58: "other" 47, Hardware 4, Finance 1), "Product Director", "Director, Product", "Manager, Digital Product", "Member of Product Staff" ("other" about 50, Software 6, Finance 19), "Product Mgr / Mgmt", typos and "Product Feature Owner" ("other" about 50, Finance 4 to 10), "Product and Program/Initiative Management" (13), "Programme" (5), HW / SW / chipset TPMs and "Prog Mgr" (11), "Product Associate" (7), product ops, associate and builder over a tech topic (10) | **Claims from "other", Sales, Operations and the tech boards** (and `pm_over_topic` for the topic ones), not Product title words, so Finance keeps its 25 to 30 such titles: about 190 leave **"other"** |
+| R4 | Titles on Product that aren't product work: pharma and medtech brand, field and downstream marketing "Product Manager" (about 45), drug-development product leads (CMC, labeling, LCM: about 16), Anduril's "Product Operations" field deployment (17), NPI and manufacturing product operations (13), non-PM jobs that name the PM team (7: an administrative business partner, an HR manager, engineers), design program managers (3) | A Healthcare claim for the pharma marketing and drug-development titles (as "Brand Manager, Oncology" at a pharma employer is Healthcare's today); an Operations claim for Anduril's and NPI product operations; exclusions for the rest. Not Finance |
+| R5 | `product_occupation_from_finance` misfires both ways: it takes Amex's "Total Rewards Product Associate", BofA's "Product Associate - Business Finance Control" and 3 BofA "Treasury Product Associate" (5), and misses Visa's "Technical Product/Project Management Intern" (4), which D31 names as Product's | **Send the 5 back to Finance** (where `main` has them) and **take Visa's 4**. Leave Vanta's "Director of Product, Governance & Compliance" and GSK's compliance product analyst on Finance |
+
+#### Product: filters
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R6 | Technical PM misses the qualifier after the title: "Product Manager - Technical / Tech / (PMT)" (board-wide 279, Amazon and Mastercard; identical Amazon titles split by team name), "Technical Product Owner" (62) and Cisco's and Flex's "Engineering Product Manager" (37) | Add all three to Technical PM |
+| R7 | APM & Programs misses student roles not titled "product manager": owner, builder and coordinator interns, Graduate, Trainee, Junior, alternance, early career, French "stage" (about 92, mostly in Product Management); it holds "Senior Associate Product Manager", a PM band (8); TPM interns sit in Technical PM (50) | Widen it (anchored, so it wins wherever the word sits), drop "Senior Associate", and put TPM interns in APM & Programs (D16 calls it "PM internships") |
+| R8 | Smaller: business "network" words put PMs in Technical PM ("Media Network", "Payment Network": 13); two overlapping Product Management words score one title twice and beat Technical PM's topic word (14); enterprise-app product analysts (Workday, Salesforce: 15) sit in Product Analytics; PMs of product operations (3) | Exclusions in Product's filter words (not the shared scoring, which every board uses); the analysts to Product Management |
+
+#### Product: stages (Product's own stage rules, so no other board's or Finance's stage changes)
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R9 | Forms that slip past Product's level words fall to the shared rules, where "manager" reads Senior and "Assistant Vice President" reads VP: "Manager, Product Management" and "Product Management Manager" (139 in one half), "Product Operations Manager" (32), a bare Product Owner (54 read Senior by years) and "Product Owner I" (14), "Assistant Vice President" (about 45; "AVP" reads Experienced), "Associate" not next to the occupation and the bank band's trailing "Associate" (about 50), "Group" as a team name (19), numbered levels ("Manager 4/5/6", "V (E5)": 65 read Experienced while III and IV read Senior), and singles ("summer" starts, "Dir", "CVP", "Principle", "Snr", "Manager-in-Training", "Jr", "Working Student") | Product levels for each, read as D17 reads a bare PM (Experienced), with "Product Owner I" Entry, AVP Experienced, numbered 3 and up Senior (as III), JPMorgan's "Senior Product Associate" Experienced (D19's band), and the "group" exclusion narrowed to "Group Product Manager" |
+
+#### Every board: shared stage words (`intel/seniority.py`, shared code)
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R10 | The shared rules miss the plural "Internships" (53 board-wide, none on Finance), "New College Grad" and "NCG" (13 Product, 24 Hardware, about 9 elsewhere, none on Finance) and TI's "Career Accelerator Program" (10), and read "Development Program Manager" as a new-grad program (22 on Operations, Regeneron's oncology directors among them). "Working Student", "Engineering Student" and "Stage Ingénieur" read Experienced, and 3 Finance postings carry them | Fix the first four in the shared rules (stage only, on every board; no Finance posting carries them); put the student words in Product's and Design's own levels only, so Finance's 3 keep their stage |
+
+#### Design: board
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R11 | Engineering designers and engineering design leads and interns on Design: "Electronics Designer", "Controls Systems Designer", "Tool Designer", "HVAC Designer", "F135 Compressor Design Intern", Eli Lilly's 8 "Engineer - Design Lead", Apple's "iPhone Product Design Lab Manager" | Extend `hardware_designer`'s subjects (controls, HVAC, electronics, tooling, molds, fixtures, propulsion, compressors, test stands and others; simulated: 84 Design → Hardware, no false moves). D11's plain "Designer" at engineering employers stays. Not Finance |
+| R12 | Building design on Design: data-center design managers, architectural designers, store, workplace and lounge design (64), and the construction and facilities design managers at Intel and Micron (about 4) | **Release them to "other"** (about 68) until the AEC board takes them |
+| R13 | Business design on Design through Design's own words: study, policy, compensation, contract, process and plan design (38) | **Release them** (to "other"). The 44 non-design titles `design_words_from_finance` keeps stay, as D9 decided, so Finance stays identical; most sit in no filter |
+| R14 | Other non-design titles on Design: Target's apparel and home designers (13, against Nike's precedent), assistants, a sourcer and lecturers (9), engineers `design_occupation` takes (4: "UI/UX Lead Software Engineer", "Robot Interaction Engineer"), and Magna's engineers through its `canadian_tech` type (6) | **Target's to "other"**, the 9 to their boards, the 4 to Software and Hardware; retype Magna (an existing entry, so your yes: 6 → Hardware, its 35 Finance postings unchanged) |
+| R15 | Design work held elsewhere: "Product Researcher" and Apple's and Figma's researchers (10, "other"), "Industrial Design Engineer" (8, "other"), "DesignOps" (the pattern `design ops` needs a separator, so it never matches), "Illustration", "Human Centered Design" and "Role, Team Design" (10, "other"), game designers and "UX ... Designer" on Software (6), UX roles that name hardware on Hardware (4), design engineers at software employers with a design department (about 5), SoFi's art director on AI & Data (1) | Add the words and claims; **about 28 leave "other"** |
+| R16 | Employers with no entry, so no employer type: ServiceNow, Netflix, Pinterest, Linear, Baseten and Samsara (their designers stay on Software and Finance), Intel and Skyworks (their chip designers) | Run the entries check for these 8 and bring each to you with its counts (D27) |
+
+#### Design: filters and stages
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R17 | Game-studio systems, technical and gameplay designers in no filter (47) and game-studio design directors in Product & UX Design (10); "Designer, Brand / Motion / Advertising", production and presentation designers in no filter (43); vehicle-studio and consumer-goods designers outside Industrial Design (30); UX research and CMF word orders (12); EA's 7 "Quality Designers" are game QA | A gaming employer prior for Game Design, reversed-order Visual words (guarded so "Senior Product Designer, Marketing Tools" stays), industrial words, the research and CMF orders; EA's QA designers to Software's QA. Bare "Lead Designer" at software employers (21) needs a code default: later |
+| R18 | Stages: "Senior Associate, Art Director" reads Senior (D19's band inverted: 2), HNTB's "Returning New Grad ... (for interns ONLY)" reads Intern (5), "Jr.", "Assoc" and "Ausbildung" read nothing (4) | Design levels for each |
+
+#### Hardware (found by the review; Hardware's data, touched by this work)
+
+| # | Finding | Fix (recommended) |
+|---|---|---|
+| R19 | 465 chip and board designers that came from Design sit in no Hardware filter: the filter words say "design" and "engineer", not "designer", and lack IC, memory, layout, mask, RFIC and PCB-designer words | Add them to Chip Design and Electrical. Any posting Hardware held on `main` that changes filter comes back to you before the commit |
+| R20 | `engineering_design` takes non-hardware titles (7: an administrative business partner, an instructional systems designer, an interior design architect, solution designers) | Exclusions; they go back to Software. Not Finance |
+| R21 | Outside this work, reported only: Hardware has no level words ("Engineer I" reads Experienced: 89), "Design Control Engineer" lands in Robotics (4), Leidos's 3 "Mobile Radar Mechanical Designer" sit on Software, and Hardware's topic words place business roles on Hardware (product marketing, Stryker's robotics product specialists, recruiters) | A separate change |
+
+**Order of work, if approved:** one commit per group, each with the placement check, both suites and a reviewer:
+first what changes no Finance view (R1, R2, R4, R6 to R9, R11, R17 to R20, and the parts of R3 and R15 that come
+from tech boards), then the bold ones (R3, R5, R12 to R15), then the shared stage words (R10, shared code), and the
+entries one at a time (R16).
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this
