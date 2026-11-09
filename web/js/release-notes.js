@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.15', date: '2026-11-07', items: [
+    {icon: 'user', title: 'Resumes for every career stage', link: '#/settings?tab=resume',
+      text: 'Senior, French and no-degree resumes now read correctly, and roles rank for your level.'},
+    {icon: 'file', title: 'Full descriptions for more roles', link: '#/opportunities',
+      text: 'Thousands of roles that showed only a few lines now show the whole posting.'},
+    {icon: 'filter', title: 'Roles land on the right board', link: '#/opportunities',
+      text: 'QA and test roles now show on Software, and compliance roles under Operational Risk.'},
+  ]},
   {version: '0.3.14', date: '2026-10-31', items: [
     {icon: 'pulse', title: 'Faster ranking in the background', link: '#/opportunities',
       text: 'Ranking redoes only roles that can have changed, and updates no longer re-read every role.'},
