@@ -6113,6 +6113,33 @@ facilities design manager), Design → People & Legal 2 (Anthropic's policy desi
   design) and industrial design engineers from "other". Left: "Illustration Specialist" reads as design at an
   insurer too, and `design_occupation`'s description phrases `cent(er|re)d` never read "centered" (as on `main`).
 
+#### Applied: R10, the shared stage words, and your PL7 answer (2026-11-09)
+
+You chose to apply R10 knowing the resume reader shares these rules, and to keep "Manager, Product Management"
+Senior (PL7; 151 postings, Capital One 91 and Mastercard 44).
+
+- **Shared rules (`intel/seniority.py`, every board's).** The plural "Internships" reads Intern; "New College Grad",
+  "NCG" and TI's "Career Accelerator Program" read New grad; a development program's manager ("Development Program
+  Manager", "Leadership", "Rotational" and "Analyst Development Program Manager", "Career Accelerator Program
+  Manager") reads by its other words, not as a new-grad program. Finance's "Analyst Program" titles keep their
+  reading ("Federal Risk Analyst Program Manager" stays New grad, as on `main`).
+- **Product's and Design's levels** let the new-grad words through to the shared rules, as they let "new grad"
+  through ("New College Grad - Product Manager, HBM" is New grad, not the bare PM level's Experienced), and read
+  "Working Student" and "Engineering Student" as Intern, not the staff of student programs ("Engineering Student
+  Recruiter"). The shared rules don't read the student words, so Finance's 3 Working Student postings keep theirs.
+- **The placement check** (`placed_p4r12.db` against `placed_p4g5.db`): 149 postings change stage, **none on
+  Finance**; no board, filter, company or location changes. Hardware 52 (Micron's New College Grad roles),
+  Software 32, Operations 30 (Regeneron's, Applied Materials', NXP's and Motorola's development program managers
+  to Senior), Product 18, Design 6, **"other" 6** (Micron, Disney's and Physical Intelligence's internships, TI) and
+  Sales 5.
+- **The resume reader** reads a latest job titled "… Development Program Manager" as senior, and "NCG", "New
+  College Grad", "Career Accelerator Program" and "… Internships" staff titles as not senior.
+- **Release:** stored postings take the new stages when they are re-read. Groups 1 and 2 change
+  `config/taxonomy.json`, which re-reads every one, so FACTS_VERSION stays. Shipped alone, it would need the bump.
+- Left: "Internships" staff titles ("Director of Internships") read Intern, as "Internship" ones already did; other
+  development-program staff ("… Development Program Coordinator", "… Program Specialist") still read New grad, a
+  Finance one among them.
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this

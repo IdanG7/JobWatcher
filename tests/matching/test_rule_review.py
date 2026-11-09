@@ -385,6 +385,57 @@ class DesignStageTests(unittest.TestCase):
             self.assertEqual(expected, stage(title, "design"), title)
 
 
+class SharedStageTests(unittest.TestCase):
+    """R10: the shared stage words (every board's, Finance's too), and the student words in Product's and Design's
+    own levels only, so Finance's Working Student postings keep their stage."""
+
+    def test_shared_rules(self):
+        for title, expected in (("Research Internships", "internship"),
+                                ("New College Grad - DRAM Design Engineer", "new_grad"),
+                                ("Software Engineer (NCG)", "new_grad"),
+                                ("Career Accelerator Program - Product Marketing Engineer", "new_grad"),
+                                # real programs stay new-grad programs (a Finance title among them)
+                                ("Leadership Development Program", "new_grad"),
+                                ("Finance Development Program Analyst", "new_grad"),
+                                ("Analyst Development Program", "new_grad"),
+                                # Finance stays identical: its analyst-program titles read as on main
+                                ("Oracle Health Federal Risk Analyst Program Manager", "new_grad"),
+                                # a program's manager is a manager
+                                ("Director Development Program Management (Hematology)", "senior"),
+                                ("IC Development Program Manager", "senior"),
+                                ("Leadership Development Program Manager", "senior"),
+                                ("Analyst Development Program Manager", "senior"),
+                                ("Rotational Development Program Manager", "senior"),
+                                ("Career Accelerator Program Manager", "senior")):
+            with self.subTest(title=title):
+                self.assertEqual(expected, detect_seniority(title)["stage"])
+
+    def test_product_and_design_levels_let_the_new_grad_words_through(self):
+        for title, family, expected in (("New College Grad - Product Manager, HBM", "product", "new_grad"),
+                                        ("Technical Program Manager New College Grad - MS/PHD Degree", "product",
+                                         "new_grad"),
+                                        ("Engineering Program Management Undergrad Internships", "product",
+                                         "internship"),
+                                        ("Designer I, New College Grad", "design", "new_grad")):
+            with self.subTest(title=title):
+                self.assertEqual(expected, stage(title, family))
+
+    def test_student_words_in_product_and_design_levels(self):
+        for title, family in (("Engineering Student - Product Management", "product"),
+                              ("Working Student (f/m/d) – Quote to Cash Product Management", "product"),
+                              ("Working Student UX Design (m/f/d)", "design"),
+                              ("Engineering Student - Industrial Design", "design")):
+            with self.subTest(title=title):
+                self.assertEqual("internship", stage(title, family))
+        # the staff of student programs are no students
+        for title, family in (("Program Manager, Engineering Student Programs", "product"),
+                              ("Engineering Student Recruiter", "product"), ("Working Student Coordinator", "design")):
+            with self.subTest(title=title):
+                self.assertNotEqual("internship", stage(title, family))
+        # the shared rules don't read them, so Finance's Working Student postings keep their stage
+        self.assertNotEqual("internship", detect_seniority("Working Student - Finance (m/w/d)")["stage"])
+
+
 class HardwareFilterTests(unittest.TestCase):
     """R19: Hardware's filters read the chip and board designers; titles Hardware held before keep their filter."""
 
