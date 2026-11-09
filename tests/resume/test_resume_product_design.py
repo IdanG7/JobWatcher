@@ -1,6 +1,6 @@
 """Product and Design resumes open their own track (plans/product-design-board.md 9.4, D24): a design or HCI degree or a
-P&D job title opens it, its signals read the work, and a UX resume no longer adds the Software board. People, schools
-and employers are invented."""
+P&D job title opens it, its signals read the work, and a UX resume no longer adds the Software board. The reader every
+board shares reads their degrees (9.2, D37). People, schools and employers are invented."""
 import unittest
 
 from intel import load_knowledge, merge_profile
@@ -82,9 +82,73 @@ lead.
 """
 
 
+DEGREE = """JORDAN AVERY
+jordan.avery@example.com | 555-010-0199 | Toronto, ON
+Education
+{school}
+{degree} Expected: Apr 2027
+Experience
+Lakeview Analytics Toronto, ON
+Operations Assistant May 2025 – Aug 2025
+• Kept the team's weekly schedule and supplier records up to date in shared spreadsheets.
+"""
+
+
 def read(text):
     parsed = parse_resume(text, KN)
     return parsed, insights.resume_tracks(parsed["entries"], parsed["education"], KN)
+
+
+def level(degree, school="Northfield University Toronto, ON"):
+    return parse_resume(DEGREE.format(degree=degree, school=school), KN)["education"]["level"]
+
+
+class DegreeLevelTests(unittest.TestCase):
+    def test_design_and_hci_abbreviations_set_the_level(self):
+        # 9.2, D37: these set no level on main, so a design graduate's profile kept whatever level it had.
+        for degree, expected in (("BDes, Industrial Design", "undergraduate"),
+                                 ("B.Des. in Communication Design", "undergraduate"),
+                                 ("BDes (Hons), Graphic Design", "undergraduate"),
+                                 ("BFA, Graphic Design", "undergraduate"),
+                                 ("MDes, Interaction Design", "masters"),
+                                 ("MFA, Interaction Design", "masters"),
+                                 ("MHCI", "masters"),
+                                 ("MHCI, Human-Computer Interaction", "masters"),
+                                 ("M.S. in Human-Computer Interaction", "masters"),
+                                 ("MS in Human-Computer Interaction", "masters"),
+                                 ("MS, Human-Centered Design & Engineering", "masters")):
+            with self.subTest(degree=degree):
+                self.assertEqual(expected, level(degree))
+
+    def test_a_masters_abbreviation_outranks_the_bachelors_below_it(self):
+        self.assertEqual("masters", level("M.S. in Human-Computer Interaction Sep 2024 – Jun 2026\n"
+                                          "B.A. in Psychology, Minor in Statistics"))
+
+    def test_an_abbreviated_degree_is_dated_by_the_year_on_its_line(self):
+        edu = parse_resume("PAT LEE\npat.lee@example.com\nEducation\nRiverside University Pittsburgh, PA\nMHCI 2026\n"
+                           "Experience\nNorthwind Apps Pittsburgh, PA\nUX Research Intern May 2025 – Aug 2025\n", KN)["education"]
+        self.assertEqual(("masters", 2026), (edu["level"], edu["graduation_year"]))
+
+    def test_the_abbreviations_are_read_only_where_a_degree_is(self):
+        # A state after a city or after "in", Microsoft in coursework, a show's name: the bachelor's below is read.
+        for degree in ("B.A. in Psychology\nDelta State University Cleveland, MS, 2024",
+                       "B.A. in Psychology\nSouthern University in MS, USA",
+                       "B.Sc. in Computer Science\nRelevant Courses: Databases (MS, SQL Server), Algorithms",
+                       "B.Com, Finance\nTools: MS in Excel and Access",
+                       "B.A. in Studio Arts\nExhibitions: BFA Gallery, MFA Showcase 2023",
+                       "Bachelor of Science, Computer Science\nThesis: cut page loads to 200 ms in mobile browsers",
+                       "Bachelor of Science, Computer Science\nCapstone: set up mfa, sso and vpn for the lab"):
+            with self.subTest(degree=degree):
+                self.assertEqual("undergraduate", level(degree))
+        self.assertIsNone(level("Exhibited at the BFA Gallery"))
+        # "MA," at a line start may be a state; BID and MID are words.
+        for degree in ("MA, Communication Design", "BID, Industrial Design", "MID, Industrial Design"):
+            with self.subTest(degree=degree):
+                self.assertIsNone(level(degree))
+        # With no Education heading the whole resume is searched, and there MFA and "MS," are other words.
+        text = ("JORDAN AVERY\njordan.avery@example.com\nIT Analyst, Lakeview Analytics, 2019 – Present\n"
+                "• Rolled out MFA, SSO and VPN for 2,000 users.\n• MS, Teams and Zoom support for 40 offices.\n")
+        self.assertIsNone(parse_resume(text, KN)["education"]["level"])
 
 
 class TrackGateTests(unittest.TestCase):

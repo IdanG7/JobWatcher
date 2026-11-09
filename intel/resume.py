@@ -350,6 +350,18 @@ _DEGREES = [
                                  r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate|b\.?sc\.?n|bsn|b\.?h\.?sc|"
                                  r"b\.?kin|baccalaur[ée]at)\b", re.I)),
 ]
+# Design and HCI degrees' abbreviations ("BFA, Graphic Design", "MHCI 2026", "M.S. in Human-Computer Interaction"),
+# read after the level's own pattern and only under an Education heading, in capitals, where a degree goes on: before
+# a comma, "(Hons)", "in", a date or the line's end ("MFA Showcase" is no degree). Undotted "MS," and "MS in" only
+# start a line and a program: elsewhere they are a state ("Jackson, MS, 2024") or Microsoft ("MS in Excel").
+_ABBR_END = (r"\.?(?=[^\S\n]*(?:$|[,(|–—:]|-\s|\d{4}|(?i:in|expected|candidate|student)\b|"
+             r"(?i:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|spring|summer|fall|autumn|winter)[a-z]*\.?\s+\d{4}))")
+_DEGREE_ABBR = {
+    "masters": re.compile(rf"\b(?:M\.?\s?Des|M\.?F\.?A|MHCI)\b{_ABBR_END}|\bM\.S\.?\s+in\b|"
+                          r"^[^\S\n]*(?:[•*·-][^\S\n]*)?M\.?S\.?(?:,[^\S\n]*[A-Z][a-z]|\s+in\s+[A-Z])", re.M),
+    "undergraduate": re.compile(rf"\b(?:B\.?\s?Des|B\.?F\.?A)\b{_ABBR_END}", re.M),
+}
+_EDUCATION_DEGREES = [(key, p) for key, pattern in _DEGREES for p in (pattern, _DEGREE_ABBR.get(key)) if p]
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
     r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in|–|-)?\s*([A-Z][A-Za-z&,' ]{2,60})", re.I)
@@ -414,19 +426,21 @@ def _guess_name(top: list[str]) -> str | None:
     return None
 
 
-def _degree_line(line: str) -> bool:
-    return any(pattern.search(line) for _, pattern in _DEGREES)
+def _degree_line(line: str, education: bool = False) -> bool:
+    """Whether a line names a degree; under an Education heading, by its abbreviation too ("MHCI 2026")."""
+    return any(pattern.search(line) for _, pattern in (_EDUCATION_DEGREES if education else _DEGREES))
 
 
-def _graduation(edu_text: str, full: str, range_text: str | None = None) -> tuple[int | None, int | None, str | None]:
+def _graduation(edu_text: str, full: str, range_text: str | None = None,
+                education: bool = False) -> tuple[int | None, int | None, str | None]:
     """The degree's date: a stated graduation, else the latest end of a date range in ``range_text``
-    (the education text when not given)."""
+    (the education text when not given). ``education``: the text is under an Education heading."""
     range_text = edu_text if range_text is None else range_text
     for pattern in _GRAD:
         for text in (edu_text, full):
             for m in pattern.finditer(text):
                 line = text[text.rfind("\n", 0, m.start()) + 1:].split("\n", 1)[0]
-                if _CREDENTIAL.search(line) and not _degree_line(line):
+                if _CREDENTIAL.search(line) and not _degree_line(line, education):
                     continue
                 groups = m.groups()
                 month = _MONTHS.get((groups[0] or "")[:3].lower()) if len(groups) > 1 else None
@@ -435,7 +449,7 @@ def _graduation(edu_text: str, full: str, range_text: str | None = None) -> tupl
     # ends with ("B.Sc., Social Sciences – University of Haifa 2003")
     best = None
     for line in range_text.splitlines():
-        degree = _degree_line(line)
+        degree = _degree_line(line, education)
         if _CREDENTIAL.search(line) and not degree:
             continue
         for m in _RANGE.finditer(line):
@@ -466,7 +480,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         school = ", ".join(pieces[next((i for i, p in enumerate(pieces) if _SCHOOL.search(p)), 0):])
         school = insights.strip_city(re.sub(r"[\s,]+(?:19|20)\d\d$", "", school))
     level, degree_text = None, None
-    for key, pattern in _DEGREES:
+    for key, pattern in _EDUCATION_DEGREES if edu_lines else _DEGREES:
         m = pattern.search(text)
         if m:
             level = key
@@ -496,7 +510,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         if 0 < value <= scale and scale in (4.0, 4.3, 4.33, 5.0, 9.0, 10.0, 12.0):
             gpa = round(value / scale * 4.0, 2) if scale not in (4.0, 4.3, 4.33) else value
             gpa_text = m.group(0).strip()
-    year, month, grad_text = _graduation(text, full, range_text)
+    year, month, grad_text = _graduation(text, full, range_text, bool(edu_lines))
     # An experienced candidate's degree can be decades old; the career plan reads it as such.
     if year and not 1950 <= year <= date.today().year + 7:
         year, month, grad_text = None, None, None
