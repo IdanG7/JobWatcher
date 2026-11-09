@@ -5599,6 +5599,49 @@ from that record.
        commit: 0 moves, 37 label changes on Product (`enterprise_saas` 21, `telecom` 16), 0 renamed.
      - Source history: records the bundle's 1,133 sources; against the LinkedIn commit it adds only the 3
        names, and no existing source's history changes. Tests: 963 and 116 pass.
+   - **Poll time, 2026-11-08** (`tools/poll_time.py`, tested in `tests/sources/test_poll_time.py`): every enabled
+     source (1,123) read once with the app's reader, LinkedIn, Lever and Eightfold each one source at a time on a
+     thread of their own; then each sample profile's full poll (every source due) replayed on 10 threads in poll
+     order, `main` (`9e9201b`, its packs as at `937bbc2`) against the branch. One fetch run gives every number here.
+
+     ```
+     python -m tools.poll_time time --config config.json --out E:\product-design-board\phase4\poll\timings.jsonl
+     python -m tools.poll_time simulate --before E:\product-design-board\code-main-9e9201b --after . --timings E:\product-design-board\phase4\poll\timings.jsonl --json E:\product-design-board\phase4\poll\simulate.json
+     ```
+
+     | Profile | Sources | Full poll, min (lower bound) | LinkedIn, min |
+     |---|---|---|---|
+     | Product | 319 → 729 | 16.0 → 62.6 (13.9 → 26.9) | 0.9 → 4.6 |
+     | Design | 319 → 676 | 16.0 → 49.1 (13.9 → 25.6) | 0.9 → 5.0 |
+     | Product + Design | 319 → 798 | 16.0 → 62.6 (13.9 → 26.9) | 0.9 → 8.7 |
+     | Finance + Product | 536 → 809 | 26.0 → 64.3 (20.3 → 30.4) | 7.9 → 11.6 |
+     | Software + Product | 713 → 792 | 62.6 → 62.6 (27.1 → 27.2) | 2.6 → 6.3 |
+     | Software + Design | 713 → 859 | 62.6 → 62.6 (27.1 → 27.2) | 2.6 → 6.7 |
+     | Everything boards, Finance + Sales, the Actions runner | 1,004 → 1,123 | 70.3 → 70.3 (30.6 → 30.6) | 16.9 → 24.7 |
+
+     Every other sample profile polls what it did, in the same time (`poll\simulate.txt`).
+     - Why Product and Design rise: Eightfold. Every Eightfold request waits 1.5 s after the last, on any site,
+       so its sources add up: Product's Eightfold time goes 16.0 → 62.5 min, Design's 16.0 → 49.1. The new ones
+       are Lockheed Martin (21.3 min), Northrop Grumman (9.2), Qualcomm (7.8), Lam Research (3.6), GlobalFoundries
+       (1.7) and their finance boards, in `defense_aerospace` (Product's Technical PM and Product Ops filters,
+       Design's Product Design, Visual & Brand and Industrial Design) and `semiconductors` (Technical PM). A board
+       with no filter picked polls every filter's groups. No Phase 4 source is an Eightfold one.
+     - They are due every 1 to 6 hours (`min_interval` 3,600 to 21,600 s), so a full poll is the first one and
+       the ones they are due in; in those, sources due every 5 to 15 minutes wait for the poll to end, as they
+       already do for Software (62.6 min).
+     - What they give (`poll\whatif.txt`, open postings on the live copy): the Eightfold sources above 189 Product
+       and 28 Design postings. Dropping whole groups: Product without `defense_aerospace` polls in 29.5 min and
+       loses 346 open Product postings, without `semiconductors` 49.2 min and 453, without both 16.1 min and 799
+       (of 9,891); Design without `defense_aerospace` 16.0 min and 138 (of 2,384). Not changed: D28's groups
+       stand unless you say otherwise.
+     - The bounds: LinkedIn holds its lock through each request, so its share is exact. Lever and Eightfold only
+       space their requests' starts and let them run together: serialising their sources is the upper bound,
+       letting them run freely the lower. Which is closer depends on how long their requests take, not measured.
+     - Reads that failed in the run, all existing sources, reported and not changed: `old_mission` (Greenhouse
+       404), `aircall` (Lever 404), `jpmorgan_tech` (Oracle pagination repeated a page), `blackstone` and
+       `blackstone_campus` (Workday 401), `nxp` (Workday 422). Every source this branch adds read.
+     - `main` is now `9e9201b`, the 0.3.15 release (`version.py` and the release notes only), so the What's new
+       draft is for the next version.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
@@ -5607,8 +5650,8 @@ from that record.
    - Program windows are tested as `tests/app/test_program_windows.py` does.
    - The placement check runs again.
 6. **Onboarding, Settings, Sources view and docs.**
-   - A `0.3.15` What's new draft, with every claim and count checked against the final packs. `version.py` is
-     not touched.
+   - A What's new draft for the version after 0.3.15 (which `main` released on 2026-11-07), with every claim and
+     count checked against the final packs. `version.py` is not touched.
    - Merge `main`, and take the placement check's `main` side again if `main` changed what the check reads.
    - Restore the source history from `main`, record 12 again, and end with a `record_release` dry run.
    - Both full suites and `watcher.py --check`.
