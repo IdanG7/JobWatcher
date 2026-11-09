@@ -84,8 +84,10 @@ class FilterTests(unittest.TestCase):
         for title in ("Senior Systems Designer", "Technical Designer"):
             self.assertEqual(("design", "game_design"), (board(cls(title, game, "gaming")),
                                                          cls(title, game, "gaming")["subcategory"]), title)
-            self.assertEqual(("design", None), (board(cls(title, company_type="gaming")),
-                                                cls(title, company_type="gaming")["subcategory"]), title)
+            # R17 (14.8): a game studio leans Game Design; elsewhere the title alone names no filter.
+            self.assertEqual(("design", "game_design"), (board(cls(title, company_type="gaming")),
+                                                         cls(title, company_type="gaming")["subcategory"]), title)
+            self.assertNotEqual("game_design", cls(title, company_type="medtech")["subcategory"], title)
         # 'Entry Level Design' is not level design.
         result = cls("Entry Level Design and Analysis Engineer (Support Equipt Design - Elect)", company_type="defense_tech")
         self.assertNotEqual("design", board(result))
@@ -139,8 +141,8 @@ class EngineeringDesignTests(unittest.TestCase):
                                         ("ASIC Design Engineer", "unknown", "chip_design", None),
                                         ("RF Design Engineer", "telecom", "electrical", None),
                                         ("Memory Design Engineer", "semiconductors", None, None),
-                                        ("Mask Layout Designer", "semiconductors", None, None),
-                                        ("IC Layout Designer", "semiconductors", None, None),
+                                        ("Mask Layout Designer", "semiconductors", "chip_design", None),
+                                        ("IC Layout Designer", "semiconductors", "chip_design", None),
                                         ("Analog Designer", "semiconductors", "electrical", None)):
             self.assertPlaced(("hardware", sub, rule), title, company_type=ctype)
 

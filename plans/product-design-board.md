@@ -5984,6 +5984,80 @@ first what changes no Finance view (R1, R2, R4, R6 to R9, R11, R17 to R20, and t
 from tech boards), then the bold ones (R3, R5, R12 to R15), then the shared stage words (R10, shared code), and the
 entries one at a time (R16).
 
+#### Applied, group 1: what changes no Finance view (2026-11-09, your "Approve all")
+
+R1, R2, R4, R6 to R9, R11 and R17 to R20 are in `config/taxonomy.json`; tests in `tests/matching/test_rule_review.py`.
+A reviewer placed every stored posting with and without the group and sent eight findings; six are fixed below, and
+two stand (the administrative business partner and Meta's BMS quality manager, both under R4 and R20).
+
+The placement check (`placed_p4r2.db` against `placed_p4n.db` and `main`):
+- **Against `p4n`, 455 postings change board:** Product → Operations 222 (R1 160, R1's Operations claim 39, R4 23),
+  Design → Hardware 86 (R11), Software → Product 61 (R2), Product → Sales 33 (R4), Product → Software 15 (R1 11,
+  R4 4), Product → Healthcare 14 (R4), Design → Software 7 (EA's Quality Designers), Hardware → Software 7 (R20),
+  Product → Hardware 5 (R1), Product → Design 3 (R4), Product → People & Legal 1 and **Product → "other" 1**
+  (Google's "Administrative Business Partner, YouTube Product Management", beside the 14 other administrative
+  business partners on "other": the one posting this group puts onto what Finance shows). Hardware's filter changes
+  on 61 postings (R19), every one on Design on `main`; 650 filter changes inside Product (578) and Design (72), and
+  Product and Design stages; no other board's stage changes.
+- **Against `main`, the pairs no earlier change made:** Hardware → Operations 10 (R1's Operations claim), "other" →
+  Healthcare 13 (the drug-development leads: on "other" on `main` and Product's in `p4n`, so what Finance shows is
+  as in `p4n`), People & Legal → Operations 1 (Uber's "Sr Manager, Program Management, People"), Product → People &
+  Legal 1 ("HR Manager - Product Management") and Product → "other" 1. Finance's view: the 2,481 earlier changes
+  plus these 14.
+
+- **R1.** `program_tech_evidence` and `program_over_topic` skip a title that names non-technical program work
+  (supply chain, logistics, procurement, manufacturing, HR and learning, GTM, channel and partner, marketing and
+  creative, finance, legal, privacy, policy, EHS, construction, facilities, real estate and others), unless it also
+  says technical, tech, engineering, technology or IT. Production and training count only when they name no
+  infrastructure, systems or models ("Program Manager, Model Training Infrastructure" keeps the claim). A new
+  Operations claim, `program_ops_from_tech`, takes the supply-chain, logistics, procurement, manufacturing and
+  facilities program managers a tech board's topic word placed. The other non-technical ones (business, legal, GTM:
+  13 on Software, 4 on Hardware) stay on the tech board, where `main` has them.
+- **R2.** "Developer" in the two topic claims' exclusions names the occupation at the end of a segment: before a
+  comma, " - ", "/" or the title's end ("Java Developer - Product Management Tools" stays on Software).
+- **R4.** Two Sales claims take life-science marketing product managers: at pharma and biotech, a title naming
+  marketing, brand, promotion, a field or territory, or a therapy area; at medtech and diagnostics, marketing,
+  brand, promotion, downstream, field or territory (a medtech PM of a clinical area stays). Upstream marketing is
+  product work and stays, as does a title naming technology, websites, tools, process, assays, instruments,
+  reagents or roster work; product owners stay. The review said Healthcare, as "Brand Manager, Oncology" at a pharma
+  employer: that title is on "other", and those employers' marketing titles are on Sales (111), so they go to Sales.
+  A Healthcare claim, `drug_development_product_lead`, takes CMC, LCM, labeling and translational product leads and
+  regulatory affairs associates on a product team. An Operations claim, `fielded_product_operations`, takes
+  Anduril's fielded-product operations (department Mission Readiness or Deployments, or a mission area in the
+  title). Product's title words skip NPI and manufacturing product operations and a title whose occupation before
+  the first separator is an engineer, business partner or HR manager ("HR Manager - Product Management"); Cisco's
+  "Product Management Engineer" is a product occupation and stays. UX and design program managers go to Design.
+- **R6 to R8.** Technical PM reads "Product Manager - Technical", "Technical Product Owner" and "Engineering Product
+  Manager"; a student word sends any Product occupation to APM & Programs, and the two program claims have student
+  twins (`program_over_topic_student`, `program_tech_evidence_student`) that do the same ("Program Management
+  Intern": 8); "Senior Associate Product Manager" is Product Management; the VP, Director and Growth words score a
+  title once; business networks ("Global Payment Network") are no tech topic; enterprise-application product
+  analysts are Product Management. Left: product managers of product operations (3, the finding's direction unclear).
+- **R9.** Product levels for Product Owner (Experienced; "I" Entry), Product Operations Manager, AVP and Associate
+  Vice President, the bank's trailing and leading "Associate" ("Associate, Private Equity Product Manager" too),
+  "Associate Manager", JPMorgan's Senior Product Associate, numbered levels 3 and up (Senior; "Level 4" after a
+  separator, not "6 Month Contract" or "3 Openings"), "Manager-in-Training" (Entry), "Jr" (New grad, as "Junior"),
+  "Working Student" (Intern), "Dir", "CVP", "Principle", "Snr" and "SMTS"; "Group" excludes only "Group Product
+  Manager" and the like. **Not applied:** "Manager, Product Management" stays Senior, as PL7 decided (Capital
+  One's band, a people manager's form); the review missed that decision. Yours to choose.
+- **R11.** `hardware_designer` reads controls, HVAC, electronics, tooling, molds, fixtures, propulsion, compressors,
+  test equipment and the other engineering subjects; not with construction, facilities or building words.
+- **R17.** Visual & Brand reads "Designer, Brand / Motion / Marketing" (not after "Product", "UX" or "Game"),
+  production and presentation designers; Industrial Design reads Class A, transportation, vehicle and CMF forms;
+  UX Research reads "UX / Product Research" and "CX Researcher"; a gaming employer leans Game Design (prior 4) and a
+  vehicle maker Industrial Design (prior 3). EA's Quality Designers are Software's QA. Left for code: bare "Lead
+  Designer" at software employers, and game-studio design directors (an employer prior can't beat a title word).
+- **R18.** Design levels for "Senior Associate, Art Director" (Experienced), "Returning New Grad" (New grad),
+  "Jr." (New grad), "Assoc" (Entry) and "Ausbildung" (Apprenticeship).
+- **R19.** Chip Design reads IC, memory, DRAM, layout, mask, physical, SoC and IP designers; Electrical reads PCB,
+  PWB, board, RF, RFIC, antenna, filter, substation and protection-and-control designers. Analog, mixed-signal,
+  custom and "Hardware Designer" forms are left out: Hardware held 15 such postings on `main`, and these
+  words would change their filter.
+- **R20.** `engineering_design` skips administrative, business partner, instructional, interior design,
+  application design (not "Application Design Engineer"), solution designer, quality manager and co-design titles.
+  The 7 were on Design on `main` and Hardware's in `p4n`; they go to Software, Meta's BMS Quality Manager beside
+  Meta's other data-center construction roles there.
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this
