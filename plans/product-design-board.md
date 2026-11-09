@@ -6149,6 +6149,25 @@ Software, 2 from Design), and the type label changes on all 148 of Magna's posti
 (which show "Robotics & Autonomy" and count under that type in the company-type filter; none changes board,
 filter or stage). Nothing else changes. Tests: `MagnaTests` in `tests/matching/test_rule_review.py`.
 
+#### Applied: R16's 8 employer entries (2026-11-09, your yes to each, one at a time)
+
+In `config/companies.json`, after D27's 8, each matched by its exact names only. The placement check
+(`placed_p4e1.db` against `placed_p4r12.db`): 1,072 postings change, all these employers', none elsewhere; no
+stage or location changes.
+
+| Entry | Type | Postings typed (Finance, "other") | Board and filter changes |
+|---|---|---|---|
+| ServiceNow | Enterprise SaaS | 228 (5, 30); 220 renamed | Software → Design 2 (a product designer) |
+| Netflix | Consumer Tech | 195 (10, 78); 194 renamed | AI & Data → Design 1 (a creative technologist) |
+| Pinterest | Consumer Tech | 101 (3, 11); 96 renamed | **Finance → Design 1** (a UX research intern), **"other" → Design 2** (product researchers) |
+| Linear | Enterprise SaaS | 39 (0, 4); all renamed | Software → Design 2 (design engineers) |
+| Baseten | AI Infrastructure | 62 (3, 6); 61 renamed | none |
+| Samsara | Enterprise SaaS | 89 (3, 24); all renamed | none |
+| Intel | Semiconductors | 351 (3, 28); 251 renamed, 57 join from "intel early" | Design → Hardware 1; Hardware filters 11 (9 to Chip Design, 2 lose Electrical) |
+| Skyworks Solutions | Semiconductors | 7 (0, 0); its 2 keys merge | none |
+
+Tests: `EmployerEntryTests` in `tests/matching/test_rule_review.py`.
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this

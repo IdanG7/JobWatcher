@@ -342,6 +342,41 @@ class MagnaTests(unittest.TestCase):
             self.assertEqual("hardware", board(cls(title, company_type="robotics_autonomy")), title)
 
 
+class EmployerEntryTests(unittest.TestCase):
+    """R16, your yes to each: 8 employers with no entry get one, matched by their exact names only."""
+
+    ENTRIES = {"servicenow": ("ServiceNow", "enterprise_saas", ("servicenow", "ServiceNow")),
+               "netflix": ("Netflix", "consumer_tech", ("netflix",)),
+               "pinterest": ("Pinterest", "consumer_tech", ("pinterest", "Pinterest")),
+               "linear": ("Linear", "enterprise_saas", ("linear",)),
+               "baseten": ("Baseten", "ai_infrastructure", ("baseten", "Baseten")),
+               "samsara": ("Samsara", "enterprise_saas", ("samsara",)),
+               "intel": ("Intel", "semiconductors", ("intel", "Intel", "Intel Corporation", "intel early")),
+               "skyworks_solutions": ("Skyworks Solutions", "semiconductors",
+                                      ("Skyworks", "Skyworks Solutions, Inc."))}
+
+    def test_each_employer_is_named_and_typed_by_its_names(self):
+        from intel.companies import resolve_company
+        for key, (name, ctype, written) in self.ENTRIES.items():
+            for text in written:
+                with self.subTest(written=text):
+                    resolved = resolve_company(text, KN)
+                    self.assertEqual((key, name, ctype), (resolved["key"], resolved["name"], resolved["type"]))
+        # exact names only: another employer whose name starts the same keeps its own key
+        for text in ("Linear Technology", "Intellia Therapeutics"):
+            self.assertNotIn(resolve_company(text, KN)["key"], self.ENTRIES, text)
+
+    def test_their_design_work_reaches_design(self):
+        for title, ctype, expected in (("Sr. Staff Product Designer, Mobile Experience Strategy & Systems",
+                                        "enterprise_saas", "product_design"),
+                                       ("Staff Qualitative Product Researcher, Ads Integrity", "consumer_tech",
+                                        "ux_research")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("design", expected), (board(result), result["subcategory"]), title)
+        # the entry's type is what brings it: with no type the designer stays where it was
+        self.assertEqual("software", board(cls("Sr. Staff Product Designer, Mobile Experience Strategy & Systems")))
+
+
 class EngineeringDesignerTests(unittest.TestCase):
     """R11 and R20: engineering designers are Hardware's; business and building titles are not."""
 
