@@ -814,7 +814,7 @@
     {"key": "telus", "name": "TELUS", "type": "canadian_tech", "country": "CA", "hq": "Vancouver", "aliases": ["=telus"]},
     {"key": "bell_canada", "name": "Bell Canada", "type": "canadian_tech", "country": "CA", "hq": "Montreal", "aliases": ["=bell canada", "=bce"]},
     {"key": "blackberry", "name": "BlackBerry", "type": "canadian_tech", "country": "CA", "hq": "Ottawa", "aliases": ["=blackberry"]},
-    {"key": "magna", "name": "Magna", "type": "canadian_tech", "country": "CA", "hq": "Aurora", "aliases": ["=magna"]},
+    {"key": "magna", "name": "Magna", "type": "robotics_autonomy", "country": "CA", "hq": "Aurora", "aliases": ["=magna"]},
     {"key": "compass", "name": "Compass", "type": "consumer_tech", "country": "US", "hq": "New York", "aliases": ["=compass"]},
     {"key": "ford_motor_company", "name": "Ford Motor Company", "type": "robotics_autonomy", "country": "US", "hq": "Dearborn", "aliases": ["=ford motor company"]},
     {"key": "guidewire_software", "name": "Guidewire Software", "type": "enterprise_saas", "country": "US", "hq": "San Mateo", "aliases": ["=guidewire software"]},

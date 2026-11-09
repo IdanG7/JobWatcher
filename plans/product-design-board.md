@@ -6140,6 +6140,15 @@ Senior (PL7; 151 postings, Capital One 91 and Mastercard 44).
   development-program staff ("… Development Program Coordinator", "… Program Specialist") still read New grad, a
   Finance one among them.
 
+#### Applied: R14's Magna entry (2026-11-09, your yes)
+
+Magna's type in `config/companies.json` is Robotics & Autonomy, not Canadian Tech: a vehicle and robotics
+supplier, whose design engineers are Hardware's. The placement check (Magna's postings in `placed_p4r12.db`
+against `placed_p4g5.db`): 6 go to Hardware ("Engineer, Design", "Senior Design Engineer" and 4 more; 4 from
+Software, 2 from Design), and the type label changes on all 148 of Magna's postings, **35 of them on Finance**
+(which show "Robotics & Autonomy" and count under that type in the company-type filter; none changes board,
+filter or stage). Nothing else changes. Tests: `MagnaTests` in `tests/matching/test_rule_review.py`.
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this

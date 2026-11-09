@@ -329,6 +329,19 @@ class DesignWorkTests(unittest.TestCase):
             self.assertNotEqual("design", board(cls(title, company_type=ctype)), title)
 
 
+class MagnaTests(unittest.TestCase):
+    """R14, your yes: Magna is a vehicle and robotics supplier, so its design engineers are Hardware's."""
+
+    def test_magna_is_typed_robotics_autonomy(self):
+        from intel.companies import resolve_company
+        resolved = resolve_company("Magna", KN)
+        self.assertEqual(("magna", "robotics_autonomy"), (resolved["key"], resolved["type"]))
+
+    def test_its_design_engineers_go_to_hardware(self):
+        for title in ("Engineer, Design", "Senior Design Engineer"):
+            self.assertEqual("hardware", board(cls(title, company_type="robotics_autonomy")), title)
+
+
 class EngineeringDesignerTests(unittest.TestCase):
     """R11 and R20: engineering designers are Hardware's; business and building titles are not."""
 
