@@ -5632,8 +5632,8 @@ from that record.
      - What they give (`poll\whatif.txt`, open postings on the live copy): the Eightfold sources above 189 Product
        and 28 Design postings. Dropping whole groups: Product without `defense_aerospace` polls in 29.5 min and
        loses 346 open Product postings, without `semiconductors` 49.2 min and 453, without both 16.1 min and 799
-       (of 9,891); Design without `defense_aerospace` 16.0 min and 138 (of 2,384). Not changed: D28's groups
-       stand unless you say otherwise.
+       (of 9,891); Design without `defense_aerospace` 16.0 min and 138 (of 2,384). D28's groups stay: your
+       answer, 2026-11-08 (14.7).
      - The bounds: LinkedIn holds its lock through each request, so its share is exact. Lever and Eightfold only
        space their requests' starts and let them run together: serialising their sources is the upper bound,
        letting them run freely the lower. Which is closer depends on how long their requests take, not measured.
@@ -5879,6 +5879,8 @@ sample against `main` 937bbc2):
 - A Workday entry (`enterprise_saas`, `=workday`), so its early-career site joins `early_career_programs` (D27).
 - From the sweep (D27): OpenSesame and Clearwater Analytics (`enterprise_saas`, in `product_design/`; Clearwater
   there, not in `shared/`), and T-Mobile (`telecom`, a folder-test exception beside Visa and Mastercard).
+- Poll time: Product and Design keep `defense_aerospace` and `semiconductors` (D28), with the Eightfold sources
+  that make their full poll about an hour, as Software's is.
 
 ---
 
