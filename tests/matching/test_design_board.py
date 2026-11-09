@@ -156,6 +156,61 @@ class EngineeringDesignTests(unittest.TestCase):
         self.assertPlaced(("design", "visual_brand", None), "Associate Creative Director, Digital Design")
         self.assertEqual("other", board(cls("Digital Design Specialist")))
 
+    def test_chip_board_rf_and_substation_designers_go_to_hardware(self):
+        # Design's 'designer' words placed these: a chip, board, RF, photonics or substation word in the title
+        # makes them Hardware's at any employer.
+        for title, ctype in (("Memory System Designer and Place and Route Engineer", "semiconductors"),
+                             ("DRAM PHY Designer, up to Staff", "semiconductors"), ("SoC Physical Designer", "unknown"),
+                             ("Senior DFT Designer", "semiconductors"), ("Senior Designer , IC Layout", "unknown"),
+                             ("Physical Designer Engineer, Synthesis/PnR", "robotics_autonomy"),
+                             ("E-core CPU Design Manager", "unknown"), ("Test Chip Design Lead", "unknown"),
+                             ("Senior Standard Cell Library Design Manager", "unknown"),
+                             ("HW IP designer - Qualcomm - Guyancourt or Sophia, France", "semiconductors"),
+                             ("Principal HW/SW Co-Design", "semiconductors"), ("Staff Board Designer", "defense_tech"),
+                             ("Senior Printed Circuit Board (PCB) Designer", "big_tech"),
+                             ("Sr Designer, Printed Wiring Board", "diagnostics"),
+                             ("Printed Circuit Board Designer for Electronic/Photonics Product Design", "hardware_devices"),
+                             ("Senior Technical Staff-Design (Signal and Power Integrity)", "semiconductors"),
+                             ("RF/ Millimeter Wave Design Intern", "hardware_devices"),
+                             ("mm-Wave/RF System & Design Intern", "semiconductors"), ("Senior RF Antenna Designer", "unknown"),
+                             ("High Speed Analog I/O designer", "semiconductors"), ("FBAR Filter Designer", "unknown"),
+                             ("Senior Laser Designer", "unknown"), ("Senior Laser and SOA Designer", "unknown"),
+                             ("Photonic Design Manager", "semiconductors"), ("Optical System Designer", "defense_tech"),
+                             ("Media SoC Designer", "unknown"), ("Video SoC Designer", "big_tech"),
+                             ("Level III RF Antenna Designer", "unknown"),
+                             ("SOI Design Intern", "semiconductors"), ("CryoCMOS Design Director, Quantum", "semiconductors"),
+                             ("Senior Staff Advance Packaging Designer", "semiconductors"),
+                             ("IC Packaging Design Intern", "semiconductors"),
+                             ("引线框架结构设计师/Lead Frame Designer", "semiconductors"),
+                             ("Substation Physical Designer", "defense_tech"),
+                             ("Substation Protection & Control Designer - Remote", "health_consulting")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("hardware", "hardware_designer"), (board(result), result.get("rule")), (title, ctype))
+
+    def test_digital_memory_layout_and_packaging_designers_are_chip_roles_only_at_a_chipmaker(self):
+        for title in ("Sr. Principal Digital Designer", "Memory Designer", "Senior Memory Designer", "Designer, Layout",
+                      "Level II Memory Designer",
+                      "Lead Designer, Layout", "Filter Design Intern (m/f/d)", "System Design Leader or Architect",
+                      "Packaging Design Integration Engineer (2026 New College Graduate)"):
+            result = cls(title, company_type="semiconductors")
+            self.assertEqual(("hardware", "designer_at_chipmaker"), (board(result), result.get("rule")), title)
+        for title, ctype in (("Digital Designer", "consumer_tech"), ("Associate Digital Designer", "unknown"),
+                             ("Packaging Designer", "consumer_products"), ("Digital Designer, CNN", "consumer_tech")):
+            self.assertEqual("design", board(cls(title, company_type=ctype)), (title, ctype))
+
+    def test_design_occupations_that_name_a_hardware_word_stay_on_design(self):
+        # 'IC' is an individual contributor in parentheses; a UX, visual, industrial or game word names design work.
+        for title, ctype in (("Senior Manager (IC), Product Designer", "commercial_bank"),
+                             ("Spring 2027: HW UX/UI Design Co-op (January through June)", "consumer_products"),
+                             ("Senior Industrial Designer, Packaging Experience", "hardware_devices"),
+                             ("Team Lead Level Designer [Splinter Cell Remake]", "gaming"),
+                             ("UX/UI Designer", "semiconductors"), ("Senior Multimedia Designer", "semiconductors"),
+                             ("Manager Multimedia Design, Motion Design", "semiconductors"),
+                             ("Web Marketing Program - User Experience Design", "semiconductors"),
+                             ("Senior Digital Designer, Design Systems", "semiconductors"),
+                             ("Digital Product Design Intern", "semiconductors"), ("Laser Show Designer", "unknown")):
+            self.assertEqual("design", board(cls(title, company_type=ctype)), (title, ctype))
+
     def test_a_plain_design_engineer_at_a_software_employer_is_design(self):
         for title, ctype in (("Design Engineer", "developer_tools"), ("Design Engineer, III", "developer_tools"),
                              ("Design Engineer", "fintech"), ("Staff Design Engineer", "consumer_tech"),

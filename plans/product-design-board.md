@@ -5642,6 +5642,27 @@ from that record.
        `blackstone_campus` (Workday 401), `nxp` (Workday 422). Every source this branch adds read.
      - `main` is now `9e9201b`, the 0.3.15 release (`version.py` and the release notes only), so the What's new
        draft is for the next version.
+   - **Chip and board designers from Design to Hardware, 2026-11-08** (your yes): Design's `designer` words held
+     72 open postings (61 titles) that are chip, circuit-board, RF, photonics or substation design, all placed by
+     title words and no claim ("Memory Designer", "SoC Physical Designer", "Senior PCB Designer", "Substation
+     Physical Designer"). Two Hardware claims take them from Design only, so no other board's posting can move:
+     - `hardware_designer`: a design title that names a chip, board, RF, photonics or substation subject (IC
+       but not "(IC)", SoC, CPU, DRAM, PHY, DFT, PCB, printed wiring board, RF, mmWave, antenna, laser
+       designer, photonic, optical, SOI, FBAR, CMOS, lead frame, substation and more), at any employer: 60.
+     - `designer_at_chipmaker`: "Digital Designer", "Memory Designer", "Designer, Layout" and filter, packaging
+       and system design, which are chip roles only at a semiconductor employer: 12.
+     - Neither takes a title with a design occupation's word (UX, UI, user, interaction, visual, graphic, brand,
+       creative, product designer, industrial, CMF, game, design systems, research and others), so "Senior
+       Manager (IC), Product Designer", "HW UX/UI Design Co-op", "Digital Designer" at a retailer and "Senior
+       Digital Designer, Design Systems" stay on Design. A reviewer's run found "Level", "Media" and "Video"
+       in that list blocked chip titles only ("Media SoC Designer"); they are out.
+     - Placement check against the sweep's commit: 72 design → hardware and nothing else; against `main` the
+       moves that change what Finance shows stay 2,494. In Hardware they land in Chip Design 11, Electrical 12,
+       Robotics 1 and no filter 48: Hardware's filter words name "design" and "engineer", not "designer". Left
+       for the rule review, with what stays on Design: titles that could be either ("Sr. Design Lead" at AMD,
+       "Director - Design Manager" at Qualcomm), the construction and facilities design managers at Intel and
+       Micron (to "other" changes what Finance shows), and Intel's "ADCE Packaging Design Architect": Intel and
+       Skyworks have no company entry, so no employer type.
 5. **Resume reading, matching and Calendar,** with the fixtures of section 9.
    - `resume_record compare` against `baseline\resumes_main.json` passes: the existing fixtures read
      byte-identically under every saved profile.
