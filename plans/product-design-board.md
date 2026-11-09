@@ -6058,6 +6058,61 @@ The placement check (`placed_p4r2.db` against `placed_p4n.db` and `main`):
   The 7 were on Design on `main` and Hardware's in `p4n`; they go to Software, Meta's BMS Quality Manager beside
   Meta's other data-center construction roles there.
 
+#### Applied, group 2: the fixes that change what Finance shows (2026-11-09, your "Approve all")
+
+R3, R5 and R12 to R15 are in `config/taxonomy.json`; tests in `tests/matching/test_rule_review.py`. **Not applied:**
+R14's Magna retype. It is an existing employer entry, and besides moving 6 postings to Hardware it changes the type
+label shown on 148 of Magna's postings, 35 of them on Finance (the review said Finance's were unchanged). It comes
+to you on its own with its counts, as D27 asks. A reviewer placed every posting with and without the group; its
+findings are fixed below except where a line says left.
+
+The placement check (`placed_p4g5.db` against group 1's `placed_p4r2.db` and `main`): 331 postings change board,
+no filter or stage inside Product and Design changes otherwise, and no other board's filter or stage changes.
+**What Finance shows changes on 255:**
+- **"other" → Product 145 (R3)**, all through `product_title_variants`: product line managers, "Product Director",
+  "Director, Product", "Manager, Digital Product …", "Member of Product Staff", "Product Mgr", the typos, "Product
+  and Programme Management" and the like.
+- **Design → "other" 83 (R12 to R14):** building design (data-center, architectural, store, workplace, lounge and
+  construction design), business design (study, policy, compensation, contract, process and plan design), Target's
+  12 apparel and home lines, and lecturers, a professor and librarians.
+- **"other" → Design 18 (R15):** 6 industrial design engineers, 5 product and design researchers, Canva's
+  illustration specialists, DesignOps, and TD's and Kyndryl's human-centered design leads.
+- **Product → Finance 5 and Finance → Product 4 (R5)**, as the review counted: Amex's and BofA's product associates
+  back to Finance, and Visa's 3 PM interns (4 entries) to APM & Programs.
+
+The other moves: Software → Product 17, Operations → Product 12, AI & Data → Product 8, Hardware → Product 4 and
+Sales → Product 2 (R3: Developer and platform PMs, HW/SW and chipset TPMs, JPMorgan's Senior Product Associates);
+Software → Design 14, Hardware → Design 4 and AI & Data → Design 1 (R15: game and UX designers, design engineers
+by department, UX roles that name hardware, SoFi's art director); Design → Software 5 (R14's 4 engineers, and
+SpaceX's "Sr. Spaceport Designer, Architect" on Software's architect word, not "other" as R12 said); and 9 the
+review didn't name a board for, each on the board its words name: Design → Sales 3 (Duolingo's design sourcer, HP's
+and Stripe's sales compensation design), Design → Operations 3 (2 executive assistants, Amazon's supply-chain
+facilities design manager), Design → People & Legal 2 (Anthropic's policy design managers) and Healthcare → Product 1
+(Abridge's "Member of Product Staff, Nursing", which only Healthcare's fallback word "Nursing" placed). Against
+`main`, the pairs no earlier change made: Hardware → Design 4 and Healthcare → Product 1.
+
+- **R3.** `product_title_variants` takes these forms from "other", Sales, Operations and the tech boards, not
+  Finance or Healthcare, so Finance keeps its own; not with a quality, development, marketing, security or other
+  function's word. Product Management's and Technical PM's filters read them only when Product's own PM word
+  doesn't, so a title scores once; a student word sends them to APM & Programs (group 1's full list); "Campus
+  Networking" and "Campus Switching" are no student words. `pm_over_topic` reads product operations, associates and
+  builders; `program_tech_evidence` reads HW and SW before the program word ("Senior HW Program Manager", not
+  "Program Manager, SW Region"), chipsets, autonomy and subsystems. Left: from "other", the business-occupation
+  check stops "Product Associate" and the "Managment" typos (code, not data).
+- **R5.** `product_occupation_from_finance` leaves total rewards, finance control and treasury product associates
+  to Finance and takes "Product/Project Management" interns.
+- **R12 to R14.** Design's title words skip building, business and Target's apparel and home words, and assistants,
+  professors, lecturers, librarians and sourcers. Product and UX designers whose product names one ("Senior Product
+  Designer, Home", "Product Designer - Contract - Design Systems") stay. Design's claim skips software engineers and
+  engineers of robots or the full stack (Wells Fargo's "UI/UX Lead Software Engineer", Apple's "Robot Interaction
+  Engineer"). Left: the apparel words apply at any employer (Target's 13 are today's only hits).
+- **R15.** Design's words read DesignOps, illustration (not an insurer's "Illustration Analyst") and human-centered
+  design; its claim reads game, level and narrative designers, "UX … Designer", interface designers and UX roles that
+  name hardware; `design_engineer_at_software` reads a design department (not a mechanical or chip one);
+  `art_direction` takes from AI & Data; new claims take product and design researchers (not chip, protein or model
+  design) and industrial design engineers from "other". Left: "Illustration Specialist" reads as design at an
+  insurer too, and `design_occupation`'s description phrases `cent(er|re)d` never read "centered" (as on `main`).
+
 ## 15. Problems noticed, not fixed
 
 These are on `main`, found while gathering this design's counts. The first group is shared behaviour that this

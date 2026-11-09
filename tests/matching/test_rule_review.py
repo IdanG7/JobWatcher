@@ -215,6 +215,120 @@ class ProductStageTests(unittest.TestCase):
             self.assertEqual(expected, stage(title, "product"), title)
 
 
+class ProductTitleVariantTests(unittest.TestCase):
+    """R3 and R5: product titles no word read come to Product from "other" and the boards other than Finance;
+    Finance keeps its own."""
+
+    def test_variants_come_to_product_with_a_filter(self):
+        for title, ctype, expected in (("Product Line Manager", "unknown", "product_management"),
+                                       ("Director, Product", "unknown", "product_management"),
+                                       ("Product Director", "consumer_tech", "product_management"),
+                                       ("Member of Product Staff", "ai_lab", "product_management"),
+                                       ("Product & Programme Manager", "unknown", "product_management"),
+                                       ("Product Sr Manager", "medtech", "product_management"),
+                                       ("Senior Manager, Digital Product Delivery", "canadian_bank",
+                                        "product_management"),
+                                       ("Senior Product Associate, Growth Product", "bulge_bracket",
+                                        "product_management"),
+                                       ("Technical Programme Manager", "unknown", "technical_pm"),
+                                       ("Technical Product Line Manager", "semiconductors", "technical_pm"),
+                                       ("Senior Product Manger tech", "big_tech", "technical_pm"),
+                                       ("Product Mgr Intern", "unknown", "apm_programs"),
+                                       # group 1's full student list ('Graduate', 'Trainee', 'Alternance')
+                                       ("Technology Graduate Scheme - Tech Product and Programme Management",
+                                        "unknown", "apm_programs"),
+                                       ("Product Line Manager Trainee", "unknown", "apm_programs"),
+                                       # 'Campus Networking' names no student
+                                       ("Lead Product Line Manager - Campus Networking Solutions", "big_tech",
+                                        "product_management")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("product", expected, "product_title_variants"),
+                             (board(result), result["subcategory"], result.get("rule")), title)
+
+    def test_a_title_product_already_reads_keeps_its_filter(self):
+        """The variants score a filter only when Product's own PM word doesn't read the title (R8)."""
+        for title, ctype, expected in (("Technical Product Manager - Aladdin Product Managment, ASO", "asset_manager",
+                                        "technical_pm"),
+                                       ("Manager, Digital Product Operations", "fintech", "product_ops")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("product", expected), (board(result), result["subcategory"]), title)
+
+    def test_other_work_and_finance_titles_stay(self):
+        for title, ctype, expected in (("Product Line Manager - Quality", "unknown", "other"),
+                                       ("Product Line Manager, Debt Products", "global_bank", "other"),
+                                       ("Chief of Staff - Product Line Management", "unknown", "operations"),
+                                       ("Consumer Products Senior Manager, Supply Chain", "unknown", "operations")):
+            self.assertEqual(expected, board(cls(title, company_type=ctype)), title)
+        self.assertEqual("design", board(cls("Art Director, Product")))
+        self.assertEqual("finance", board(cls("Product Mgr, Payments", company_type="fintech")))
+
+    def test_hw_sw_and_autonomy_program_managers_are_technical(self):
+        for title, ctype in (("Senior HW Program Manager", "semiconductors"),
+                             ("Compute Chipset SW Program Manager", "semiconductors"),
+                             ("Senior Autonomy Program Manager", "robotics_autonomy")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("product", "technical_pm"), (board(result), result["subcategory"]), title)
+        for title in ("Program Manager, SW Region", "Program Manager - SW Florida", "Program Manager, Youth Autonomy",
+                      "Program Manager, HW Retail"):
+            self.assertEqual("operations", board(cls(title)), title)
+
+    def test_finance_keeps_its_product_associates_and_product_takes_visas_interns(self):
+        """R5."""
+        for title, ctype in (("Total Rewards Product Associate", "fintech"),
+                             ("Product Associate - Business Finance Control", "bulge_bracket"),
+                             ("Treasury Product Associate", "bulge_bracket")):
+            self.assertEqual("finance", board(cls(title, company_type=ctype)), title)
+        result = cls("Technical Product/Project Management Intern", company_type="fintech")
+        self.assertEqual(("product", "apm_programs"), (board(result), result["subcategory"]))
+
+
+class DesignWorkTests(unittest.TestCase):
+    """R12 to R15: building, business and apparel titles leave Design; design work held elsewhere comes to it."""
+
+    def test_building_business_apparel_and_assistant_titles_leave_design(self):
+        for title, ctype in (("Data Center Design Manager", "big_tech"), ("Store Designer", "unknown"),
+                             ("Study Design Lead", "pharma"), ("Compensation Design Manager", "unknown"),
+                             ("Designer, Knits", "unknown"), ("Associate Designer, Home", "unknown"),
+                             ("Category Associate – Design, Construction, CQV", "pharma")):
+            self.assertEqual("other", board(cls(title, company_type=ctype)), title)
+        self.assertEqual("operations", board(cls("Executive Assistant, Design")))
+        # R14: Wells Fargo's and Apple's engineers, whom Design's claim took on the UX or interaction word
+        for title, ctype in (("UI/UX Lead Software Engineer", "commercial_bank"),
+                             ("Robot Interaction Engineer", "big_tech")):
+            self.assertEqual("software", board(cls(title, company_type=ctype)), title)
+
+    def test_product_designers_keep_design_whatever_their_product(self):
+        for title, ctype in (("Senior Product Designer, Home", "big_tech"),
+                             ("Product Designer - Contract - Design Systems", "unknown"),
+                             ("Product Designer, Plan Design Tools", "unknown"),
+                             ("Product Designer, Robotics", "big_tech"), ("UX Designer, Robotics", "robotics_autonomy")):
+            self.assertEqual("design", board(cls(title, company_type=ctype)), title)
+
+    def test_design_work_comes_to_design(self):
+        for title, ctype, expected in (("Industrial Design Engineer", "unknown", "industrial_design"),
+                                       ("DesignOps Manager", "unknown", "product_design"),
+                                       ("Senior Illustration Lead", "unknown", "visual_brand"),
+                                       ("VP, Human Centered Design", "canadian_bank", "product_design"),
+                                       ("Senior Manager, Human-centered Design", "unknown", "product_design"),
+                                       ("Software Signature Interface Designer", "big_tech", "product_design"),
+                                       ("Game Designer (Mobile)", "gaming", "game_design"),
+                                       ("Technical Interface Designer - EA SPORTS FC", "gaming", "game_design"),
+                                       ("Product Researcher", "big_tech", "ux_research"),
+                                       ("Researcher, Figma Design", "enterprise_saas", "ux_research")):
+            result = cls(title, company_type=ctype)
+            self.assertEqual(("design", expected), (board(result), result["subcategory"]), title)
+        result = cls("Design Engineer", department="Design")
+        self.assertEqual(("design", "design_engineering"), (board(result), result["subcategory"]))
+
+    def test_not_design_work(self):
+        self.assertNotEqual("design", board(cls("Policy Illustration Lead")))
+        self.assertNotEqual("design", board(cls("Design Engineer", department="Mechanical Design")))
+        for title, ctype in (("Illustration Analyst", "insurance"), ("Illustration Systems Analyst", "insurance")):
+            self.assertEqual("finance", board(cls(title, company_type=ctype)), title)
+        for title, ctype in (("Researcher, Chip Design", "semiconductors"), ("Researcher, Protein Design", "ai_lab")):
+            self.assertNotEqual("design", board(cls(title, company_type=ctype)), title)
+
+
 class EngineeringDesignerTests(unittest.TestCase):
     """R11 and R20: engineering designers are Hardware's; business and building titles are not."""
 
@@ -228,9 +342,9 @@ class EngineeringDesignerTests(unittest.TestCase):
             self.assertEqual(("hardware", "hardware_designer"), (board(result), result.get("rule")), title)
 
     def test_building_and_ux_titles_stay_off_hardware(self):
-        for title, ctype in (("Construction Engineering Design Manager", "semiconductors"),
-                             ("UX Designer, Controls", "unknown")):
-            self.assertEqual("design", board(cls(title, company_type=ctype)), title)
+        self.assertEqual("design", board(cls("UX Designer, Controls")))
+        # R12: building design is no board's until the AEC board takes it
+        self.assertEqual("other", board(cls("Construction Engineering Design Manager", company_type="semiconductors")))
         for title in ("Interior Design Architect", "Lab IT Compute Architect / Solution Designer",
                       "Technical Architect – Application Design & AI Engineering"):
             self.assertNotEqual("hardware", board(cls(title)), title)
