@@ -362,6 +362,10 @@ _DEGREE_ABBR = {
     "undergraduate": re.compile(rf"\b(?:B\.?\s?Des|B\.?F\.?A)\b{_ABBR_END}", re.M),
 }
 _EDUCATION_DEGREES = [(key, p) for key, pattern in _DEGREES for p in (pattern, _DEGREE_ABBR.get(key)) if p]
+# A diploma or a certificate is the level "other" (Settings' "Diploma, certificate or other"), read after the four
+# and only under an Education heading (not by _degree_line: a certificate's date is no graduation, and its school
+# not the degree's).
+_OTHER_LEVEL = ("other", re.compile(r"\b(?:diploma|dipl[ôo]me|certificate|certificat)\b", re.I))
 # A program's name keeps a hyphen inside a word ("Human-Computer Interaction"), "in" before it is a whole word (not
 # the "In" of "Interaction"), and a word starting "Co-op" ("Co-operative Education") or "Coop" after a degree is
 # no program.
@@ -487,7 +491,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         school = ", ".join(pieces[next((i for i, p in enumerate(pieces) if _SCHOOL.search(p)), 0):])
         school = insights.strip_city(re.sub(r"[\s,]+(?:19|20)\d\d$", "", school))
     level, degree_text = None, None
-    for key, pattern in _EDUCATION_DEGREES if edu_lines else _DEGREES:
+    for key, pattern in [*_EDUCATION_DEGREES, _OTHER_LEVEL] if edu_lines else _DEGREES:
         m = pattern.search(text)
         if m:
             level = key

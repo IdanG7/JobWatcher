@@ -1,10 +1,11 @@
 """Product and Design resumes open their own track (plans/product-design-board.md 9.4, D24): a design or HCI degree or a
 P&D job title opens it, its signals read the work, and a UX resume no longer adds the Software board. The reader every
-board shares reads their degrees and programs (9.2, D37). People, schools and employers are invented."""
+board shares reads their degrees, programs and diplomas (9.2, D37, D38). People, schools and employers are invented."""
 import unittest
 
 from intel import load_knowledge, merge_profile
 from intel import resume_insights as insights
+from intel.profile import validate_profile
 from intel.resume import parse_resume, profile_from_resume
 
 KN = load_knowledge()
@@ -183,6 +184,33 @@ class ProgramTests(unittest.TestCase):
                                  ("B.A. - Co-operative Education", None)):
             with self.subTest(degree=degree):
                 self.assertEqual(expected, program(degree))
+
+
+class OtherLevelTests(unittest.TestCase):
+    def test_a_diploma_or_certificate_alone_is_the_level_other(self):
+        # 9.2, D38: Settings' "Other: Diploma, certificate or other". These set no level before. A high school's
+        # diploma too: Settings' "Other" is where a student would put it.
+        for degree in ("Advanced Diploma, Graphic Design", "Ontario College Advanced Diploma, Graphic Design",
+                       "Diploma, Graphic Design", "Ontario College Graduate Certificate, User Experience Design",
+                       "Graduate Certificate, UX Design", "Certificate in UX Design", "UX Design Diploma",
+                       "Google UX Design Professional Certificate", "Diplôme d'études collégiales (DEC)",
+                       "Ontario Secondary School Diploma (OSSD)"):
+            with self.subTest(degree=degree):
+                self.assertEqual("other", level(degree, school="Lakeshore College Toronto, ON"))
+
+    def test_a_degree_outranks_a_certificate_and_other_is_read_only_under_education(self):
+        self.assertEqual("undergraduate", level("Bachelor of Arts, Psychology\nCertificate in UX Design"))
+        self.assertEqual("masters", level("Graduate Certificate, UX Design\nMDes, Interaction Design"))
+        text = ("JORDAN AVERY\njordan.avery@example.com\nIT Analyst, Lakeview Analytics, 2019 – Present\n"
+                "• Earned the Google Data Analytics certificate and trained 40 staff on the new diploma records.\n")
+        self.assertIsNone(parse_resume(text, KN)["education"]["level"])
+
+    def test_the_profile_takes_other(self):
+        parsed = parse_resume(DEGREE.format(degree="Advanced Diploma, Graphic Design",
+                                            school="Lakeshore College Toronto, ON"), KN)
+        profile = profile_from_resume(parsed, merge_profile({}), KN)
+        self.assertEqual("other", profile["education"]["level"])
+        self.assertEqual([], validate_profile(profile, KN))
 
 
 class TrackGateTests(unittest.TestCase):
