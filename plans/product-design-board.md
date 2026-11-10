@@ -5685,6 +5685,43 @@ from that record.
    - The stored resume is compared field by field, `main` against the branch, and only field names are printed.
    - Program windows are tested as `tests/app/test_program_windows.py` does.
    - The placement check runs again.
+   - **Done on 2026-11-09** (`E:\product-design-board\phase5\`). The commits: the degree abbreviations
+     (`5ec2e74`) and the program names (`6d5e187`) for D37, level `other` (`a3a36ac`, D38), the headings
+     (`5b11b5f`, D39), the program windows (`146870c`, D23), the fixtures (`5c8b769`), and the records in this file.
+     - The baseline moved. `main`'s 987ecc9 ("Read resumes without a degree, without headings, or in French") and
+       6e588c7 ("Read experienced and senior resumes") read 192 of the 384 readings differently from the Oct 31
+       record (biology, cs, letter and pharmacy, 48 each). So each commit is compared with `main` 9e9201b's own
+       record (`resumes_main_9e9201b.json`), which the branch before Phase 5 matched, 384 of 384. `main` now
+       accepts a resume with no level, so "refused" in 9.1 to 9.3 no longer happens; the level stayed unread.
+     - Each shared-reader commit: `resume_record compare` against `main`, 384 of 384 unchanged; the stored resume,
+       46 of 46 fields unchanged (`scripts\stored.py`, field names only); both suites; a reviewer. Each test fails
+       without its change, and each guard's test fails with that guard removed.
+     - D37, degrees: 10 of 9.2's 47 lines gain a level (BDes ×3, BFA, MDes, MFA, MHCI ×2, M.S. in, MS,).
+       Reviewed twice. The first version read "MS, SQL Server", "in MS, USA", "MS in Excel", "MFA Showcase" and
+       "BFA Gallery" as degrees and lost "MHCI 2026"'s year; all are fixed and tested.
+     - D37, programs: 21 of 40 probed lines read a better program, on P&D's and other boards' degrees
+       (Information Technology, International Affairs, Socio-Cultural Studies). `_PROGRAM_ABBR` and `_PROGRAM_IN`,
+       which `main` added after this plan, had the hyphen bug too. "Co-op" right after a degree is no program.
+     - D38: the 8 diploma and certificate lines read `other`. A high school's diploma does too, as a student would
+       choose in Settings; a guard against it missed a diploma on its own line under the school, so it was
+       dropped. `main`'s IT diploma resume (`test_resume_kinds.py` `IT_TECH`) reads `other` instead of no level;
+       no test pins it.
+     - D39: the UX designer reads its two design roles and its case study. Side effect: a finance resume with a
+       "Portfolio" heading over a student fund reads that entry as a project (interests the same; one strength
+       rose in a probe, `investment_banking.ma` 0.36 → 0.63).
+     - Fixtures (9.9): `tests/resume/test_resume_pd_fixtures.py` has the six fixtures in all six forms (each form
+       reads as the text), layout D, 9.6's variants on the finance and CS fixtures, and the 47 degree lines. They
+       are in `tools/resume_record.py`'s `FIXTURES` too: against `main`, 384 of 384 unchanged and 288 added
+       (`resumes_final.json`), none refused. What they read against "Must parse to": PM interests are led by
+       product_analytics, and "Product Manager Intern" is APM & Programs (Phase 3's filters); the UX designer's
+       program reads `Design`; the visual designer's diploma program and date are unread; "Product Design Co-op"
+       stays product_design; `options` stays (D40). These are in 15.4, not pinned.
+     - D23: Product shows 7 Calendar items, Design 8, Product + Design 12 (each co-op term once); Healthcare's 7
+       are unchanged. The facts fingerprint stays `807a6e337305`.
+     - Placement (`phase5\place\placed_p5.db`, the commits' code): against `placed_p4e1.db`, 73,917 → 73,917 with
+       0 moves and 0 filter, label or stage changes. Against `main` (`main_vs_p5.txt`) it reads as Phase 4 left
+       it: the 31 moves outside the pairs above are group 1's 26 (Hardware → Operations 10, "other" → Healthcare
+       13 and 3 single titles) and group 2's Hardware → Design 4 and Healthcare → Product 1.
 6. **Onboarding, Settings, Sources view and docs.**
    - A What's new draft for the version after 0.3.15 (which `main` released on 2026-11-07), with every claim and
      count checked against the final packs. `version.py` is not touched.
@@ -6279,13 +6316,22 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
 
 ### 15.4 Resume reader
 
-- **`_PROGRAM` eats the "In" of Interaction, Industrial, Information, International, Interior and Integrated**, and
-  stops at hyphens. "Bachelor of Information Technology" reads `formation Technology` (D37).
-- **US "M.S. in", "MS," and "MA," set no level**, and "M.S. in" above a B.A. reads undergraduate (D37).
-- **Unknown headings right after Education turn jobs into education.** "Selected Work" and "Case Studies" become
-  employers after an Experience entry (D39).
-- **"Portfolio" under Education reads as Asset Management** through the finance signal `portfolios?\b` (D39 fixes
-  the heading, not a "Portfolio: <link>" line).
+- Fixed in Phase 5: `_PROGRAM` eating the "In" of Interaction and stopping at hyphens (D37); "M.S. in" and "MS,"
+  setting no level (D37); diplomas and certificates setting no level (D38); Design, Research, Product and UX
+  Experience, Portfolio, Selected Work and Case Studies not being headings (D39); `word_docx` not knowing a
+  resume's headings (it takes them now).
+- **A "Portfolio: <link>" line under Education still reads as Asset Management** through the finance signal
+  `portfolios?\b`. D39 fixed the heading only.
+- **Degree lines still unread:** "MA," at a line's start (a state), BID and MID (words), and an abbreviation with no
+  comma or "in" after it ("BFA Graphic Design").
+- **A program after "of" is the word after it:** "Bachelor of Design (BDes), Interaction Design" reads `Design` and
+  "Bachelor of Fine Arts, Graphic Design" reads `Fine Arts`. A diploma's program is unread, and its lone date
+  ("Advanced Diploma, Graphic Design Apr 2025") dates nothing.
+- **"Bachelor of Science in Co-op" reads the program `in Co-op`** (`main`: `in Co`): the regex backs off the "in".
+- **An honour such as "Dean's List Certificate", as the only education line, reads the level `other`.**
+- **A tool after " | " on a project line can read as a role:** "Harbour Film Festival identity | Illustrator, After
+  Effects" adds the role Illustrator (the shared title splitting and Design's role word).
+- **"Product Design Co-op" reads `product_design`** whatever its bullets say (the industrial designer fixture).
 - **Finance's `options` skill matches any "options"**, because each skill's label is added to its pattern (D40).
 - **The CS fixture's `.docx` forms read 2 role interests where its text, PDF and LaTeX forms read 4**
   (`resume_degrees_main_record.json`).
@@ -6296,9 +6342,7 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
   portfolio link on a design resume, and a duty line in the existing finance fixture.
 - **A wrapped bullet ending "…lead\nProduct Designer." becomes a role**, since `_goes_on` joins only lower-case
   run-ons.
-- **The test helper `word_docx` lists employers as duties under headings it doesn't know**
-  (`tests/resume/test_resume_health.py:123`).
-- **The pharmacy fixture is refused in all 48 readings** (PharmD sets no level), as section 2.6 records.
+- **PharmD sets no level** (section 2.6). `main` now accepts the pharmacy fixture without one (`0c0485c`).
 
 ### 15.5 The board gate's existing code
 
