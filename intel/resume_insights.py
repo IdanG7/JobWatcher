@@ -13,6 +13,7 @@ resume does not contain.
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date
 
 from .knowledge import Knowledge
@@ -81,7 +82,12 @@ COMPANY_TYPES = {
 }  # the other boards' employers are their employer_types in taxonomy.json
 _STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term)\b", re.I)
 _BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
-_MON = r"\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+# Month names and abbreviations in English and French ("Sept.", "juil.", "Février", "aout"); re.I reads "AOÛT" too.
+MONTH_NAMES = (r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|"
+               r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|"
+               r"janv(?:ier)?|f[ée]v(?:r(?:ier)?)?|mars|avr(?:il)?|mai|juin|juil(?:l(?:et)?)?|ao[uû]t|septembre|"
+               r"octobre|novembre|d[ée]c(?:embre)?")
+_MON = rf"\b(?:{MONTH_NAMES})"
 # Resume dates: "May 2025 – Aug 2025", "May – Aug 2026", "05/2026 – 08/2026",
 # "Summer 2025", or a role line ending in a bare "2025" / "Aug 2025".
 _YEAR = r"(?:19|20)\d\d"     # an experienced candidate's roles can start in the 1990s
@@ -91,7 +97,14 @@ _RANGE = re.compile(
     rf"(?P<end>{_YEAR}|present|current|now|pr[ée]sent|actuel(?:lement)?|aujourd['’]hui)\b"
     rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>{_YEAR})\b"
     rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>{_YEAR})\s*\)?\s*$", re.I)
-_MONTH_NUMBERS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+_MONTH_NUMBERS = {m: i for i, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)} | {
+    "fev": 2, "avr": 4, "mai": 5, "juin": 6, "juil": 7, "aou": 8}      # French, accents dropped; juin and juil share "jui"
+
+
+def month_number(name: str) -> int | None:
+    """1-12 for a month name or abbreviation of MONTH_NAMES ("Sept." -> 9, "juil" -> 7, "Février" -> 2)."""
+    key = "".join(c for c in unicodedata.normalize("NFKD", name.lower()) if not unicodedata.combining(c))
+    return _MONTH_NUMBERS.get(key[:4]) or _MONTH_NUMBERS.get(key[:3])
 
 
 def span_end(m: re.Match) -> tuple[int | None, int | None]:
@@ -104,7 +117,7 @@ def span_end(m: re.Match) -> tuple[int | None, int | None]:
         return int(m.group("season_year")), {"winter": 4, "spring": 4, "summer": 8, "fall": 12, "autumn": 12}[season]
     else:
         year, month_text, number = int(m.group("one")), m.group("one_month"), m.group("one_num")
-    month = _MONTH_NUMBERS.get(month_text[:3].lower()) if month_text else (
+    month = month_number(month_text) if month_text else (
         int(number) if number and 1 <= int(number) <= 12 else None)
     return year, month
 

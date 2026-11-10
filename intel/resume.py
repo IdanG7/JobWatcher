@@ -379,8 +379,7 @@ _PROGRAM = re.compile(
 _PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*"
                          rf"((?:[A-Za-z&' ]|{_IN_WORD}){{3,50}})", re.I)
 _GPA = re.compile(r"\b(?:c?gpa|grade point average)\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,2})?)\s*(?:/\s*(\d{1,2}(?:\.\d{1,2})?))?", re.I)
-_MONTHS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
-_MONTH = r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+_MONTH = rf"({insights.MONTH_NAMES})"
 _GRAD = [
     re.compile(rf"\b(?:expected|anticipated|graduat(?:ion|ing|ed|e))\s*(?:date)?\s*[:\-]?\s*(?:{_MONTH}\.?\s*)?((?:19|20)\d\d)", re.I),
     re.compile(r"\bclass of\s*((?:19|20)\d\d)", re.I),
@@ -455,7 +454,7 @@ def _graduation(edu_text: str, full: str, range_text: str | None = None,
                 if _CREDENTIAL.search(line) and not _degree_line(line, education):
                     continue
                 groups = m.groups()
-                month = _MONTHS.get((groups[0] or "")[:3].lower()) if len(groups) > 1 else None
+                month = insights.month_number(groups[0]) if len(groups) > 1 and groups[0] else None
                 return int(groups[-1]), month, m.group(0).strip()
     # education ranges: the latest end year is the graduation date; so is the lone year a degree's line
     # ends with ("B.Sc., Social Sciences – University of Haifa 2003")
