@@ -37,7 +37,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urljoin, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
 
 import requests
 
@@ -2706,6 +2706,286 @@ def fetch_hopkins_medicine(cfg):
     return _finish_listing(out, "Johns Hopkins Medicine", limit)
 
 
+CONNECTID_PAGE = 1000       # rows a call; the API serves up to 5000 (the careers page itself asks for 12 to 48)
+CONNECTID_PAUSE = 1.0       # seconds between requests to one API
+
+
+def _connectid_cfg(cfg):
+    """(api host, careers host, language, page size) from a source cfg, checked so they can only be hosts."""
+    host, site, lang = cfg["host"], cfg["site"], cfg.get("lang", "en")
+    if not re.fullmatch(r"[a-z0-9-]+\.connectid\.cloud", str(host)):
+        raise ValueError("ConnectID host must be the <employer>-prod-api.connectid.cloud API the careers page calls")
+    if not re.fullmatch(r"[a-z0-9-]+(?:\.[a-z0-9-]+)+", str(site)):
+        raise ValueError("ConnectID site must be the careers site's host name, like careers.example.com")
+    if lang not in ("en", "fr"):
+        raise ValueError("ConnectID lang must be en or fr")
+    size = cfg.get("page_size", CONNECTID_PAGE)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= 5000:
+        raise ValueError("ConnectID page_size must be an integer from 1 to 5000")
+    return host, site, lang, size
+
+
+def _connectid_token(host):
+    r = requests.get(f"https://{host}/api/jobs/token", headers={"User-Agent": UA, "Accept": "application/json"},
+                     timeout=TIMEOUT)
+    r.raise_for_status()
+    token = r.json().get("token")
+    if not token:
+        raise RuntimeError("ConnectID answered no token")
+    return token
+
+
+def _connectid_search(host, token, body):
+    """(response, token): the careers page's POST /api/jobs/jobs, retried once with a fresh token when the
+    API refuses the first one, as the page does."""
+    for attempt in range(2):
+        r = requests.post(f"https://{host}/api/jobs/jobs", json=body, timeout=TIMEOUT,
+                          headers={"User-Agent": UA, "Accept": "application/json", "Authorization": f"Bearer {token}"})
+        if attempt or r.status_code not in (401, 403):
+            break
+        token = _connectid_token(host)
+    r.raise_for_status()
+    return r, token
+
+
+def _connectid_slug(text):
+    """The careers page's slugify(): runs of anything but letters and digits become one dash."""
+    return re.sub(r"[\W_]+", "-", (text or "").lower()).strip("-")
+
+
+def _connectid_place(job):
+    places = [p.strip() for p in job.get("location_mappings") or [] if isinstance(p, str) and p.strip()]
+    if not places:
+        places = [_place(x.get("city"), x.get("region"), x.get("country")) for x in job.get("locations") or []
+                  if isinstance(x, dict)]
+    return "; ".join(dict.fromkeys(p for p in places if p))
+
+
+_CONNECTID_SECTIONS = ("job_overview", "job_responsibilities", "person_requirements", "rewards_and_benefits",
+                       "additional_information")
+
+
+def _connectid_text(job):
+    """job_description holds the whole posting; a few postings carry only the separate sections."""
+    text = html_to_text(job.get("job_description") or "")
+    if not text:
+        text = "\n\n".join(t for t in (html_to_text(job.get(k) or "") for k in _CONNECTID_SECTIONS) if t)
+    return text
+
+
+def _connectid_job(job, site, lang):
+    req = str(job.get("job_requisition_id") or "").strip()
+    title = " ".join(html_to_text(job.get("job_posting_title") or "").split())
+    out = {"id": req, "title": title, "location": _connectid_place(job),
+           "url": f"https://{site}/{lang}/jobs/{quote(_connectid_slug(title) + '-' + req.lower(), safe='-')}",
+           "posted": _iso_epoch(job.get("start_date")), "department": (job.get("job_area") or "").strip()}
+    text = _connectid_text(job)
+    if text:
+        out["description"] = text
+    return out
+
+
+def fetch_connectid(cfg):
+    """ConnectID career sites (AtkinsRéalis, careers.atkinsrealis.com): the page's job search is a POST to its
+    employer's <employer>-prod-api.connectid.cloud, which first hands out an anonymous bearer token at
+    /api/jobs/token. Each posting carries its full description as HTML; meta.totalCount is the total, and
+    a page of up to 5000 rows is served in one call. cfg: host (the API host the page calls), site (the
+    careers site's host, for posting links), optional lang (en or fr, default en), page_size, max."""
+    host, site, lang, size = _connectid_cfg(cfg)
+    limit = _source_limit(cfg)
+    out, seen, number = SourceListing(), set(), 1
+    token = _connectid_token(host)
+    while True:
+        time.sleep(CONNECTID_PAUSE)
+        r, token = _connectid_search(host, token, {"limit": size, "page": number, "language": lang})
+        data = r.json()
+        rows = data.get("jobs")
+        total = (data.get("meta") or {}).get("totalCount")
+        if not isinstance(rows, list) or isinstance(total, bool) or not isinstance(total, int):
+            raise RuntimeError("ConnectID search response has no jobs list and totalCount")
+        out.total = total
+        if _consume_page(out, [_connectid_job(j, site, lang) for j in rows], seen, "ConnectID", limit):
+            break
+        number += 1
+    return _finish_listing(out, "ConnectID", limit)
+
+
+def detail_connectid(cfg, job_id):
+    """One ConnectID posting, found by the careers page's own search box (job_profile) with its requisition
+    id: the exact match's description (and area) comes back with the date the posting opened."""
+    host, site, lang, _ = _connectid_cfg(cfg)
+    r, _ = _connectid_search(host, _connectid_token(host),
+                             {"limit": 20, "page": 1, "language": lang, "job_profile": str(job_id)})
+    for job in r.json().get("jobs") or []:
+        if str(job.get("job_requisition_id")) == str(job_id):
+            posted = _iso_epoch(job.get("start_date"))
+            return _connectid_text(job), (job.get("job_area") or "").strip(), {"posted": posted} if posted else {}
+    raise ValueError("the ConnectID search does not list this posting any more")
+
+
+CSOD_PAUSE = 10.0           # turner.csod.com's robots.txt asks every crawler for a Crawl-delay of 10
+CSOD_PAGE = 1000            # rows a call; the career site's own pager asks for far fewer
+CSOD_COUNTRIES = {"US": "United States", "CA": "Canada", "GB": "United Kingdom", "MX": "Mexico", "AU": "Australia",
+                  "IE": "Ireland", "IN": "India", "DE": "Germany", "FR": "France", "AE": "United Arab Emirates"}
+
+
+def _csod_cfg(cfg):
+    """(host, corp, [career site ids], page size) from a source cfg, checked so they can only be what a
+    career site link carries: <corp>.csod.com/ux/ats/careersite/<id>/home?c=<corp>."""
+    host, site = cfg["host"], cfg["site"]
+    if not re.fullmatch(r"[a-z0-9-]+\.csod\.com", str(host)):
+        raise ValueError("Cornerstone host must be the <corp>.csod.com career site")
+    sites = site if isinstance(site, list) else [site]
+    if (not sites or len(set(sites)) != len(sites)
+            or any(isinstance(s, bool) or not isinstance(s, int) or s < 1 for s in sites)):
+        raise ValueError("Cornerstone site must be a career site id, or a list of distinct ids, from its link")
+    size = cfg.get("page_size", CSOD_PAGE)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= CSOD_PAGE:
+        raise ValueError(f"Cornerstone page_size must be an integer from 1 to {CSOD_PAGE}")
+    return host, host.split(".")[0], sites, size
+
+
+def _csod_context(host, corp, site):
+    """The page's csod.context: the anonymous session token the page's own scripts call the API with, the
+    API's base address and the culture."""
+    r = requests.get(f"https://{host}/ux/ats/careersite/{site}/home", params={"c": corp},
+                     headers={"User-Agent": UA, "Accept": "text/html"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    start = re.search(r"csod\.context\s*=\s*", r.text)
+    try:
+        ctx, _ = json.JSONDecoder().raw_decode(r.text[start.end():]) if start else (None, 0)
+    except ValueError:
+        ctx = None
+    endpoints = ctx.get("endpoints") if isinstance(ctx, dict) else None
+    if (not isinstance(endpoints, dict) or ctx.get("corp") != corp or not ctx.get("token")
+            or not isinstance(ctx.get("cultureID"), int) or not ctx.get("cultureName")):
+        raise RuntimeError(f"Cornerstone career site {host} site {site} has no session context")
+    cloud = urlsplit(str(endpoints.get("cloud")))
+    if cloud.scheme != "https" or not (cloud.hostname or "").endswith(".csod.com"):
+        raise RuntimeError("Cornerstone career site names an API outside csod.com")
+    return ctx
+
+
+def _csod_place(loc):
+    country = (loc.get("country") or "").strip()
+    return _place(loc.get("city"), loc.get("state"), CSOD_COUNTRIES.get(country, country))
+
+
+def _csod_posted(value, culture):
+    """'11/9/2026' (the en-US career site's date) -> epoch at 12:00 UTC; other cultures write it differently."""
+    if culture != "en-US":
+        return None
+    try:
+        day = datetime.strptime(str(value).strip(), "%m/%d/%Y")
+    except ValueError:
+        return None
+    return day.replace(hour=12, tzinfo=timezone.utc).timestamp()
+
+
+def _csod_job(req, host, corp, site, culture):
+    rid = str(req.get("requisitionId") or "")
+    out = {"id": rid, "title": " ".join(html_to_text(req.get("displayJobTitle") or "").split()),
+           "location": "; ".join(dict.fromkeys(filter(None, map(_csod_place, req.get("locations") or [])))),
+           "url": f"https://{host}/ux/ats/careersite/{site}/home/requisition/{rid}?c={corp}",
+           "posted": _csod_posted(req.get("postingEffectiveDate"), culture)}
+    text = html_to_text(req.get("externalDescription") or "")
+    if text:
+        out["description"] = text
+    return out
+
+
+def _csod_search(cloud, token, body):
+    return requests.post(f"{cloud}rec-job-search/external/jobs", json=body, timeout=TIMEOUT,
+                         headers={"User-Agent": UA, "Accept": "application/json", "Authorization": f"Bearer {token}"})
+
+
+def fetch_csod(cfg):
+    """Cornerstone OnDemand career sites (<corp>.csod.com/ux/ats/careersite/<id>/home?c=<corp>): the page
+    embeds an anonymous session token (csod.context) and its search is a POST to the API it names,
+    rec-job-search/external/jobs, which lists every posting with its description as text and totalCount
+    as the site's total. One employer often runs several career sites (Turner: students, experienced,
+    trades...), each a different slice of its requisitions, so `site` may be a list; the postings are
+    merged and a requisition on several sites is kept once. The host's robots.txt asks for a
+    10 second Crawl-delay, kept between every request. cfg: host ('turnerconstruction.csod.com'), site
+    (career site id, or a list of ids), optional page_size, max."""
+    host, corp, sites, size = _csod_cfg(cfg)
+    limit = _source_limit(cfg)
+    ctx = _csod_context(host, corp, sites[0])
+    cloud, culture, token = ctx["endpoints"]["cloud"], ctx["cultureName"], ctx["token"]
+    out, seen, reported, capped, refreshed = SourceListing(), set(), 0, False, False
+    for site in sites:
+        site_seen, site_total, number = set(), None, 1
+        while not capped:
+            body = {"careerSiteId": site, "careerSitePageId": site, "pageNumber": number, "pageSize": size,
+                    "cultureId": ctx["cultureID"], "searchText": "", "cultureName": culture, "states": [],
+                    "countryCodes": [], "cities": [], "placeID": "", "radius": None, "postingsWithinDays": None,
+                    "customFieldCheckboxKeys": [], "customFieldDropdowns": [], "customFieldRadios": []}
+            time.sleep(CSOD_PAUSE)
+            r = _csod_search(cloud, token, body)
+            if r.status_code in (401, 403) and not refreshed:
+                refreshed = True                        # the page's token ran out: take a new one from the page
+                time.sleep(CSOD_PAUSE)
+                token = _csod_context(host, corp, site)["token"]
+                time.sleep(CSOD_PAUSE)
+                r = _csod_search(cloud, token, body)
+            r.raise_for_status()
+            data = (r.json() or {}).get("data") or {}
+            rows, count = data.get("requisitions"), data.get("totalCount")
+            if not isinstance(rows, list) or isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                raise RuntimeError(f"Cornerstone site {site} search response has no requisitions and totalCount")
+            if site_total is None:
+                site_total = count
+                reported += count
+            if not rows:
+                if len(site_seen) < site_total:
+                    out.reason = out.reason or (f"Cornerstone site {site} ended at {len(site_seen)} "
+                                                f"of reported total {site_total}")
+                break
+            page = [_csod_job(q, host, corp, site, culture) for q in rows]
+            if any(not j["id"] for j in page):
+                raise RuntimeError("Cornerstone search returned a posting without an id")
+            fresh = [j for j in page if j["id"] not in site_seen]
+            if not fresh:
+                raise RuntimeError("Cornerstone pagination repeated a page")
+            if len(fresh) < len(page) or len({j["id"] for j in page}) < len(page):
+                out.reason = out.reason or f"Cornerstone site {site} listed a posting twice"
+            for job in fresh:
+                site_seen.add(job["id"])
+                if job["id"] in seen:                   # another site's slice holds it already
+                    continue
+                if len(out) >= limit:
+                    capped = True
+                    continue
+                seen.add(job["id"])
+                out.append(job)
+            if len(site_seen) >= site_total:
+                break
+            number += 1
+    out.complete = not capped and not out.reason
+    out.total = len(out) if out.complete and len(sites) > 1 else reported
+    return _finish_listing(out, "Cornerstone", limit)
+
+
+def detail_csod(cfg, job_id):
+    """One Cornerstone requisition: the job-requisition service the career site's posting page calls, with the
+    page's own session token. -> (description, department, {posted})"""
+    host, corp, sites, _ = _csod_cfg(cfg)
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("Cornerstone requisition id must be numeric")
+    ctx = _csod_context(host, corp, sites[0])
+    time.sleep(CSOD_PAUSE)
+    r = requests.get(f"https://{host}/services/x/job-requisition/v2/requisitions/{job_id}/jobDetails",
+                     params={"cultureId": ctx["cultureID"]}, timeout=TIMEOUT,
+                     headers={"User-Agent": UA, "Accept": "application/json",
+                              "Authorization": f"Bearer {ctx['token']}"})
+    r.raise_for_status()
+    info = (r.json() or {}).get("data")
+    if not isinstance(info, dict) or "externalDescription" not in info:
+        raise ValueError("the Cornerstone requisition has no posting data")
+    posted = _date_epoch(info.get("openDate"))
+    return html_to_text(info.get("externalDescription") or ""), "", {"posted": posted} if posted else {}
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -2750,6 +3030,8 @@ ADAPTERS = {
     "paradox": fetch_paradox,
     "successfactors_portal": fetch_successfactors_portal,
     "hopkins_medicine": fetch_hopkins_medicine,
+    "connectid": fetch_connectid,
+    "csod": fetch_csod,
 }
 
 
@@ -2996,6 +3278,8 @@ DETAIL_FETCHERS = {
     "peoplesoft": detail_peoplesoft,
     "gc_jobs": detail_gc_jobs,
     "neogov": detail_neogov,
+    "connectid": detail_connectid,
+    "csod": detail_csod,
 }
 # Fetched only when the user opens a posting, never in the poll's batches.
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}
