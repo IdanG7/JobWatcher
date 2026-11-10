@@ -75,13 +75,16 @@ A source is one feed Foothold polls (`config["boards"]` in the code). Sources li
 | Folder | Polled by | Holds |
 |---|---|---|
 | `finance/` | Finance | Banks, boutiques, private markets, asset managers, pensions, finance LinkedIn searches (0.3.7 sources only) |
-| `shared/` | Finance, the tech boards and Healthcare | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
-| `tech/` | Software, AI & Data, Hardware, Product, Design and Healthcare | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
+| `shared/` | Finance, the tech boards, Healthcare and Architecture, Engineering & Construction (AEC) | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
+| `tech/` | Software, AI & Data, Hardware, Product, Design, Healthcare and AEC | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
 | `health/` | Healthcare | Hospitals, pharma, biotech, medtech, CROs, labs, research institutes, public health, insurers, pharmacies and the healthcare LinkedIn searches |
 | `product_design/` | Product and Design | Design studios and agencies, industrial and product design employers, Canadian product and design employers, early-career programs, the boards' LinkedIn searches, and design and product reads of employers polled elsewhere (Amazon, Nike) |
+| `aec/` | AEC | Engineering and infrastructure consultancies, structural/MEP/building-science firms, architecture firms, contractors, owners and public infrastructure, building-systems makers (Building Systems filter only), and the board's LinkedIn keyword and company searches (employers whose own sites refuse robots) |
 
 Each board polls only the groups the manifest names for it, so adding a board to a folder's audience
-changes no other board (Healthcare polls `shared/lists` and the health tech groups, nothing else there).
+changes no other board (Healthcare polls `shared/lists` and the health tech groups, nothing else there;
+AEC polls `shared/lists`, and for Construction, Building Systems and Structural the big tech, semiconductor
+and defense groups, whose feeds carry data-centre, fab and facilities work).
 
 An employer whose whole listing is slow to read (Apple, Microsoft, Qualcomm, Siemens) reads it on the tech boards
 only, and gives the Finance board a finance search of its site (`query`) instead, since a poll waits for
@@ -90,7 +93,7 @@ its slowest source.
 `config/sources/manifest.json` names each board's groups (pack file names, which may repeat across
 folders): Finance polls every pack it may (`"groups": "*"`); a tech board or Healthcare polls its `core`
 groups plus each picked filter's groups (every filter's when none is picked); `everything` boards (Sales,
-Operations, People & Legal) poll every pack.
+Operations, People & Legal) poll every pack, `aec/` included.
 `intel/sources.py` turns a profile into polled sources: `profile_fields` → `groups_for` →
 `selected_packs` → `polled_sources`. A source in no pack (one the user added) is always polled, and a
 disabled one never. `watcher.cycle` polls a profile's sources; the CLI alert runner, which has no
@@ -119,7 +122,8 @@ one needs no code:
   `weights.min_specialty_score`, serves every board), its `track`, `fallback_title`, `claims`,
   `occupation_beats_finance`, `skill_groups` and `employer_types`. Healthcare adds `stage_rules` (levels
   such as Residency and Entry to practice), `licences` and `program_windows`, read only for its postings and
-  profiles.
+  profiles; AEC has the same three (EIT, P.Eng and architect licences, LEED and PMP certifications, co-op
+  terms and the EIT application after graduation).
 - `taxonomy.json` → `tracks`: what a track's boards share (Settings heading, the "Why" line's employer
   noun, resume degree, role words and signals, `skills_from`).
 - `config/companies.json`: each employer type's `tracks` (and a finance type's Settings `section`).

@@ -77,11 +77,12 @@ FIRST_RUN_SKILLS = {
     "operations": ["tools", "soft"],
     "people_legal": ["soft"],
     "healthcare": ["quant", "tools", "soft"],
+    "aec": ["aec_design", "aec_analysis", "aec_delivery", "tools", "soft"],
 }
-BOARDS = ["software", "data_ml", "hardware", "product", "design", "sales", "operations", "people_legal", "healthcare"]
+BOARDS = ["software", "data_ml", "hardware", "product", "design", "sales", "operations", "people_legal", "healthcare", "aec"]
 MIXES = (["finance", "healthcare"], ["software", "healthcare"], ["data_ml", "healthcare"],
          ["finance", "software"], ["finance", "sales"], ["finance", "product"], ["software", "product"],
-         ["software", "design"], ["product", "design"])
+         ["software", "design"], ["product", "design"], ["finance", "aec"], ["software", "aec"])
 VIEW = ("fit", "category", "subcategory", "cluster_key", "company_key", "company_name", "company_type",
         "detail_hash", "matched", "match_hash", "window_status", "urgency", "badges")
 LABEL = {"company_name", "company_type", "detail_hash"}

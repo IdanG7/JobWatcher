@@ -135,7 +135,7 @@
   ]
  },
  "__shipped__": {
-  "hash": "0da50572d712b022",
+  "hash": "7a5980af49bc26d7",
   "names": [
    "10x_genomics",
    "1password",
@@ -159,6 +159,8 @@
    "adobe",
    "adobe_university",
    "adp",
+   "aecon",
+   "affiliated_engineers",
    "affirm",
    "agilent_technologies",
    "agility_robotics",
@@ -222,6 +224,7 @@
    "aqr",
    "arc_institute",
    "arc_teryx_equipment",
+   "arcadis",
    "arctic_wolf",
    "area_17",
    "arize_ai",
@@ -230,33 +233,40 @@
    "armis",
    "array_technologies",
    "arsenal_bio",
+   "arup",
    "asana",
    "aspect_biosystems",
    "assemblyai",
    "astranis",
    "at_t",
+   "atkinsrealis",
    "atlan",
    "atlantic_health_system",
    "atlassian",
    "atom_computing",
    "attio",
+   "atwell",
    "aurora",
    "autodesk",
    "automation_anywhere",
    "autotrader_ca",
    "axonify",
    "axonius",
+   "b_h_architects",
    "backstory",
+   "balfour_beatty_us",
    "bank_of_america",
    "bank_of_america_students",
    "barclays",
    "barclays_tech",
+   "barton_malow",
    "baseten",
    "bauer_hockey",
    "bausch_lomb",
    "baxter_international",
    "bayer",
    "beam_therapeutics",
+   "bechtel",
    "becton_dickinson",
    "behaviour_interactive",
    "bell",
@@ -267,10 +277,14 @@
    "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
+   "bgc_engineering",
+   "bgis",
    "big_spaceship",
    "biogen",
    "biontech",
+   "bird_construction",
    "bitgo",
+   "black_veatch",
    "blackbaud",
    "blackberry",
    "blackberry_qnx",
@@ -294,8 +308,11 @@
    "boston_dynamics",
    "boston_medical_center",
    "boston_scientific",
+   "bowman",
    "box",
    "braintrust",
+   "brasfield_gorrie",
+   "brasfield_gorrie_students",
    "braze",
    "bree",
    "brex",
@@ -323,11 +340,14 @@
    "canadian_blood_services",
    "canadian_cancer_society",
    "canadian_tire",
+   "cannondesign",
    "canva",
    "capital_one",
    "capital_one_early",
    "caris_life_sciences",
    "carlyle",
+   "carollo",
+   "carrier",
    "carta",
    "cartesia",
    "caseware",
@@ -341,6 +361,7 @@
    "celonis",
    "centene",
    "cerebras",
+   "cha",
    "chainalysis",
    "chainguard",
    "character_ai",
@@ -368,6 +389,8 @@
    "citi_early",
    "citi_tech",
    "city_of_toronto",
+   "clark_builders",
+   "clark_construction",
    "clearco",
    "clearwater_analytics",
    "clickhouse",
@@ -392,10 +415,12 @@
    "commure",
    "commvault",
    "compass",
+   "consigli",
    "contentful",
    "contentsquare",
    "corelight",
    "coreweave",
+   "corgan_campus",
    "cortex",
    "corti",
    "costar_campus",
@@ -411,12 +436,14 @@
    "crusoe",
    "cursor",
    "curtiss_wright",
+   "cushman_wakefield",
    "cvrve_newgrad",
    "cvs_health",
    "cvs_health_clinical",
    "cvs_health_finance",
    "d2l",
    "d_matrix",
+   "daikin_applied",
    "dana_farber_cancer_institute",
    "danaher",
    "darktrace",
@@ -441,18 +468,23 @@
    "deutsche_bank",
    "deutsche_bank_tech",
    "devoted_health",
+   "dewberry",
    "dewpoint_therapeutics",
    "dexcom",
    "diabetes_canada",
+   "dialog",
    "dialpad",
    "digital_extremes",
    "digitalocean",
+   "dillon_consulting",
    "discord",
    "disney",
    "disney_early",
+   "dlr_group",
    "docker",
    "docusign",
    "doordash",
+   "dpr_construction",
    "draftkings",
    "dragos",
    "dremio",
@@ -473,8 +505,11 @@
    "elevance_health_clinical",
    "elevenlabs",
    "eli_lilly",
+   "ellisdon",
    "encord",
+   "englobe",
    "enovix",
+   "entuitive",
    "epic_games",
    "epic_systems",
    "epirus",
@@ -485,6 +520,7 @@
    "evotec",
    "exa_ai",
    "exabeam",
+   "exp",
    "expedia_group",
    "explorance",
    "f5",
@@ -507,23 +543,28 @@
    "five9",
    "five_rings",
    "fivetran",
+   "flatiron",
    "flatiron_health",
    "flex",
    "flexport",
    "float",
    "florida_blue",
    "flow_traders",
+   "fluor",
    "ford_motor_company",
    "form_energy",
    "fortinet",
+   "fortis",
    "fortrea",
    "fraser_health",
    "freenome",
+   "freese_nichols",
    "freshbooks",
    "freshworks",
    "fueled",
    "fullscript",
    "fullstory",
+   "gannett_fleming_transystems",
    "garmin",
    "gates_foundation",
    "gdit",
@@ -539,7 +580,11 @@
    "general_motors",
    "generate_biomedicines",
    "geneva_trading",
+   "geosyntec",
+   "geosyntec_canada",
    "geotab",
+   "ghd",
+   "gilbane_building_company",
    "gilead_sciences",
    "ginkgo_bioworks",
    "github",
@@ -558,6 +603,7 @@
    "gradient_ai",
    "grafana_labs",
    "grail",
+   "granite_construction",
    "graphcore",
    "gsk",
    "gts",
@@ -573,6 +619,10 @@
    "harvard_university",
    "harvey",
    "hasbro",
+   "haskell",
+   "hatch",
+   "hazen_sawyer",
+   "hdr",
    "headway",
    "health_canada",
    "health_sciences_north",
@@ -582,9 +632,18 @@
    "herschel_supply",
    "hex",
    "heygen",
+   "hga",
    "hhmi",
    "hightouch",
+   "hill_international",
    "hinge_health",
+   "hks",
+   "hks_students",
+   "hntb",
+   "hntb_careers",
+   "hoffman",
+   "hok",
+   "holder_construction",
    "honeycomb_io",
    "honeywell",
    "hootsuite",
@@ -609,9 +668,11 @@
    "illumio",
    "imbue",
    "imc",
+   "imeg",
    "imply",
    "inceptive",
    "inflection_ai",
+   "infrastructure_ontario",
    "insitro",
    "instacart",
    "instrument",
@@ -621,6 +682,7 @@
    "intellia_therapeutics",
    "interac",
    "intercom",
+   "introba",
    "intuit",
    "intuitive_surgical",
    "inworld_ai",
@@ -629,16 +691,20 @@
    "irhythm_technologies",
    "irobot",
    "ironclad",
+   "isl_engineering",
    "isomorphic_labs",
    "jackson_laboratory",
    "jam_city",
    "jane_app",
    "jane_street",
+   "je_dunn_construction",
    "jefferies_campus",
    "jfrog",
+   "jll",
    "jobber",
    "johns_hopkins_medicine",
    "johns_hopkins_university",
+   "johnson_controls",
    "johnson_johnson",
    "jpmorgan",
    "jpmorgan_early",
@@ -647,12 +713,16 @@
    "kabam",
    "kairos_power",
    "kardium",
+   "kci",
    "kenvue",
    "keysight_technologies",
+   "kiewit",
+   "kimley_horn",
    "kinaxis",
    "kkr",
    "kla",
    "klaviyo",
+   "kleinfelder",
    "klue",
    "knowbe4",
    "kodiak",
@@ -660,7 +730,9 @@
    "komodo_health",
    "kong",
    "konrad_group",
+   "kpf",
    "krea_ai",
+   "kwl",
    "kymera_therapeutics",
    "kyndryl",
    "l3harris_technologies",
@@ -670,12 +742,14 @@
    "lam_research",
    "lambda_labs",
    "landor",
+   "langan",
    "langchain",
    "lasko_products",
    "lattice_semiconductor",
    "launchdarkly",
    "lazard",
    "league",
+   "ledcor",
    "leidos",
    "lemonade",
    "lenovo_canada",
@@ -686,7 +760,10 @@
    "lightning_ai",
    "lightspeed_commerce",
    "linear",
+   "linkedin_aec_firms_canada",
+   "linkedin_aec_firms_us",
    "linkedin_canada",
+   "linkedin_canada_aec",
    "linkedin_canada_data",
    "linkedin_canada_design",
    "linkedin_canada_hard_to_reach",
@@ -696,6 +773,7 @@
    "linkedin_canada_software",
    "linkedin_quant",
    "linkedin_us",
+   "linkedin_us_aec",
    "linkedin_us_data",
    "linkedin_us_design",
    "linkedin_us_hard_to_reach",
@@ -715,6 +793,7 @@
    "lonza",
    "loopio",
    "lowe_s",
+   "ls3p",
    "lucid",
    "luma_ai",
    "lumentum",
@@ -739,9 +818,13 @@
    "match_group",
    "material_security",
    "materialize",
+   "mattamy_homes",
    "mayo_clinic",
+   "mccarthy_building_companies",
+   "mcelhanney",
    "mcgill_university",
    "mda_space",
+   "mead_hunt",
    "medallia",
    "medavie_health_services",
    "media_monks",
@@ -751,6 +834,8 @@
    "mercor",
    "mercury",
    "metalab",
+   "metrolinx",
+   "michael_baker_international",
    "microchip",
    "micron",
    "microsoft",
@@ -761,6 +846,7 @@
    "millerknoll",
    "milwaukee_tool",
    "mimecast",
+   "minto",
    "miovision",
    "mirego",
    "miro",
@@ -780,6 +866,7 @@
    "morgan_stanley",
    "morgan_stanley_early",
    "morgan_stanley_tech",
+   "mortenson",
    "motherduck",
    "motional",
    "motorola_solutions",
@@ -794,6 +881,7 @@
    "natera",
    "national_bank",
    "nationwide_children_s",
+   "nbbj",
    "ncr_voyix",
    "nebius",
    "neo4j",
@@ -834,6 +922,7 @@
    "okta",
    "old_mission",
    "oliver",
+   "olsson",
    "olympus_americas",
    "omada_health",
    "ontario_health",
@@ -857,8 +946,10 @@
    "pagerduty",
    "palantir",
    "palo_alto_networks",
+   "pape_dawson",
    "paper_education",
    "parexel",
+   "parsons_aec",
    "path",
    "pathai",
    "patreon",
@@ -866,11 +957,13 @@
    "paxos",
    "paychex",
    "paypal",
+   "pcl_construction",
    "pdt_partners",
    "peak_design",
    "peloton",
    "pendo",
    "penumbra",
+   "pepper_construction",
    "perplexity",
    "pfizer",
    "philips",
@@ -892,6 +985,8 @@
    "pointclickcare",
    "poka_labs",
    "polaris",
+   "pomerleau",
+   "pond",
    "poolside",
    "poshmark",
    "posthog",
@@ -901,6 +996,7 @@
    "prefect",
    "premier_research",
    "priceline",
+   "primoris",
    "procore_technologies",
    "procurify",
    "profound_medical",
@@ -927,6 +1023,7 @@
    "quest_diagnostics",
    "quora",
    "r_ga",
+   "r_v_anderson_associates",
    "rady_children_s_hospital",
    "railway",
    "ramp",
@@ -967,6 +1064,7 @@
    "rockwell_automation",
    "rogers_communications",
    "roku",
+   "rosendin",
    "rover",
    "rti_international",
    "rtx",
@@ -974,6 +1072,7 @@
    "rubrik",
    "runpod",
    "runway",
+   "ryan_companies",
    "sabre",
    "sailpoint",
    "salesforce",
@@ -990,7 +1089,9 @@
    "sandoz",
    "sanofi",
    "sap",
+   "sargent_lundy",
    "saronic",
+   "sasaki",
    "scale_ai",
    "scarborough_health_network",
    "schonfeld",
@@ -1010,6 +1111,7 @@
    "servicenow",
    "shared_health_manitoba",
    "sharkninja",
+   "shawmut",
    "sherpa",
    "shield_ai",
    "shoppers_drug_mart",
@@ -1029,6 +1131,7 @@
    "simplify_intern26",
    "simplify_intern27",
    "simplify_newgrad",
+   "simpson_gumpertz_heger",
    "sinai_health",
    "singlestore",
    "skydio",
@@ -1065,6 +1168,7 @@
    "squarepoint",
    "squarespace",
    "ss_c_technologies",
+   "ssoe",
    "st_joseph_s_healthcare_hamilton",
    "st_jude_children_s_research_hospital",
    "stability_ai",
@@ -1074,28 +1178,37 @@
    "stanford_children_s_health",
    "stanford_health_care",
    "stanley_black_decker",
+   "stanley_consultants",
+   "stantec",
    "starburst",
    "steamclock_software",
    "stepstone",
    "steris",
+   "sto_building_group",
    "stockx",
    "strava",
    "stripe",
    "stryker",
+   "stv",
    "substack",
+   "suffolk_construction",
    "suki",
    "sumo_logic",
    "sun_life",
    "sun_life_students",
+   "sundt_construction",
    "suno",
    "supabase",
    "superside",
    "swarmia",
    "sweetgreen",
+   "swinerton",
+   "swinerton_interns",
    "sword_health",
    "synaptive_medical",
    "synopsys",
    "synthesia",
+   "syska_hennessy_group",
    "sysmex_america",
    "t_mobile",
    "tailscale",
@@ -1105,6 +1218,7 @@
    "tandem_diabetes_care",
    "tanium",
    "target",
+   "tatham",
    "td",
    "td_students",
    "td_tech",
@@ -1117,6 +1231,7 @@
    "tenstorrent",
    "terran_orbital",
    "terrapower",
+   "tetra_tech",
    "teva",
    "texas_instruments",
    "textnow",
@@ -1129,7 +1244,9 @@
    "thinking_machines",
    "thinkingbox",
    "thomson_reuters",
+   "thornton_tomasetti",
    "thumbtack",
+   "tighe_bond",
    "tines",
    "toast",
    "tobogganlabs",
@@ -1140,12 +1257,16 @@
    "tower_research",
    "tractable",
    "traeger",
+   "trane_technologies",
    "transunion",
+   "trc",
    "tribalscale",
    "trillium_health_partners",
    "trimble",
    "tripadvisor",
    "trulioo",
+   "turner_construction",
+   "tutor_perini",
    "twelve_carbon",
    "twelve_labs",
    "twilio",
@@ -1171,6 +1292,7 @@
    "university_of_washington",
    "unstructured_io",
    "upstart",
+   "urban_systems",
    "ustwo",
    "vancouver_coastal_health",
    "vanderbilt_university_medical_center",
@@ -1190,6 +1312,7 @@
    "vercel",
    "verizon",
    "verkada",
+   "vhb",
    "viam",
    "viavi_solutions",
    "vidyard",
@@ -1204,9 +1327,12 @@
    "voxel51",
    "voyager_space",
    "waabi",
+   "wade_trim",
+   "walbridge",
    "walkme",
    "walmart_finance",
    "walmart_global_tech",
+   "walter_p_moore",
    "warner_bros_discovery",
    "warp",
    "waters",
@@ -1218,6 +1344,7 @@
    "wealthfront",
    "wealthsimple",
    "weaviate",
+   "webcor",
    "weber",
    "webflow",
    "weights_and_biases",
@@ -1227,9 +1354,11 @@
    "whoop",
    "william_blair",
    "william_osler_health_system",
+   "wiss_janney_elstner_associates",
    "wiz",
    "wolff_olins",
    "womens_college_hospital",
+   "woolpert",
    "workato",
    "workday_early_career",
    "workday_hq",
@@ -1241,6 +1370,7 @@
    "worldquant",
    "worldwide_clinical_trials",
    "writer",
+   "wsp",
    "wuxi_apptec",
    "xai",
    "xaira_therapeutics",
@@ -1296,6 +1426,8 @@
   "adobe": 1,
   "adobe_university": 1,
   "adp": 10,
+  "aecon": 12,
+  "affiliated_engineers": 12,
   "affirm": 1,
   "agilent_technologies": 11,
   "agility_robotics": 10,
@@ -1359,6 +1491,7 @@
   "aqr": 1,
   "arc_institute": 11,
   "arc_teryx_equipment": 12,
+  "arcadis": 12,
   "arctic_wolf": 10,
   "area_17": 12,
   "arize_ai": 10,
@@ -1367,33 +1500,40 @@
   "armis": 10,
   "array_technologies": 10,
   "arsenal_bio": 11,
+  "arup": 12,
   "asana": 1,
   "aspect_biosystems": 11,
   "assemblyai": 1,
   "astranis": 10,
   "at_t": 10,
+  "atkinsrealis": 12,
   "atlan": 10,
   "atlantic_health_system": 11,
   "atlassian": 10,
   "atom_computing": 10,
   "attio": 1,
+  "atwell": 12,
   "aurora": 1,
   "autodesk": 1,
   "automation_anywhere": 10,
   "autotrader_ca": 12,
   "axonify": 12,
   "axonius": 10,
+  "b_h_architects": 12,
   "backstory": 10,
+  "balfour_beatty_us": 12,
   "bank_of_america": 6,
   "bank_of_america_students": 6,
   "barclays": 1,
   "barclays_tech": 10,
+  "barton_malow": 12,
   "baseten": 1,
   "bauer_hockey": 12,
   "bausch_lomb": 11,
   "baxter_international": 11,
   "bayer": 11,
   "beam_therapeutics": 11,
+  "bechtel": 12,
   "becton_dickinson": 11,
   "behaviour_interactive": 10,
   "bell": 10,
@@ -1404,10 +1544,14 @@
   "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
+  "bgc_engineering": 12,
+  "bgis": 12,
   "big_spaceship": 12,
   "biogen": 11,
   "biontech": 11,
+  "bird_construction": 12,
   "bitgo": 10,
+  "black_veatch": 12,
   "blackbaud": 10,
   "blackberry": 10,
   "blackberry_qnx": 10,
@@ -1431,8 +1575,11 @@
   "boston_dynamics": 10,
   "boston_medical_center": 11,
   "boston_scientific": 11,
+  "bowman": 12,
   "box": 10,
   "braintrust": 1,
+  "brasfield_gorrie": 12,
+  "brasfield_gorrie_students": 12,
   "braze": 10,
   "bree": 12,
   "brex": 1,
@@ -1460,11 +1607,14 @@
   "canadian_blood_services": 11,
   "canadian_cancer_society": 11,
   "canadian_tire": 10,
+  "cannondesign": 12,
   "canva": 10,
   "capital_one": 1,
   "capital_one_early": 1,
   "caris_life_sciences": 11,
   "carlyle": 6,
+  "carollo": 12,
+  "carrier": 12,
   "carta": 10,
   "cartesia": 1,
   "caseware": 12,
@@ -1478,6 +1628,7 @@
   "celonis": 10,
   "centene": 11,
   "cerebras": 10,
+  "cha": 12,
   "chainalysis": 10,
   "chainguard": 10,
   "character_ai": 1,
@@ -1505,6 +1656,8 @@
   "citi_early": 1,
   "citi_tech": 10,
   "city_of_toronto": 11,
+  "clark_builders": 12,
+  "clark_construction": 12,
   "clearco": 10,
   "clearwater_analytics": 12,
   "clickhouse": 1,
@@ -1529,10 +1682,12 @@
   "commure": 1,
   "commvault": 10,
   "compass": 10,
+  "consigli": 12,
   "contentful": 10,
   "contentsquare": 10,
   "corelight": 10,
   "coreweave": 10,
+  "corgan_campus": 12,
   "cortex": 10,
   "corti": 10,
   "costar_campus": 12,
@@ -1548,12 +1703,14 @@
   "crusoe": 1,
   "cursor": 1,
   "curtiss_wright": 10,
+  "cushman_wakefield": 12,
   "cvrve_newgrad": 1,
   "cvs_health": 10,
   "cvs_health_clinical": 11,
   "cvs_health_finance": 10,
   "d2l": 10,
   "d_matrix": 10,
+  "daikin_applied": 12,
   "dana_farber_cancer_institute": 11,
   "danaher": 11,
   "darktrace": 10,
@@ -1578,18 +1735,23 @@
   "deutsche_bank": 6,
   "deutsche_bank_tech": 10,
   "devoted_health": 10,
+  "dewberry": 12,
   "dewpoint_therapeutics": 11,
   "dexcom": 11,
   "diabetes_canada": 11,
+  "dialog": 12,
   "dialpad": 10,
   "digital_extremes": 10,
   "digitalocean": 10,
+  "dillon_consulting": 12,
   "discord": 1,
   "disney": 1,
   "disney_early": 1,
+  "dlr_group": 12,
   "docker": 10,
   "docusign": 10,
   "doordash": 1,
+  "dpr_construction": 12,
   "draftkings": 10,
   "dragos": 10,
   "dremio": 10,
@@ -1610,8 +1772,11 @@
   "elevance_health_clinical": 11,
   "elevenlabs": 1,
   "eli_lilly": 11,
+  "ellisdon": 12,
   "encord": 10,
+  "englobe": 12,
   "enovix": 10,
+  "entuitive": 12,
   "epic_games": 10,
   "epic_systems": 10,
   "epirus": 10,
@@ -1622,6 +1787,7 @@
   "evotec": 11,
   "exa_ai": 10,
   "exabeam": 10,
+  "exp": 12,
   "expedia_group": 10,
   "explorance": 12,
   "f5": 10,
@@ -1644,23 +1810,28 @@
   "five9": 10,
   "five_rings": 1,
   "fivetran": 1,
+  "flatiron": 12,
   "flatiron_health": 10,
   "flex": 10,
   "flexport": 1,
   "float": 10,
   "florida_blue": 11,
   "flow_traders": 1,
+  "fluor": 12,
   "ford_motor_company": 10,
   "form_energy": 10,
   "fortinet": 10,
+  "fortis": 12,
   "fortrea": 11,
   "fraser_health": 11,
   "freenome": 11,
+  "freese_nichols": 12,
   "freshbooks": 10,
   "freshworks": 10,
   "fueled": 12,
   "fullscript": 12,
   "fullstory": 10,
+  "gannett_fleming_transystems": 12,
   "garmin": 10,
   "gates_foundation": 11,
   "gdit": 10,
@@ -1676,7 +1847,11 @@
   "general_motors": 10,
   "generate_biomedicines": 11,
   "geneva_trading": 1,
+  "geosyntec": 12,
+  "geosyntec_canada": 12,
   "geotab": 10,
+  "ghd": 12,
+  "gilbane_building_company": 12,
   "gilead_sciences": 11,
   "ginkgo_bioworks": 11,
   "github": 10,
@@ -1695,6 +1870,7 @@
   "gradient_ai": 10,
   "grafana_labs": 10,
   "grail": 11,
+  "granite_construction": 12,
   "graphcore": 10,
   "gsk": 11,
   "gts": 1,
@@ -1710,6 +1886,10 @@
   "harvard_university": 11,
   "harvey": 1,
   "hasbro": 12,
+  "haskell": 12,
+  "hatch": 12,
+  "hazen_sawyer": 12,
+  "hdr": 12,
   "headway": 10,
   "health_canada": 11,
   "health_sciences_north": 11,
@@ -1719,9 +1899,18 @@
   "herschel_supply": 12,
   "hex": 10,
   "heygen": 1,
+  "hga": 12,
   "hhmi": 11,
   "hightouch": 1,
+  "hill_international": 12,
   "hinge_health": 1,
+  "hks": 12,
+  "hks_students": 12,
+  "hntb": 12,
+  "hntb_careers": 12,
+  "hoffman": 12,
+  "hok": 12,
+  "holder_construction": 12,
   "honeycomb_io": 10,
   "honeywell": 10,
   "hootsuite": 12,
@@ -1746,9 +1935,11 @@
   "illumio": 10,
   "imbue": 1,
   "imc": 1,
+  "imeg": 12,
   "imply": 10,
   "inceptive": 11,
   "inflection_ai": 10,
+  "infrastructure_ontario": 12,
   "insitro": 10,
   "instacart": 1,
   "instrument": 12,
@@ -1758,6 +1949,7 @@
   "intellia_therapeutics": 11,
   "interac": 12,
   "intercom": 10,
+  "introba": 12,
   "intuit": 10,
   "intuitive_surgical": 10,
   "inworld_ai": 10,
@@ -1766,16 +1958,20 @@
   "irhythm_technologies": 11,
   "irobot": 12,
   "ironclad": 10,
+  "isl_engineering": 12,
   "isomorphic_labs": 10,
   "jackson_laboratory": 11,
   "jam_city": 10,
   "jane_app": 12,
   "jane_street": 1,
+  "je_dunn_construction": 12,
   "jefferies_campus": 6,
   "jfrog": 10,
+  "jll": 12,
   "jobber": 10,
   "johns_hopkins_medicine": 11,
   "johns_hopkins_university": 11,
+  "johnson_controls": 12,
   "johnson_johnson": 11,
   "jpmorgan": 1,
   "jpmorgan_early": 1,
@@ -1784,12 +1980,16 @@
   "kabam": 10,
   "kairos_power": 10,
   "kardium": 11,
+  "kci": 12,
   "kenvue": 11,
   "keysight_technologies": 10,
+  "kiewit": 12,
+  "kimley_horn": 12,
   "kinaxis": 10,
   "kkr": 6,
   "kla": 10,
   "klaviyo": 10,
+  "kleinfelder": 12,
   "klue": 10,
   "knowbe4": 10,
   "kodiak": 10,
@@ -1797,7 +1997,9 @@
   "komodo_health": 10,
   "kong": 10,
   "konrad_group": 12,
+  "kpf": 12,
   "krea_ai": 10,
+  "kwl": 12,
   "kymera_therapeutics": 11,
   "kyndryl": 10,
   "l3harris_technologies": 10,
@@ -1807,12 +2009,14 @@
   "lam_research": 10,
   "lambda_labs": 1,
   "landor": 12,
+  "langan": 12,
   "langchain": 10,
   "lasko_products": 12,
   "lattice_semiconductor": 10,
   "launchdarkly": 1,
   "lazard": 6,
   "league": 10,
+  "ledcor": 12,
   "leidos": 10,
   "lemonade": 10,
   "lenovo_canada": 10,
@@ -1823,7 +2027,10 @@
   "lightning_ai": 10,
   "lightspeed_commerce": 10,
   "linear": 1,
+  "linkedin_aec_firms_canada": 12,
+  "linkedin_aec_firms_us": 12,
   "linkedin_canada": 1,
+  "linkedin_canada_aec": 12,
   "linkedin_canada_data": 10,
   "linkedin_canada_design": 12,
   "linkedin_canada_hard_to_reach": 10,
@@ -1834,6 +2041,7 @@
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
   "linkedin_us": 1,
+  "linkedin_us_aec": 12,
   "linkedin_us_data": 10,
   "linkedin_us_design": 12,
   "linkedin_us_hard_to_reach": 10,
@@ -1854,6 +2062,7 @@
   "lonza": 11,
   "loopio": 10,
   "lowe_s": 10,
+  "ls3p": 12,
   "lucid": 10,
   "luma_ai": 10,
   "lumentum": 10,
@@ -1878,9 +2087,13 @@
   "match_group": 10,
   "material_security": 10,
   "materialize": 10,
+  "mattamy_homes": 12,
   "mayo_clinic": 11,
+  "mccarthy_building_companies": 12,
+  "mcelhanney": 12,
   "mcgill_university": 11,
   "mda_space": 10,
+  "mead_hunt": 12,
   "medallia": 10,
   "medavie_health_services": 11,
   "media_monks": 12,
@@ -1890,6 +2103,8 @@
   "mercor": 1,
   "mercury": 1,
   "metalab": 12,
+  "metrolinx": 12,
+  "michael_baker_international": 12,
   "microchip": 10,
   "micron": 10,
   "microsoft": 1,
@@ -1900,6 +2115,7 @@
   "millerknoll": 12,
   "milwaukee_tool": 12,
   "mimecast": 10,
+  "minto": 12,
   "miovision": 10,
   "mirego": 12,
   "miro": 10,
@@ -1919,6 +2135,7 @@
   "morgan_stanley": 1,
   "morgan_stanley_early": 1,
   "morgan_stanley_tech": 10,
+  "mortenson": 12,
   "motherduck": 10,
   "motional": 10,
   "motorola_solutions": 10,
@@ -1933,6 +2150,7 @@
   "natera": 10,
   "national_bank": 2,
   "nationwide_children_s": 11,
+  "nbbj": 12,
   "ncr_voyix": 10,
   "nebius": 10,
   "neo4j": 10,
@@ -1973,6 +2191,7 @@
   "okta": 10,
   "old_mission": 1,
   "oliver": 12,
+  "olsson": 12,
   "olympus_americas": 11,
   "omada_health": 10,
   "ontario_health": 11,
@@ -1996,8 +2215,10 @@
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
+  "pape_dawson": 12,
   "paper_education": 12,
   "parexel": 11,
+  "parsons_aec": 12,
   "path": 11,
   "pathai": 10,
   "patreon": 10,
@@ -2005,11 +2226,13 @@
   "paxos": 10,
   "paychex": 10,
   "paypal": 1,
+  "pcl_construction": 12,
   "pdt_partners": 1,
   "peak_design": 12,
   "peloton": 1,
   "pendo": 10,
   "penumbra": 11,
+  "pepper_construction": 12,
   "perplexity": 1,
   "pfizer": 11,
   "philips": 11,
@@ -2031,6 +2254,8 @@
   "pointclickcare": 12,
   "poka_labs": 12,
   "polaris": 12,
+  "pomerleau": 12,
+  "pond": 12,
   "poolside": 1,
   "poshmark": 10,
   "posthog": 10,
@@ -2040,6 +2265,7 @@
   "prefect": 10,
   "premier_research": 11,
   "priceline": 10,
+  "primoris": 12,
   "procore_technologies": 10,
   "procurify": 12,
   "profound_medical": 11,
@@ -2066,6 +2292,7 @@
   "quest_diagnostics": 11,
   "quora": 10,
   "r_ga": 12,
+  "r_v_anderson_associates": 12,
   "rady_children_s_hospital": 11,
   "railway": 10,
   "ramp": 1,
@@ -2106,6 +2333,7 @@
   "rockwell_automation": 10,
   "rogers_communications": 10,
   "roku": 10,
+  "rosendin": 12,
   "rover": 10,
   "rti_international": 11,
   "rtx": 10,
@@ -2113,6 +2341,7 @@
   "rubrik": 10,
   "runpod": 1,
   "runway": 1,
+  "ryan_companies": 12,
   "sabre": 10,
   "sailpoint": 10,
   "salesforce": 1,
@@ -2129,7 +2358,9 @@
   "sandoz": 11,
   "sanofi": 11,
   "sap": 10,
+  "sargent_lundy": 12,
   "saronic": 10,
+  "sasaki": 12,
   "scale_ai": 1,
   "scarborough_health_network": 11,
   "schonfeld": 1,
@@ -2149,6 +2380,7 @@
   "servicenow": 1,
   "shared_health_manitoba": 11,
   "sharkninja": 12,
+  "shawmut": 12,
   "sherpa": 12,
   "shield_ai": 1,
   "shoppers_drug_mart": 11,
@@ -2168,6 +2400,7 @@
   "simplify_intern26": 1,
   "simplify_intern27": 1,
   "simplify_newgrad": 1,
+  "simpson_gumpertz_heger": 12,
   "sinai_health": 11,
   "singlestore": 10,
   "skydio": 10,
@@ -2204,6 +2437,7 @@
   "squarepoint": 1,
   "squarespace": 1,
   "ss_c_technologies": 10,
+  "ssoe": 12,
   "st_joseph_s_healthcare_hamilton": 11,
   "st_jude_children_s_research_hospital": 11,
   "stability_ai": 10,
@@ -2213,28 +2447,37 @@
   "stanford_children_s_health": 11,
   "stanford_health_care": 11,
   "stanley_black_decker": 12,
+  "stanley_consultants": 12,
+  "stantec": 12,
   "starburst": 1,
   "steamclock_software": 12,
   "stepstone": 1,
   "steris": 11,
+  "sto_building_group": 12,
   "stockx": 10,
   "strava": 10,
   "stripe": 1,
   "stryker": 11,
+  "stv": 12,
   "substack": 10,
+  "suffolk_construction": 12,
   "suki": 10,
   "sumo_logic": 10,
   "sun_life": 6,
   "sun_life_students": 6,
+  "sundt_construction": 12,
   "suno": 1,
   "supabase": 1,
   "superside": 12,
   "swarmia": 10,
   "sweetgreen": 1,
+  "swinerton": 12,
+  "swinerton_interns": 12,
   "sword_health": 10,
   "synaptive_medical": 11,
   "synopsys": 10,
   "synthesia": 10,
+  "syska_hennessy_group": 12,
   "sysmex_america": 11,
   "t_mobile": 12,
   "tailscale": 10,
@@ -2244,6 +2487,7 @@
   "tandem_diabetes_care": 11,
   "tanium": 10,
   "target": 1,
+  "tatham": 12,
   "td": 1,
   "td_students": 2,
   "td_tech": 10,
@@ -2256,6 +2500,7 @@
   "tenstorrent": 10,
   "terran_orbital": 10,
   "terrapower": 10,
+  "tetra_tech": 12,
   "teva": 11,
   "texas_instruments": 10,
   "textnow": 12,
@@ -2268,7 +2513,9 @@
   "thinking_machines": 10,
   "thinkingbox": 12,
   "thomson_reuters": 10,
+  "thornton_tomasetti": 12,
   "thumbtack": 10,
+  "tighe_bond": 12,
   "tines": 10,
   "toast": 10,
   "tobogganlabs": 12,
@@ -2279,12 +2526,16 @@
   "tower_research": 1,
   "tractable": 10,
   "traeger": 12,
+  "trane_technologies": 12,
   "transunion": 10,
+  "trc": 12,
   "tribalscale": 12,
   "trillium_health_partners": 11,
   "trimble": 10,
   "tripadvisor": 10,
   "trulioo": 10,
+  "turner_construction": 12,
+  "tutor_perini": 12,
   "twelve_carbon": 10,
   "twelve_labs": 10,
   "twilio": 1,
@@ -2310,6 +2561,7 @@
   "university_of_washington": 11,
   "unstructured_io": 10,
   "upstart": 1,
+  "urban_systems": 12,
   "ustwo": 12,
   "vancouver_coastal_health": 11,
   "vanderbilt_university_medical_center": 11,
@@ -2329,6 +2581,7 @@
   "vercel": 1,
   "verizon": 10,
   "verkada": 1,
+  "vhb": 12,
   "viam": 10,
   "viavi_solutions": 10,
   "vidyard": 12,
@@ -2343,9 +2596,12 @@
   "voxel51": 10,
   "voyager_space": 10,
   "waabi": 1,
+  "wade_trim": 12,
+  "walbridge": 12,
   "walkme": 10,
   "walmart_finance": 10,
   "walmart_global_tech": 10,
+  "walter_p_moore": 12,
   "warner_bros_discovery": 10,
   "warp": 1,
   "waters": 11,
@@ -2357,6 +2613,7 @@
   "wealthfront": 10,
   "wealthsimple": 1,
   "weaviate": 10,
+  "webcor": 12,
   "weber": 12,
   "webflow": 1,
   "weights_and_biases": 10,
@@ -2366,9 +2623,11 @@
   "whoop": 10,
   "william_blair": 1,
   "william_osler_health_system": 11,
+  "wiss_janney_elstner_associates": 12,
   "wiz": 10,
   "wolff_olins": 12,
   "womens_college_hospital": 11,
+  "woolpert": 12,
   "workato": 10,
   "workday_early_career": 12,
   "workday_hq": 1,
@@ -2380,6 +2639,7 @@
   "worldquant": 1,
   "worldwide_clinical_trials": 11,
   "writer": 1,
+  "wsp": 12,
   "wuxi_apptec": 11,
   "xai": 1,
   "xaira_therapeutics": 11,
@@ -2779,6 +3039,55 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "aecon": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "aecon_group"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.aecon.com/go/View-All-Aecon-Jobs/2609917/"
+  ]
+ },
+ "affiliated_engineers": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "facllc"
+  ],
+  "company_key": [
+   "affiliated_engineers"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "AEI"
   ]
  },
  "affirm": {
@@ -4251,6 +4560,35 @@
    "arcteryx.com"
   ]
  },
+ "arcadis": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "arcadis"
+  ],
+  "domain": [
+   "arcadis.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "jobs.arcadis.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "arctic_wolf": {
   "ats": [
    "workday"
@@ -4453,6 +4791,29 @@
    "arsenalbio"
   ]
  },
+ "arup": {
+  "ats": [
+   "selectminds"
+  ],
+  "company_key": [
+   "arup"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "jobs.arup.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "asana": {
   "ats": [
    "greenhouse"
@@ -4542,6 +4903,32 @@
   ],
   "tenant": [
    "att"
+  ]
+ },
+ "atkinsrealis": {
+  "ats": [
+   "connectid"
+  ],
+  "company_key": [
+   "atkinsr_alis"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "atkinsats-prod-api.connectid.cloud"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "careers.atkinsrealis.com"
   ]
  },
  "atlan": {
@@ -4642,6 +5029,32 @@
   ],
   "token": [
    "attio"
+  ]
+ },
+ "atwell": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "atwell"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Atwell"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "atwellgroup"
   ]
  },
  "aurora": {
@@ -4770,6 +5183,38 @@
    "axonius"
   ]
  },
+ "b_h_architects": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "surbana_jurong"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "surbanajurong.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "Surbana Jurong (B+H Architects)"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SJ_Careers"
+  ],
+  "tenant": [
+   "surbanajurong"
+  ]
+ },
  "backstory": {
   "ats": [
    "lever"
@@ -4791,6 +5236,35 @@
   ],
   "token": [
    "people-ai"
+  ]
+ },
+ "balfour_beatty_us": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "balfourbeatty"
+  ],
+  "company_key": [
+   "balfour_beatty"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "label": [
+   "Balfour Beatty US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTALBUILDINGCIVILS"
   ]
  },
  "bank_of_america": {
@@ -4915,6 +5389,29 @@
   ],
   "tenant": [
    "barclays"
+  ]
+ },
+ "barton_malow": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "barton_malow"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.bartonmalow.com/search/"
   ]
  },
  "baseten": {
@@ -5047,6 +5544,29 @@
   ],
   "token": [
    "beamtherapeutics"
+  ]
+ },
+ "bechtel": {
+  "ats": [
+   "phenom"
+  ],
+  "company_key": [
+   "bechtel"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "jobs.bechtel.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "becton_dickinson": {
@@ -5305,6 +5825,58 @@
    "beyondtrust"
   ]
  },
+ "bgc_engineering": {
+  "account": [
+   "bgcengineering"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "bgc_engineering"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "label": [
+   "BGC Engineering"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "bgis": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "bgis"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "host": [
+   "fa-evcg-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "big_spaceship": {
   "account": [
    "bigspaceship"
@@ -5380,6 +5952,35 @@
    "https://jobs.biontech.com/search/"
   ]
  },
+ "bird_construction": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bird_construction"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "bird.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "BirdConstructionCareers"
+  ],
+  "tenant": [
+   "bird"
+  ]
+ },
  "bitgo": {
   "ats": [
    "greenhouse"
@@ -5401,6 +6002,29 @@
   ],
   "token": [
    "bitgo"
+  ]
+ },
+ "black_veatch": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "black_veatch"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.bv.com/search/"
   ]
  },
  "blackbaud": {
@@ -6057,6 +6681,29 @@
    2
   ]
  },
+ "bowman": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "bowman_consulting_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers.bowman.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
  "box": {
   "ats": [
    "greenhouse"
@@ -6095,6 +6742,55 @@
   ],
   "token": [
    "braintrust"
+  ]
+ },
+ "brasfield_gorrie": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "brasfield_gorrie"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers.brasfieldgorrie.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "brasfield_gorrie_students": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "brasfield_gorrie"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "students-brasfieldgorrie.icims.com"
+  ],
+  "label": [
+   "Brasfield & Gorrie students and new grads"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "braze": {
@@ -6760,6 +7456,29 @@
    "canadiantirecorporation"
   ]
  },
+ "cannondesign": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "cannondesign"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "cannondesign"
+  ]
+ },
  "canva": {
   "ats": [
    "smartrecruiters"
@@ -6894,6 +7613,71 @@
   ],
   "tenant": [
    "carlyle"
+  ]
+ },
+ "carollo": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "carollo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "employment-carollo.icims.com"
+  ],
+  "label": [
+   "Carollo Engineers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "carrier": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "carrier_global"
+  ],
+  "facets": [
+   {
+    "job_Family_Group": [
+     "1342a1bbcd9a01f2f62a3c6efe3768d0"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Building Systems"
+  ],
+  "host": [
+   "carrier.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Carrier engineering roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "jobs"
+  ],
+  "tenant": [
+   "carrier"
   ]
  },
  "carta": {
@@ -7213,6 +7997,32 @@
   ],
   "token": [
    "cerebras"
+  ]
+ },
+ "cha": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "cha_consulting"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "jobs-challp.icims.com"
+  ],
+  "label": [
+   "CHA Consulting"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "chainalysis": {
@@ -7940,6 +8750,67 @@
    "https://jobs.toronto.ca/search/"
   ]
  },
+ "clark_builders": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "clark_builders"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "cbgoc.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "Clark Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "cb"
+  ],
+  "tenant": [
+   "cbgoc"
+  ]
+ },
+ "clark_construction": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "clark_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "clark.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ClarkExternal"
+  ],
+  "tenant": [
+   "clark"
+  ]
+ },
  "clearco": {
   "ats": [
    "ashby"
@@ -8427,6 +9298,32 @@
    "urbancompass"
   ]
  },
+ "consigli": {
+  "account": [
+   "consigli-construction-1"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "consigli"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "label": [
+   "Consigli"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "contentful": {
   "ats": [
    "greenhouse"
@@ -8526,6 +9423,32 @@
   ],
   "token": [
    "coreweave"
+  ]
+ },
+ "corgan_campus": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "corgan"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "campus-us-corgan.icims.com"
+  ],
+  "label": [
+   "Corgan students and new grads"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "cortex": {
@@ -8896,6 +9819,45 @@
    "curtisswright"
   ]
  },
+ "cushman_wakefield": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "cushman_wakefield"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "76cf2cc5213e1001b452e98553080000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "host": [
+   "cw.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Cushman & Wakefield projects and development roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "cw"
+  ]
+ },
  "cvrve_newgrad": {
   "ats": [
    "github_listings"
@@ -9075,6 +10037,35 @@
   ],
   "token": [
    "d-matrix"
+  ]
+ },
+ "daikin_applied": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "daikin_applied"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Building Systems"
+  ],
+  "host": [
+   "daikinapplied.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Daikin-Careers"
+  ],
+  "tenant": [
+   "daikinapplied"
   ]
  },
  "dana_farber_cancer_institute": {
@@ -9641,6 +10632,32 @@
    "devoted"
   ]
  },
+ "dewberry": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "dewberry"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-dewberry.icims.com"
+  ],
+  "label": [
+   "Dewberry"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "dewpoint_therapeutics": {
   "ats": [
    "adp_wfn"
@@ -9728,6 +10745,29 @@
    "DiabetesCanada"
   ]
  },
+ "dialog": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "dialog"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dialogdesign"
+  ]
+ },
  "dialpad": {
   "ats": [
    "greenhouse"
@@ -9797,6 +10837,29 @@
    "digitalocean98"
   ]
  },
+ "dillon_consulting": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "dillon_consulting"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "external-dillon.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "discord": {
   "ats": [
    "greenhouse"
@@ -9847,6 +10910,29 @@
   ],
   "tenant": [
    "disney"
+  ]
+ },
+ "dlr_group": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "dlr_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dlrgroup"
   ]
  },
  "docker": {
@@ -9901,6 +10987,35 @@
   ],
   "token": [
    "doordashusa"
+  ]
+ },
+ "dpr_construction": {
+  "api": [
+   "pcsx"
+  ],
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "dpr_construction"
+  ],
+  "domain": [
+   "dpr.com"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers.dpr.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
   ]
  },
  "draftkings": {
@@ -10353,6 +11468,35 @@
    "https://careers.lilly.com/us/en/job/{id}"
   ]
  },
+ "ellisdon": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ellisdon"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "ellisdon.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Ellis-Don"
+  ],
+  "tenant": [
+   "ellisdon"
+  ]
+ },
  "encord": {
   "ats": [
    "ashby"
@@ -10374,6 +11518,29 @@
   ],
   "token": [
    "encord"
+  ]
+ },
+ "englobe": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "englobe"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "jobs.englobecorp.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "enovix": {
@@ -10403,6 +11570,29 @@
   ],
   "tenant": [
    "enovix"
+  ]
+ },
+ "entuitive": {
+  "account": [
+   "entuitive"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "entuitive"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "epic_games": {
@@ -10651,6 +11841,32 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "exp": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "exp"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "elcn.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
   ]
  },
  "expedia_group": {
@@ -11120,6 +12336,32 @@
    "fivetran"
   ]
  },
+ "flatiron": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "flatiron"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers-fdcorp.icims.com"
+  ],
+  "label": [
+   "Flatiron Construction"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "flatiron_health": {
   "ats": [
    "greenhouse"
@@ -11237,6 +12479,35 @@
    "flowtraders"
   ]
  },
+ "fluor": {
+  "ats": [
+   "eightfold"
+  ],
+  "company_key": [
+   "fluor"
+  ],
+  "domain": [
+   "fluor.com"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "careers.fluor.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ],
+  "query": [
+   ""
+  ]
+ },
  "ford_motor_company": {
   "ats": [
    "radancy"
@@ -11309,6 +12580,38 @@
    "CX_2001"
   ]
  },
+ "fortis": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "fortis_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "fortisconstruction.wd12.myworkdayjobs.com"
+  ],
+  "label": [
+   "Fortis Construction"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Fortis-Careers"
+  ],
+  "tenant": [
+   "fortisconstruction"
+  ]
+ },
  "fortrea": {
   "ats": [
    "phenom"
@@ -11376,6 +12679,38 @@
   ],
   "token": [
    "freenome"
+  ]
+ },
+ "freese_nichols": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "freese_and_nichols"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "freese.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Freese and Nichols"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Freese_Nichols_External"
+  ],
+  "tenant": [
+   "freese"
   ]
  },
  "freshbooks": {
@@ -11491,6 +12826,29 @@
   ],
   "token": [
    "fullstory"
+  ]
+ },
+ "gannett_fleming_transystems": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "gannett_fleming"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-gannettfleming.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "garmin": {
@@ -11914,6 +13272,58 @@
    "genevatrading"
   ]
  },
+ "geosyntec": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "geosyntec"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-geosyntec.icims.com"
+  ],
+  "label": [
+   "Geosyntec Consultants"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "geosyntec_canada": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "geosyntec"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "canada-geosyntec.icims.com"
+  ],
+  "label": [
+   "Geosyntec Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "geotab": {
   "ats": [
    "greenhouse"
@@ -11944,6 +13354,58 @@
   ],
   "token": [
    "geotab"
+  ]
+ },
+ "ghd": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "ghd"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "ejov.fa.ca2.oraclecloud.com"
+  ],
+  "label": [
+   "GHD"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
+  ]
+ },
+ "gilbane_building_company": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "gilbane"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers-gilbaneco.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "gilead_sciences": {
@@ -12348,6 +13810,35 @@
    "grailbio"
   ]
  },
+ "granite_construction": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "granite_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "granite.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "careers"
+  ],
+  "tenant": [
+   "granite"
+  ]
+ },
  "graphcore": {
   "ats": [
    "greenhouse"
@@ -12667,6 +14158,110 @@
    "hasbro"
   ]
  },
+ "haskell": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "haskell"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers.haskell.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "hatch": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "hatch"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.hatch.com/search/"
+  ]
+ },
+ "hazen_sawyer": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "19000101_000001"
+  ],
+  "cid": [
+   "92597001-ac6f-4a45-92ec-13f78d7b2194"
+  ],
+  "company_key": [
+   "hazen_and_sawyer"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Hazen and Sawyer"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "hdr": {
+  "ats": [
+   "taleo"
+  ],
+  "company_key": [
+   "hdr"
+  ],
+  "geography": [
+   "north_america"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "hdr.taleo.net"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ],
+  "section": [
+   "ex"
+  ]
+ },
  "headway": {
   "ats": [
    "ashby"
@@ -12869,6 +14464,29 @@
    "heygen"
   ]
  },
+ "hga": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "hga"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "careers-hga.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "hhmi": {
   "ats": [
    "workday"
@@ -12908,12 +14526,244 @@
    "hightouch-inc"
   ]
  },
+ "hill_international": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "hill_international"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "hcib.fa.us2.oraclecloud.com"
+  ],
+  "label": [
+   "Hill International"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1001"
+  ]
+ },
  "hinge_health": {
   "ats": [
    "ashby"
   ],
   "token": [
    "hinge-health"
+  ]
+ },
+ "hks": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "hksinc.wd501.myworkdayjobs.com"
+  ],
+  "label": [
+   "HKS"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "HKSCareers"
+  ],
+  "tenant": [
+   "hksinc"
+  ]
+ },
+ "hks_students": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "hksinc.wd501.myworkdayjobs.com"
+  ],
+  "label": [
+   "HKS students and new grads"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "HKSStudent"
+  ],
+  "tenant": [
+   "hksinc"
+  ]
+ },
+ "hntb": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hntb"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "hntb.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "HNTB students and new grads"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "HNTB_University_Careers"
+  ],
+  "tenant": [
+   "hntb"
+  ]
+ },
+ "hntb_careers": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "hntb"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "hntb.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "HNTB_Careers"
+  ],
+  "tenant": [
+   "hntb"
+  ]
+ },
+ "hoffman": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "hoffman_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "efsp.fa.us6.oraclecloud.com"
+  ],
+  "label": [
+   "Hoffman Construction"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX"
+  ]
+ },
+ "hok": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "hok"
+  ],
+  "company_key": [
+   "hok"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
+ "holder_construction": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "holder_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "holderconstruction"
   ]
  },
  "honeycomb_io": {
@@ -13538,6 +15388,35 @@
    "imc"
   ]
  },
+ "imeg": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "imeg"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "wd1.myworkdaysite.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Imeg_Careers"
+  ],
+  "tenant": [
+   "imeg"
+  ]
+ },
  "imply": {
   "ats": [
    "greenhouse"
@@ -13605,6 +15484,32 @@
   ],
   "token": [
    "inflectionai"
+  ]
+ },
+ "infrastructure_ontario": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "infrastructureontario"
+  ],
+  "company_key": [
+   "infrastructure_ontario"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "insitro": {
@@ -13813,6 +15718,35 @@
   ],
   "token": [
    "intercom"
+  ]
+ },
+ "introba": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "introba"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "gi.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Global_Infrastructure"
+  ],
+  "tenant": [
+   "gi"
   ]
  },
  "intuit": {
@@ -14041,6 +15975,32 @@
    "ironcladhq"
   ]
  },
+ "isl_engineering": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "isl"
+  ],
+  "company_key": [
+   "isl_engineering"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
  "isomorphic_labs": {
   "ats": [
    "greenhouse"
@@ -14141,6 +16101,29 @@
    600
   ]
  },
+ "je_dunn_construction": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "je_dunn"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.jedunn.com/search/"
+  ]
+ },
  "jefferies_campus": {
   "ats": [
    "oleeo"
@@ -14185,6 +16168,47 @@
   ],
   "token": [
    "jfrog"
+  ]
+ },
+ "jll": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "jll"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "45ddfa36f2261001377c164c6f390000",
+     "c608fc06410f01b4c050fc7aba539f50",
+     "f6231e73ce871001101cbbad97570000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "host": [
+   "jll.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "JLL early careers, project management and sustainability roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "jllcareers"
+  ],
+  "tenant": [
+   "jll"
   ]
  },
  "jobber": {
@@ -14257,6 +16281,46 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "johnson_controls": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "johnson_controls"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "e6c5fb966d2f103b0676ec44ac856a22",
+     "e6c5fb966d2f103b067703d125956a36"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Building Systems"
+  ],
+  "host": [
+   "jci.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Johnson Controls engineering and program management roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "JCI"
+  ],
+  "tenant": [
+   "jci"
   ]
  },
  "johnson_johnson": {
@@ -14468,6 +16532,32 @@
    "CANDIDATEPORTAL"
   ]
  },
+ "kci": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "kci_technologies"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-kci.icims.com"
+  ],
+  "label": [
+   "KCI Technologies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "kenvue": {
   "ats": [
    "workday"
@@ -14515,6 +16605,52 @@
   ],
   "min_interval": [
    1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "kiewit": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "kiewit"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://kiewitcareers.kiewit.com/search/"
+  ]
+ },
+ "kimley_horn": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "kimley_horn"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers.kimley-horn.com"
+  ],
+  "min_interval": [
+   10800
   ],
   "priority": [
    2
@@ -14616,6 +16752,32 @@
   ],
   "token": [
    "klaviyo"
+  ]
+ },
+ "kleinfelder": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "kleinfelder"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-kleinfelder.icims.com"
+  ],
+  "label": [
+   "Kleinfelder"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "klue": {
@@ -14788,6 +16950,35 @@
    "konradgroup"
   ]
  },
+ "kpf": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "kpf"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "host": [
+   "kpf.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "KPF_Careers"
+  ],
+  "tenant": [
+   "kpf"
+  ]
+ },
  "krea_ai": {
   "ats": [
    "ashby"
@@ -14809,6 +17000,35 @@
   ],
   "token": [
    "krea"
+  ]
+ },
+ "kwl": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "kwl"
+  ],
+  "company_key": [
+   "kwl"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "label": [
+   "Kerr Wood Leidal"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "kymera_therapeutics": {
@@ -15042,6 +17262,29 @@
    "landor"
   ]
  },
+ "langan": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "langan_engineering_environmental_services"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "langanengineeringandenvironmentalservicesllc"
+  ]
+ },
  "langchain": {
   "ats": [
    "ashby"
@@ -15175,6 +17418,35 @@
   ],
   "token": [
    "leagueinc"
+  ]
+ },
+ "ledcor": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ledcor"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "ledcor.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Ledcor_External"
+  ],
+  "tenant": [
+   "ledcor"
   ]
  },
  "leidos": {
@@ -15414,6 +17686,156 @@
    "linear"
   ]
  },
+ "linkedin_aec_firms_canada": {
+  "ats": [
+   "linkedin"
+  ],
+  "companies": [
+   [
+    15656,
+    165649,
+    33258,
+    17755,
+    3528550,
+    134152,
+    222051,
+    495856,
+    9491,
+    314533,
+    1011922,
+    7253,
+    12902,
+    21743,
+    455780,
+    622180,
+    5812,
+    166050,
+    4025,
+    17132,
+    38054,
+    14167,
+    163233,
+    290678
+   ]
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 AEC firms that refuse robots"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "pages": [
+   3
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "engineer",
+    "architect",
+    "project manager",
+    "intern",
+    "co-op",
+    "technologist",
+    "superintendent",
+    "estimator"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   5
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_aec_firms_us": {
+  "ats": [
+   "linkedin"
+  ],
+  "companies": [
+   [
+    15656,
+    165649,
+    33258,
+    17755,
+    3528550,
+    134152,
+    222051,
+    495856,
+    9491,
+    314533,
+    1011922,
+    7253,
+    12902,
+    21743,
+    455780,
+    622180,
+    5812,
+    166050,
+    4025,
+    17132,
+    38054,
+    14167,
+    163233,
+    290678
+   ]
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 AEC firms that refuse robots"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "pages": [
+   3
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "engineer",
+    "architect",
+    "project manager",
+    "intern",
+    "co-op",
+    "technologist",
+    "superintendent",
+    "estimator"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   5
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_canada": {
   "ats": [
    "linkedin"
@@ -15478,6 +17900,57 @@
   "track": [
    "__missing__",
    "finance"
+  ]
+ },
+ "linkedin_canada_aec": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Architecture, Engineering & Construction"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "architectural engineering co-op",
+    "structural engineering co-op",
+    "civil engineering co-op",
+    "building science co-op",
+    "architectural technologist",
+    "engineer in training",
+    "structural engineer",
+    "civil engineer",
+    "construction project manager",
+    "site superintendent",
+    "construction estimator",
+    "intermediate architect"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
   ]
  },
  "linkedin_canada_data": {
@@ -15918,6 +18391,57 @@
   "track": [
    "__missing__",
    "finance"
+  ]
+ },
+ "linkedin_us_aec": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Architecture, Engineering & Construction"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "structural engineering intern",
+    "civil engineering intern",
+    "MEP engineering intern",
+    "architecture intern",
+    "construction engineering intern",
+    "building enclosure intern",
+    "structural engineer",
+    "civil engineer",
+    "construction project manager",
+    "superintendent construction",
+    "MEP engineer",
+    "project architect"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
   ]
  },
  "linkedin_us_data": {
@@ -16592,6 +19116,32 @@
    2
   ]
  },
+ "ls3p": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ls3p"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "label": [
+   "LS3P"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ls3p"
+  ]
+ },
  "lucid": {
   "ats": [
    "greenhouse"
@@ -17223,6 +19773,29 @@
    "materialize"
   ]
  },
+ "mattamy_homes": {
+  "account": [
+   "qzkaVfwI"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "mattamy_homes"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "mayo_clinic": {
   "ats": [
    "oracle_hcm"
@@ -17247,6 +19820,55 @@
   ],
   "site": [
    "CX_1"
+  ]
+ },
+ "mccarthy_building_companies": {
+  "account": [
+   "qMC9Vfwc"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "mccarthy"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "mcelhanney": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "mcelhanney"
+  ],
+  "company_key": [
+   "mcelhanney"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "mcgill_university": {
@@ -17305,6 +19927,29 @@
   ],
   "tenant": [
    "MAC5000MCDW"
+  ]
+ },
+ "mead_hunt": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "mead_hunt"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers.meadhunt.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "medallia": {
@@ -17506,6 +20151,58 @@
   ],
   "token": [
    "metalab"
+  ]
+ },
+ "metrolinx": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "metrolinx"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "host": [
+   "ehtc.fa.ca2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
+ "michael_baker_international": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "michael_baker_international"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "ebxs.fa.us2.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_2"
   ]
  },
  "microchip": {
@@ -17798,6 +20495,35 @@
   ],
   "tenant": [
    "mimecast"
+  ]
+ },
+ "minto": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "minto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Owners, Developers & Infrastructure"
+  ],
+  "host": [
+   "fa-erjt-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "label": [
+   "Minto Group"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
   ]
  },
  "miovision": {
@@ -18275,6 +21001,32 @@
    "ms"
   ]
  },
+ "mortenson": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "mortenson"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "fa-esgu-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "motherduck": {
   "ats": [
    "ashby"
@@ -18636,6 +21388,29 @@
   ],
   "tenant": [
    "nationwidechildrens"
+  ]
+ },
+ "nbbj": {
+  "account": [
+   "quAaVfwT"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "nbbj"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "ncr_voyix": {
@@ -19633,6 +22408,29 @@
    "oliverusa"
   ]
  },
+ "olsson": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "olsson"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "olsson"
+  ]
+ },
  "olympus_americas": {
   "ats": [
    "successfactors_portal"
@@ -20133,6 +22931,38 @@
    "paloaltonetworks"
   ]
  },
+ "pape_dawson": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "pape_dawson"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "papedawson.wd12.myworkdayjobs.com"
+  ],
+  "label": [
+   "Pape-Dawson Engineers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PDE"
+  ],
+  "tenant": [
+   "papedawson"
+  ]
+ },
  "paper_education": {
   "ats": [
    "workday"
@@ -20189,6 +23019,49 @@
   ],
   "tenant": [
    "parexel"
+  ]
+ },
+ "parsons_aec": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "parsons"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "720ba361667b015decb93c17f109a82f",
+     "3de19bcefbc701017da6811f21736423",
+     "3de19bcefbc7018b8102f6e720730523",
+     "3de19bcefbc701f8eadb07e22173c323",
+     "720ba361667b01b1b5df4117f109c02f"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "parsons.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Parsons engineering, construction, design, estimating and intern roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Search"
+  ],
+  "tenant": [
+   "parsons"
   ]
  },
  "path": {
@@ -20355,6 +23228,29 @@
    "paypal"
   ]
  },
+ "pcl_construction": {
+  "ats": [
+   "successfactors"
+  ],
+  "company_key": [
+   "pcl_construction"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://careers.pcl.com/search/"
+  ]
+ },
  "pdt_partners": {
   "ats": [
    "greenhouse"
@@ -20438,6 +23334,35 @@
   ],
   "token": [
    "penumbrainc"
+  ]
+ },
+ "pepper_construction": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "pepperconstruction"
+  ],
+  "company_key": [
+   "pepper_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "label": [
+   "Pepper Construction"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "perplexity": {
@@ -20903,6 +23828,58 @@
    "polaris"
   ]
  },
+ "pomerleau": {
+  "ats": [
+   "avature"
+  ],
+  "company_key": [
+   "pomerleau"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "url": [
+   "https://jobs.pomerleau.ca/en_US/Jobs/SearchJobs"
+  ]
+ },
+ "pond": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "pondco"
+  ],
+  "company_key": [
+   "pond_and_company"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Pond & Company"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
  "poolside": {
   "ats": [
    "ashby"
@@ -21108,6 +24085,38 @@
   ],
   "tenant": [
    "priceline"
+  ]
+ },
+ "primoris": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "primoris"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "prim.wd108.myworkdayjobs.com"
+  ],
+  "label": [
+   "Primoris"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Primoris"
+  ],
+  "tenant": [
+   "prim"
   ]
  },
  "procore_technologies": {
@@ -21780,6 +24789,35 @@
   ],
   "token": [
    "rga"
+  ]
+ },
+ "r_v_anderson_associates": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "19000101_000001"
+  ],
+  "cid": [
+   "f11d79bf-5fd1-4f49-b719-58c99a2beeb9"
+  ],
+  "company_key": [
+   "rv_anderson"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "lang": [
+   "en_CA"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "rady_children_s_hospital": {
@@ -22723,6 +25761,38 @@
    "roku"
   ]
  },
+ "rosendin": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "rosendin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "rosendin.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Rosendin"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "rosendin"
+  ]
+ },
  "rover": {
   "ats": [
    "lever"
@@ -22894,6 +25964,38 @@
   ],
   "token": [
    "runway"
+  ]
+ },
+ "ryan_companies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ryan_companies"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "ryancompanies.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Ryan Companies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ryancompanies"
+  ],
+  "tenant": [
+   "ryancompanies"
   ]
  },
  "sabre": {
@@ -23274,6 +26376,32 @@
    "SAPITBusinessSysteme"
   ]
  },
+ "sargent_lundy": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "sargent_lundy"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-sargentlundy.icims.com"
+  ],
+  "label": [
+   "Sargent & Lundy"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "saronic": {
   "ats": [
    "ashby"
@@ -23295,6 +26423,38 @@
   ],
   "token": [
    "saronic"
+  ]
+ },
+ "sasaki": {
+  "ats": [
+   "adp_wfn"
+  ],
+  "ccid": [
+   "19000101_000001"
+  ],
+  "cid": [
+   "5afb7f9f-29bb-4899-bdad-a3bdaef5c12c"
+  ],
+  "company_key": [
+   "sasaki"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Architecture Firms"
+  ],
+  "label": [
+   "Sasaki"
+  ],
+  "lang": [
+   "en_US"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "scale_ai": {
@@ -23709,6 +26869,32 @@
   ],
   "token": [
    "sharkninjaoperatingllc"
+  ]
+ },
+ "shawmut": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "shawmut"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers-shawmut.icims.com"
+  ],
+  "label": [
+   "Shawmut Design and Construction"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "sherpa": {
@@ -24146,6 +27332,29 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "simpson_gumpertz_heger": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sgh"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "simpsongumpertzheger"
   ]
  },
  "sinai_health": {
@@ -24983,6 +28192,32 @@
    "ssctech"
   ]
  },
+ "ssoe": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "ssoe"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "careers-ssoe.icims.com"
+  ],
+  "label": [
+   "SSOE Group"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "st_joseph_s_healthcare_hamilton": {
   "ats": [
    "workday"
@@ -25232,6 +28467,58 @@
    "sbdinc"
   ]
  },
+ "stanley_consultants": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "stanley_consultants"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Stanley Consultants"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "stanleygroup"
+  ]
+ },
+ "stantec": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "stantec"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "hdhl.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1"
+  ]
+ },
  "starburst": {
   "ats": [
    "greenhouse"
@@ -25307,6 +28594,32 @@
   ],
   "url": [
    "https://careers.steris.com/us/en/job/{id}/"
+  ]
+ },
+ "sto_building_group": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "sto_building_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "fa-exrr-saasfaprod1.fa.ocs.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "stobg"
   ]
  },
  "stockx": {
@@ -25392,6 +28705,35 @@
    "stryker"
   ]
  },
+ "stv": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "stv"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "stvinc.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "stv"
+  ],
+  "tenant": [
+   "stvinc"
+  ]
+ },
  "substack": {
   "ats": [
    "ashby"
@@ -25413,6 +28755,29 @@
   ],
   "token": [
    "substack"
+  ]
+ },
+ "suffolk_construction": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "suffolk"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers-suffolkconstruction.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "suki": {
@@ -25522,6 +28887,32 @@
    "sunlife"
   ]
  },
+ "sundt_construction": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "sundt"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "eewl.fa.us6.oraclecloud.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_1004"
+  ]
+ },
  "suno": {
   "ats": [
    "ashby"
@@ -25590,6 +28981,67 @@
   ],
   "token": [
    "sweetgreen"
+  ]
+ },
+ "swinerton": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "swinerton"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "swinerton.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Swinerton_External_Career"
+  ],
+  "tenant": [
+   "swinerton"
+  ]
+ },
+ "swinerton_interns": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "swinerton"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "swinerton.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Swinerton interns"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Intern_External_Career"
+  ],
+  "tenant": [
+   "swinerton"
   ]
  },
  "sword_health": {
@@ -25686,6 +29138,29 @@
   ],
   "token": [
    "synthesia"
+  ]
+ },
+ "syska_hennessy_group": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "syska_hennessy_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "syskahennessy"
   ]
  },
  "sysmex_america": {
@@ -25921,6 +29396,35 @@
   ],
   "tenant": [
    "target"
+  ]
+ },
+ "tatham": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "tathameng"
+  ],
+  "company_key": [
+   "tatham"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "label": [
+   "Tatham Engineering"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "td": {
@@ -26255,6 +29759,29 @@
   ],
   "token": [
    "terrapowerllc"
+  ]
+ },
+ "tetra_tech": {
+  "ats": [
+   "selectminds"
+  ],
+  "company_key": [
+   "tetra_tech"
+  ],
+  "geography": [
+   "north_america"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "tetratech.referrals.selectminds.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
   ]
  },
  "teva": {
@@ -26593,6 +30120,35 @@
    "thomsonreuters"
   ]
  },
+ "thornton_tomasetti": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "thornton_tomasetti"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "tt.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "ThorntonTomasetti"
+  ],
+  "tenant": [
+   "tt"
+  ]
+ },
  "thumbtack": {
   "ats": [
    "ashby"
@@ -26614,6 +30170,32 @@
   ],
   "token": [
    "thumbtack"
+  ]
+ },
+ "tighe_bond": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "tighe_and_bond"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-tighebond.icims.com"
+  ],
+  "label": [
+   "Tighe & Bond"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "tines": {
@@ -26825,6 +30407,46 @@
    "traegergrills"
   ]
  },
+ "trane_technologies": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "trane_technologies"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "a98484671676100098b22ef125300000",
+     "a98484671676100098b23c27a1b50000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Building Systems"
+  ],
+  "host": [
+   "tranetechnologies.wd12.myworkdayjobs.com"
+  ],
+  "label": [
+   "Trane engineering and project management roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Trane_Technologies_Careers"
+  ],
+  "tenant": [
+   "tranetechnologies"
+  ]
+ },
  "transunion": {
   "ats": [
    "workday"
@@ -26852,6 +30474,29 @@
   ],
   "tenant": [
    "transunion"
+  ]
+ },
+ "trc": {
+  "ats": [
+   "jibe"
+  ],
+  "company_key": [
+   "trc_companies"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers.trccompanies.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
   ]
  },
  "tribalscale": {
@@ -26976,6 +30621,69 @@
   ],
   "token": [
    "trulioo"
+  ]
+ },
+ "turner_construction": {
+  "ats": [
+   "csod"
+  ],
+  "company_key": [
+   "turner_construction"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "turnerconstruction.csod.com"
+  ],
+  "min_interval": [
+   3600
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   [
+    1,
+    2,
+    3,
+    4
+   ]
+  ]
+ },
+ "tutor_perini": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "tutor_perini"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "tutorperini.wd12.myworkdayjobs.com"
+  ],
+  "label": [
+   "Tutor Perini"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "external"
+  ],
+  "tenant": [
+   "tutorperini"
   ]
  },
  "twelve_carbon": {
@@ -27544,6 +31252,29 @@
    "upstart"
   ]
  },
+ "urban_systems": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "urban_systems"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "urbansystems"
+  ]
+ },
  "ustwo": {
   "account": [
    "ustwo"
@@ -27924,6 +31655,32 @@
    "verkada"
   ]
  },
+ "vhb": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "vanasse_hangen_brustlin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "host": [
+   "careers-vhb.icims.com"
+  ],
+  "label": [
+   "VHB"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "viam": {
   "ats": [
    "greenhouse"
@@ -28225,6 +31982,58 @@
    "waabi"
   ]
  },
+ "wade_trim": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "wade_trim"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Wade Trim"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "wadetrim"
+  ]
+ },
+ "walbridge": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "walbridge"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "careers-walbridge.icims.com"
+  ],
+  "label": [
+   "Walbridge"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "walkme": {
   "ats": [
    "lever"
@@ -28326,6 +32135,29 @@
   ],
   "tenant": [
    "walmart"
+  ]
+ },
+ "walter_p_moore": {
+  "ats": [
+   "icims"
+  ],
+  "company_key": [
+   "walter_p_moore"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "careers-walterpmoore.icims.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "warner_bros_discovery": {
@@ -28543,6 +32375,35 @@
   ],
   "token": [
    "weaviate"
+  ]
+ },
+ "webcor": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "webcor"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Contractors & Builders"
+  ],
+  "host": [
+   "webcor.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "webcor"
+  ],
+  "tenant": [
+   "webcor"
   ]
  },
  "weber": {
@@ -28766,6 +32627,35 @@
    "WilliamOslerHealthSystem1"
   ]
  },
+ "wiss_janney_elstner_associates": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "wje"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Structural, MEP & Building Science"
+  ],
+  "host": [
+   "wje.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "wje"
+  ]
+ },
  "wiz": {
   "ats": [
    "greenhouse"
@@ -28837,6 +32727,32 @@
   ],
   "site": [
    "CANDIDATEPORTAL"
+  ]
+ },
+ "woolpert": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "woolpert"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Infrastructure Consultancies"
+  ],
+  "label": [
+   "Woolpert"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "woolpert"
   ]
  },
  "workato": {
@@ -29084,6 +33000,32 @@
   ],
   "token": [
    "writer"
+  ]
+ },
+ "wsp": {
+  "ats": [
+   "oracle_hcm"
+  ],
+  "company_key": [
+   "wsp"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Engineering Consultancies"
+  ],
+  "host": [
+   "emit.fa.ca3.oraclecloud.com"
+  ],
+  "min_interval": [
+   10800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CX_2001"
   ]
  },
  "wuxi_apptec": {

@@ -1470,6 +1470,9 @@ def fetch_icims(cfg):
     return _finish_listing(out, "iCIMS", limit)
 
 
+JIBE_PAUSE = 5.0      # seconds between pages: Jibe sites' robots.txt ask for Crawl-delay: 5 (careers.kimley-horn.com)
+
+
 def fetch_jibe(cfg):
     """Jibe career sites over iCIMS (careers.amd.com, careers.garmin.com), whose
     /api/jobs JSON carries each posting's description. cfg: host, max."""
@@ -1479,6 +1482,8 @@ def fetch_jibe(cfg):
     out, seen, page_no = SourceListing(), set(), 1
     limit = _source_limit(cfg)
     while len(out) < limit:
+        if page_no > 1:
+            time.sleep(JIBE_PAUSE)
         r = requests.get(f"https://{host}/api/jobs", params={"page": page_no, "limit": 100},
                          headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
         r.raise_for_status()

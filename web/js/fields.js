@@ -13,6 +13,7 @@ export const FIELD_INFO = {
   operations: {icon: 'sliders', note: 'Operations, supply chain and business operations'},
   people_legal: {icon: 'user', note: 'HR, recruiting and legal'},
   healthcare: {icon: 'heart', note: 'Healthcare, life sciences and research'},
+  aec: {icon: 'building', note: 'Architecture, civil, structural, building engineering and construction'},
 };
 
 /** Every country as [code, name]; servers older than this page only list countries through their cities. */

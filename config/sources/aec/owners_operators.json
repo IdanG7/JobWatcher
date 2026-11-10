@@ -1,0 +1,13 @@
+{
+  "title": "Owners, developers and public infrastructure",
+  "verified": "2026-11-10",
+  "note": "AEC board only. Developers, property-services firms' project groups and public infrastructure owners, read whole on 2026-11-10. Not added for fit (D6): Brookfield Properties, Oxford Properties, QuadReal and Tridel, whose roles are property operations and finance.",
+  "boards": {
+    "bgis": {"ats": "oracle_hcm", "host": "fa-evcg-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "bgis", "priority": 2, "geography": "global", "group": "Owners, Developers & Infrastructure"},
+    "cushman_wakefield": {"ats": "workday", "host": "cw.wd1.myworkdayjobs.com", "tenant": "cw", "site": "External", "facets": {"jobFamilyGroup": ["76cf2cc5213e1001b452e98553080000"]}, "min_interval": 1800, "company_key": "cushman_wakefield", "priority": 2, "geography": "global", "label": "Cushman & Wakefield projects and development roles", "group": "Owners, Developers & Infrastructure"},
+    "infrastructure_ontario": {"ats": "dayforce", "client": "infrastructureontario", "site": "CANDIDATEPORTAL", "min_interval": 1800, "company_key": "infrastructure_ontario", "priority": 2, "geography": "canada", "group": "Owners, Developers & Infrastructure"},
+    "jll": {"ats": "workday", "host": "jll.wd1.myworkdayjobs.com", "tenant": "jll", "site": "jllcareers", "facets": {"jobFamilyGroup": ["45ddfa36f2261001377c164c6f390000", "c608fc06410f01b4c050fc7aba539f50", "f6231e73ce871001101cbbad97570000"]}, "min_interval": 1800, "company_key": "jll", "priority": 2, "geography": "global", "label": "JLL early careers, project management and sustainability roles", "group": "Owners, Developers & Infrastructure"},
+    "metrolinx": {"ats": "oracle_hcm", "host": "ehtc.fa.ca2.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "metrolinx", "priority": 2, "geography": "canada", "group": "Owners, Developers & Infrastructure"},
+    "minto": {"ats": "oracle_hcm", "host": "fa-erjt-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1", "min_interval": 1800, "company_key": "minto", "priority": 2, "geography": "canada", "label": "Minto Group", "group": "Owners, Developers & Infrastructure"}
+  }
+}

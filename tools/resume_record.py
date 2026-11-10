@@ -6,7 +6,7 @@
 
 record runs the checkout's own JobwatchService.parse_resume, as the app's resume preview does, with the
 clock frozen, on the fixture resumes in the checkout's tests: the finance, cover-letter, mixed and CS ones
-and the health and P&D ones. Each is read as pasted text, as a PDF (with plain fonts, and as LaTeX's fonts encode
+and the health, P&D and AEC ones. Each is read as pasted text, as a PDF (with plain fonts, and as LaTeX's fonts encode
 it) and as a Word file (in three layouts), through the checkout's own test helpers. Each reading is taken
 with no saved profile ("<fixture>/<form>") and under each of PROFILES saved first ("<fixture>/<form>@<profile>"),
 since the profile a resume proposes depends on the one it starts from. When the preview refuses a resume,
@@ -46,10 +46,15 @@ FIXTURES = {
     "visual": ("tests.resume.test_resume_pd_fixtures", "VISUAL"),
     "industrial": ("tests.resume.test_resume_pd_fixtures", "INDUSTRIAL"),
     "cs_pm": ("tests.resume.test_resume_pd_fixtures", "CS_PM"),
+    "civil_coop": ("tests.resume.test_resume_aec_fixtures", "CIVIL_COOP"),
+    "structural_eit": ("tests.resume.test_resume_aec_fixtures", "STRUCTURAL_EIT"),
+    "intern_architect": ("tests.resume.test_resume_aec_fixtures", "INTERN_ARCHITECT"),
+    "construction_pm": ("tests.resume.test_resume_aec_fixtures", "CONSTRUCTION_PM"),
+    "french_civil": ("tests.resume.test_resume_aec_fixtures", "FRENCH_CIVIL"),
 }
 FORMS = ("text", "pdf", "latex", "docx", "docx-nested", "docx-flat")
 # Saved first-run profiles (tools/board_gate.py sample_profiles) each reading is also taken under.
-PROFILES = ("finance", "software", "product", "design", "healthcare", "finance+product", "software+design")
+PROFILES = ("finance", "software", "product", "design", "healthcare", "finance+product", "software+design", "aec")
 
 
 def _helper(module: str, name: str):

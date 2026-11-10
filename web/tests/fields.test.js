@@ -85,8 +85,8 @@ test('finance employer types keep their sections and tech types are listed apart
     ['Investing', ['private_equity', 'venture_capital', 'hedge_fund', 'quant_firm', 'asset_manager', 'pension_fund']],
     ['Financial services', ['insurance', 'fintech', 'market_infrastructure']],
     ['Advisory & corporate', ['accounting_advisory', 'consulting', 'corporate']]]);
-  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare', 'product_design']);
-  const [tech, health, pd] = tracks;
+  assert.deepEqual(tracks.map(t => t.key), ['tech', 'healthcare', 'product_design', 'aec']);
+  const [tech, health, pd, aec] = tracks;
   assert.equal(tech.employer_heading, 'Tech employer types');
   // Product and Design have their own track since D24 (plans/product-design-board.md 6.1).
   assert.deepEqual(tech.boards, ['software', 'data_ml', 'hardware']);
@@ -103,6 +103,11 @@ test('finance employer types keep their sections and tech types are listed apart
   assert.deepEqual(pd.boards, ['product', 'design']);
   assert.deepEqual(pd.sections, [['Product & Design', ['big_tech', 'enterprise_saas', 'consumer_tech', 'high_growth_startup',
     'design_studio', 'consumer_products']]]);
+  // Architecture, Engineering & Construction: its own six types only (plans/aec-board.md 6).
+  assert.equal(aec.employer_heading, 'Architecture, Engineering & Construction employer types');
+  assert.deepEqual(aec.boards, ['aec']);
+  assert.deepEqual(aec.sections, [['Architecture, Engineering & Construction', ['engineering_consultancy', 'architecture_firm',
+    'contractor', 'owner_developer', 'building_systems', 'public_infrastructure']]]);
   // A finance type without a section lands in "Other"; a track with no types shows nothing.
   const types = [{key: 'bulge_bracket', tracks: ['finance'], section: 'Banks'}, {key: 'new_finance_type', tracks: ['finance']},
     {key: 'big_tech', tracks: ['tech']}, {key: 'unknown'}];
