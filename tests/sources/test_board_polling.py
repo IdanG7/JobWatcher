@@ -1,4 +1,5 @@
-"""What each board polls: existing boards exactly as in v0.3.11; Healthcare, Product and Design from their own groups."""
+"""What each board polls: existing boards exactly as in v0.3.11; Healthcare, Product, Design and Architecture, Engineering &
+Construction from their own groups."""
 
 import json
 import unittest
@@ -12,7 +13,7 @@ from tools.source_history import boards_hash
 ROOT = Path(__file__).resolve().parents[2]
 V0_3_11 = json.loads(Path(__file__).with_name("board_polling_v0_3_11.json").read_text(encoding="utf-8"))
 OWN_GROUPS = {"product", "design"}      # poll their own groups since D28 (plans/product-design-board.md)
-OWN_FOLDERS = ("health/", "product_design/")
+OWN_FOLDERS = ("health/", "product_design/", "aec/")
 
 
 class BoardPollingTests(unittest.TestCase):
@@ -31,7 +32,7 @@ class BoardPollingTests(unittest.TestCase):
         return out
 
     def test_every_existing_board_polls_what_it_polled_in_0_3_11_with_the_same_settings(self):
-        # Boards that poll every source also gain the health/ and product_design/ packs, and nothing else changes.
+        # Boards that poll every source also gain the health/, product_design/ and aec/ packs, and nothing else changes.
         # Product and Design poll more since D28: the next test.
         every = set(enabled_sources(self.config))
         for name, expected in V0_3_11["profiles"].items():
@@ -117,6 +118,60 @@ class BoardPollingTests(unittest.TestCase):
         for name, cfg in folder.items():
             with self.subTest(source=name):
                 self.assertIn("product_design", self.kn.type_tracks(self.kn.companies[cfg["company_key"]].type))
+
+    def test_aec_polls_its_own_groups_and_the_facilities_groups_of_three_filters(self):
+        # plans/aec-board.md 7.3 and D10: core is the lists and the board's LinkedIn searches; Structural, Building
+        # Systems and Construction also poll the big tech, semiconductor and defense groups (data-centre, fab and
+        # facilities work). Consultancies are two packs (a pack holds at most 50), named together (section 13).
+        rule = self.packs.fields["aec"]
+        tree = {f["key"]: f for f in self.kn.family_tree()}["aec"]
+        self.assertEqual([s["key"] for s in tree["subcategories"]], list(rule["filters"]))
+        self.assertEqual(["lists", "aec_core"], rule["core"])
+        facilities = {"big_tech", "semiconductors", "defense_aerospace"}
+        for name, groups in rule["filters"].items():
+            with self.subTest(filter=name):
+                self.assertEqual(name in ("structural", "building_systems", "construction"), facilities <= set(groups))
+                self.assertLessEqual({"consultancies", "infrastructure_consultancies"}, set(groups))
+        groups = groups_for("aec", {"fields": ["aec"]}, self.kn, self.packs)
+        polled = self.polled({"fields": ["aec"]})
+        self.assertEqual({key for key, p in self.packs.packs.items() if p.group in groups and "aec" in self.packs.folders[p.folder]},
+                         {self.packs.source_pack[name] for name in polled})
+        folders = self.folder(polled)
+        self.assertEqual({"aec", "shared", "tech"}, set(folders))
+        self.assertEqual(130, folders["aec"])
+
+    def test_a_picked_aec_filter_polls_core_and_its_own_groups(self):
+        rule = self.packs.fields["aec"]
+        architecture = {"fields": ["aec"], "target_roles": ["aec.architecture"]}
+        self.assertEqual({*rule["core"], *rule["filters"]["architecture"]}, groups_for("aec", architecture, self.kn, self.packs))
+        packs = {self.packs.source_pack[name] for name in self.polled(architecture)}
+        self.assertFalse({"shared/big_tech", "tech/big_tech", "aec/contractors", "aec/building_systems"} & packs)
+        self.assertLessEqual({"aec/aec_core", "aec/architecture_firms", "shared/lists"}, packs)
+
+    def test_aec_packs_hold_employers_on_the_aec_track(self):
+        # As health/ does for Healthcare: every employer an aec/ source reads, LinkedIn aside, has a type on the AEC track.
+        folder = {name: cfg for pack in self.packs.packs.values() if pack.folder == "aec"
+                  for name, cfg in pack.sources.items() if cfg["ats"] != "linkedin"}
+        self.assertEqual(126, len(folder))
+        for name, cfg in folder.items():
+            with self.subTest(source=name):
+                self.assertEqual(["aec"], self.kn.type_tracks(self.kn.companies[cfg["company_key"]].type))
+
+    def test_the_aec_linkedin_searches_cover_the_employers_whose_sites_refuse_robots(self):
+        # D12: two keyword searches with senior queries beside the co-op ones, two company searches of 24 employers.
+        core = self.packs.packs["aec/aec_core"].sources
+        self.assertEqual({"linkedin_canada_aec", "linkedin_us_aec", "linkedin_aec_firms_canada", "linkedin_aec_firms_us"}, set(core))
+        for name in ("linkedin_aec_firms_canada", "linkedin_aec_firms_us"):
+            self.assertEqual(24, len(set(core[name]["companies"])))
+        self.assertEqual(core["linkedin_aec_firms_canada"]["companies"], core["linkedin_aec_firms_us"]["companies"])
+        for name in ("linkedin_canada_aec", "linkedin_us_aec"):
+            self.assertTrue({"structural engineer", "civil engineer", "construction project manager"} <= set(core[name]["queries"]))
+
+    def test_no_board_but_the_everything_boards_polls_an_aec_pack(self):
+        for boards in (["finance"], ["software"], ["data_ml"], ["hardware"], ["product"], ["design"], ["healthcare"]):
+            with self.subTest(boards=boards):
+                self.assertEqual(0, self.folder(self.polled({"fields": boards})).get("aec", 0))
+        self.assertEqual(130, self.folder(self.polled({"fields": ["sales"]}))["aec"])
 
     def test_finance_polls_no_tech_or_health_source(self):
         folders = self.folder(self.polled({"fields": ["finance"]}))

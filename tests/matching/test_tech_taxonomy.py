@@ -182,8 +182,11 @@ class TechFitTests(unittest.TestCase):
         tracks = {key: tuple(KN.type_tracks(key)) for key in KN.company_types if key != "unknown"}
         # Healthcare has its own types and shares Research Lab and Health Tech with tech (healthcare-board D4, D10);
         # Product & Design has its own and shares Big Tech, Consumer Tech, Enterprise Software and Startups (D24, D25).
+        # Architecture, Engineering & Construction has its own six and shares none (plans/aec-board.md 6).
         self.assertTrue(set(tracks.values()) <= {("finance",), ("tech",), ("finance", "tech"), ("healthcare",),
-                                                 ("tech", "healthcare"), ("product_design",), ("tech", "product_design")})
+                                                 ("tech", "healthcare"), ("product_design",), ("tech", "product_design"),
+                                                 ("aec",)})
+        self.assertEqual(6, sum(t == ("aec",) for t in tracks.values()))
         self.assertEqual({"fintech", "quant_firm"}, {k for k, t in tracks.items() if t == ("finance", "tech")})
         self.assertIn("ai_lab", {k for k, t in tracks.items() if t == ("tech",)})
         self.assertEqual(20, sum("tech" in t and "finance" not in t for t in tracks.values()))  # 3 since: climate, quantum, telecom

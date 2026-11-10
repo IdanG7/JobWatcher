@@ -1,0 +1,17 @@
+{
+  "title": "Structural, MEP and building science firms",
+  "verified": "2026-11-10",
+  "note": "AEC board only. Structural, MEP and building-science consultancies, read whole on 2026-11-10. KPFF, HH Angus, Pinchin, Salas O'Brien, RWDI, Smith + Andersen and Henderson are read through LinkedIn company searches.",
+  "boards": {
+    "affiliated_engineers": {"ats": "dayforce", "client": "facllc", "site": "AEI", "min_interval": 1800, "company_key": "affiliated_engineers", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"},
+    "entuitive": {"ats": "workable", "account": "entuitive", "min_interval": 1800, "company_key": "entuitive", "priority": 2, "geography": "canada", "group": "Structural, MEP & Building Science"},
+    "imeg": {"ats": "workday", "host": "wd1.myworkdaysite.com", "tenant": "imeg", "site": "Imeg_Careers", "min_interval": 1800, "company_key": "imeg", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"},
+    "introba": {"ats": "workday", "host": "gi.wd1.myworkdayjobs.com", "tenant": "gi", "site": "Global_Infrastructure", "min_interval": 1800, "company_key": "introba", "priority": 2, "geography": "global", "group": "Structural, MEP & Building Science"},
+    "simpson_gumpertz_heger": {"ats": "greenhouse", "token": "simpsongumpertzheger", "min_interval": 1800, "company_key": "sgh", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"},
+    "ssoe": {"ats": "icims", "host": "careers-ssoe.icims.com", "min_interval": 1800, "company_key": "ssoe", "priority": 2, "geography": "us", "label": "SSOE Group", "group": "Structural, MEP & Building Science"},
+    "syska_hennessy_group": {"ats": "greenhouse", "token": "syskahennessy", "min_interval": 1800, "company_key": "syska_hennessy_group", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"},
+    "thornton_tomasetti": {"ats": "workday", "host": "tt.wd503.myworkdayjobs.com", "tenant": "tt", "site": "ThorntonTomasetti", "min_interval": 1800, "company_key": "thornton_tomasetti", "priority": 2, "geography": "global", "group": "Structural, MEP & Building Science"},
+    "walter_p_moore": {"ats": "icims", "host": "careers-walterpmoore.icims.com", "min_interval": 1800, "company_key": "walter_p_moore", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"},
+    "wiss_janney_elstner_associates": {"ats": "workday", "host": "wje.wd1.myworkdayjobs.com", "tenant": "wje", "site": "Careers", "min_interval": 1800, "company_key": "wje", "priority": 2, "geography": "us", "group": "Structural, MEP & Building Science"}
+  }
+}

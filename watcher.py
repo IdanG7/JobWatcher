@@ -37,7 +37,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urljoin, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
 
 import requests
 
@@ -1470,6 +1470,9 @@ def fetch_icims(cfg):
     return _finish_listing(out, "iCIMS", limit)
 
 
+JIBE_PAUSE = 5.0      # seconds between pages: Jibe sites' robots.txt ask for Crawl-delay: 5 (careers.kimley-horn.com)
+
+
 def fetch_jibe(cfg):
     """Jibe career sites over iCIMS (careers.amd.com, careers.garmin.com), whose
     /api/jobs JSON carries each posting's description. cfg: host, max."""
@@ -1479,6 +1482,8 @@ def fetch_jibe(cfg):
     out, seen, page_no = SourceListing(), set(), 1
     limit = _source_limit(cfg)
     while len(out) < limit:
+        if page_no > 1:
+            time.sleep(JIBE_PAUSE)
         r = requests.get(f"https://{host}/api/jobs", params={"page": page_no, "limit": 100},
                          headers={"User-Agent": UA, "Accept": "application/json"}, timeout=TIMEOUT)
         r.raise_for_status()
@@ -2095,6 +2100,9 @@ def fetch_taleo(cfg):
     count = re.search(r'name="listRequisition\.nbElements"[^>]*\bvalue="(\d+)"', r.text) or \
         re.search(r"\((\d+) jobs? found\)", r.text)
     if not (form and labels and "contestnumber" in labels and "title" in labels and count):
+        portal = _taleo_portal(r.text)
+        if portal:          # the newer faceted search page (HDR): read through the JSON call it makes
+            return _fetch_taleo_faceted(base, portal, cfg, limit, headers, r.cookies)
         raise RuntimeError(f"Taleo search page is not a classic requisition list (landed on {r.url})")
     fields = []
     for tag in re.findall(r"<input\b[^>]*>", form.group(1), re.I):
@@ -2139,6 +2147,127 @@ def fetch_taleo(cfg):
         page_no += 1
     else:
         _consume_page(out, [], seen, "Taleo", limit)   # ran out of pages short of the total: say so
+    return _finish_listing(out, "Taleo", limit)
+
+
+def _taleo_portal(text):
+    """The portal id of a faceted-search career section: the page's own FacetedSearchSettings query
+    string ('lang=en&amp;portal=101430233'). '' when the page is not that kind."""
+    if "FacetedSearchSettings" not in text:
+        return ""
+    m = re.search(r"queryString:\s*'[^']*?\bportal=(\d+)", text)
+    return m.group(1) if m else ""
+
+
+def _taleo_place(value):
+    """The faceted list's location cell, '["Canada-Ontario-Toronto"]' (country-state-city), as
+    'Toronto, Ontario, Canada'. '' for 'Multiple Locations', which names no place."""
+    try:
+        places = json.loads(value)
+    except (TypeError, ValueError):
+        places = [value]
+    out = []
+    for place in places if isinstance(places, list) else [places]:
+        place = str(place or "").strip()
+        if place and place != "Multiple Locations":
+            out.append(", ".join(reversed([p.strip() for p in place.split("-", 2)])))
+    return "; ".join(dict.fromkeys(out))
+
+
+def _taleo_faceted_query(page_no, country=None):
+    """The search the faceted page posts: Posting Date, newest first, optionally narrowed to one
+    country of its Location facet."""
+    def selections(ids):
+        return [{"id": name, "selectedValues": [country] if (name == "LOCATION" and country) else []} for name in ids]
+    return {"multilineEnabled": False,
+            "sortingSelection": {"sortBySelectionParam": "3", "ascendingSortingOrder": "false"},
+            "fieldData": {"fields": {"KEYWORD": "", "LOCATION": ""}, "valid": True},
+            "filterSelectionParam": {"searchFilterSelections": selections(
+                ["POSTING_DATE", "LOCATION", "JOB_FIELD", "JOB_TYPE", "JOB_SCHEDULE", "JOB_LEVEL"])},
+            "advancedSearchFiltersSelectionParam": {"searchFilterSelections": selections(
+                ["ORGANIZATION", "LOCATION", "JOB_FIELD", "JOB_NUMBER", "URGENT_JOB", "EMPLOYEE_STATUS",
+                 "STUDY_LEVEL", "WILL_TRAVEL", "JOB_SHIFT"])},
+            "pageNo": page_no}
+
+
+def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
+    """A Taleo career section on the newer faceted search (HDR's 'ex'): the page posts a JSON search to
+    /careersection/rest/jobboard/searchjobs (25 rows a page; the page size is not adjustable) and
+    reads title, locations and date from each row. Postings are read newest first. Rows with several
+    locations say only 'Multiple Locations', so the places come from the page's Location facet: each
+    country but the largest is searched once, and a multi-location posting is placed in the countries
+    that list it (in the largest when none does). Past the end the pager repeats its last page. HDR's total
+    counts 3 postings the pager never lists (in either sort order), so its reads end short of the total and
+    are marked incomplete: they never close postings, but still place multi-location ones."""
+    url = f"{base.rsplit('/', 1)[0]}/rest/jobboard/searchjobs"
+    api_headers = {**headers, "Content-Type": "application/json", "Accept": "application/json",
+                   "X-Requested-With": "XMLHttpRequest", "tz": "GMT-05:00", "tzname": "America/Toronto",
+                   "Referer": f"{base}/jobsearch.ftl?lang=en"}
+
+    def search(page_no, country=None):
+        time.sleep(TALEO_PAUSE)
+        resp = requests.post(url, params={"lang": "en", "portal": portal}, json=_taleo_faceted_query(page_no, country),
+                             headers=api_headers, cookies=cookies, timeout=TIMEOUT)
+        resp.raise_for_status()
+        data = resp.json()
+        paging = data.get("pagingData") if isinstance(data, dict) else None
+        if not (isinstance(paging, dict) and isinstance(paging.get("totalCount"), int)
+                and isinstance(data.get("requisitionList"), list)):
+            raise RuntimeError("Taleo faceted search response is not a result list")
+        if paging.get("currentPageNo") != page_no:
+            raise RuntimeError("Taleo faceted search answered another page")
+        return data
+
+    def posting(row):
+        cells = row.get("column") if isinstance(row, dict) else None
+        if not (isinstance(cells, list) and len(cells) == 3 and str(row.get("contestNo") or "").strip()):
+            raise RuntimeError("Taleo faceted search returned a row it cannot read")
+        number = str(row["contestNo"]).strip()
+        return {"id": number, "title": str(cells[0] or "").strip(), "location": _taleo_place(cells[1]) or ("Multiple Locations" if "Multiple Locations" in str(cells[1]) else ""),
+                "url": f"{base}/jobdetail.ftl?job={number}&lang=en", "posted": _taleo_date_epoch(cells[2]),
+                "department": ""}
+
+    def read(country=None, cap=None):
+        """(listing, facets, ended): ended is False when the read stopped before the pager's end."""
+        out = SourceListing()
+        seen, page_no, size, facets = set(), 1, 0, []
+        while True:
+            data = search(page_no, country)
+            if page_no == 1:
+                out.total, size, facets = data["pagingData"]["totalCount"], len(data["requisitionList"]), data.get("facetResults") or []
+            page = [posting(row) for row in data["requisitionList"]]
+            fresh = [j for j in page if j["id"] not in seen]      # a posting added at the top shifts the rest down a row
+            if page and fresh and _consume_page(out, fresh, seen, "Taleo", cap or limit):
+                return out, facets, out.complete        # the whole total read, or capped
+            if not fresh:
+                # Past the end the pager answers an empty page or the last page again. A read short of the
+                # total (HDR's by the 3 it never lists) is a partial read and says so.
+                _consume_page(out, [], seen, "Taleo", cap or limit)
+                return out, facets, True
+            page_no += 1
+            if page_no > -(-out.total // max(size, 1)) + 2:      # never past the pages the total allows (plus the padding)
+                out.reason = f"Taleo pagination did not end by page {page_no - 1} of reported total {out.total}"
+                return out, facets, False
+
+    out, facets, ended = read()
+    if ended and any(j["location"] == "Multiple Locations" for j in out):
+        countries = next((f.get("facetValueResults") or [] for f in facets if f.get("id") == "LOCATION"), [])
+        countries = [c for c in countries if c.get("level") == 1 and c.get("id") and c.get("text")]
+        if not countries:
+            raise RuntimeError("Taleo faceted search lists no countries to place multi-location postings")
+        main = max(countries, key=lambda c: int(c.get("quantity") or 0))
+        found = {}
+        for country in countries:
+            if country is main:
+                continue
+            listed, _, listed_ended = read(country["id"], cap=20000)
+            if not listed_ended:
+                raise RuntimeError(f"Taleo faceted search could not list {country['text']}: {listed.reason}")
+            for job in listed:
+                found.setdefault(job["id"], []).append(country["text"])
+        for job in out:
+            if job["location"] == "Multiple Locations":
+                job["location"] = "; ".join(found.get(job["id"]) or [main["text"]])
     return _finish_listing(out, "Taleo", limit)
 
 
@@ -2706,6 +2835,406 @@ def fetch_hopkins_medicine(cfg):
     return _finish_listing(out, "Johns Hopkins Medicine", limit)
 
 
+CONNECTID_PAGE = 1000       # rows a call; the API serves up to 5000 (the careers page itself asks for 12 to 48)
+CONNECTID_PAUSE = 1.0       # seconds between requests to one API
+
+
+def _connectid_cfg(cfg):
+    """(api host, careers host, language, page size) from a source cfg, checked so they can only be hosts."""
+    host, site, lang = cfg["host"], cfg["site"], cfg.get("lang", "en")
+    if not re.fullmatch(r"[a-z0-9-]+\.connectid\.cloud", str(host)):
+        raise ValueError("ConnectID host must be the <employer>-prod-api.connectid.cloud API the careers page calls")
+    if not re.fullmatch(r"[a-z0-9-]+(?:\.[a-z0-9-]+)+", str(site)):
+        raise ValueError("ConnectID site must be the careers site's host name, like careers.example.com")
+    if lang not in ("en", "fr"):
+        raise ValueError("ConnectID lang must be en or fr")
+    size = cfg.get("page_size", CONNECTID_PAGE)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= 5000:
+        raise ValueError("ConnectID page_size must be an integer from 1 to 5000")
+    return host, site, lang, size
+
+
+def _connectid_token(host):
+    r = requests.get(f"https://{host}/api/jobs/token", headers={"User-Agent": UA, "Accept": "application/json"},
+                     timeout=TIMEOUT)
+    r.raise_for_status()
+    token = r.json().get("token")
+    if not token:
+        raise RuntimeError("ConnectID answered no token")
+    return token
+
+
+def _connectid_search(host, token, body):
+    """(response, token): the careers page's POST /api/jobs/jobs, retried once with a fresh token when the
+    API refuses the first one, as the page does."""
+    for attempt in range(2):
+        r = requests.post(f"https://{host}/api/jobs/jobs", json=body, timeout=TIMEOUT,
+                          headers={"User-Agent": UA, "Accept": "application/json", "Authorization": f"Bearer {token}"})
+        if attempt or r.status_code not in (401, 403):
+            break
+        token = _connectid_token(host)
+    r.raise_for_status()
+    return r, token
+
+
+def _connectid_slug(text):
+    """The careers page's slugify(): runs of anything but letters and digits become one dash."""
+    return re.sub(r"[\W_]+", "-", (text or "").lower()).strip("-")
+
+
+def _connectid_place(job):
+    places = [p.strip() for p in job.get("location_mappings") or [] if isinstance(p, str) and p.strip()]
+    if not places:
+        places = [_place(x.get("city"), x.get("region"), x.get("country")) for x in job.get("locations") or []
+                  if isinstance(x, dict)]
+    return "; ".join(dict.fromkeys(p for p in places if p))
+
+
+_CONNECTID_SECTIONS = ("job_overview", "job_responsibilities", "person_requirements", "rewards_and_benefits",
+                       "additional_information")
+
+
+def _connectid_text(job):
+    """job_description holds the whole posting; a few postings carry only the separate sections."""
+    text = html_to_text(job.get("job_description") or "")
+    if not text:
+        text = "\n\n".join(t for t in (html_to_text(job.get(k) or "") for k in _CONNECTID_SECTIONS) if t)
+    return text
+
+
+def _connectid_job(job, site, lang):
+    req = str(job.get("job_requisition_id") or "").strip()
+    title = " ".join(html_to_text(job.get("job_posting_title") or "").split())
+    out = {"id": req, "title": title, "location": _connectid_place(job),
+           "url": f"https://{site}/{lang}/jobs/{quote(_connectid_slug(title) + '-' + req.lower(), safe='-')}",
+           "posted": _iso_epoch(job.get("start_date")), "department": (job.get("job_area") or "").strip()}
+    text = _connectid_text(job)
+    if text:
+        out["description"] = text
+    return out
+
+
+def fetch_connectid(cfg):
+    """ConnectID career sites (AtkinsRéalis, careers.atkinsrealis.com): the page's job search is a POST to its
+    employer's <employer>-prod-api.connectid.cloud, which first hands out an anonymous bearer token at
+    /api/jobs/token. Each posting carries its full description as HTML; meta.totalCount is the total, and
+    a page of up to 5000 rows is served in one call. cfg: host (the API host the page calls), site (the
+    careers site's host, for posting links), optional lang (en or fr, default en), page_size, max."""
+    host, site, lang, size = _connectid_cfg(cfg)
+    limit = _source_limit(cfg)
+    out, seen, number = SourceListing(), set(), 1
+    token = _connectid_token(host)
+    while True:
+        time.sleep(CONNECTID_PAUSE)
+        r, token = _connectid_search(host, token, {"limit": size, "page": number, "language": lang})
+        data = r.json()
+        rows = data.get("jobs")
+        total = (data.get("meta") or {}).get("totalCount")
+        if not isinstance(rows, list) or isinstance(total, bool) or not isinstance(total, int):
+            raise RuntimeError("ConnectID search response has no jobs list and totalCount")
+        out.total = total
+        if _consume_page(out, [_connectid_job(j, site, lang) for j in rows], seen, "ConnectID", limit):
+            break
+        number += 1
+    return _finish_listing(out, "ConnectID", limit)
+
+
+def detail_connectid(cfg, job_id):
+    """One ConnectID posting, found by the careers page's own search box (job_profile) with its requisition
+    id: the exact match's description (and area) comes back with the date the posting opened."""
+    host, site, lang, _ = _connectid_cfg(cfg)
+    r, _ = _connectid_search(host, _connectid_token(host),
+                             {"limit": 20, "page": 1, "language": lang, "job_profile": str(job_id)})
+    for job in r.json().get("jobs") or []:
+        if str(job.get("job_requisition_id")) == str(job_id):
+            posted = _iso_epoch(job.get("start_date"))
+            return _connectid_text(job), (job.get("job_area") or "").strip(), {"posted": posted} if posted else {}
+    raise ValueError("the ConnectID search does not list this posting any more")
+
+
+CSOD_PAUSE = 10.0           # turner.csod.com's robots.txt asks every crawler for a Crawl-delay of 10
+CSOD_PAGE = 1000            # rows a call; the career site's own pager asks for far fewer
+CSOD_COUNTRIES = {"US": "United States", "CA": "Canada", "GB": "United Kingdom", "MX": "Mexico", "AU": "Australia",
+                  "IE": "Ireland", "IN": "India", "DE": "Germany", "FR": "France", "AE": "United Arab Emirates"}
+
+
+def _csod_cfg(cfg):
+    """(host, corp, [career site ids], page size) from a source cfg, checked so they can only be what a
+    career site link carries: <corp>.csod.com/ux/ats/careersite/<id>/home?c=<corp>."""
+    host, site = cfg["host"], cfg["site"]
+    if not re.fullmatch(r"[a-z0-9-]+\.csod\.com", str(host)):
+        raise ValueError("Cornerstone host must be the <corp>.csod.com career site")
+    sites = site if isinstance(site, list) else [site]
+    if (not sites or len(set(sites)) != len(sites)
+            or any(isinstance(s, bool) or not isinstance(s, int) or s < 1 for s in sites)):
+        raise ValueError("Cornerstone site must be a career site id, or a list of distinct ids, from its link")
+    size = cfg.get("page_size", CSOD_PAGE)
+    if isinstance(size, bool) or not isinstance(size, int) or not 1 <= size <= CSOD_PAGE:
+        raise ValueError(f"Cornerstone page_size must be an integer from 1 to {CSOD_PAGE}")
+    return host, host.split(".")[0], sites, size
+
+
+def _csod_context(host, corp, site):
+    """The page's csod.context: the anonymous session token the page's own scripts call the API with, the
+    API's base address and the culture."""
+    r = requests.get(f"https://{host}/ux/ats/careersite/{site}/home", params={"c": corp},
+                     headers={"User-Agent": UA, "Accept": "text/html"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    start = re.search(r"csod\.context\s*=\s*", r.text)
+    try:
+        ctx, _ = json.JSONDecoder().raw_decode(r.text[start.end():]) if start else (None, 0)
+    except ValueError:
+        ctx = None
+    endpoints = ctx.get("endpoints") if isinstance(ctx, dict) else None
+    if (not isinstance(endpoints, dict) or ctx.get("corp") != corp or not ctx.get("token")
+            or not isinstance(ctx.get("cultureID"), int) or not ctx.get("cultureName")):
+        raise RuntimeError(f"Cornerstone career site {host} site {site} has no session context")
+    cloud = urlsplit(str(endpoints.get("cloud")))
+    if cloud.scheme != "https" or not (cloud.hostname or "").endswith(".csod.com"):
+        raise RuntimeError("Cornerstone career site names an API outside csod.com")
+    return ctx
+
+
+def _csod_place(loc):
+    country = (loc.get("country") or "").strip()
+    return _place(loc.get("city"), loc.get("state"), CSOD_COUNTRIES.get(country, country))
+
+
+def _csod_posted(value, culture):
+    """'11/9/2026' (the en-US career site's date) -> epoch at 12:00 UTC; other cultures write it differently."""
+    if culture != "en-US":
+        return None
+    try:
+        day = datetime.strptime(str(value).strip(), "%m/%d/%Y")
+    except ValueError:
+        return None
+    return day.replace(hour=12, tzinfo=timezone.utc).timestamp()
+
+
+def _csod_job(req, host, corp, site, culture):
+    rid = str(req.get("requisitionId") or "")
+    out = {"id": rid, "title": " ".join(html_to_text(req.get("displayJobTitle") or "").split()),
+           "location": "; ".join(dict.fromkeys(filter(None, map(_csod_place, req.get("locations") or [])))),
+           "url": f"https://{host}/ux/ats/careersite/{site}/home/requisition/{rid}?c={corp}",
+           "posted": _csod_posted(req.get("postingEffectiveDate"), culture)}
+    text = html_to_text(req.get("externalDescription") or "")
+    if text:
+        out["description"] = text
+    return out
+
+
+def _csod_search(cloud, token, body):
+    return requests.post(f"{cloud}rec-job-search/external/jobs", json=body, timeout=TIMEOUT,
+                         headers={"User-Agent": UA, "Accept": "application/json", "Authorization": f"Bearer {token}"})
+
+
+def fetch_csod(cfg):
+    """Cornerstone OnDemand career sites (<corp>.csod.com/ux/ats/careersite/<id>/home?c=<corp>): the page
+    embeds an anonymous session token (csod.context) and its search is a POST to the API it names,
+    rec-job-search/external/jobs, which lists every posting with its description as text and totalCount
+    as the site's total. One employer often runs several career sites (Turner: students, experienced,
+    trades...), each a different slice of its requisitions, so `site` may be a list; the postings are
+    merged and a requisition on several sites is kept once. The host's robots.txt asks for a
+    10 second Crawl-delay, kept between every request. cfg: host ('turnerconstruction.csod.com'), site
+    (career site id, or a list of ids), optional page_size, max."""
+    host, corp, sites, size = _csod_cfg(cfg)
+    limit = _source_limit(cfg)
+    ctx = _csod_context(host, corp, sites[0])
+    cloud, culture, token = ctx["endpoints"]["cloud"], ctx["cultureName"], ctx["token"]
+    out, seen, reported, capped, refreshed = SourceListing(), set(), 0, False, False
+    for site in sites:
+        site_seen, site_total, number = set(), None, 1
+        while not capped:
+            body = {"careerSiteId": site, "careerSitePageId": site, "pageNumber": number, "pageSize": size,
+                    "cultureId": ctx["cultureID"], "searchText": "", "cultureName": culture, "states": [],
+                    "countryCodes": [], "cities": [], "placeID": "", "radius": None, "postingsWithinDays": None,
+                    "customFieldCheckboxKeys": [], "customFieldDropdowns": [], "customFieldRadios": []}
+            time.sleep(CSOD_PAUSE)
+            r = _csod_search(cloud, token, body)
+            if r.status_code in (401, 403) and not refreshed:
+                refreshed = True                        # the page's token ran out: take a new one from the page
+                time.sleep(CSOD_PAUSE)
+                token = _csod_context(host, corp, site)["token"]
+                time.sleep(CSOD_PAUSE)
+                r = _csod_search(cloud, token, body)
+            r.raise_for_status()
+            data = (r.json() or {}).get("data") or {}
+            rows, count = data.get("requisitions"), data.get("totalCount")
+            if not isinstance(rows, list) or isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                raise RuntimeError(f"Cornerstone site {site} search response has no requisitions and totalCount")
+            if site_total is None:
+                site_total = count
+                reported += count
+            if not rows:
+                if len(site_seen) < site_total:
+                    out.reason = out.reason or (f"Cornerstone site {site} ended at {len(site_seen)} "
+                                                f"of reported total {site_total}")
+                break
+            page = [_csod_job(q, host, corp, site, culture) for q in rows]
+            if any(not j["id"] for j in page):
+                raise RuntimeError("Cornerstone search returned a posting without an id")
+            fresh = [j for j in page if j["id"] not in site_seen]
+            if not fresh:
+                raise RuntimeError("Cornerstone pagination repeated a page")
+            if len(fresh) < len(page) or len({j["id"] for j in page}) < len(page):
+                out.reason = out.reason or f"Cornerstone site {site} listed a posting twice"
+            for job in fresh:
+                site_seen.add(job["id"])
+                if job["id"] in seen:                   # another site's slice holds it already
+                    continue
+                if len(out) >= limit:
+                    capped = True
+                    continue
+                seen.add(job["id"])
+                out.append(job)
+            if len(site_seen) >= site_total:
+                break
+            number += 1
+    out.complete = not capped and not out.reason
+    out.total = len(out) if out.complete and len(sites) > 1 else reported
+    return _finish_listing(out, "Cornerstone", limit)
+
+
+def detail_csod(cfg, job_id):
+    """One Cornerstone requisition: the job-requisition service the career site's posting page calls, with the
+    page's own session token. -> (description, department, {posted})"""
+    host, corp, sites, _ = _csod_cfg(cfg)
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("Cornerstone requisition id must be numeric")
+    ctx = _csod_context(host, corp, sites[0])
+    time.sleep(CSOD_PAUSE)
+    r = requests.get(f"https://{host}/services/x/job-requisition/v2/requisitions/{job_id}/jobDetails",
+                     params={"cultureId": ctx["cultureID"]}, timeout=TIMEOUT,
+                     headers={"User-Agent": UA, "Accept": "application/json",
+                              "Authorization": f"Bearer {ctx['token']}"})
+    r.raise_for_status()
+    info = (r.json() or {}).get("data")
+    if not isinstance(info, dict) or "externalDescription" not in info:
+        raise ValueError("the Cornerstone requisition has no posting data")
+    posted = _date_epoch(info.get("openDate"))
+    return html_to_text(info.get("externalDescription") or ""), "", {"posted": posted} if posted else {}
+
+
+SELECTMINDS_PAUSE = 0.5     # seconds between requests to one career site (their robots.txt sets no Crawl-delay)
+_SM_ROW = re.compile(r'<div id="job_list_(\d+)" class="job_list_row')
+
+
+def _selectminds_base(cfg):
+    host, site = cfg["host"], str(cfg.get("site") or "")
+    if not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+", host):
+        raise ValueError("SelectMinds host must be the career site's host name (tetratech.referrals.selectminds.com)")
+    if site and not re.fullmatch(r"[A-Za-z0-9_-]+", site):
+        raise ValueError("SelectMinds site must be the path segment before /jobs on a sub-site (surge2)")
+    return f"https://{host}" + (f"/{site}" if site else "")
+
+
+def _selectminds_place(text):
+    """'Copenhagen, -, Denmark' (the site's empty state is a dash) -> 'Copenhagen, Denmark'. A posting in
+    several places lists the first and 'and 2 additional locations' (named only on its own page): the first."""
+    text = re.sub(r"\s+and\s+\d+\s+additional\s+locations?\s*$", "", " ".join(html_to_text(text).split()), flags=re.I)
+    parts = [p.strip() for p in text.split(",")]
+    return ", ".join(p for p in parts if p and p != "-")
+
+
+def _selectminds_rows(text, base):
+    starts = [(m.start(), m.group(1)) for m in _SM_ROW.finditer(text)]
+    ends = [s for s, _ in starts[1:]] + [len(text)]
+    page = []
+    for (start, jid), end in zip(starts, ends):
+        row = text[start:end]
+        link = re.search(r'<a\s+href="([^"]*)"\s+class="job_link[^"]*"\s*>(.*?)</a>', row, re.S)
+        if not link or not re.search(r"[-/]" + jid + r"/?$", html.unescape(link.group(1))):
+            raise RuntimeError("SelectMinds result list has a row it cannot read")
+        place = re.search(r'<span class="location">(.*?)</span>', row, re.S)
+        category = re.search(r'<span class="category">(.*?)</span>', row, re.S)
+        teaser = re.search(r'<p class="jlr_description">(.*?)</p>', row, re.S)
+        job = {"id": jid, "title": " ".join(html_to_text(link.group(2)).split()),
+               "location": _selectminds_place(place.group(1)) if place else "",
+               "url": urljoin(base + "/", html.unescape(link.group(1))), "posted": None,
+               "department": " ".join(html_to_text(category.group(1)).split()) if category else ""}
+        if teaser and html_to_text(teaser.group(1)):
+            job["description"], job["teaser"] = html_to_text(teaser.group(1)), True      # cut at about 160 characters
+        page.append(job)
+    return page
+
+
+def fetch_selectminds(cfg):
+    """SelectMinds career sites (Oracle Taleo Social Sourcing: tetratech.referrals.selectminds.com,
+    jobs.arup.com): the site's own job search lists 10 postings a page. The search page names its
+    search id, page count, total and session token, and its pager posts /ajax/content/job_results
+    for the next pages, answering JSON that holds the page's HTML. Listings carry a teaser only;
+    the posting's page has the text. cfg: host, optional site (a sub-site's path segment, e.g.
+    'surge2') and max."""
+    base = _selectminds_base(cfg)
+    limit = _source_limit(cfg)
+    headers = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}
+    r = requests.get(f"{base}/jobs/search?all", headers=headers, timeout=TIMEOUT)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    page_html = r.text
+    search = re.search(r'class="results_content jResultsContent" data-jsid="(\d+)"', page_html)
+    total = re.search(r'class="total_results">\s*([\d,]+)\s*<', page_html)
+    pages = re.search(r'id="jPaginateNumPages"[^>]*>\s*(\d+)', page_html)
+    token = re.search(r'id\s*=\s*"tsstoken"\s+value\s*=\s*"([^"]*)"', page_html)
+    short = re.search(r'short_name:\s*"([^"]+)"', page_html)
+    if not (search and total and token and short):
+        raise RuntimeError(f"SelectMinds search page is not a job list (landed on {r.url})")
+    cookies = requests.cookies.RequestsCookieJar()
+    for hop in [*(getattr(r, "history", None) or []), r]:
+        cookies.update(hop.cookies)
+    out = SourceListing(total=int(total.group(1).replace(",", "")))
+    last = int(pages.group(1)) if pages else 1
+    api = {**headers, "tss-token": token.group(1), "X-Requested-With": "XMLHttpRequest",
+           "Referer": f"{base}/jobs/search/{search.group(1)}", "Accept": "application/json"}
+    seen, page_no = set(), 1
+    while True:
+        page = _selectminds_rows(page_html, base)
+        if _consume_page(out, page, seen, "SelectMinds", limit):
+            break
+        page_no += 1
+        if page_no > last:
+            _consume_page(out, [], seen, "SelectMinds", limit)         # out of pages short of the total: say so
+            break
+        time.sleep(SELECTMINDS_PAUSE)
+        resp = requests.post(f"{base}/ajax/content/job_results",
+                             params={"JobSearch.id": search.group(1), "page_index": page_no,
+                                     "site-name": short.group(1), "include_site": "true"},
+                             headers=api, cookies=cookies, timeout=TIMEOUT)
+        resp.raise_for_status()
+        data = resp.json()
+        if not (isinstance(data, dict) and data.get("Status") == "OK" and isinstance(data.get("Result"), str)):
+            raise RuntimeError("SelectMinds pager response is not a result list")
+        page_html = data["Result"]
+    return _finish_listing(out, "SelectMinds", limit)
+
+
+def _selectminds_div(text, start):
+    """The HTML inside the <div> whose opening tag ends at `start`, up to its balancing </div>."""
+    depth = 1
+    for m in re.finditer(r"<(/?)div\b[^>]*>", text[start:], re.I):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return text[start:start + m.start()]
+    return text[start:]
+
+
+def detail_selectminds(cfg, job_id):
+    """One SelectMinds posting: <site>/jobs/<id> serves the posting's page, whose job_description
+    block is the text and whose category field is the department. -> (description, department)."""
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("SelectMinds posting id must be numeric")
+    r = requests.get(f"{_selectminds_base(cfg)}/jobs/{job_id}", headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
+                     timeout=TIMEOUT)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    block = re.search(r'<div class="job_description">', r.text)
+    text = html_to_text(_selectminds_div(r.text, block.end())) if block else ""
+    if not text:
+        raise ValueError("the SelectMinds posting page has no description")
+    category = re.search(r'<dl class="field_category">.*?<span class="field_value[^"]*">(.*?)</span>', r.text, re.S)
+    return text, " ".join(html_to_text(category.group(1)).split()) if category else ""
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -2750,6 +3279,9 @@ ADAPTERS = {
     "paradox": fetch_paradox,
     "successfactors_portal": fetch_successfactors_portal,
     "hopkins_medicine": fetch_hopkins_medicine,
+    "connectid": fetch_connectid,
+    "csod": fetch_csod,
+    "selectminds": fetch_selectminds,
 }
 
 
@@ -2996,6 +3528,9 @@ DETAIL_FETCHERS = {
     "peoplesoft": detail_peoplesoft,
     "gc_jobs": detail_gc_jobs,
     "neogov": detail_neogov,
+    "connectid": detail_connectid,
+    "csod": detail_csod,
+    "selectminds": detail_selectminds,
 }
 # Fetched only when the user opens a posting, never in the poll's batches.
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}

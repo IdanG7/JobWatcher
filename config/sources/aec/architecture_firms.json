@@ -1,0 +1,20 @@
+{
+  "title": "Architecture firms",
+  "verified": "2026-11-10",
+  "note": "AEC board only. Read whole on 2026-11-10. Perkins&Will, Gensler and SOM are read through LinkedIn company searches; KPMB, Hariri Pontarini, Populous and Perkins Eastman have no feed an adapter reads.",
+  "boards": {
+    "b_h_architects": {"ats": "workday", "host": "surbanajurong.wd3.myworkdayjobs.com", "tenant": "surbanajurong", "site": "SJ_Careers", "min_interval": 1800, "company_key": "surbana_jurong", "priority": 2, "geography": "global", "label": "Surbana Jurong (B+H Architects)", "group": "Architecture Firms"},
+    "cannondesign": {"ats": "greenhouse", "token": "cannondesign", "min_interval": 1800, "company_key": "cannondesign", "priority": 2, "geography": "us", "group": "Architecture Firms"},
+    "corgan_campus": {"ats": "icims", "host": "campus-us-corgan.icims.com", "min_interval": 1800, "company_key": "corgan", "priority": 2, "geography": "us", "label": "Corgan students and new grads", "group": "Architecture Firms"},
+    "dialog": {"ats": "lever", "token": "dialogdesign", "min_interval": 1800, "company_key": "dialog", "priority": 2, "geography": "canada", "group": "Architecture Firms"},
+    "dlr_group": {"ats": "greenhouse", "token": "dlrgroup", "min_interval": 1800, "company_key": "dlr_group", "priority": 2, "geography": "us", "group": "Architecture Firms"},
+    "hga": {"ats": "icims", "host": "careers-hga.icims.com", "min_interval": 1800, "company_key": "hga", "priority": 2, "geography": "us", "group": "Architecture Firms"},
+    "hks": {"ats": "workday", "host": "hksinc.wd501.myworkdayjobs.com", "tenant": "hksinc", "site": "HKSCareers", "min_interval": 1800, "company_key": "hks", "priority": 2, "geography": "global", "label": "HKS", "group": "Architecture Firms"},
+    "hks_students": {"ats": "workday", "host": "hksinc.wd501.myworkdayjobs.com", "tenant": "hksinc", "site": "HKSStudent", "min_interval": 1800, "company_key": "hks", "priority": 2, "geography": "global", "label": "HKS students and new grads", "group": "Architecture Firms"},
+    "hok": {"ats": "dayforce", "client": "hok", "site": "CANDIDATEPORTAL", "min_interval": 1800, "company_key": "hok", "priority": 2, "geography": "global", "group": "Architecture Firms"},
+    "kpf": {"ats": "workday", "host": "kpf.wd5.myworkdayjobs.com", "tenant": "kpf", "site": "KPF_Careers", "min_interval": 1800, "company_key": "kpf", "priority": 2, "geography": "global", "group": "Architecture Firms"},
+    "ls3p": {"ats": "greenhouse", "token": "ls3p", "min_interval": 1800, "company_key": "ls3p", "priority": 2, "geography": "us", "label": "LS3P", "group": "Architecture Firms"},
+    "nbbj": {"ats": "jobvite", "account": "quAaVfwT", "min_interval": 1800, "company_key": "nbbj", "priority": 2, "geography": "us", "group": "Architecture Firms"},
+    "sasaki": {"ats": "adp_wfn", "cid": "5afb7f9f-29bb-4899-bdad-a3bdaef5c12c", "ccid": "19000101_000001", "lang": "en_US", "min_interval": 1800, "company_key": "sasaki", "priority": 2, "geography": "us", "label": "Sasaki", "group": "Architecture Firms"}
+  }
+}

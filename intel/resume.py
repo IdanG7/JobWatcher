@@ -648,7 +648,7 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
     interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"),
-                                  years=insights.work_years(entries, kn), senior=insights.senior_title(entries))
+                                  years=insights.work_years(entries, kn, tracks), senior=insights.senior_title(entries))
     skills = extract_skills(text, kn, limit=60, tracks=insights.resume_skill_tracks(tracks, kn))
     licences = resume_licences(sections, entries, education, tracks, kn)
     cities: Counter = Counter()

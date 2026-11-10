@@ -291,12 +291,15 @@ EXPERIENCED_YEARS = 3   # years of work after school that make a resume an exper
 SENIOR_YEARS = 8        # ...and a senior one's (sooner with a senior title such as "Senior QA Test Lead")
 
 
-def work_years(entries: list[dict], kn: Knowledge) -> int:
+def work_years(entries: list[dict], kn: Knowledge, tracks: frozenset[str]) -> int:
     """Years the experience section's jobs cover, overlaps counted once. Internships and co-ops don't count, nor
-    jobs no board takes ("Mathematics Teacher"): a career changer is no senior hire in the new work."""
+    jobs no board takes ("Mathematics Teacher"): a career changer is no senior hire in the new work. A title an
+    open track's role words name counts too ("Project Manager" on a construction resume, which no employer type
+    places)."""
+    words = [kn.tracks[t].role_words for t in tracks if kn.tracks[t].role_words]
     spans = sorted((e["start"], e["end"]) for e in entries if e["block"] == "experience" and e.get("start")
                    and e.get("end") and not _STUDENT_ROLE.search(e["title"])
-                   and classify(e["title"], kn)["category"] != "other")
+                   and (classify(e["title"], kn)["category"] != "other" or any(w.search(e["title"]) for w in words)))
     merged: list[list[int]] = []
     for start, end in spans:
         if merged and start <= merged[-1][1]:

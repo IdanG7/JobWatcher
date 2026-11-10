@@ -64,7 +64,8 @@ class BoardDefinitionTests(unittest.TestCase):
         # Tech skills are read from every posting outside finance, as before boards had tracks.
         self.assertEqual({*KN.families, "other"}, KN.tracks["tech"].skills_from)
         self.assertEqual(frozenset(), KN.skill_tracks("finance"))
-        self.assertEqual({*TECH, *PRODUCT_DESIGN, "healthcare"}, KN.occupation_families)
+        self.assertEqual({*TECH, *PRODUCT_DESIGN, "healthcare", "aec"}, KN.occupation_families)
+        self.assertEqual(["aec"], KN.track_boards["aec"])
 
 
 if __name__ == "__main__":

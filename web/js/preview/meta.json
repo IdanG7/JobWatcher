@@ -612,6 +612,50 @@
     "soft"
    ],
    "subcategories": []
+  },
+  {
+   "key": "aec",
+   "label": "Architecture, Engineering & Construction",
+   "track": "aec",
+   "skill_groups": [
+    "aec_design",
+    "aec_analysis",
+    "aec_delivery",
+    "tools",
+    "soft"
+   ],
+   "subcategories": [
+    {
+     "key": "architecture",
+     "label": "Architecture",
+     "note": "Architects, architectural designers and technologists, BIM, interiors and urban design"
+    },
+    {
+     "key": "structural",
+     "label": "Structural",
+     "note": "Buildings, bridges and foundations; structural EITs and technologists"
+    },
+    {
+     "key": "civil",
+     "label": "Civil & Infrastructure",
+     "note": "Civil, geotechnical, transportation, water and municipal engineering"
+    },
+    {
+     "key": "building_systems",
+     "label": "Building Systems (MEP)",
+     "note": "Mechanical, electrical, plumbing and fire protection; HVAC, lighting, controls and commissioning"
+    },
+    {
+     "key": "building_science",
+     "label": "Building Science & Sustainability",
+     "note": "Envelope and facade, energy modelling, sustainability and LEED, acoustics and wind"
+    },
+    {
+     "key": "construction",
+     "label": "Construction & Project Delivery",
+     "note": "Project, field and site engineers, project managers, estimators and superintendents"
+    }
+   ]
   }
  ],
  "finance": {
@@ -651,6 +695,14 @@
    "boards": [
     "product",
     "design"
+   ]
+  },
+  {
+   "key": "aec",
+   "label": "Architecture, Engineering & Construction",
+   "employer_heading": "Architecture, Engineering & Construction employer types",
+   "boards": [
+    "aec"
    ]
   }
  ],
@@ -1087,6 +1139,54 @@
    "group": "Pharmacy & Consumer Health",
    "tracks": [
     "healthcare"
+   ]
+  },
+  {
+   "key": "engineering_consultancy",
+   "label": "Engineering Consultancy",
+   "group": "Engineering Consultancies",
+   "tracks": [
+    "aec"
+   ]
+  },
+  {
+   "key": "architecture_firm",
+   "label": "Architecture Firm",
+   "group": "Architecture Firms",
+   "tracks": [
+    "aec"
+   ]
+  },
+  {
+   "key": "contractor",
+   "label": "Contractor & Builder",
+   "group": "Contractors & Builders",
+   "tracks": [
+    "aec"
+   ]
+  },
+  {
+   "key": "owner_developer",
+   "label": "Owner, Developer & Property Services",
+   "group": "Owners & Developers",
+   "tracks": [
+    "aec"
+   ]
+  },
+  {
+   "key": "building_systems",
+   "label": "Building Systems",
+   "group": "Building Systems",
+   "tracks": [
+    "aec"
+   ]
+  },
+  {
+   "key": "public_infrastructure",
+   "label": "Public Infrastructure Owner",
+   "group": "Public Infrastructure",
+   "tracks": [
+    "aec"
    ]
   },
   {
@@ -2428,6 +2528,206 @@
    "key": "dfm",
    "label": "Design for Manufacturing",
    "group": "industrial_tools"
+  },
+  {
+   "key": "revit",
+   "label": "Revit",
+   "group": "aec_design"
+  },
+  {
+   "key": "autocad",
+   "label": "AutoCAD",
+   "group": "aec_design"
+  },
+  {
+   "key": "civil_3d",
+   "label": "Civil 3D",
+   "group": "aec_design"
+  },
+  {
+   "key": "microstation",
+   "label": "MicroStation",
+   "group": "aec_design"
+  },
+  {
+   "key": "sketchup",
+   "label": "SketchUp",
+   "group": "aec_design"
+  },
+  {
+   "key": "navisworks",
+   "label": "Navisworks",
+   "group": "aec_design"
+  },
+  {
+   "key": "bim_360",
+   "label": "BIM 360 / ACC",
+   "group": "aec_design"
+  },
+  {
+   "key": "enscape_lumion",
+   "label": "Enscape / Lumion",
+   "group": "aec_design"
+  },
+  {
+   "key": "archicad",
+   "label": "ArchiCAD",
+   "group": "aec_design"
+  },
+  {
+   "key": "bim",
+   "label": "BIM",
+   "group": "aec_design"
+  },
+  {
+   "key": "etabs",
+   "label": "ETABS",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "sap2000",
+   "label": "SAP2000",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "safe_csi",
+   "label": "SAFE",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "risa",
+   "label": "RISA",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "ram_structural",
+   "label": "RAM Structural System",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "tekla",
+   "label": "Tekla",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "staad",
+   "label": "STAAD.Pro",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "spcolumn",
+   "label": "spColumn / spSlab",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "hec_ras",
+   "label": "HEC-RAS / HEC-HMS",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "swmm",
+   "label": "SWMM / PCSWMM",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "watercad",
+   "label": "WaterCAD / EPANET",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "synchro",
+   "label": "Synchro / VISSIM",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "geotech_software",
+   "label": "Slide / Plaxis",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "ies_ve",
+   "label": "IES VE",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "equest",
+   "label": "eQUEST",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "energyplus",
+   "label": "EnergyPlus / OpenStudio",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "wufi_therm",
+   "label": "WUFI / THERM",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "trace_hap",
+   "label": "Trane TRACE / HAP",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "lighting_software",
+   "label": "AGi32 / DIALux",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "arcgis",
+   "label": "ArcGIS / QGIS",
+   "group": "aec_analysis"
+  },
+  {
+   "key": "procore",
+   "label": "Procore",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "primavera_p6",
+   "label": "Primavera P6",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "ms_project",
+   "label": "Microsoft Project",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "bluebeam",
+   "label": "Bluebeam",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "takeoff_software",
+   "label": "On-Screen Takeoff / PlanSwift",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "construction_estimating",
+   "label": "Construction Estimating",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "construction_scheduling",
+   "label": "Construction Scheduling",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "contract_admin",
+   "label": "Contract Administration",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "site_inspection",
+   "label": "Site Inspection",
+   "group": "aec_delivery"
+  },
+  {
+   "key": "surveying",
+   "label": "Surveying",
+   "group": "aec_delivery"
   }
  ],
  "skill_groups": {
@@ -2451,7 +2751,10 @@
   "design_tools": "Design Tools & Craft",
   "research_methods": "Research Methods",
   "product_tools": "Product & Analytics",
-  "industrial_tools": "Industrial Design Tools"
+  "industrial_tools": "Industrial Design Tools",
+  "aec_design": "Design & BIM",
+  "aec_analysis": "Engineering Analysis",
+  "aec_delivery": "Construction Delivery"
  },
  "statuses": [
   {

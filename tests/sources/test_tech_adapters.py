@@ -287,8 +287,9 @@ class LayoutTests(unittest.TestCase):
 
 
 class NewAdapterTests(unittest.TestCase):
+    @patch("watcher.time.sleep")
     @patch("watcher.requests.get")
-    def test_jibe_pages_with_descriptions(self, get):
+    def test_jibe_pages_with_descriptions(self, get, sleep):
         def page(*jobs):
             return response({"totalCount": 3, "jobs": [{"data": {
                 "req_id": jid, "title": title, "full_location": loc, "country": country, "country_code": code,
@@ -308,6 +309,7 @@ class NewAdapterTests(unittest.TestCase):
         self.assertEqual(watcher._iso_epoch("2026-10-21T16:44:00+00:00"), jobs[0]["posted"])
         self.assertTrue(jobs.complete)
         self.assertEqual(2, get.call_args_list[1].kwargs["params"]["page"])
+        sleep.assert_called_once_with(5.0)          # between pages, as the sites' Crawl-delay asks; not before the first
         with self.assertRaises(ValueError):
             watcher.fetch_jibe({"host": "evil.example/x"})
 

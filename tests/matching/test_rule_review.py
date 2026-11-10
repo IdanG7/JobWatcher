@@ -391,8 +391,8 @@ class EngineeringDesignerTests(unittest.TestCase):
 
     def test_building_and_ux_titles_stay_off_hardware(self):
         self.assertEqual("design", board(cls("UX Designer, Controls")))
-        # R12: building design is no board's until the AEC board takes it
-        self.assertEqual("other", board(cls("Construction Engineering Design Manager", company_type="semiconductors")))
+        # R12: building design was no board's until the AEC board took it (plans/aec-board.md, Construction)
+        self.assertEqual("aec", board(cls("Construction Engineering Design Manager", company_type="semiconductors")))
         for title in ("Interior Design Architect", "Lab IT Compute Architect / Solution Designer",
                       "Technical Architect – Application Design & AI Engineering"):
             self.assertNotEqual("hardware", board(cls(title)), title)

@@ -45,6 +45,7 @@ class Replayed:
         self.status_code, self.text, self.url = saved["status"], saved["text"], saved["url"]
         self.content = base64.b64decode(saved["body"])
         self.headers = {"content-type": saved["ctype"]}
+        self.cookies = {}                  # Taleo hands the first reply's cookies to its pager calls
 
     def json(self):
         return json.loads(self.content)

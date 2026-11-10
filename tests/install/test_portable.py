@@ -207,7 +207,7 @@ class PortableTests(unittest.TestCase):
         self.assertEqual(bundled["sources_version"], config["sources_version"])
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual({"tech", "shared", "health", "product_design"}, {folder(name) for name in added})
+        self.assertEqual({"tech", "shared", "health", "product_design", "aec"}, {folder(name) for name in added})
         self.assertTrue({"okta", "micron", "mistral", "td_tech"} <= added)  # okta, micron: 0.3.0 names again
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 257, "job_intel": 257, "job_fts": 257, "applications": 1}, postings)
@@ -252,7 +252,7 @@ class PortableTests(unittest.TestCase):
         added = set(packs.source_pack) - set(old)
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"health", "product_design"})
+        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"health", "product_design", "aec"})
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 796, "job_intel": 796, "job_fts": 796, "applications": 1}, postings)
         self.assertEqual(set(bundled["boards"]), set(packs.source_pack))
@@ -293,7 +293,7 @@ class PortableTests(unittest.TestCase):
         added = set(packs.source_pack) - set(old)
         self.assertEqual(mine, {name: board for name, board in config["boards"].items() if name in mine})
         self.assertEqual(added, set(config["boards"]) - set(mine))         # 0 removed
-        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"product_design"})
+        self.assertEqual(set(), {packs.packs[packs.source_pack[name]].folder for name in added} - {"product_design", "aec"})
         self.assertEqual(profile, config["profile"])
         self.assertEqual({"jobs": 1015, "job_intel": 1015, "job_fts": 1015, "applications": 1}, postings)
         self.assertEqual(set(bundled["boards"]), set(packs.source_pack))

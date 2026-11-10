@@ -16,7 +16,8 @@ rules.
 The source configuration includes a sample 2027 finance profile for Canadian
 and U.S. recruiting; personalize it in Settings. Windows releases start with
 a clean profile. The product also indexes software, quant, AI/data, hardware, product,
-design, finance, sales, operations, people/legal, and uncategorized roles are
+design, finance, sales, operations, people/legal, healthcare, architecture/engineering/construction,
+and uncategorized roles are
 all searchable.
 
 ## Start using it
@@ -293,7 +294,7 @@ or alert behavior:
 | Kind | Coverage |
 |---|---|
 | Greenhouse, Lever, Ashby, SmartRecruiters | Direct company boards, including a large startup/AI/fintech set. Ashby includes compensation where published. |
-| Workday, Phenom, Eightfold, Oracle, iCIMS, Jibe, Radancy, Avature, SuccessFactors, Workable, UKG, Gem, Jobvite | Banks, NVIDIA, Salesforce, Adobe, Capital One, Intel, PayPal, Mastercard, Disney, Netflix, Qualcomm, AMD, Microsoft, and others. |
+| Workday, Phenom, Eightfold, Oracle, iCIMS, Jibe, Radancy, Avature, SuccessFactors, Workable, UKG, Gem, Jobvite, Dayforce, Cornerstone, Taleo, SelectMinds, Connect | Banks, NVIDIA, Salesforce, Adobe, Capital One, Intel, PayPal, Mastercard, Disney, Netflix, Qualcomm, AMD, Microsoft, Stantec, WSP, AtkinsRéalis, Turner, and others. Jibe pages are read 5 seconds apart, the crawl delay its sites ask for. |
 | Bespoke adapters | Amazon, Apple, Google, Uber, Verizon, ADP, Atlassian, Microsoft, and Jane Street. |
 | LinkedIn guest search | Fresh U.S. and Canadian searches without a login, with repost filtering. |
 | GitHub listing repos | Simplify, New Grad, internship, off-season, Canada, and salary-aware lists covering bespoke ATSs and long-tail companies. |

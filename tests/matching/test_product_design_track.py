@@ -31,7 +31,8 @@ class TrackTests(unittest.TestCase):
         self.assertEqual(("Product & Design", "Product & Design employer types", "recognized product and design employer"),
                          (track.label, track.employer_heading, track.employer_noun))
         self.assertEqual(["product", "design"], KN.track_boards["product_design"])
-        self.assertEqual({"product", "design"}, track.skills_from)
+        # AEC postings read P&D skills too (Rhino, SketchUp, Adobe), as AEC resumes do (plans/aec-board.md 9).
+        self.assertEqual({"product", "design", "aec"}, track.skills_from)
         self.assertTrue(track.resume)
         for board in ("product", "design"):
             self.assertEqual("product_design", KN.board_track[board])

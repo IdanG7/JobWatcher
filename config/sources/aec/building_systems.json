@@ -1,0 +1,11 @@
+{
+  "title": "Building-systems makers",
+  "verified": "2026-11-10",
+  "note": "AEC board, Building Systems filter only (D5): HVAC, controls and fire makers whose engineering and project roles include building work; 13% of their postings are AEC, the rest product engineering. Read whole on 2026-11-10. Not added: Otis (1 AEC posting of 25).",
+  "boards": {
+    "carrier": {"ats": "workday", "host": "carrier.wd5.myworkdayjobs.com", "tenant": "carrier", "site": "jobs", "facets": {"job_Family_Group": ["1342a1bbcd9a01f2f62a3c6efe3768d0"]}, "min_interval": 1800, "company_key": "carrier_global", "priority": 2, "geography": "global", "label": "Carrier engineering roles", "group": "Building Systems"},
+    "daikin_applied": {"ats": "workday", "host": "daikinapplied.wd1.myworkdayjobs.com", "tenant": "daikinapplied", "site": "Daikin-Careers", "min_interval": 1800, "company_key": "daikin_applied", "priority": 2, "geography": "us", "group": "Building Systems"},
+    "johnson_controls": {"ats": "workday", "host": "jci.wd5.myworkdayjobs.com", "tenant": "jci", "site": "JCI", "facets": {"jobFamilyGroup": ["e6c5fb966d2f103b0676ec44ac856a22", "e6c5fb966d2f103b067703d125956a36"]}, "min_interval": 1800, "company_key": "johnson_controls", "priority": 2, "geography": "global", "label": "Johnson Controls engineering and program management roles", "group": "Building Systems"},
+    "trane_technologies": {"ats": "workday", "host": "tranetechnologies.wd12.myworkdayjobs.com", "tenant": "tranetechnologies", "site": "Trane_Technologies_Careers", "facets": {"jobFamilyGroup": ["a98484671676100098b22ef125300000", "a98484671676100098b23c27a1b50000"]}, "min_interval": 1800, "company_key": "trane_technologies", "priority": 2, "geography": "global", "label": "Trane engineering and project management roles", "group": "Building Systems"}
+  }
+}
