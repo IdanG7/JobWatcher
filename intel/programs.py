@@ -17,10 +17,11 @@ def program_windows(profile: dict, kn: Knowledge, start: str, end: str) -> list[
     """Calendar items for the windows from start to end (ISO days) that the profile's boards call for.
 
     A window with filters or licences shows when the profile chose one of its filters or holds or expects one of
-    its licences; a profile that chose no filter on the board and has none of the board's licences sees them all."""
+    its licences; a profile that chose no filter on the board and has none of the board's licences sees them all.
+    A window that two of the profile's boards list (Product's and Design's co-op terms) shows once."""
     lo, hi = date.fromisoformat(start), date.fromisoformat(end)
     licences = set(profile.get("licences") or [])
-    items = []
+    items, shown = [], set()
     for board in profile_fields(profile, kn):
         windows = kn.program_windows.get(board, [])
         filters = chosen_filters(profile, board, kn)
@@ -28,9 +29,10 @@ def program_windows(profile: dict, kn: Knowledge, start: str, end: str) -> list[
         for w in windows:
             w_filters = set(w.get("filters", []))
             w_licences = set(w.get("licences", []))
-            if (w_filters or w_licences) and (filters or licences & named) and not (
-                    filters & w_filters or licences & w_licences):
+            if w["key"] in shown or ((w_filters or w_licences) and (filters or licences & named) and not (
+                    filters & w_filters or licences & w_licences)):
                 continue
+            shown.add(w["key"])
             if w.get("after_graduation"):
                 year, month = profile.get("graduation_year"), profile.get("graduation_month")
                 days = [date(year, month, 1)] if year and month else []
