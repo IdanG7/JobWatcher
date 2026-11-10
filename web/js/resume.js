@@ -111,7 +111,7 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
         if (!root.isConnected) return;
         $('[data-resume-result]').innerHTML = `<h3>Review extracted facts</h3>${resumeFacts(preview.parsed)}
           <h3>Proposed profile changes</h3>${resumeChanges(preview.changes, meta)}
-          <p class="fine">Applying replaces your skill list with the skills found here, updates education and recruiting cycles, and sets your target roles from your experience, adding any field they belong to. Other roles in your fields stay visible; your targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
+          <p class="fine">Applying replaces your skill list with the skills found here, and your employer types, career stages and languages with any this resume shows. It updates education and recruiting cycles, adds the licences it names, and sets your target roles from your experience, adding any field they belong to. Other roles in your fields stay visible; your targets and experience rank higher. Geography and work authorization preferences stay under your control. You can correct any field below after applying.</p>
           <div class="form-actions"><button type="button" class="btn primary" data-resume-apply>Apply &amp; enable matching</button><button type="button" class="btn ghost" data-resume-cancel>Cancel</button></div>`;
         $('[data-resume-result]').hidden = false;
         message('Preview ready. Check these facts before applying.');
