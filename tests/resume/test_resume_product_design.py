@@ -1,6 +1,6 @@
 """Product and Design resumes open their own track (plans/product-design-board.md 9.4, D24): a design or HCI degree or a
 P&D job title opens it, its signals read the work, and a UX resume no longer adds the Software board. The reader every
-board shares reads their degrees (9.2, D37). People, schools and employers are invented."""
+board shares reads their degrees and programs (9.2, D37). People, schools and employers are invented."""
 import unittest
 
 from intel import load_knowledge, merge_profile
@@ -103,6 +103,10 @@ def level(degree, school="Northfield University Toronto, ON"):
     return parse_resume(DEGREE.format(degree=degree, school=school), KN)["education"]["level"]
 
 
+def program(degree):
+    return parse_resume(DEGREE.format(degree=degree, school="Northfield University Toronto, ON"), KN)["education"]["program"]
+
+
 class DegreeLevelTests(unittest.TestCase):
     def test_design_and_hci_abbreviations_set_the_level(self):
         # 9.2, D37: these set no level on main, so a design graduate's profile kept whatever level it had.
@@ -149,6 +153,36 @@ class DegreeLevelTests(unittest.TestCase):
         text = ("JORDAN AVERY\njordan.avery@example.com\nIT Analyst, Lakeview Analytics, 2019 – Present\n"
                 "• Rolled out MFA, SSO and VPN for 2,000 users.\n• MS, Teams and Zoom support for 40 offices.\n")
         self.assertIsNone(parse_resume(text, KN)["education"]["level"])
+
+
+class ProgramTests(unittest.TestCase):
+    def test_in_and_hyphens_inside_a_program_name_are_part_of_it(self):
+        # 9.2, D37: the "In" of "Interaction" was read as the word "in", and a hyphen ended the name.
+        for degree, expected in (("Honours Bachelor of Interaction Design", "Interaction Design"),
+                                 ("Bachelor of Industrial Design", "Industrial Design"),
+                                 ("Master of Human-Computer Interaction (MHCI)", "Human-Computer Interaction"),
+                                 ("M.S. in Human-Computer Interaction", "Human-Computer Interaction"),
+                                 ("BSc in Human-Computer Interaction", "Human-Computer Interaction"),
+                                 ("MS, Human-Centered Design & Engineering", "Human-Centered Design & Engineering"),
+                                 ("Majoring in Human-Computer Interaction", "Human-Computer Interaction"),
+                                 # other boards' degrees had the same two bugs
+                                 ("Bachelor of Information Technology", "Information Technology"),
+                                 ("Master of International Affairs", "International Affairs"),
+                                 ("Bachelor of Arts, Socio-Cultural Studies", "Socio-Cultural Studies")):
+            with self.subTest(degree=degree):
+                self.assertEqual(expected, program(degree))
+
+    def test_a_co_op_or_a_school_after_a_spaced_hyphen_is_no_program(self):
+        for degree, expected in (("Bachelor of Business Administration - Co-op", "Business Administration"),
+                                 ("Bachelor of Science - Computer Science - Co-op", "Computer Science"),
+                                 ("Bachelor of Science in Nursing - Lakeshore University 2012", "Nursing"),
+                                 ("Bachelor of Computer Science (Co-op)", "Computer Science"),
+                                 ("Bachelor of Arts - Co-operative Education", "Arts"),
+                                 ("B.Com - Co-op", "Commerce"),
+                                 ("BSc, Co-op", None),
+                                 ("B.A. - Co-operative Education", None)):
+            with self.subTest(degree=degree):
+                self.assertEqual(expected, program(degree))
 
 
 class TrackGateTests(unittest.TestCase):

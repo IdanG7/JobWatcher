@@ -362,10 +362,17 @@ _DEGREE_ABBR = {
     "undergraduate": re.compile(rf"\b(?:B\.?\s?Des|B\.?F\.?A)\b{_ABBR_END}", re.M),
 }
 _EDUCATION_DEGREES = [(key, p) for key, pattern in _DEGREES for p in (pattern, _DEGREE_ABBR.get(key)) if p]
+# A program's name keeps a hyphen inside a word ("Human-Computer Interaction"), "in" before it is a whole word (not
+# the "In" of "Interaction"), and a word starting "Co-op" ("Co-operative Education") or "Coop" after a degree is
+# no program.
+_IN_WORD = r"(?<=[A-Za-z])-(?=[A-Za-z])"
+_NO_COOP = r"(?!co-op|coop\b)"
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
-    r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in|–|-)?\s*([A-Z][A-Za-z&,' ]{2,60})", re.I)
-_PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*([A-Za-z&' ]{3,50})", re.I)
+    r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in\b|–|-)?\s*"
+    rf"{_NO_COOP}([A-Z](?:[A-Za-z&,' ]|{_IN_WORD}){{2,60}})", re.I)
+_PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*"
+                         rf"((?:[A-Za-z&' ]|{_IN_WORD}){{3,50}})", re.I)
 _GPA = re.compile(r"\b(?:c?gpa|grade point average)\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,2})?)\s*(?:/\s*(\d{1,2}(?:\.\d{1,2})?))?", re.I)
 _MONTHS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 _MONTH = r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
@@ -378,7 +385,7 @@ _CREDENTIAL = re.compile(r"\b(?:certif\w*|licen[cs]\w*|exams?|designation|level 
                          r"cissp|istqb)\b", re.I)
 # "B.Sc., Social Sciences", "MS in Statistics": the program after an abbreviated degree.
 _PROGRAM_ABBR = re.compile(r"\b[bm]\.?\s?(?:sc|a|eng|com|math|ed|s|fa)\.?(?![a-z])\s*(?:\((?:hons?\.?|honou?rs)\))?"
-                           r"\s*(?:,|\bin\b|–|—|-|:)\s*(?:in\s+)?([A-Z][A-Za-z&' ]{2,60})", re.I)
+                           rf"\s*(?:,|\bin\b|–|—|-|:)\s*(?:in\s+)?{_NO_COOP}([A-Z](?:[A-Za-z&' ]|{_IN_WORD}){{2,60}})", re.I)
 _RANGE = insights._RANGE
 _LANG_LINE = re.compile(r"\blanguages?\s*:\s*([^\n]{3,120})", re.I)
 _KNOWN_LANGS = ["English", "French", "Mandarin", "Cantonese", "Spanish", "Portuguese", "German", "Italian",
