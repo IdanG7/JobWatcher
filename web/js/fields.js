@@ -47,6 +47,9 @@ export function profileFields(profile = {}, financeKeys = []) {
   return out.length ? out : ['finance'];
 }
 
+/** The profile's boards in a sentence ("Software and Hardware"), from their names; "your boards" without any. */
+export const boardText = (names = []) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || 'your boards');
+
 /** Job families split into specialties (Software → Frontend, Backend…), in the order fields are shown. */
 export function specialtyFamilies(meta) {
   return (meta.families || []).filter(f => f.subcategories?.length).sort((a, b) => fieldRank(a.key) - fieldRank(b.key));

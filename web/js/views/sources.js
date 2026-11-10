@@ -3,10 +3,8 @@
 import {get, post} from '../api.js';
 import {age, esc, toEpochMs} from '../lib.js';
 import {hBars} from '../charts.js';
+import {boardText} from '../fields.js';
 import {bindTooltips, emptyState, errorState, icon, prettyKey, skeletonRows, toast} from '../ui.js';
-
-// "Software and Hardware": the profile's boards in a sentence.
-const boardText = (names = []) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || 'your boards');
 
 function health(s, progress) {
   if (s.disabled) return {cls: 'st-archived', label: 'Disabled'};

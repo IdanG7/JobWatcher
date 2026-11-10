@@ -63,6 +63,10 @@ _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 RESUME_VERDICT = """CASE WHEN i.facts_version=? THEN (SELECT rm.matched FROM resume_matches rm
     JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
     AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version) END"""
+# Open roles by filter in Analytics: a board's by its filters (Software's Backend, Product's Growth), Finance's by
+# area as before (Investment Banking, not its groups).
+FILTER_KEY = ("CASE WHEN i.is_finance=1 OR COALESCE(i.subcategory,'')='' THEN i.category "
+              "ELSE i.category || '.' || i.subcategory END")
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 STATIC_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
                 ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon",
@@ -205,6 +209,13 @@ def _keep_recent(pages: dict, key, value, limit: int) -> None:
     pages[key] = value
     while len(pages) > limit:
         del pages[next(iter(pages))]
+
+
+def board_clause(fields: list[str]) -> tuple[str, list]:
+    """The condition on ``i`` for postings in these boards ('finance' = any finance category) and its arguments:
+    the profile's boards, as Calendar and Sources count them, for New today, Analytics and Companies too."""
+    return (" OR ".join("i.is_finance=1" if f == "finance" else "i.family=?" for f in fields),
+            [f for f in fields if f != "finance"])
 
 
 def _today() -> date:
@@ -941,8 +952,11 @@ class JobwatchService:
             base = (f"{FROM_CLAUSE} WHERE i.is_canonical=1 AND COALESCE(s.status,'active')!='closed' "
                     "AND COALESCE(i.window_status,'')!='closed' AND j.title!=''")
             stat = lambda sql, *a: con.execute(sql, a).fetchone()[0]  # noqa: E731
+            fields = profile_fields(profile, self.kn)
+            yours, yours_args = board_clause(fields)
             stats = {
-                "new_today": stat(f"SELECT COUNT(*) {base} AND i.is_finance=1 AND i.posted_ref >= ?", now - 86400),
+                "new_today": stat(f"SELECT COUNT(*) {base} AND ({yours}) AND i.posted_ref >= ?", *yours_args,
+                                  now - 86400),
                 "high_fit": stat(f"SELECT COUNT(*) {base} AND i.fit >= ?", high),
                 "closing_soon": stat(f"SELECT COUNT(*) {base} AND i.eff_deadline BETWEEN ? AND ? AND (i.fit >= ? OR a.status IS NOT NULL)",
                                      today.isoformat(), (today + timedelta(days=7)).isoformat(), digest),
@@ -975,6 +989,7 @@ class JobwatchService:
         enabled = len(polled_sources(self.config, profile, self.kn))      # the sources this profile's boards poll
         return {
             "profile": {k: profile.get(k) for k in ("name", "headline", "graduation_year", "target_cycles", "alerts")},
+            "boards": self.board_labels(fields),
             "stats": stats,
             "top": top,
             "attention": attention,
@@ -1059,8 +1074,14 @@ class JobwatchService:
             if p.get("type"):
                 where.append("i.company_type=?")
                 args.append(p["type"])
+            fields = profile_fields(self.profile(con), self.kn)
             if p.get("finance", "1") == "1":
-                where.append("(i.is_finance=1 OR i.company_type NOT IN ('unknown','corporate'))")
+                # The roles in your boards; a profile with Finance also keeps every role at a known employer.
+                yours, yours_args = board_clause(fields)
+                if "finance" in fields:
+                    yours += " OR i.company_type NOT IN ('unknown','corporate')"
+                where.append(f"({yours})")
+                args += yours_args
             if p.get("q"):
                 where.append("LOWER(i.company_name) LIKE ?")
                 args.append(f"%{p['q'].lower()}%")
@@ -1539,39 +1560,42 @@ class JobwatchService:
         since_epoch = now - window * 86400
         since_iso = datetime.fromtimestamp(since_epoch, timezone.utc).isoformat(timespec="seconds")
         with self.db() as con:
+            # The market in the profile's boards (Finance's, for a profile with none).
+            fields = profile_fields(self.profile(con), self.kn)
+            yours, yours_args = board_clause(fields)
             discovered = """FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
                             JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
                             WHERE s.discovered=1 AND +i.is_canonical=1 AND j.first_seen > ?"""
             # Flow uses posted_ref: the source's posting date, or the discovery
             # time when a source gives none.  That keeps the market picture
             # meaningful even right after boards were seeded silently.
-            posted = """FROM job_intel i WHERE i.is_canonical=1 AND i.is_finance=1 AND i.posted_ref >= ?"""
-            flow = {w: con.execute(f"SELECT COUNT(*) {posted}", (now - w * 86400,)).fetchone()[0]
+            posted = f"""FROM job_intel i WHERE i.is_canonical=1 AND ({yours}) AND i.posted_ref >= ?"""
+            flow = {w: con.execute(f"SELECT COUNT(*) {posted}", (*yours_args, now - w * 86400)).fetchone()[0]
                     for w in (7, 30, 90)}
             daily = [{"day": r[0], "count": r[1], "high_fit": r[2]} for r in con.execute(
                 f"""SELECT date(i.posted_ref, 'unixepoch') d, COUNT(*), SUM(i.fit >= 75) {posted}
-                    AND i.posted_ref <= ? GROUP BY d ORDER BY d""", (since_epoch, now + 3600))]
-            # The inventory view (all active finance roles) is always available,
+                    AND i.posted_ref <= ? GROUP BY d ORDER BY d""", (*yours_args, since_epoch, now + 3600))]
+            # The inventory view (all active roles in your boards) is always available,
             # even before any posting has been discovered live.
-            inventory = """FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
+            inventory = f"""FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
                            LEFT JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
-                           WHERE i.is_canonical=1 AND COALESCE(s.status,'active')!='closed' AND i.is_finance=1"""
-            by_category = [{"key": r[0], "label": self.kn.category_label(r[0]), "count": r[1], "high_fit": r[2],
+                           WHERE i.is_canonical=1 AND COALESCE(s.status,'active')!='closed' AND ({yours})"""
+            by_category = [{"key": r[0], "label": self.filter_label(r[0]), "count": r[1], "high_fit": r[2],
                             "new": r[3]} for r in con.execute(
-                f"""SELECT i.category, COUNT(*), SUM(i.fit >= 75), SUM(i.posted_ref >= ?)
-                    {inventory} GROUP BY i.category ORDER BY COUNT(*) DESC""", (since_epoch,))]
+                f"""SELECT {FILTER_KEY}, COUNT(*), SUM(i.fit >= 75), SUM(i.posted_ref >= ?)
+                    {inventory} GROUP BY 1 ORDER BY COUNT(*) DESC""", (since_epoch, *yours_args))]
             by_city = [{"key": r[0], "label": (self.kn.city_by_key.get(r[0]) or {}).get("label", r[0]),
                         "count": r[1], "high_fit": r[2]} for r in con.execute(
                 f"""SELECT i.city, COUNT(*), SUM(i.fit >= 75) {inventory} AND i.city IS NOT NULL
-                    GROUP BY i.city ORDER BY COUNT(*) DESC LIMIT 12""")]
+                    GROUP BY i.city ORDER BY COUNT(*) DESC LIMIT 12""", yours_args)]
             companies = [{"key": r[0], "name": r[1], "count": r[2], "type_label": self.kn.type_label(r[3])}
                          for r in con.execute(
                 f"""SELECT i.company_key, MAX(i.company_name), COUNT(*), MAX(i.company_type) {posted}
-                    GROUP BY i.company_key ORDER BY COUNT(*) DESC LIMIT 12""", (since_epoch,))]
+                    GROUP BY i.company_key ORDER BY COUNT(*) DESC LIMIT 12""", (*yours_args, since_epoch))]
             heat = [[0] * 24 for _ in range(7)]
             for wd, hr, n in con.execute(
                     f"""SELECT CAST(strftime('%w', j.first_seen) AS INT), CAST(strftime('%H', j.first_seen) AS INT),
-                               COUNT(*) {discovered} AND i.is_finance=1 GROUP BY 1, 2""", (since_iso,)):
+                               COUNT(*) {discovered} AND ({yours}) GROUP BY 1, 2""", (since_iso, *yours_args)):
                 if wd is not None and hr is not None:
                     heat[wd][hr] = n
             # Source performance: volume, quality, earliest discovery within clusters.
@@ -1580,17 +1604,17 @@ class JobwatchService:
             # cluster of two or more; first = found at the cluster's earliest first sighting. Sources come in
             # the order a scan of jobs first meets them, as the row-by-row loop did, so ties sort the same.
             per_board = {}
-            for board, jobs, fin, high, fit_sum, shared, first in con.execute(
-                    """WITH firsts AS (SELECT i.cluster_key, MIN(j.first_seen) first_seen FROM job_intel i
+            for board, jobs, mine, high, fit_sum, shared, first in con.execute(
+                    f"""WITH firsts AS (SELECT i.cluster_key, MIN(j.first_seen) first_seen FROM job_intel i
                                        JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id GROUP BY i.cluster_key
                                        HAVING COUNT(*) > 1)
-                       SELECT i.board, COUNT(*), SUM(COALESCE(i.is_finance, 0)), SUM(COALESCE(i.fit, 0) >= 75),
+                       SELECT i.board, COUNT(*), SUM(COALESCE(({yours}), 0)), SUM(COALESCE(i.fit, 0) >= 75),
                               SUM(COALESCE(i.fit, 0)), SUM(COALESCE(f.hit, 0)),
                               SUM(COALESCE(f.hit, 0) AND j.first_seen IS f.first_seen)
                        FROM jobs j JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
                        LEFT JOIN (SELECT *, 1 hit FROM firsts) f ON f.cluster_key IS i.cluster_key
-                       WHERE j.title != '' GROUP BY i.board ORDER BY MIN(j.rowid)"""):
-                per_board[board] = {"jobs": jobs, "finance": fin, "high_fit": high, "fit_sum": fit_sum,
+                       WHERE j.title != '' GROUP BY i.board ORDER BY MIN(j.rowid)""", yours_args):
+                per_board[board] = {"jobs": jobs, "yours": mine, "high_fit": high, "fit_sum": fit_sum,
                                     "shared": shared, "first": first or 0}
             apps_by_board = dict(con.execute(
                 "SELECT board, COUNT(*) FROM applications WHERE status NOT IN ('discovered','saved') GROUP BY board").fetchall())
@@ -1598,12 +1622,12 @@ class JobwatchService:
                 "SELECT board, COUNT(*) FROM applications WHERE status IN ('offer') GROUP BY board").fetchall())
             for board, b in per_board.items():
                 sources.append({"board": board, "label": self.source_label(board), "kind": self.source_kind(board),
-                                "jobs": b["jobs"], "finance": b["finance"], "high_fit": b["high_fit"],
+                                "jobs": b["jobs"], "yours": b["yours"], "high_fit": b["high_fit"],
                                 "avg_fit": round(b["fit_sum"] / b["jobs"], 1) if b["jobs"] else 0,
                                 "first_share": round(b["first"] / b["shared"], 2) if b["shared"] else None,
                                 "shared": b["shared"], "applications": apps_by_board.get(board, 0),
                                 "offers": offers_by_board.get(board, 0)})
-            sources.sort(key=lambda s: (-s["high_fit"], -s["finance"]))
+            sources.sort(key=lambda s: (-s["high_fit"], -s["yours"]))
             # Funnel: furthest stage each application has ever reached.
             reached = {}
             for key, status in con.execute("SELECT job_key, status FROM applications"):
@@ -1628,8 +1652,19 @@ class JobwatchService:
                 funnel.append({"stage": stage, "label": label, "count": n,
                                "conversion": round(n / prev, 2) if prev else None})
                 prev = n or None
-        return {"window": window, "flow": flow, "daily": daily, "by_category": by_category, "by_city": by_city,
-                "companies": companies, "heatmap": heat, "sources": sources[:40], "funnel": funnel}
+        return {"window": window, "boards": self.board_labels(fields), "flow": flow, "daily": daily,
+                "by_category": by_category, "by_city": by_city, "companies": companies, "heatmap": heat,
+                "sources": sources[:40], "funnel": funnel}
+
+    def board_labels(self, fields: list[str]) -> list[str]:
+        """The boards' names, as Settings shows them: ['Product', 'Design']."""
+        labels = {"finance": "Finance", **{f["key"]: f["label"] for f in self.kn.family_tree()}}
+        return [labels.get(f, f) for f in fields]
+
+    def filter_label(self, key: str | None) -> str:
+        """FILTER_KEY's label: a filter's ('Growth') or an area's ('Investment Banking')."""
+        category, _, sub = (key or "").partition(".")
+        return self.kn.subcategory_label(category, sub) if sub else self.kn.category_label(category)
 
     # ------------------------------------------------------------ sources
     def sources(self) -> dict:

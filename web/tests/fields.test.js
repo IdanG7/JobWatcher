@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {countryList, employerSections, fieldList, licencesFor, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
+import {boardText, countryList, employerSections, fieldList, licencesFor, profileFields, roleField, skillGroupsFor, specialtyFamilies, suggestCycles} from '../js/fields.js';
 import {META} from './board-meta.js';
 
 const FINANCE = ['investment_banking', 'private_markets', 'public_markets'];
@@ -12,6 +12,15 @@ test('profile fields come from the saved list plus any implied by target roles',
   assert.deepEqual(profileFields({fields: ['data_ml'], target_roles: ['investment_banking', 'software']}, FINANCE),
     ['data_ml', 'finance', 'software']);
   assert.deepEqual(profileFields({target_roles: ['software.backend', 'data_ml.research', 'software.mobile']}, FINANCE), ['software', 'data_ml']);
+});
+
+test('the boards read as a sentence, Finance alone as before', () => {
+  assert.equal(boardText(['Finance']), 'Finance');
+  assert.equal(boardText(['Product']), 'Product');
+  assert.equal(boardText(['Product', 'Design']), 'Product and Design');
+  assert.equal(boardText(['Software', 'Product', 'Design']), 'Software, Product and Design');
+  assert.equal(boardText([]), 'your boards');
+  assert.equal(boardText(), 'your boards');
 });
 
 test('a target role belongs to finance or to its job family, specialties included', () => {
