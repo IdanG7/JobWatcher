@@ -2095,6 +2095,9 @@ def fetch_taleo(cfg):
     count = re.search(r'name="listRequisition\.nbElements"[^>]*\bvalue="(\d+)"', r.text) or \
         re.search(r"\((\d+) jobs? found\)", r.text)
     if not (form and labels and "contestnumber" in labels and "title" in labels and count):
+        portal = _taleo_portal(r.text)
+        if portal:          # the newer faceted search page (HDR): read through the JSON call it makes
+            return _fetch_taleo_faceted(base, portal, cfg, limit, headers, r.cookies)
         raise RuntimeError(f"Taleo search page is not a classic requisition list (landed on {r.url})")
     fields = []
     for tag in re.findall(r"<input\b[^>]*>", form.group(1), re.I):
@@ -2139,6 +2142,133 @@ def fetch_taleo(cfg):
         page_no += 1
     else:
         _consume_page(out, [], seen, "Taleo", limit)   # ran out of pages short of the total: say so
+    return _finish_listing(out, "Taleo", limit)
+
+
+TALEO_FACETED_GAP = 3     # postings a faceted section's total counts that its pager never lists
+
+
+def _taleo_portal(text):
+    """The portal id of a faceted-search career section: the page's own FacetedSearchSettings query
+    string ('lang=en&amp;portal=101430233'). '' when the page is not that kind."""
+    if "FacetedSearchSettings" not in text:
+        return ""
+    m = re.search(r"queryString:\s*'[^']*?\bportal=(\d+)", text)
+    return m.group(1) if m else ""
+
+
+def _taleo_place(value):
+    """The faceted list's location cell, '["Canada-Ontario-Toronto"]' (country-state-city), as
+    'Toronto, Ontario, Canada'. '' for 'Multiple Locations', which names no place."""
+    try:
+        places = json.loads(value)
+    except (TypeError, ValueError):
+        places = [value]
+    out = []
+    for place in places if isinstance(places, list) else [places]:
+        place = str(place or "").strip()
+        if place and place != "Multiple Locations":
+            out.append(", ".join(reversed([p.strip() for p in place.split("-", 2)])))
+    return "; ".join(dict.fromkeys(out))
+
+
+def _taleo_faceted_query(page_no, country=None):
+    """The search the faceted page posts: Posting Date, newest first, optionally narrowed to one
+    country of its Location facet."""
+    def selections(ids):
+        return [{"id": name, "selectedValues": [country] if (name == "LOCATION" and country) else []} for name in ids]
+    return {"multilineEnabled": False,
+            "sortingSelection": {"sortBySelectionParam": "3", "ascendingSortingOrder": "false"},
+            "fieldData": {"fields": {"KEYWORD": "", "LOCATION": ""}, "valid": True},
+            "filterSelectionParam": {"searchFilterSelections": selections(
+                ["POSTING_DATE", "LOCATION", "JOB_FIELD", "JOB_TYPE", "JOB_SCHEDULE", "JOB_LEVEL"])},
+            "advancedSearchFiltersSelectionParam": {"searchFilterSelections": selections(
+                ["ORGANIZATION", "LOCATION", "JOB_FIELD", "JOB_NUMBER", "URGENT_JOB", "EMPLOYEE_STATUS",
+                 "STUDY_LEVEL", "WILL_TRAVEL", "JOB_SHIFT"])},
+            "pageNo": page_no}
+
+
+def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
+    """A Taleo career section on the newer faceted search (HDR's 'ex'): the page posts a JSON search to
+    /careersection/rest/jobboard/searchjobs (25 rows a page; the page size is not adjustable) and
+    reads title, locations and date from each row. Postings are read newest first. Rows with several
+    locations say only 'Multiple Locations', so the places come from the page's Location facet: each
+    country but the largest is searched once, and a multi-location posting is placed in the countries
+    that list it (in the largest when none does). Past the end the pager repeats its last page, and the
+    total counts a few postings the pager never lists, so a clean end up to TALEO_FACETED_GAP (+0.2%) short of it is the whole list."""
+    url = f"{base.rsplit('/', 1)[0]}/rest/jobboard/searchjobs"
+    api_headers = {**headers, "Content-Type": "application/json", "Accept": "application/json",
+                   "X-Requested-With": "XMLHttpRequest", "tz": "GMT-05:00", "tzname": "America/Toronto",
+                   "Referer": f"{base}/jobsearch.ftl?lang=en"}
+
+    def search(page_no, country=None):
+        time.sleep(TALEO_PAUSE)
+        resp = requests.post(url, params={"lang": "en", "portal": portal}, json=_taleo_faceted_query(page_no, country),
+                             headers=api_headers, cookies=cookies, timeout=TIMEOUT)
+        resp.raise_for_status()
+        data = resp.json()
+        paging = data.get("pagingData") if isinstance(data, dict) else None
+        if not (isinstance(paging, dict) and isinstance(paging.get("totalCount"), int)
+                and isinstance(data.get("requisitionList"), list)):
+            raise RuntimeError("Taleo faceted search response is not a result list")
+        if paging.get("currentPageNo") != page_no:
+            raise RuntimeError("Taleo faceted search answered another page")
+        return data
+
+    def posting(row):
+        cells = row.get("column") if isinstance(row, dict) else None
+        if not (isinstance(cells, list) and len(cells) == 3 and str(row.get("contestNo") or "").strip()):
+            raise RuntimeError("Taleo faceted search returned a row it cannot read")
+        number = str(row["contestNo"]).strip()
+        return {"id": number, "title": str(cells[0] or "").strip(), "location": _taleo_place(cells[1]) or ("Multiple Locations" if "Multiple Locations" in str(cells[1]) else ""),
+                "url": f"{base}/jobdetail.ftl?job={number}&lang=en", "posted": _taleo_date_epoch(cells[2]),
+                "department": ""}
+
+    def read(country=None, cap=None):
+        out = SourceListing()
+        seen, page_no, size, facets = set(), 1, 0, []
+        while True:
+            data = search(page_no, country)
+            if page_no == 1:
+                out.total, size, facets = data["pagingData"]["totalCount"], len(data["requisitionList"]), data.get("facetResults") or []
+            page = [posting(row) for row in data["requisitionList"]]
+            fresh = [j for j in page if j["id"] not in seen]      # a posting added at the top shifts the rest down a row
+            if page and fresh and _consume_page(out, fresh, seen, "Taleo", cap or limit):
+                return out, facets
+            if not fresh:
+                # Past the end the pager answers an empty page or the last page again. The total counts a few
+                # postings the pager never lists (3 on HDR's, the same ones in either sort order), so a
+                # clean end a few short of it is the whole list; further short is a partial read.
+                gap = out.total - len(out)
+                if 0 < gap <= TALEO_FACETED_GAP + out.total // 500:
+                    out.complete = True
+                else:
+                    _consume_page(out, [], seen, "Taleo", cap or limit)
+                return out, facets
+            page_no += 1
+            if page_no > -(-out.total // max(size, 1)) + 2:      # never past the pages the total allows (plus the padding)
+                out.reason = f"Taleo pagination did not end by page {page_no - 1} of reported total {out.total}"
+                return out, facets
+
+    out, facets = read()
+    if out.complete and any(j["location"] == "Multiple Locations" for j in out):
+        countries = next((f.get("facetValueResults") or [] for f in facets if f.get("id") == "LOCATION"), [])
+        countries = [c for c in countries if c.get("level") == 1 and c.get("id") and c.get("text")]
+        if not countries:
+            raise RuntimeError("Taleo faceted search lists no countries to place multi-location postings")
+        main = max(countries, key=lambda c: int(c.get("quantity") or 0))
+        found = {}
+        for country in countries:
+            if country is main:
+                continue
+            listed, _ = read(country["id"], cap=20000)
+            if not listed.complete:
+                raise RuntimeError(f"Taleo faceted search could not list {country['text']}: {listed.reason}")
+            for job in listed:
+                found.setdefault(job["id"], []).append(country["text"])
+        for job in out:
+            if job["location"] == "Multiple Locations":
+                job["location"] = "; ".join(found.get(job["id"]) or [main["text"]])
     return _finish_listing(out, "Taleo", limit)
 
 
