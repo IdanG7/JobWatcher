@@ -1,6 +1,6 @@
 # Product & Design boards: design (Phase 1)
 
-Status: **Phase 4 in progress** (section 13): `canadian_product_design` (35 sources), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2), `consumer_tech` (1), `product_core` (2), `design_core` (2) and the sweep's `enterprise_saas` (2) and T-Mobile are in. You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
+Status: **Phases 1 to 6 done** (section 13; the final report is section 17), not pushed: the 119 sources of `product_design/` are in, `canadian_product_design` (35), `design_studios` (34), `industrial_design` (33), `early_career_programs` (7), `big_tech` (2), `consumer_tech` (2), `product_core` (2), `design_core` (2) and `enterprise_saas` (2). You approved the 46 decisions of section 14 (D1–D46) as recommended on 2026-11-07, and the Phase 3 answers on 2026-11-07 and 2026-11-08 (14.7). Branch
 `feat/product-design-board`, worktree `.claude/worktrees/product-design-board`, created from `main` at `598b525`
 (v0.3.14). The brief is `plans/board-expansion-prompt.md` in the main checkout: Part A, Part B §2 and the lessons
 in Part C. Healthcare's design (`plans/healthcare-board.md`) is the model: boards are data (§9 there), so this work
@@ -5399,8 +5399,9 @@ from that record.
      - Placement, `main` against the packs (`place\main_vs_p4e.txt`): missing 0, 0 moves outside 14.7, 9,050
        allowed; label changes 423 → 425. Against the studios commit's placement: 0 moves, 7 label changes.
      - Source history: 1,083 sources; against the last commit it adds only the 20 names.
-   - **`industrial_design`, 2026-11-08**: 33 sources, the Design filter Industrial Design's own group (7.4), 8 of
-     them Canadian (D33 asks for 6 and 2). Type `consumer_products`, and `design_studio` for Teague. Each feed was
+   - **`industrial_design`, 2026-11-08**: 33 sources, the Design filter Industrial Design's own group (7.4), 7 of
+     them Canadian by their `geography` (D33 asks for 6 and 2; this note first said 8, counting Bauer Hockey, whose
+     source is marked `us`; corrected in Phase 6). Type `consumer_products`, and `design_studio` for Teague. Each feed was
      read once, complete. Stanley Black & Decker and Brunswick are read through a "designer" search, Milwaukee Tool
      (TTI's Milwaukee site) and 3M through an "industrial design" search, MillerKnoll through 9 design and product
      job families; each narrowed read has a label. Nanoleaf had no openings.
@@ -5721,7 +5722,12 @@ from that record.
      - Placement (`phase5\place\placed_p5.db`, the commits' code): against `placed_p4e1.db`, 73,917 → 73,917 with
        0 moves and 0 filter, label or stage changes. Against `main` (`main_vs_p5.txt`) it reads as Phase 4 left
        it: the 31 moves outside the pairs above are group 1's 26 (Hardware → Operations 10, "other" → Healthcare
-       13 and 3 single titles) and group 2's Hardware → Design 4 and Healthcare → Product 1.
+       13 and 3 single titles) and group 2's Hardware → Design 4 and Healthcare → Product 1. The file ends
+       "place: FAILED" for those 31 and for 210 other changes, all approved in 14.8: Magna's type, Canadian Tech →
+       Robotics & Autonomy, on 148 postings (R14), and R16's company keys, Intel 58 (57 "intel early" postings
+       re-keyed to `intel`, 1 filter) and Skyworks 4 (its two keys merged). Its totals: 9,615 allowed moves (2,695
+       of them change what Finance shows), 10,532 filter changes inside Product and Design, 1,081 label changes
+       (987 renamed) and 94 stage changes off the boards (added in Phase 6, from `main_vs_p5.json`).
 6. **Onboarding, Settings, Sources view and docs.**
    - A What's new draft for the version after 0.3.15 (which `main` released on 2026-11-07), with every claim and
      count checked against the final packs. `version.py` is not touched.
@@ -5730,6 +5736,15 @@ from that record.
    - Both full suites and `watcher.py --check`.
    - The UI in a browser, as a Product-only and as a Design-only profile.
    - The final report, and the lessons in Part C of the brief.
+   - **Done on 2026-11-09 and 11-10** (`E:\product-design-board\phase6\`; the report is section 17):
+     - `main` is still `9e9201b`, the merge base. The placement check on an export of `e850e82` against Phase 5:
+       0 changes of any kind; against `main`, identical to Phase 5's (`place\p5_vs_p6.txt`, `main_vs_p6.txt`).
+     - Source history restored from `main` and recorded again: equal to the committed history, 119 entries added
+       at 12, none changed; the `record_release` dry run accepts the bundle and saves nothing new
+       (`scripts\history_check.py`).
+     - What's new for 0.3.16 (`7ad0b43`), D43's views (`cfdbba5`) and D44's copy (`e850e82`), each reviewed and
+       proved on the live copy; D46's recompute timed at 77.5 minutes for 410,486 postings.
+     - Suites at `e850e82`: Python 1,050, JS 118, `watcher.py --check` ok.
 
 **The commands** (from the worktree, each as `PYTHONUTF8=1 uv run --no-project --with-requirements requirements.txt
 python -m …`; `E:` is `E:/product-design-board`; `<branch>` is an export of the branch, with uncommitted files copied
@@ -6301,6 +6316,10 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
 
 ### 15.3 Views and copy
 
+Fixed: D42 in Phase 3 (`f16ef39`); D43 and D44 in Phase 6 (`cfdbba5`, `e850e82`). Still so: an install that onboarded
+without Finance before this release keeps the finance headline it saved (only a first run clears it), and Settings'
+headline placeholder reads "2027 finance recruiting · Toronto".
+
 - **New today's card counts Finance** ("112 finance roles") for every profile, while its link opens the profile's
   boards. Analytics shows Finance's numbers and a "Finance" column to every profile (D43).
 - **The Companies view says "banks, funds and finance employers"** but counts whole companies at any typed employer
@@ -6356,8 +6375,8 @@ alone. Every other board keeps it. The rest is left as it is in this work. Each 
 
 ## 16. Copies on E:
 
-Everything is in `E:\product-design-board\` (4.7 GB). Nothing here is needed by the app. I delete nothing on E:
-without your yes.
+Everything is in `E:\product-design-board\` (4.7 GB after Phase 1, 15 GB at the end of Phase 6). Nothing here is
+needed by the app. I delete nothing on E: without your yes. The rows after `phase1_tools.diff` were added in Phase 6.
 
 | Path | Size | What it is |
 |---|---|---|
@@ -6372,3 +6391,371 @@ without your yes.
 | `review\` | 58 MB | The tool review's probes, and the diff the simplify pass read |
 | `baseline_py_tests.txt`, `baseline_js_tests.txt`, `phase1_*_tests*.txt` | < 100 KB | Test-suite output before any edit and with the Phase 1 tools (section 2.3) |
 | `phase1_tools.diff` | 52 KB | The tools diff as first reviewed |
+| `live_copy.db-shm`, `live_copy.db-wal` | 32 KB, 0 | SQLite's side files for `live_copy.db` |
+| `code-main-937bbc2\`, `code-main-9e9201b\`, `baseline-937bbc2\` | 6.4 MB, 6.4 MB, 2.9 MB | `main` at 937bbc2 and at 9e9201b (0.3.15) as the checks ran them, and the resume recording taken at 937bbc2 |
+| `code-branch-*\` (35 folders) | 222 MB | Exports of the branch at each commit the placement check and the recorder ran |
+| `phase2\` | 20 MB | Phase 2's polled lists and compares, `placed_branch.db`, the suites' output |
+| `phase3\` | 470 MB | The four slices' work (`sliceA` to `sliceD`, D27's entries in `sliceD`), each slice's placement DB |
+| `phase4\` | 660 MB | Placements per pack (`place\`, 546 MB), fetch and facet probes, the sweep (`sweep\rank.json`, `report.md`), the poll-time run (`poll\`) |
+| `phase5\` | 323 MB | Placements (`place\`, `main_vs_p5.txt`), the resume recordings, and code snapshots of each resume-reader variant tried |
+| `phase6\ui.db` | 4.1 GB | A copy of `live_copy.db` (backup API). The first D46 run, void (section 13), re-read part of it |
+| `phase6\recompute.db` | 4.3 GB | A second copy, on which D46's first-start recompute was timed. The Phase 6 UI check ran on it: its user state is put back (`restore_ui_state.py`), and the server's re-read with the worktree's config left its facts part re-read |
+| `phase6\` (the rest) | 33 MB | `place\` (the Phase 6 placement, 26 MB), `breakcheck\` (HEAD's code with the Phase 6 tests, which fail there), the proofs' and the UI check's scripts and output (`scripts\`, `scoring_proof*.txt`), the reviewed diffs, the final report's draft |
+
+## 17. Final report
+
+The brief's "Final report" list, answered on 2026-11-10 at the end of Phase 6. 17.0 is Phase 6's own work, with
+the test totals; 17.1 to 17.9 follow the list's order; the copies on E: and their sizes are section 16.
+
+Branch `feat/product-design-board` at `e850e82` (the code reported here; `cfdbba5` and `e850e82` are Phase 6's D43 and D44),
+`main` at `9e9201b` (0.3.15). Bare line numbers and "plan N" are this file's lines, "E:" is `E:\product-design-board\`. My recount
+scripts (`polled.py`, `polled2.py`, `slow.py`, `ef.py`, `geo.py`, `pj3.py`) are in this session's scratchpad,
+`C:\Users\idang\AppData\Local\Temp\claude\d059cdfd8fb47376\509863b7-d2be-49c6-b005-6dc89214ce45\scratchpad\`.
+
+### 17.0 Phase 6
+
+- **`main`:** still `9e9201b` (0.3.15), the merge base, so there was nothing to merge. Since Phase 5's placement,
+  of what the check runs (`intel/`, `intel_store.py`, `job_query.py`, `job_intelligence.py`, `config/`,
+  `watcher.py`, `tools/board_gate.py`) only `intel/scoring.py` changed (`git diff --stat 5c8b769 e850e82`), and
+  placement reads no score. The check ran again anyway: 17.5.
+- **What's new** (`7ad0b43`, `web/js/release-notes.js`): a 0.3.16 entry, four items, shown only once `version.py`
+  says 0.3.16 (it says 0.3.15; the real server showed the 0.3.15 card). A fact-checker read each claim against the
+  code: "New Product and Design boards" was false (both were boards on `main`, with title words and 9 groups) and
+  became "Product and Design, by specialty"; "employers to watch" read like the watchlist; "with either board" was
+  wrong for Calendar (APM windows and product internships are Product's, design internships Design's, co-op
+  both). `whats-new.test.js` 17/17.
+- **D43, views** (`cfdbba5`): New today, Analytics and Companies count the profile's boards (`board_clause`); the
+  source table's column is "In your boards"; Open roles by category shows a board by filter; Companies is A′.
+  Proof: HEAD's and the branch's `dashboard.py` on `E:\phase6\ui.db`, clock frozen (`views_proof.py`): identical
+  overview stats, analytics and companies for a Finance-only profile and one with no boards (Finance: posted in 30
+  and 90 days 13,182 and 28,493, 30,360 open, 400 employers). What the new views count on that copy (the copy has
+  no posting from the last 7 days, and most of its postings were read before the P&D filters, so they show under the
+  board's name): Product 3,176 and 6,109 posted, 7,611 open; Design 1,827 and 3,531, 4,544 open; Product and
+  Design 5,003 and 9,640, 12,155 open; Finance and Product 16,358 and 34,602, 37,971 open. Tests:
+  `tests/app/test_board_views.py` (5).
+- **D44, copy** (`e850e82`): "outside your boards", "No skills detected", "entry level" without "in finance" off
+  Finance postings; a first run without Finance clears the headline (Today: "‹boards› recruiting"); the apply
+  note names what applying replaces. Proof: `scoring_proof.py`, HEAD's and the branch's `scoring.py` on the same
+  facts, 20,524 postings × 21 profiles and 4,105 × 21 with student stages: 0 differences in fit, points,
+  penalties, reasons, badges or resume match. **For a Finance-only profile with internship or new-grad targets
+  (no entry), 127 of the 4,105 postings, all outside Finance, read "‹level› — entry level" instead of "… in
+  finance"; no Finance posting's wording changes.** Tests: `tests/matching/test_board_wording.py` (6), 4 changed
+  assertions and the new hash (17.9 k), `web/tests/setup.test.js` (1). Both commits were reviewed (no blockers; the reviewers' points fixed).
+- **D46, the release's facts recompute:** `intel_worker.refresh_database` on a fresh copy
+  (`E:\phase6\recompute.db`, the installed `config.json`): 410,486 postings re-read and scored in 4,650 s
+  (77.5 min), 6 facts workers (`E:\phase6\recompute2.log`). Other work shared the CPU for part of it (the scoring
+  proof, 12 min; two suite runs), so it's on the high side. The first try, on `ui.db`, is void: the script had no
+  `__main__` guard, so a spawned facts worker ran a refresh of its own.
+- **UI check** (the real server on `E:\phase6\recompute.db`, the worktree's code and `config.json`, subscribers
+  emptied, no poll; never the installed app):
+  - First run (the copy's profile row set aside): intro and setup, Product picked, saved through `put_profile`.
+  - Product: Today (light) "Product recruiting · targeting summer 2027, new grad 2027", 729 sources; Sources (dark)
+    729 polled, its 50 issues are Product's new sources not yet polled in the copy; Calendar (dark) 7 Product windows
+    a year; Analytics (dark) "Product roles" throughout, filter bars summing to its 8,403 open; Settings shows
+    Product's 5 specialties and "Product & Design employer types"; Companies; Opportunities with resume match (dark
+    and light) 69 roles, and the drawer reads "Semiconductors — outside your boards" (AMD).
+  - Design (switched in Settings, "Save & rescore"; the Product target was dropped with the field): Today (light)
+    "Design recruiting · …", 676 sources, "Design roles, last 24h"; Sources 676 polled, its 117 issues are exactly
+    Design's new sources not yet polled; Calendar (dark) 8 windows a year, no APM; Companies (dark) 400 employers
+    by Design roles; Analytics (dark) 1,918 open, 8 filter bars summing to it; Opportunities with resume match (dark)
+    30 roles under Design's 7 filters; the drawer (light) reads "Robotics & Autonomy — outside your boards" (GM).
+  - What's new showed the 0.3.15 card, as `version.py` says 0.3.15.
+  - While the server re-scores after a profile change, Today's Top opportunities keep the previous profile's scores
+    until it reaches them (it was still re-reading facts, 221,000 of 410,486). Not new.
+  - Put back: the copy's profile, resume flag and version, and What's new mark (`restore_ui_state.py`);
+    `subscribers.json`; the root `launch.json` (byte-identical to its backup). The copy's facts stay part re-read.
+- **Tests** (`e850e82`): Python 1,050 OK (`python -m unittest discover -s tests -t .`), JS 118/118
+  (`node --experimental-test-isolation=none --test web/tests/*.test.js`), `watcher.py --check`: config ok, 1,133
+  boards, 2 subscribers.
+- **Copies on E:** section 16 (15 GB).
+
+### 17.1 Changed files
+
+`git diff --stat main...e850e82`: 66 files, +24,744 −252. Before Phase 6 (`main...3337c7f`): 50 files, +24,439 −207.
+- **Board data:** `config/taxonomy.json` (153 lines), `config/companies.json` (141), `config/skills.json` (43),
+  `config/sources/manifest.json` (25), `config/source_defaults_history.json` (3,552), 9 new packs in
+  `config/sources/product_design/`.
+- **App code:** `intel/resume.py` (54), `watcher.py` (23, Lever pacing), `intel/programs.py` (10),
+  `intel/seniority.py` (8), `intel/resume_insights.py` (6), `intel/knowledge.py` (4), `intel/taxonomy.py` (3).
+  Phase 6: `dashboard.py` (81), `intel/scoring.py` (9).
+- **Web:** `web/js/preview/meta.json` (315); Phase 6: `web/js/release-notes.js` (the What's new draft) and 7 view
+  and helper files.
+- **Tools and docs:** `tools/board_gate.py` (444), `tools/poll_time.py` and `tools/resume_record.py` (new),
+  `tools/build_windows.py` (`sources_version` 11 → 12); the plan (new); Phase 6: `docs/ARCHITECTURE.md` (3).
+- **Tests:** before Phase 6, 10 new files and a fixture (`tests/sources/v0_3_14_sources.json`) and 12 existing
+  files changed (17.9 k). Phase 6 adds `tests/app/test_board_views.py` and `tests/matching/test_board_wording.py` and
+  changes 5 existing files (17.9 k).
+
+**Code that still had to know boards** (`git diff main...7ad0b43 -- '*.py' ':!tests/*'`, grepped for quoted board keys):
+- `intel/taxonomy.py:213` `_claim` names the track `product_design` beside `tech`, so Product's and Design's claims can
+  take tech work from "other" (`f16ef39`; approved in plan 14.7, "from slice D", ~5954).
+- `tools/board_gate.py:82-84` (`MIXES`) and `tools/resume_record.py:52` (`PROFILES`) name P&D sample profiles.
+- Nothing else names Product or Design: `programs.py` de-duplicates by window key, `seniority.py` changes shared
+  stage words, `knowledge.py` and `resume_insights.py` read `resume.skills_also` from data (`taxonomy.json:480`).
+
+### 17.2 Sources per pack, and per filter
+
+Recounted from `config/sources/product_design/*.json` (`len(boards)`); every pack verified 2026-11-08, none disabled,
+every non-LinkedIn source has a `company_key` (`geo.py`):
+
+| Pack (group) | Sources | Canadian (`geography`) | Polled by |
+|---|---|---|---|
+| `canadian_product_design` | 35 | 35 | Product and Design core |
+| `design_studios` | 34 | 15 | Design core |
+| `industrial_design` | 33 | 7 | Design · Industrial Design |
+| `early_career_programs` | 7 | 1 | Product · APM & Programs; Design · Product Design, UX Research |
+| `product_core` / `design_core` (LinkedIn) | 2 / 2 | 1 / 1 | Product core / Design core |
+| `big_tech` (Amazon design, Amazon PM) | 2 | 0 | both cores (group `big_tech`) |
+| `consumer_tech` (Nike design, T-Mobile) | 2 | 0 | both cores |
+| `enterprise_saas` (OpenSesame, Clearwater) | 2 | 0 | both cores |
+| **Total** | **119** | | 12 ATSes (plan 5669 agrees) |
+
+Bundle: 1,014 → 1,133 sources, 1,004 → 1,123 enabled (`polled2.py` on `E:\code-main-9e9201b` and the branch).
+
+**Sources added per filter** (new sources each polls; manifest `fields.product` / `fields.design`; `polled.py`):
+- Product core: +43 (both LinkedIn searches, the 35 Canadian, the 6 in `big_tech`, `consumer_tech`, `enterprise_saas`).
+  APM & Programs: +7. Product Management, Technical PM, Product Ops, Product Analytics: existing groups only.
+- Design core: +77 (its 2 LinkedIn searches, the 35 Canadian, the 34 studios, the same 6). Industrial Design: +33.
+  Product Design and UX Research: +7 each. Visual & Brand, Content Design, Design Engineering, Game Design: 0 new.
+- One filter picked, existing plus new sources (`main`: 319 each): Product Management 624, Technical PM 632, APM &
+  Programs 369, Product Ops 413, Product Analytics 452; Product Design 643, UX Research 459, Visual & Brand 466,
+  Content Design 413, Design Engineering 396, Industrial Design 515, Game Design 415.
+
+### 17.3 Employers not added, and why
+
+From the phase notes (plan 5343-5355, 5431-5448, 5489-5494, 5514-5517, 5587-5597) and each pack's `note`. My tally
+of distinct names (an employer listed twice is counted once):
+- **No adapter for the ATS or site (14):** Dialogue (Rippling), Vena (Pinpoint), Ratehub, Mogo, Delve and Design
+  Concepts (JazzHR), Priority Designs, Solo Brands (UKG host), Moment Factory, Siegel+Gale, lg2 (Recruitee), frog
+  (Greenhouse EU), TikTok, Tencent.
+- **No board an adapter reads, or none found (25):** Kohler, Teknion, Ziba, Lee Valley, Pentagram, Work & Co, Rangle
+  and 12 more studios and industrial firms; Therabody, Designit, Super.com, 7shifts, Helcim, Dorel Home.
+- **Site can't be read (4):** Shopify, Cox (renders in the browser), Copart (bot wall), Fox (ATS not identified).
+- **robots.txt (4):** Assent, Publicis, Etsy, NBCUniversal (SmartRecruiters).
+- **Few or no product or design roles, or no openings (19):** Mejuri, Knix, Canada Goose, Trek, Whirlpool and John
+  Deere (Eightfold: 4 and 0 of 216 and 288), Oshkosh (its search returns welders), lululemon, Samsara's programs
+  board, Zynga, nCino, Nike's Product Development Group (5 of 59), and 7 more.
+- **Already read another way (8):** Mila, BenchSci, CACI (`caci_international`); Meta, IBM, Tesla, LinkedIn (LinkedIn
+  company searches); Walmart's families (97 of 112 already in `walmart_global_tech`).
+- **Another board's employer, or off the P&D track (27):** Questrade and Loblaw Digital (open, 17.7); 12
+  industrial and consulting employers (Vertiv, Parsons, Caterpillar …); 11 Finance employers (BNY, PNC, State
+  Street …); RELX, Nelnet.
+- **Group-wide or merged boards (3):** WillowTree, nventive, Domain7. **Outside North America (2):** Dyson,
+  Brompton. **Misread or name clash (2):** Fulfillment IQ, Solace (Ottawa).
+- **Left to the sweep, under its bar (9):** the `early_career_programs` note sent Yahoo, Grammarly, Wayfair,
+  AppLovin, Solace Health, CDK Global, Dick's, Amplify and Medline to the sweep. In its ranking
+  (`E:\phase4\sweep\rank.json`, 274 employers) Medline has 3 distinct list-only postings, Dick's, Amplify, Yahoo and
+  Solace Health 1 each, under the 4 the sweep read; Grammarly, Wayfair, AppLovin and CDK Global have none. The lists
+  carry them. Clearwater, on the same list, was added by the sweep as a main board. T-Mobile was set apart in that
+  note ("ATS not identified", 5491); the sweep then found its Workday board and added it (5576).
+
+### 17.4 Polled counts and poll time per sample profile
+
+Sources: `polled.py` / `polled2.py` (manifest × folder audience × enabled). Times: `tools/poll_time.py`, one fetch run
+of all 1,123 enabled sources, 10 workers (plan 5603-5623); the table matches `E:\phase4\poll\simulate.txt`, and no
+source was added after the run (`git log 752c804..HEAD -- config/sources` is empty).
+
+| Profile | Sources | Full poll, min (lower bound) |
+|---|---|---|
+| Product | 319 → 729 | 16.0 → 62.6 (13.9 → 26.9) |
+| Design | 319 → 676 | 16.0 → 49.1 (13.9 → 25.6) |
+| Product + Design | 319 → 798 | 16.0 → 62.6 (13.9 → 26.9) |
+| Finance + Product | 536 → 809 | 26.0 → 64.3 (20.3 → 30.4) |
+| Software + Product | 713 → 792 | 62.6 → 62.6 (27.1 → 27.2) |
+| Software + Design | 713 → 859 | 62.6 → 62.6 (27.1 → 27.2) |
+| Everything boards, Finance + Sales, the Actions runner | 1,004 → 1,123 | 70.3 → 70.3 (30.6 → 30.6) |
+
+- **LinkedIn, min:** Product 0.9 → 4.6, Design 0.9 → 5.0, Product + Design 0.9 → 8.7, Finance + Product 7.9 → 11.6,
+  Software + Product 2.6 → 6.3, Software + Design 2.6 → 6.7, everything boards and the runner 16.9 → 24.7.
+- Every other sample profile polls the same count in the same time (`simulate.txt`; Finance + Design, not in
+  `MIXES`, is 536 → 807 by `polled2.py`). No profile loses a source.
+- Why Product and Design rise: Eightfold (17.9 h). Without `defense_aerospace` and `semiconductors` Product would poll in
+  16.1 min and lose 799 open Product postings; you kept them (plan 5633-5637, 14.7, `whatif.txt`).
+- The bounds: Lever and Eightfold only space request starts, so serial is the upper bound and free running the
+  lower; LinkedIn's share is exact (plan 5638-5640).
+
+### 17.5 The placement check
+
+**Approved moves:** plan 14.7 (5868-5899) plus `product:software` and `data_ml:design` (5932, 5943): the 32 `--allow`
+pairs in `E:\phase5\place\main_vs_p5.json` (`allow`). The rule review (14.8) and R14/R16 added no pairs.
+
+**Final check, Phase 6** (`E:\phase6\place\placed_p6.db`: an export of `e850e82`, the same 73,917 ids and epoch
+as Phase 5, 619 s):
+- Against Phase 5 (`p5_vs_p6.txt`): 73,917 → 73,917, missing 0, added 0, moved 0, changed 0, label changes 0,
+  stage changes 0; "place: passed".
+- Against `main` (`main_vs_p6.txt`, `main`'s side from `code-main-937bbc2`; `git diff 937bbc2 9e9201b` over what
+  the check runs is empty): identical to `main_vs_p5.txt` below, line for line (`cmp`).
+
+**Phase 5's check** (`placed_p5.db`, 73,917 sampled stored postings, closed ones included):
+- Against Phase 4's placement (`E:\phase5\place\p4e1_vs_p5.txt`): 0 moves, 0 changes of any kind; "place: passed".
+- Against `main` (`main_vs_p5.txt`, first line): missing 0, added 0, 9,615 allowed moves (2,695 change what Finance
+  shows), 31 other moves, 210 other changes, 10,532 filter changes inside Product and Design, 1,081 label changes,
+  94 stage changes off the boards. The file ends "place: FAILED", for the 31 and the 210, all approved in 14.8.
+
+Allowed moves (* changes what Finance shows): design→hardware 2,595; product→operations 1,848; software→product
+1,266; other→product 910*; design→other 881*; other→operations 486*; finance→product 289*; design→software 226;
+hardware→product 181; operations→product 159; data_ml→product 151; product→sales 123; design→sales 73;
+software→design 54; other→design 53*; design→operations 51; software→operations 49; finance→operations 47*;
+finance→design 29*; design→healthcare 24; sales→product 23; design→product 20; product→design 17;
+design→people_legal 16; software→hardware 16; people_legal→product 8; product→healthcare 8; product→software 4;
+product→hardware 3; data_ml→design 3; sales→design 1; healthcare→design 1. (Sum 9,615, recounted.)
+
+Moves outside the pairs (31, explained in plan 5722-5725): other→healthcare 13* (R4's drug-development product leads),
+hardware→operations 10 (R1's `program_ops_from_tech`), hardware→design 4 (R15), healthcare→product 1,
+product→people_legal 1, people_legal→operations 1, product→other 1* (Google's administrative business partner).
+
+Other changes (210, `pj3.py` on the JSON): Magna's type, Canadian Tech → Robotics & Autonomy, 148 (R14, plan 6210);
+Intel 58 (57 "intel early" postings re-keyed to `intel`, 1 filter) and Skyworks 4 (keys merge) (R16, plan 6219).
+
+**Label-only changes** against `main`: 1,081: Software 293, "other" 253, Sales 159, Hardware 159, AI & Data 73,
+Operations 62, Finance 48, People & Legal 26, Design 8; 987 renamed. Samples in the file: Airbnb → Consumer Tech,
+Intel → Semiconductors, Notion → Enterprise SaaS. Stage changes off the boards (94, not blocking): Hardware 40,
+Software 32, "other" 13, Finance 6 (JPMorgan's program management associates, sent to Operations: 14.7, 5947),
+Sales 2, Operations 1.
+
+### 17.6 The upgrade test
+
+- Phase 2 (plan 5239-5242): `test_upgrading_a_0_3_14_install_keeps_every_source_setting_and_posting` passed, but at
+  `sources_version` 11 `upgrade_sources` returns early (11.2). From an install at 10: 0 sources removed, 0 settings
+  changed, 0 added, 1,015 postings and 1 application kept.
+- At `e850e82`, bundle at 12: `uv run --no-project --with-requirements requirements.txt python -B -m unittest
+  tests.install.test_portable.PortableTests.test_upgrading_a_0_3_14_install_keeps_every_source_setting_and_posting`
+  → OK (3.8 s). It asserts each installed source keeps its settings (a disabled one and an own one included), the
+  added sources are the bundle's minus the install's (0 removed), all in `product_design/` (119 by my count), the
+  profile is unchanged, and `jobs`, `job_intel`, `job_fts` keep 1,015 rows and `applications` 1.
+- Source history: `__shipped__` version 12, 1,133 names, hash `0da50572d712b022`; `__since__` 1,135 names, 119 at 12
+  (`main`: 11, 1,014, `f5dd3640f5c29200`).
+- Phase 6 (`E:\phase6\scripts\history_check.py`): `main`'s history, recorded again with the branch's bundle as
+  `tools/build_windows.py` does, equals the committed history (True); it adds 119 entries, each `__since__` 12, and
+  changes no existing entry. `record_release` on the committed history accepts the bundle and saves nothing new
+  (True).
+
+### 17.7 Decisions left open
+
+- **robots.txt for SAP, ServiceNow, Canva, Freshworks (SmartRecruiters) and Intuit (Radancy)** (D36, 11.3): unchanged;
+  one cross-board rule with Healthcare's 12 + 17 is yours. 223 stored / 171 open P&D postings there.
+- **New adapters** (D35): TikTok, Taleo BE (BRP), Recruitee (lg2), Greenhouse EU (frog). 14.7 says "each new adapter,
+  in Phase 4"; no answer is recorded. Also unread: Rippling, Pinpoint, JazzHR, YourPayrollHR, Cegid HR, Breezy.
+- **Questrade and Loblaw Digital** (5346-5349, 5591): each could only go in `shared/`; open.
+- **D40:** Finance's `options` skill matches any "options"; a narrower one is to be measured first (14.5, 15.4).
+- **D24:** further types on the P&D track (gaming 215 Design, hardware_devices 234), each a yes of its own; not asked.
+- **D27:** further shared employers with no entry (beyond D27's 8 and R16's 8), one at a time; e.g. the employers of
+  the 192 `design:software` postings (5936).
+- **D31 (c)** (JPMorgan and Citi P&D sources) and **D32** (medtech for Industrial Design) only if you ask; **D45**
+  (Capital One's part-time misread) is outside this work.
+- **B1's leftovers on Operations:** about 30 "Development / Early Career Program Manager" titles keep `main`'s misreads
+  there; you left them to Operations (14.7 5947-5951, 15.1). Operations has had no session of its own (D2).
+- **French design titles** on "other" ("Stagiaire, design industriel", "Concepteur des interfaces utilisateurs",
+  Rethink's "Directeur.trice artistique"): Design's words are English; "not changed here" (5365, 5553-5555).
+- **Rule review left for code** (14.8): bare "Lead Designer" at software employers (21), game-studio design directors
+  (10), "Product Associate" and "Managment" from "other", 3 PMs of product operations; R21 (Hardware) separately.
+- **Retool** (enable it through `fetch_gem`?) and **Greenhouse HTML entities** (a detail-fetcher change): yours (15.2).
+- Not recorded: whether D5's family-level `unless` was needed (`236f44f` excludes the assistants in data).
+
+### 17.8 Problems noticed outside the task, not fixed
+
+From section 15 unless marked; each item there names its evidence:
+- **Shared rules, worked around on P&D only** (15.1; `intel/seniority.py` `TITLE_RULES`, `intel/taxonomy.py`
+  `_TECH_OCCUPATION`): `senior_ic` reads "manager" as Senior; "associate intern" sets `post_mba`; French and German
+  intern words unread; Finance-shaped labels; plural titles land in "other" on every board without plurals.
+- **Placement and sources** (15.2): Capital One's part-time misread (1,953 open) and its MBA Product Intern on
+  Finance; pack headings type postings in a dev run only (`_SECTION_TYPES`); Autodesk's read of 3 marked complete
+  (490 stored); CACI and Workday split over two company keys; two plans wrongly say unpolled sources' postings are
+  never deleted (`prune()`); Greenhouse descriptions keep `&nbsp;` (7,277 stored; AppDirect among the new).
+- **Views and copy** (15.3): fixed, D42 in Phase 3 (`f16ef39`), D43 and D44 in Phase 6 (`cfdbba5`, `e850e82`). Left:
+  an install that onboarded without Finance before this release keeps the finance headline it saved (only a first
+  run clears it), and Settings' headline placeholder still reads "2027 finance recruiting · Toronto".
+- **Resume reader** (15.4): 14 items left, D40 among them, such as "Portfolio: <link>" under Education reading Asset
+  Management, "BFA Graphic Design" and BID/MID unread, text boxes read 3 to 4 times, "…lead\nProduct Designer." a role.
+- **Companies shows some employers in lower case** ("anduril", "databricks", "openai", "salesforce", "zoox", "hp",
+  seen in the Phase 6 UI check): the list takes `MAX(i.company_name)`, and some sources store the key-like name. Not
+  from this work; every board's list shows it.
+- **Seen in the Phase 6 UI check, not changed here:** AMD's "Product Management Intern/Co-op" reads its degree as PhD
+  from "Whether you're an undergrad or a PhD student", so resume match excludes it ("PhD candidates targeted") and
+  fit marks "Graduate degree required", though it asks for a Bachelor's. Altera's "Intellectual Property Design
+  Intern" (chip IP design; its skills are FPGA & RTL and Hardware Validation) still shows under Design · Product &
+  UX Design: the broad `design` title word (15.2). Opportunities prints the excluded count without a thousands
+  separator ("8307 of 8,376 excluded", `opportunities.js:293`).
+- **Board gate** (15.5): `_ro` doesn't percent-encode its `file:` URI; `snapshot` leaves workers running on a failure.
+- **Phase 4 notes:** existing sources that failed in the poll-time run: `old_mission`, `aircall`, `jpmorgan_tech`,
+  `blackstone`, `blackstone_campus`, `nxp` (5641-5643, `simulate.txt`); Python's `robotparser` reads Eightfold's
+  robots.txt as disallowing `/api/pcsx`, which RFC 9309 allows (5439-5441); R21's Hardware findings (6047).
+
+### 17.9 The brief's other items
+
+**a. What the everything boards gain:** the 119 `product_design/` sources and nothing else, 1,004 → 1,123
+(`polled2.py`; plan 7.4, 5621). Full poll 70.3 → 70.3 min, LinkedIn 16.9 → 24.7 min.
+
+**b. Label-only changes:** 17.5. Per entry, each checked before its commit: D27's 8 typed 1,674 stored postings
+(`E:\phase3\sliceD\entries_compare_final.txt`: Finance 87, "other" 367, Product 113, Design 50; 14.3's 88 / 364 /
+108 / 60 are Phase 1's, on `main`'s placement). Pack entries, each with 0 moves: Canadian 75, studios 11, Lever
+boards 63, industrial 483, early-career 113, Workday 80, the sweep 119 (plan 5332, 5374, 5396, 5421, 5469, 5581).
+R16's 8: 1,072 sample postings (6225-6234). Magna's 148 are a type change, so a move by the brief's rule.
+
+**c. LinkedIn's poll time:** 17.4. Each of the 4 searches took 96 to 150 s in the poll-time run (`slow.py` on
+`timings.jsonl`), and 89 to 154 s at the first read (plan 5529-5538).
+
+**d. RULES_CODE:** `e850e82` records `RULES_CODE[6]` = `08afe50dbb59` (was `4e3ea04c3180`) and keeps `RULES_VERSION` 6.
+Why (its commit message; plan D44, 4958, 5855): only three detail strings change; `scoring.py` before and after,
+side by side on 20,524 postings for the gate's 21 sample profiles, gave the same fit, points, penalties, reasons,
+badges and resume match. Before it, the merge `c97000a` brought `main`'s hashes for 4 to 6; no commit made on the
+branch touched `test_rules_version.py`.
+
+**e. Dropped groups:** none; not stated in the plan. Each pack is above its D33 minimum (17.2's counts): studios 34
+(15 Canadian; asked 8 and 3), Canadian 35 (10), industrial 33 (7 Canadian; 6 and 2), early-career 7 (5).
+
+**f. Sources over about 60 s:** only the 4 LinkedIn searches (96–150 s), which keep `min_interval` 1800, as the brief
+says. The slowest other new source is `stanley_black_decker`, 5.9 s; all 119 have `min_interval` 1800 (`slow.py`).
+The plan names none.
+
+**g. Postings an employer entry would rename** (stored, unless "sample"): D27's 8, 1,404 (77 on Finance); Canadian
+3 ("Interac Corp." on 1 Finance posting, "Poka Labs" on 2); industrial 3; early-career 22 ("C3.ai"); Workday 42
+("Workday Inc"); studios, Lever boards and the sweep 0; R16's 8 on the sample: ServiceNow 220, Netflix 194,
+Pinterest 96, Linear 39, Baseten 61, Samsara 89, Intel 251 (and 57 re-keyed), Skyworks' 2 keys merged.
+
+**h. Eightfold, as a caveat:** no new source is Eightfold (5629), but Product now polls 13 Eightfold sources (`main`: 4)
+and Design 8 (4) (`ef.py`). New for both: Lockheed Martin (1,278 s alone) and Northrop Grumman (551 s) with their
+finance boards; for Product also Qualcomm (465 s) with its finance board, Lam Research (215 s), GlobalFoundries
+(104 s) and Qlik (6 s, not named in the plan). Each was timed alone; in a poll they share one 1.5 s spacing, and
+which bound in 17.4 is closer was not measured (5638-5640).
+
+**i. What an adapter change does to stored rows:** the one adapter change is Lever's pacing (`628e3e7`): each Lever
+request waits its turn, a second apart, and `detail_lever` now goes through the same `_lever_get`. What each source
+and detail read fetches is unchanged (5385-5386), so stored rows don't change.
+No detail fetcher changed. (R10's stage words reach stored postings through the release's re-read; `FACTS_VERSION`
+stays 11: 6204-6205.)
+
+**j. Saved resumes are not re-parsed** when resume patterns change (brief, line 776; not stated in the plan): D37 to
+D39 and `skills_also` reach a saved resume only when it is uploaded again. Phase 5: the stored resume, 46 of 46
+fields unchanged, `main` against the branch (5697).
+
+**k. Changed existing tests:**
+- Phase 2 (5245-5250): `test_board_polling.py` (P&D leave the 0.3.11 pin and keep every 0.3.11 source;
+  `product_design/` joins the everything exemption), `test_source_packs.py` (`product_design/` needs a verified
+  date), `test_dashboard.py` (Sources view names P&D on `tech/gaming`, `shared/ai_labs`), `test_portable.py` (the
+  0.3.14 test; lines 210 and 255 gain `product_design` in `9e23228`).
+- Phase 1: `tests/sources/test_board_gate.py` (+282 −2, `9b200df`: the placement check's tests).
+- Phase 3 (5299-5304): `test_tech_taxonomy.py`, `test_resume_tech.py` (D3, D14, D24), `test_boards.py`,
+  `fields.test.js` (tech is Software, AI & Data, Hardware; the P&D track), `test_board_polling.py` (core and filters,
+  then group counts per pack). `test_resume_record.py`, listed there, is new on the branch (`9b200df`).
+- Phase 4: `test_tech_adapters.py` (`628e3e7`, Lever's turns). Phase 5: `test_resume_health.py` (`word_docx` takes
+  headings, D39), `test_program_windows.py` (tests added).
+- Phase 6: `test_health_taxonomy.py` (a Hospital employer for a Software profile reads "outside your boards"),
+  `test_product_design_track.py` (3 assertions: Semiconductors, Gaming and Big Tech read "outside your boards" for
+  P&D and Healthcare profiles; Finance's stays "outside finance"), `test_rules_version.py` (6's hash, `e850e82`),
+  `web/tests/fields.test.js` (imports `boardText`), `web/tests/setup.test.js` (a first run without Finance clears
+  the headline). Each still checks the points.
+- Guard check: Phase 5's commits say each test fails without its change (5698-5699; `146870c`, `5b11b5f`). Phase 6's
+  ran on an export of `7ad0b43` (no D43 or D44) with the new and changed tests copied in
+  (`E:\phase6\breakcheck\`): 26 failures and 4 errors in Python, and both new JS tests fail. The tests that still
+  pass there assert that Finance-only reads stay the same, as they should. D43's test was expanded after that run
+  (the reviewer's mixed-board case), so the committed `test_board_views.py` and `test_rules_version.py` ran there
+  again (`breakcheck_views.py`): 6 ran, 2 failures, 4 errors. Not recorded for Phases 2 to 4.
+
+**l. Part B's items for this board:**
+- Stored postings recounted on 410,490: Product 10,387 (9,011 open), Design 6,295 (5,546 open) (plan 2.1).
+- Track, folder, title moves, program manager, shared code, resumes: D24 own track, D29 one `product_design/` folder,
+  D1 to D16, D2 B1, D7 data only, D37 to D42; all approved 2026-11-07 (14.7).
+- Two-column layout: layout D (text-box header over a sidebar table) reads as the one-column form
+  (`test_resume_pd_fixtures.py` `LayoutTests`); B, F and PDF2 are recorded limits; the reader is unchanged (D41, 9.8).
+- Views that count Finance only: D43 (Phase 6). robots.txt's five sources: open (17.7).
