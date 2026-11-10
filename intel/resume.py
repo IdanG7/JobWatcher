@@ -328,7 +328,8 @@ _LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?|(?<![
 # Experienced resumes combine headings ("Certifications & Education") and name the summary and work history.
 _SECTION = re.compile(
     r"^\s*(education|academic(?: background| history)?|experience|work experience|professional experience|clinical experience|"
-    r"relevant experience|industry experience|employment(?: history)?|(?:work|career|professional) history|"
+    r"relevant experience|industry experience|(?:design|research|product|ux) experience|employment(?: history)?|"
+    r"(?:work|career|professional) history|portfolio|selected work|case studies|"
     r"education\s*(?:&|and)\s*(?:certifications?|training|credentials|professional development)|"
     r"(?:certifications?|licen[cs]es?|training|credentials)\s*(?:&|and)\s*education|"
     r"(?:licen[cs]es?|certifications?)\s*(?:&|and)\s*(?:licen[cs]es?|certifications?|training)|"
@@ -417,7 +418,7 @@ def _sections(lines: list[str]) -> dict[str, list[str]]:
                        "experience" if ("experience" in head or "employment" in head or "history" in head
                                         or head.startswith(("expérience", "experience", "parcours"))) else
                        "skills" if "skill" in head or head.startswith(("compétence", "competence")) else
-                       "projects" if head == "projets" else
+                       "projects" if head in ("projets", "portfolio", "selected work", "case studies") else
                        "certifications" if head.startswith(("certification", "licen")) else
                        "leadership" if "leadership" in head or head in ("activities", "extracurricular") else head)
             out.setdefault(current, [])

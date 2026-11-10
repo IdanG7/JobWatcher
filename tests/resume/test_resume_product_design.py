@@ -1,12 +1,13 @@
 """Product and Design resumes open their own track (plans/product-design-board.md 9.4, D24): a design or HCI degree or a
 P&D job title opens it, its signals read the work, and a UX resume no longer adds the Software board. The reader every
-board shares reads their degrees, programs and diplomas (9.2, D37, D38). People, schools and employers are invented."""
+board shares reads their degrees, programs and diplomas (9.2, D37, D38) and their headings (9.3, D39). People, schools and employers are invented."""
 import unittest
 
 from intel import load_knowledge, merge_profile
 from intel import resume_insights as insights
 from intel.profile import validate_profile
-from intel.resume import parse_resume, profile_from_resume
+from intel.resume import extract_text, parse_resume, profile_from_resume
+from tests.resume.test_resume_health import word_docx
 
 KN = load_knowledge()
 PD_TYPES = ["big_tech", "consumer_tech", "enterprise_saas", "high_growth_startup"]
@@ -211,6 +212,74 @@ class OtherLevelTests(unittest.TestCase):
         profile = profile_from_resume(parsed, merge_profile({}), KN)
         self.assertEqual("other", profile["education"]["level"])
         self.assertEqual([], validate_profile(profile, KN))
+
+
+UX_TOP = """LEAH NGUYEN
+leah.nguyen@example.com | 555-010-0301 | Toronto, ON
+Education
+Lakeshore University Toronto, ON
+Bachelor of Design, Interaction Design Sep 2022 – Apr 2026
+"""
+UX_JOB = """Northwind Apps Toronto, ON
+Product Design Intern May 2025 – Aug 2025
+• Ran usability testing with 12 participants and turned the findings into wireframes in Figma.
+"""
+UX_PROJECT = """Transit Trip Planner | Figma 2025
+• Redesigned a trip planner's booking flow and cut the steps from 7 to 4.
+"""
+
+
+def forms(*sections):
+    """A UX resume with these (heading, lines) sections after Education, as text and as each Word layout."""
+    text = UX_TOP + "".join(f"{heading}\n{lines}" for heading, lines in sections) + "Skills\nFigma, Sketch, user research\n"
+    yield "text", parse_resume(text, KN)
+    headings = {"Education", "Skills", *(heading for heading, _ in sections)}
+    for listed in (None, "nested", "flat"):
+        data = word_docx(text, listed, headings)
+        yield f"docx {listed}", parse_resume(extract_text("resume.docx", data), KN, wrapped=False)
+
+
+def block(parsed, name):
+    return [(e["company"], e["title"]) for e in parsed["entries"] if e["block"] == name]
+
+
+class HeadingTests(unittest.TestCase):
+    def test_design_research_product_and_ux_experience_are_experience(self):
+        # 9.3, D39: right after Education, the job under these headings read as education.
+        for heading in ("Design Experience", "Research Experience", "Product Experience", "UX Experience"):
+            for form, parsed in forms((heading, UX_JOB), ("Case Studies", UX_PROJECT)):
+                with self.subTest(heading=heading, form=form):
+                    self.assertEqual([("Northwind Apps", "Product Design Intern")], block(parsed, "experience"))
+                    self.assertEqual(["Product Design Intern"], [r["title"] for r in parsed["roles"]])
+
+    def test_portfolio_selected_work_and_case_studies_are_projects(self):
+        # After an Experience entry the heading read as the next project's employer.
+        for heading in ("Portfolio", "Selected Work", "Case Studies"):
+            for form, parsed in forms(("Experience", UX_JOB), (heading, UX_PROJECT)):
+                with self.subTest(heading=heading, form=form):
+                    self.assertEqual([("", "Transit Trip Planner | Figma")], block(parsed, "projects"))
+
+    def test_a_portfolio_heading_is_no_asset_management_interest(self):
+        # Right after Education, "Portfolio" was education text, which the finance signal "portfolios?" reads.
+        barista = "Bean Co Toronto, ON\nBarista May 2025 – Aug 2025\n• Served 200 customers a day.\n"
+        for form, parsed in forms(("Portfolio", UX_PROJECT), ("Experience", barista)):
+            with self.subTest(form=form):
+                self.assertNotIn("public_markets.asset_management", [i["key"] for i in parsed["role_interests"]])
+
+    def test_research_experience_on_another_board_and_lines_that_stay_no_heading(self):
+        top = "ALEX DOE\nalex.doe@example.com | 555-010-0101 | Toronto, ON\n"
+        education = "Education\nLakeshore University Toronto, ON\nBachelor of Science, Biology Expected: Apr 2027\n"
+        lab = ("Research Experience\nLakeshore University, Cell Biology Lab Toronto, ON\n"
+               "Research Assistant May 2026 – Aug 2026\n• Ran PCR and western blots on patient samples.\n")
+        self.assertEqual([("Lakeshore University, Cell Biology Lab", "Research Assistant")],
+                         block(parse_resume(top + education + lab + "Skills\nPCR, cell culture\n", KN), "experience"))
+        # A heading is a line on its own: "Portfolio Management" and a "Portfolio: <link>" line are no projects.
+        fund = ("Experience\nNorthwind Capital Toronto, ON\nInvestment Analyst Intern May 2026 – Aug 2026\n"
+                "• Built DCF models.\nPortfolio Management\nStudent Investment Fund Toronto, ON\n"
+                "Analyst Sep 2025 – Apr 2026\n• Pitched two equities.\n")
+        self.assertEqual([], block(parse_resume(top + education + fund, KN), "projects"))
+        link = top + "Portfolio: alexdoe.design\n" + education + "Experience\n" + UX_JOB
+        self.assertEqual([], block(parse_resume(link, KN), "projects"))
 
 
 class TrackGateTests(unittest.TestCase):
