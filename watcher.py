@@ -2836,6 +2836,127 @@ def fetch_hopkins_medicine(cfg):
     return _finish_listing(out, "Johns Hopkins Medicine", limit)
 
 
+# ---------------------------------------------------------------- begin selectminds block
+SELECTMINDS_PAUSE = 0.5     # seconds between requests to one career site (their robots.txt sets no Crawl-delay)
+_SM_ROW = re.compile(r'<div id="job_list_(\d+)" class="job_list_row')
+
+
+def _selectminds_base(cfg):
+    host, site = cfg["host"], str(cfg.get("site") or "")
+    if not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+", host):
+        raise ValueError("SelectMinds host must be the career site's host name (tetratech.referrals.selectminds.com)")
+    if site and not re.fullmatch(r"[A-Za-z0-9_-]+", site):
+        raise ValueError("SelectMinds site must be the path segment before /jobs on a sub-site (surge2)")
+    return f"https://{host}" + (f"/{site}" if site else "")
+
+
+def _selectminds_place(text):
+    """'Copenhagen, -, Denmark' (the site's empty state is a dash) -> 'Copenhagen, Denmark'. A posting in
+    several places lists the first and 'and 2 additional locations' (named only on its own page): the first."""
+    text = re.sub(r"\s+and\s+\d+\s+additional\s+locations?\s*$", "", " ".join(html_to_text(text).split()), flags=re.I)
+    parts = [p.strip() for p in text.split(",")]
+    return ", ".join(p for p in parts if p and p != "-")
+
+
+def _selectminds_rows(text, base):
+    starts = [(m.start(), m.group(1)) for m in _SM_ROW.finditer(text)]
+    ends = [s for s, _ in starts[1:]] + [len(text)]
+    page = []
+    for (start, jid), end in zip(starts, ends):
+        row = text[start:end]
+        link = re.search(r'<a\s+href="([^"]*)"\s+class="job_link[^"]*"\s*>(.*?)</a>', row, re.S)
+        if not link or not re.search(r"[-/]" + jid + r"/?$", html.unescape(link.group(1))):
+            raise RuntimeError("SelectMinds result list has a row it cannot read")
+        place = re.search(r'<span class="location">(.*?)</span>', row, re.S)
+        category = re.search(r'<span class="category">(.*?)</span>', row, re.S)
+        teaser = re.search(r'<p class="jlr_description">(.*?)</p>', row, re.S)
+        job = {"id": jid, "title": " ".join(html_to_text(link.group(2)).split()),
+               "location": _selectminds_place(place.group(1)) if place else "",
+               "url": urljoin(base + "/", html.unescape(link.group(1))), "posted": None,
+               "department": " ".join(html_to_text(category.group(1)).split()) if category else ""}
+        if teaser and html_to_text(teaser.group(1)):
+            job["description"], job["teaser"] = html_to_text(teaser.group(1)), True      # cut at about 160 characters
+        page.append(job)
+    return page
+
+
+def fetch_selectminds(cfg):
+    """SelectMinds career sites (Oracle Taleo Social Sourcing: tetratech.referrals.selectminds.com,
+    jobs.arup.com): the site's own job search lists 10 postings a page. The search page names its
+    search id, page count, total and session token, and its pager posts /ajax/content/job_results
+    for the next pages, answering JSON that holds the page's HTML. Listings carry a teaser only;
+    the posting's page has the text. cfg: host, optional site (a sub-site's path segment, e.g.
+    'surge2') and max."""
+    base = _selectminds_base(cfg)
+    limit = _source_limit(cfg)
+    headers = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}
+    r = requests.get(f"{base}/jobs/search?all", headers=headers, timeout=TIMEOUT)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    page_html = r.text
+    search = re.search(r'class="results_content jResultsContent" data-jsid="(\d+)"', page_html)
+    total = re.search(r'class="total_results">\s*([\d,]+)\s*<', page_html)
+    pages = re.search(r'id="jPaginateNumPages"[^>]*>\s*(\d+)', page_html)
+    token = re.search(r'id\s*=\s*"tsstoken"\s+value\s*=\s*"([^"]*)"', page_html)
+    short = re.search(r'short_name:\s*"([^"]+)"', page_html)
+    if not (search and total and token and short):
+        raise RuntimeError(f"SelectMinds search page is not a job list (landed on {r.url})")
+    cookies = requests.cookies.RequestsCookieJar()
+    for hop in [*(getattr(r, "history", None) or []), r]:
+        cookies.update(hop.cookies)
+    out = SourceListing(total=int(total.group(1).replace(",", "")))
+    last = int(pages.group(1)) if pages else 1
+    api = {**headers, "tss-token": token.group(1), "X-Requested-With": "XMLHttpRequest",
+           "Referer": f"{base}/jobs/search/{search.group(1)}", "Accept": "application/json"}
+    seen, page_no = set(), 1
+    while True:
+        page = _selectminds_rows(page_html, base)
+        if _consume_page(out, page, seen, "SelectMinds", limit):
+            break
+        page_no += 1
+        if page_no > last:
+            _consume_page(out, [], seen, "SelectMinds", limit)         # out of pages short of the total: say so
+            break
+        time.sleep(SELECTMINDS_PAUSE)
+        resp = requests.post(f"{base}/ajax/content/job_results",
+                             params={"JobSearch.id": search.group(1), "page_index": page_no,
+                                     "site-name": short.group(1), "include_site": "true"},
+                             headers=api, cookies=cookies, timeout=TIMEOUT)
+        resp.raise_for_status()
+        data = resp.json()
+        if not (isinstance(data, dict) and data.get("Status") == "OK" and isinstance(data.get("Result"), str)):
+            raise RuntimeError("SelectMinds pager response is not a result list")
+        page_html = data["Result"]
+    return _finish_listing(out, "SelectMinds", limit)
+
+
+def _selectminds_div(text, start):
+    """The HTML inside the <div> whose opening tag ends at `start`, up to its balancing </div>."""
+    depth = 1
+    for m in re.finditer(r"<(/?)div\b[^>]*>", text[start:], re.I):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return text[start:start + m.start()]
+    return text[start:]
+
+
+def detail_selectminds(cfg, job_id):
+    """One SelectMinds posting: <site>/jobs/<id> serves the posting's page, whose job_description
+    block is the text and whose category field is the department. -> (description, department)."""
+    if not re.fullmatch(r"\d+", str(job_id)):
+        raise ValueError("SelectMinds posting id must be numeric")
+    r = requests.get(f"{_selectminds_base(cfg)}/jobs/{job_id}", headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
+                     timeout=TIMEOUT)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    block = re.search(r'<div class="job_description">', r.text)
+    text = html_to_text(_selectminds_div(r.text, block.end())) if block else ""
+    if not text:
+        raise ValueError("the SelectMinds posting page has no description")
+    category = re.search(r'<dl class="field_category">.*?<span class="field_value[^"]*">(.*?)</span>', r.text, re.S)
+    return text, " ".join(html_to_text(category.group(1)).split()) if category else ""
+
+
 ADAPTERS = {
     "successfactors": fetch_successfactors,
     "avature": fetch_avature,
@@ -2880,6 +3001,7 @@ ADAPTERS = {
     "paradox": fetch_paradox,
     "successfactors_portal": fetch_successfactors_portal,
     "hopkins_medicine": fetch_hopkins_medicine,
+    "selectminds": fetch_selectminds,
 }
 
 
@@ -3126,6 +3248,7 @@ DETAIL_FETCHERS = {
     "peoplesoft": detail_peoplesoft,
     "gc_jobs": detail_gc_jobs,
     "neogov": detail_neogov,
+    "selectminds": detail_selectminds,
 }
 # Fetched only when the user opens a posting, never in the poll's batches.
 OPEN_DETAIL_FETCHERS = {"linkedin": detail_linkedin}

@@ -156,3 +156,123 @@ class TaleoFacetedTests(unittest.TestCase):
         description, department = watcher.fetch_description({"ats": "taleo", **HDR}, "197562")
         self.assertEqual(("Design roadways in Calgary.", "Highway + Road"), (description, department))
         self.assertEqual("https://hdr.taleo.net/careersection/ex/jobdetail.ftl", get.call_args.args[0])
+
+
+def sm_row(jid, title, place, category="Ground Engineering", teaser="We are looking for someone who is passionate about", slug="engineer"):
+    return f'''<div id="job_list_{jid}" class="job_list_row jlr_Odd ">
+        <div class="jlr_right_hldr "><div class="jlr_title"><div class="flg_hldr"><span class="job_flg font_header_bold new_flg">New</span></div>
+          <p><a href="https://jobs.example.com/jobs/{slug}-{jid}" class="job_link font_bold">{title}</a></p>
+          <p class="jlr_company">Europe Region</p>
+          <p class="jlr_cat_loc"><span class="font_bold">Location:</span>
+            <span class="location">
+              {place}
+            </span></p>
+          <p class="jlr_cat_loc"><span class="font_bold">Category:</span> <span class="category">{category}</span></p></div>
+        <div class="jlr_content"><div class="jlr_content_full"><p class="jlr_description">{teaser}...</p></div></div></div></div>'''
+
+
+def sm_results(rows, page=1, pages=2, total=None, search=22443397):
+    return (f'<div class="results_content jResultsContent" data-jsid="{search}" data-keywords="">'
+            f'<div class="number_of_results"><span class="total_results">{total if total is not None else len(rows)}</span> results</div>'
+            + "".join(rows) + f'<div id="jPaginateNumPages" class="ghost">{pages}.0</div>'
+            f'<div id="jPaginateCurrPage" class="ghost">{page}</div></div>')
+
+
+def sm_search_page(rows, **kw):
+    text = ('<html><script>var TVAPP = { property: { site: { short_name: "default657" } } };</script>'
+            '<input type = "hidden" name="tsstoken" id = "tsstoken" value ="pniGI+NcIU78lXkB/w+Y1qdkZgveMi61EQzhdTOKqpg="/>'
+            + sm_results(rows, **kw) + "</html>")
+    r = response(text=text)
+    r.history, r.cookies, r.url = [], {}, "https://jobs.example.com/jobs/search/22443397"
+    return r
+
+
+def sm_pager(rows, page, pages=2, total=None):
+    return response({"Status": "OK", "UserMessage": "", "Result": sm_results(rows, page=page, pages=pages, total=total)})
+
+
+SM = {"host": "jobs.example.com"}
+
+
+@patch("watcher.time.sleep")
+class SelectMindsTests(unittest.TestCase):
+    @patch("watcher.requests.post")
+    @patch("watcher.requests.get")
+    def test_search_pages_are_read_through_the_sites_pager(self, get, post, sleep):
+        first = [sm_row(36157, "Senior Geotechnical Engineer", "Copenhagen, -, Denmark"),
+                 sm_row(36154, "Ing&eacute;nieur structure", "Montr&eacute;al, Quebec, Canada", category="Structural", teaser="Un poste")]
+        hop = response(text="")
+        hop.cookies = {"JSESSIONID": "abc"}
+        get.return_value = sm_search_page(first, total=3)
+        get.return_value.history = [hop]
+        post.return_value = sm_pager([sm_row(36034, "Cost Consultant", "Vancouver, British Columbia, Canada and 1 additional location")],
+                                     page=2, total=3)
+        jobs = watcher.fetch_selectminds(SM)
+        self.assertEqual(["36157", "36154", "36034"], [j["id"] for j in jobs])
+        self.assertEqual(["Copenhagen, Denmark", "Montréal, Quebec, Canada", "Vancouver, British Columbia, Canada"],
+                         [j["location"] for j in jobs])
+        self.assertEqual("Ingénieur structure", jobs[1]["title"])
+        self.assertEqual(("Structural", "https://jobs.example.com/jobs/engineer-36154"), (jobs[1]["department"], jobs[1]["url"]))
+        self.assertEqual(("Un poste...", True), (jobs[1]["description"], jobs[1]["teaser"]))      # the list holds a teaser only
+        self.assertEqual((3, True, 3), (len(jobs), jobs.complete, jobs.total))
+        self.assertEqual("https://jobs.example.com/jobs/search?all", get.call_args.args[0])
+        self.assertEqual("utf-8", get.return_value.encoding)
+        call = post.call_args
+        self.assertEqual("https://jobs.example.com/ajax/content/job_results", call.args[0])
+        self.assertEqual({"JobSearch.id": "22443397", "page_index": 2, "site-name": "default657", "include_site": "true"},
+                         call.kwargs["params"])
+        self.assertEqual("pniGI+NcIU78lXkB/w+Y1qdkZgveMi61EQzhdTOKqpg=", call.kwargs["headers"]["tss-token"])
+        self.assertEqual("abc", call.kwargs["cookies"].get("JSESSIONID"))           # the session the redirect set
+
+    @patch("watcher.requests.post")
+    @patch("watcher.requests.get")
+    def test_a_short_read_capped_read_and_odd_answers_are_not_complete(self, get, post, sleep):
+        rows = [sm_row(i, f"Engineer {i}", "Toronto, Ontario, Canada") for i in (3, 2)]
+        get.return_value = sm_search_page(rows, total=5, pages=2)
+        post.return_value = sm_pager([sm_row(1, "Engineer 1", "Toronto, Ontario, Canada")], page=2, total=5)
+        jobs = watcher.fetch_selectminds(SM)
+        self.assertEqual((3, False), (len(jobs), jobs.complete))              # the pager ran out of pages at 3 of 5
+        self.assertIn("ended at 3 of reported total 5", jobs.reason)
+        jobs = watcher.fetch_selectminds({**SM, "max": 2})
+        self.assertEqual((2, False), (len(jobs), jobs.complete))
+        self.assertIn("source limit 2", jobs.reason)
+        post.return_value = response({"Status": "ERROR", "Result": ""})
+        with self.assertRaises(RuntimeError):
+            watcher.fetch_selectminds(SM)
+        post.return_value = sm_pager(rows, page=2, total=5)                   # the same page again
+        with self.assertRaises(RuntimeError):
+            watcher.fetch_selectminds(SM)
+        get.return_value = response(text="<html>Page not found</html>")
+        get.return_value.history, get.return_value.url = [], "https://jobs.example.com/"
+        with self.assertRaises(RuntimeError):
+            watcher.fetch_selectminds(SM)
+
+    @patch("watcher.requests.get")
+    def test_config_is_validated(self, get, sleep):
+        for bad in ({"host": "jobs.example.com/x"}, {"host": "localhost"}, {"host": "jobs.example.com", "site": "../x"}):
+            with self.assertRaises(ValueError):
+                watcher.fetch_selectminds(bad)
+        with self.assertRaises(ValueError):
+            watcher.detail_selectminds({"host": "jobs.example.com"}, "12/../3")
+        get.assert_not_called()
+
+    @patch("watcher.requests.get")
+    def test_posting_page_description_is_the_job_description_block(self, get, sleep):
+        get.return_value = response(text='''<html><dl class="field_category"><dt><a href="/x"><span class="job_icon">&#128193;</span></a></dt>
+            <dd><a href="/x"><span class="field_value font_header_light">Ground Engineering</span></a></dd></dl>
+            <div class="job_description"><p><strong>Shape a future with purpose.</strong></p>
+              <div><p>Design and deliver geotechnical solutions.</p><ul><li>Site investigation</li></ul></div>
+              <p>Arup&rsquo;s office opened in 2012.</p></div>
+            <div id="jJobInsideInfo">Employees only</div></html>''')
+        description, department = watcher.fetch_description({"ats": "selectminds", "host": "jobs.example.com", "site": "surge2"},
+                                                            "36157", "https://jobs.example.com/jobs/engineer-36157")
+        self.assertEqual("https://jobs.example.com/surge2/jobs/36157", get.call_args.args[0])
+        self.assertEqual("utf-8", get.return_value.encoding)
+        self.assertEqual("Ground Engineering", department)
+        self.assertIn("Design and deliver geotechnical solutions.", description)
+        self.assertIn("• Site investigation", description)
+        self.assertIn("Arup’s office opened in 2012.", description)
+        self.assertNotIn("Employees only", description)
+        get.return_value = response(text="<html>no description here</html>")
+        with self.assertRaises(ValueError):
+            watcher.detail_selectminds(SM, "36157")
