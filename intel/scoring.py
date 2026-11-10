@@ -174,7 +174,9 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         pts, detail = 20, f"{level_label} — target career stage"
         reasons.append(f"{level_label} level")
     elif stage == "entry" and ({"new_grad", "entry"} & stage_targets):
-        pts, detail = 16, f"{level_label} — entry level{'' if lvl.get('board_level') else ' in finance'}"
+        # A finance level ("Analyst") on a Finance posting is finance's entry level; other boards' postings say no board.
+        in_finance = cls["is_finance"] and not lvl.get("board_level")
+        pts, detail = 16, f"{level_label} — entry level{' in finance' if in_finance else ''}"
         reasons.append("Entry-level title")
     elif stage == "entry" and lvl.get("level") == "entry_to_practice" and stage_targets & {"experienced", "senior"}:
         # 'Registered Nurse': a licensed occupation with no level named hires experienced staff too.
@@ -213,7 +215,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         if shared:
             pts, detail = 7, f"{company['type_label']} — {kn.tracks[shared].employer_noun}"
         else:
-            pts, detail = 4, f"{company['type_label']} — outside finance"
+            pts, detail = 4, f"{company['type_label']} — outside {'finance' if boards == {'finance'} else 'your boards'}"
     elif company["type"] in ("consulting", "accounting_advisory"):
         pts, detail = 6, f"{company['type_label']}"
     else:
@@ -293,7 +295,8 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     mine = set(profile.get("skills") or [])
     if not job_skills:
         pts = 5 if not facts.get("has_description") else 4
-        detail = "No description available yet" if not facts.get("has_description") else "No finance skills detected"
+        detail = ("No description available yet" if not facts.get("has_description") else
+                  "No finance skills detected" if profile_fields(profile, kn) == ["finance"] else "No skills detected")
     else:
         matched = [s for s in job_skills if s["key"] in mine]
         denom = min(4, len(job_skills))

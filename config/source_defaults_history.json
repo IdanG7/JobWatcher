@@ -76,6 +76,41 @@
    "2k"
   ]
  },
+ "3m": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "3m"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "3m.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "3M design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "industrial design"
+  ],
+  "site": [
+   "Search"
+  ],
+  "tenant": [
+   "3m"
+  ]
+ },
  "6sense": {
   "ats": [
    "greenhouse"
@@ -100,21 +135,25 @@
   ]
  },
  "__shipped__": {
-  "hash": "f5dd3640f5c29200",
+  "hash": "0da50572d712b022",
   "names": [
    "10x_genomics",
    "1password",
    "1x_technologies",
    "2k",
+   "3m",
    "6sense",
    "abbott_medtech",
    "abcellera",
    "abnormal_security",
    "abridge",
    "absci",
+   "absolute_security",
    "absorb_lms",
    "abt_global",
+   "achievers",
    "acorns",
+   "active_theory",
    "ada",
    "addepar",
    "adobe",
@@ -145,8 +184,10 @@
    "alteryx",
    "altos_labs",
    "amazon",
+   "amazon_design",
    "amazon_finance",
    "amazon_newgrad",
+   "amazon_product",
    "amazon_tech",
    "ambarella",
    "ambience_healthcare",
@@ -167,18 +208,24 @@
    "apollo",
    "apollo_io",
    "apotex",
+   "appdirect",
    "appian",
    "apple",
    "apple_finance",
    "applied_intuition",
    "applied_materials",
+   "apply_digital",
    "applyboard",
+   "appnovation",
    "apptronik",
    "aptiv",
    "aqr",
    "arc_institute",
+   "arc_teryx_equipment",
    "arctic_wolf",
+   "area_17",
    "arize_ai",
+   "arlo",
    "arm",
    "armis",
    "array_technologies",
@@ -196,6 +243,8 @@
    "aurora",
    "autodesk",
    "automation_anywhere",
+   "autotrader_ca",
+   "axonify",
    "axonius",
    "backstory",
    "bank_of_america",
@@ -203,6 +252,7 @@
    "barclays",
    "barclays_tech",
    "baseten",
+   "bauer_hockey",
    "bausch_lomb",
    "baxter_international",
    "bayer",
@@ -217,6 +267,7 @@
    "beth_israel_lahey_health",
    "betterment",
    "beyondtrust",
+   "big_spaceship",
    "biogen",
    "biontech",
    "bitgo",
@@ -239,13 +290,16 @@
    "boeing",
    "booz_allen_hamilton",
    "borrowell",
+   "bose",
    "boston_dynamics",
    "boston_medical_center",
    "boston_scientific",
    "box",
    "braintrust",
    "braze",
+   "bree",
    "brex",
+   "bridgeable",
    "bristol_myers_squibb",
    "broad_institute",
    "broadcom",
@@ -253,10 +307,12 @@
    "browserbase",
    "bruker",
    "bruker_international",
+   "brunswick",
    "bugcrowd",
    "buildkite",
    "bumble",
    "bungie",
+   "c3_ai_ascend",
    "caci_international",
    "cadence",
    "calendly",
@@ -274,8 +330,10 @@
    "carlyle",
    "carta",
    "cartesia",
+   "caseware",
    "catalent",
    "cato_networks",
+   "ccm_hockey",
    "cdc_foundation",
    "cdpq",
    "cdpq_students",
@@ -311,6 +369,7 @@
    "citi_tech",
    "city_of_toronto",
    "clearco",
+   "clearwater_analytics",
    "clickhouse",
    "clickup",
    "clinton_health_access_initiative",
@@ -318,6 +377,7 @@
    "cloudflare",
    "clover_health",
    "cockroach_labs",
+   "code_and_theory",
    "coder",
    "cognex",
    "cognition",
@@ -338,6 +398,7 @@
    "coreweave",
    "cortex",
    "corti",
+   "costar_campus",
    "coupa_software",
    "coursera",
    "coveo",
@@ -345,6 +406,7 @@
    "cresta",
    "cribl",
    "crispr_therapeutics",
+   "critical_mass",
    "crowdstrike",
    "crusoe",
    "cursor",
@@ -373,6 +435,7 @@
    "dell",
    "demandbase",
    "denali_therapeutics",
+   "dept",
    "derec4_newgrad27",
    "descript",
    "deutsche_bank",
@@ -401,6 +464,7 @@
    "dyno_therapeutics",
    "e2b",
    "ebay",
+   "ecobee",
    "edwards_lifesciences",
    "eikon_therapeutics",
    "elastic",
@@ -422,10 +486,13 @@
    "exa_ai",
    "exabeam",
    "expedia_group",
+   "explorance",
    "f5",
    "faire",
    "fanduel",
+   "fantasy",
    "fastly",
+   "fender",
    "fhi_360",
    "fico",
    "fidelity",
@@ -454,6 +521,8 @@
    "freenome",
    "freshbooks",
    "freshworks",
+   "fueled",
+   "fullscript",
    "fullstory",
    "garmin",
    "gates_foundation",
@@ -498,15 +567,19 @@
    "hackerone",
    "halton_healthcare",
    "hamilton_health_sciences",
+   "harding_display",
+   "hark",
    "harness",
    "harvard_university",
    "harvey",
+   "hasbro",
    "headway",
    "health_canada",
    "health_sciences_north",
    "health_standards_organization",
    "hebbia",
    "helion_energy",
+   "herschel_supply",
    "hex",
    "heygen",
    "hhmi",
@@ -514,6 +587,7 @@
    "hinge_health",
    "honeycomb_io",
    "honeywell",
+   "hootsuite",
    "hopper",
    "houlihan_lokey",
    "houlihan_lokey_campus",
@@ -522,11 +596,14 @@
    "hpe",
    "hrt",
    "hubspot",
+   "huge",
    "hugging_face",
    "humana",
    "humana_clinical",
    "humber_river_health",
    "icf",
+   "id_me_university",
+   "ideo",
    "ideogram",
    "illumina",
    "illumio",
@@ -537,10 +614,12 @@
    "inflection_ai",
    "insitro",
    "instacart",
+   "instrument",
    "insulet",
    "intel",
    "intel_early",
    "intellia_therapeutics",
+   "interac",
    "intercom",
    "intuit",
    "intuitive_surgical",
@@ -548,10 +627,12 @@
    "ionq",
    "iqvia",
    "irhythm_technologies",
+   "irobot",
    "ironclad",
    "isomorphic_labs",
    "jackson_laboratory",
    "jam_city",
+   "jane_app",
    "jane_street",
    "jefferies_campus",
    "jfrog",
@@ -578,6 +659,7 @@
    "koho",
    "komodo_health",
    "kong",
+   "konrad_group",
    "krea_ai",
    "kymera_therapeutics",
    "kyndryl",
@@ -587,7 +669,9 @@
    "labelbox",
    "lam_research",
    "lambda_labs",
+   "landor",
    "langchain",
+   "lasko_products",
    "lattice_semiconductor",
    "launchdarkly",
    "lazard",
@@ -604,16 +688,20 @@
    "linear",
    "linkedin_canada",
    "linkedin_canada_data",
+   "linkedin_canada_design",
    "linkedin_canada_hard_to_reach",
    "linkedin_canada_hardware",
    "linkedin_canada_health",
+   "linkedin_canada_product",
    "linkedin_canada_software",
    "linkedin_quant",
    "linkedin_us",
    "linkedin_us_data",
+   "linkedin_us_design",
    "linkedin_us_hard_to_reach",
    "linkedin_us_hardware",
    "linkedin_us_health",
+   "linkedin_us_product",
    "linkedin_us_software",
    "liquid_ai",
    "lithic",
@@ -635,15 +723,18 @@
    "magic",
    "magna_finance",
    "magna_international",
+   "magnet_forensics",
    "mammoth_biosciences",
    "man_group",
    "manulife",
+   "maple",
    "march_of_dimes",
    "marqeta",
    "marvell",
    "mass_general_brigham",
    "mass_general_brigham_students",
    "mastercard",
+   "mastercard_campus",
    "mastercard_early",
    "match_group",
    "material_security",
@@ -653,11 +744,13 @@
    "mda_space",
    "medallia",
    "medavie_health_services",
+   "media_monks",
    "medtronic",
    "memorial_sloan_kettering",
    "merck",
    "mercor",
    "mercury",
+   "metalab",
    "microchip",
    "micron",
    "microsoft",
@@ -665,8 +758,11 @@
    "microsoft_finance",
    "midjourney",
    "mila",
+   "millerknoll",
+   "milwaukee_tool",
    "mimecast",
    "miovision",
+   "mirego",
    "miro",
    "mistplay",
    "mistral",
@@ -693,6 +789,7 @@
    "msci_us",
    "myriad_genetics",
    "nabla",
+   "nanoleaf",
    "nasdaq",
    "natera",
    "national_bank",
@@ -714,6 +811,7 @@
    "nextracker",
    "niantic_spatial",
    "nike",
+   "nike_design",
    "nike_finance",
    "nokia",
    "northrop_grumman",
@@ -735,33 +833,41 @@
    "oklo",
    "okta",
    "old_mission",
+   "oliver",
    "olympus_americas",
    "omada_health",
    "ontario_health",
    "onto_innovation",
    "openai",
    "openevidence",
+   "opensesame",
    "opentext",
    "optiver_us",
    "oracle",
    "orca_security",
+   "orium",
    "oscar_health",
+   "osedea",
    "otpp",
    "otter_ai",
    "oura",
    "outreach",
+   "owlet",
    "pacbio",
    "pagerduty",
    "palantir",
    "palo_alto_networks",
+   "paper_education",
    "parexel",
    "path",
    "pathai",
    "patreon",
+   "pax_labs",
    "paxos",
    "paychex",
    "paypal",
    "pdt_partners",
+   "peak_design",
    "peloton",
    "pendo",
    "penumbra",
@@ -779,19 +885,27 @@
    "plane",
    "planet",
    "planetscale",
+   "plaud",
    "playstation",
+   "plooto",
    "point72",
+   "pointclickcare",
+   "poka_labs",
+   "polaris",
    "poolside",
    "poshmark",
    "posthog",
    "postman",
+   "potloc",
    "precision_for_medicine",
    "prefect",
    "premier_research",
    "priceline",
    "procore_technologies",
+   "procurify",
    "profound_medical",
    "proofpoint",
+   "prophet",
    "providence",
    "providence_health_care",
    "psiquantum",
@@ -799,6 +913,7 @@
    "public_com",
    "public_health_agency_of_canada",
    "public_health_ontario",
+   "puffco",
    "pure_storage",
    "qiagen",
    "qlik",
@@ -811,6 +926,7 @@
    "quera_computing",
    "quest_diagnostics",
    "quora",
+   "r_ga",
    "rady_children_s_hospital",
    "railway",
    "ramp",
@@ -826,10 +942,12 @@
    "regard",
    "regeneron",
    "relativity_space",
+   "relay_financial",
    "relay_therapeutics",
    "render",
    "replit",
    "resmed",
+   "rethink",
    "retool",
    "revvity",
    "rexall",
@@ -891,8 +1009,11 @@
    "serve_robotics",
    "servicenow",
    "shared_health_manitoba",
+   "sharkninja",
+   "sherpa",
    "shield_ai",
    "shoppers_drug_mart",
+   "shyftlabs",
    "sickkids",
    "siemens_canada",
    "siemens_finance",
@@ -912,6 +1033,7 @@
    "singlestore",
    "skydio",
    "smartsheet",
+   "smile_io",
    "smith_nephew",
    "snap",
    "snaplogic",
@@ -926,14 +1048,18 @@
    "sonos",
    "sony",
    "sophos",
+   "soti",
+   "soti_next_gen",
    "sourcegraph",
    "southlake_health",
    "sp_global",
    "spacex",
+   "specialized",
    "speechify",
    "speechmatics",
    "speedy_ai",
    "speedy_swe",
+   "spin_master",
    "spotify",
    "spring_health",
    "squarepoint",
@@ -947,7 +1073,9 @@
    "standard_biotools",
    "stanford_children_s_health",
    "stanford_health_care",
+   "stanley_black_decker",
    "starburst",
+   "steamclock_software",
    "stepstone",
    "steris",
    "stockx",
@@ -961,6 +1089,7 @@
    "sun_life_students",
    "suno",
    "supabase",
+   "superside",
    "swarmia",
    "sweetgreen",
    "sword_health",
@@ -968,6 +1097,7 @@
    "synopsys",
    "synthesia",
    "sysmex_america",
+   "t_mobile",
    "tailscale",
    "take_two",
    "takeda",
@@ -978,6 +1108,7 @@
    "td",
    "td_students",
    "td_tech",
+   "teague",
    "teleflex",
    "telus",
    "temporal",
@@ -988,6 +1119,7 @@
    "terrapower",
    "teva",
    "texas_instruments",
+   "textnow",
    "the_aerospace",
    "the_home_depot",
    "the_new_york_times",
@@ -995,16 +1127,21 @@
    "thermo_fisher_scientific",
    "thinkific",
    "thinking_machines",
+   "thinkingbox",
    "thomson_reuters",
    "thumbtack",
    "tines",
    "toast",
+   "tobogganlabs",
    "together_ai",
+   "tonal",
    "top_hat",
    "torq",
    "tower_research",
    "tractable",
+   "traeger",
    "transunion",
+   "tribalscale",
    "trillium_health_partners",
    "trimble",
    "tripadvisor",
@@ -1023,6 +1160,8 @@
    "udemy",
    "uipath",
    "ukg",
+   "umbra",
+   "unbounce",
    "unisys",
    "unitedhealth_group",
    "unity",
@@ -1032,6 +1171,7 @@
    "university_of_washington",
    "unstructured_io",
    "upstart",
+   "ustwo",
    "vancouver_coastal_health",
    "vanderbilt_university_medical_center",
    "vanguard",
@@ -1045,15 +1185,21 @@
    "vatic_labs",
    "vector_institute",
    "veeva_systems",
+   "vendasta",
+   "venn",
    "vercel",
    "verizon",
    "verkada",
    "viam",
    "viavi_solutions",
+   "vidyard",
+   "viget",
    "vir_biotechnology",
    "virtu",
    "visa",
+   "visa_early_careers",
    "visier",
+   "vml",
    "voleon",
    "voxel51",
    "voyager_space",
@@ -1066,11 +1212,13 @@
    "waters",
    "waters_international",
    "wattpad",
+   "wave_hq",
    "waymo",
    "wayve",
    "wealthfront",
    "wealthsimple",
    "weaviate",
+   "weber",
    "webflow",
    "weights_and_biases",
    "wells_fargo",
@@ -1080,10 +1228,13 @@
    "william_blair",
    "william_osler_health_system",
    "wiz",
+   "wolff_olins",
    "womens_college_hospital",
    "workato",
+   "workday_early_career",
    "workday_hq",
    "workiva",
+   "workleap",
    "workos",
    "world_labs",
    "worldpay",
@@ -1095,9 +1246,11 @@
    "xaira_therapeutics",
    "yale_university",
    "yelp",
+   "yeti",
    "yipitdata",
    "you_com",
    "yugabytedb",
+   "zafin",
    "zapier",
    "zapply_ca_intern",
    "zapply_ca_jobs",
@@ -1115,24 +1268,29 @@
    "zoominfo",
    "zoox",
    "zscaler",
+   "zulu_alpha_kilo",
    "zuora"
   ],
-  "version": 11
+  "version": 12
  },
  "__since__": {
   "10x_genomics": 11,
   "1password": 1,
   "1x_technologies": 10,
   "2k": 10,
+  "3m": 12,
   "6sense": 10,
   "abbott_medtech": 11,
   "abcellera": 11,
   "abnormal_security": 10,
   "abridge": 1,
   "absci": 11,
+  "absolute_security": 12,
   "absorb_lms": 10,
   "abt_global": 11,
+  "achievers": 12,
   "acorns": 10,
+  "active_theory": 12,
   "ada": 10,
   "addepar": 10,
   "adobe": 1,
@@ -1163,8 +1321,10 @@
   "alteryx": 10,
   "altos_labs": 11,
   "amazon": 1,
+  "amazon_design": 12,
   "amazon_finance": 10,
   "amazon_newgrad": 1,
+  "amazon_product": 12,
   "amazon_tech": 10,
   "ambarella": 10,
   "ambience_healthcare": 10,
@@ -1185,18 +1345,24 @@
   "apollo": 6,
   "apollo_io": 10,
   "apotex": 11,
+  "appdirect": 12,
   "appian": 10,
   "apple": 10,
   "apple_finance": 10,
   "applied_intuition": 10,
   "applied_materials": 10,
+  "apply_digital": 12,
   "applyboard": 10,
+  "appnovation": 12,
   "apptronik": 10,
   "aptiv": 10,
   "aqr": 1,
   "arc_institute": 11,
+  "arc_teryx_equipment": 12,
   "arctic_wolf": 10,
+  "area_17": 12,
   "arize_ai": 10,
+  "arlo": 12,
   "arm": 10,
   "armis": 10,
   "array_technologies": 10,
@@ -1214,6 +1380,8 @@
   "aurora": 1,
   "autodesk": 1,
   "automation_anywhere": 10,
+  "autotrader_ca": 12,
+  "axonify": 12,
   "axonius": 10,
   "backstory": 10,
   "bank_of_america": 6,
@@ -1221,6 +1389,7 @@
   "barclays": 1,
   "barclays_tech": 10,
   "baseten": 1,
+  "bauer_hockey": 12,
   "bausch_lomb": 11,
   "baxter_international": 11,
   "bayer": 11,
@@ -1235,6 +1404,7 @@
   "beth_israel_lahey_health": 11,
   "betterment": 1,
   "beyondtrust": 10,
+  "big_spaceship": 12,
   "biogen": 11,
   "biontech": 11,
   "bitgo": 10,
@@ -1257,13 +1427,16 @@
   "boeing": 10,
   "booz_allen_hamilton": 10,
   "borrowell": 10,
+  "bose": 12,
   "boston_dynamics": 10,
   "boston_medical_center": 11,
   "boston_scientific": 11,
   "box": 10,
   "braintrust": 1,
   "braze": 10,
+  "bree": 12,
   "brex": 1,
+  "bridgeable": 12,
   "bristol_myers_squibb": 11,
   "broad_institute": 11,
   "broadcom": 10,
@@ -1271,10 +1444,12 @@
   "browserbase": 1,
   "bruker": 11,
   "bruker_international": 11,
+  "brunswick": 12,
   "bugcrowd": 10,
   "buildkite": 10,
   "bumble": 10,
   "bungie": 10,
+  "c3_ai_ascend": 12,
   "caci_international": 10,
   "cadence": 10,
   "calendly": 1,
@@ -1292,8 +1467,10 @@
   "carlyle": 6,
   "carta": 10,
   "cartesia": 1,
+  "caseware": 12,
   "catalent": 11,
   "cato_networks": 10,
+  "ccm_hockey": 12,
   "cdc_foundation": 11,
   "cdpq": 6,
   "cdpq_students": 6,
@@ -1329,6 +1506,7 @@
   "citi_tech": 10,
   "city_of_toronto": 11,
   "clearco": 10,
+  "clearwater_analytics": 12,
   "clickhouse": 1,
   "clickup": 10,
   "clinton_health_access_initiative": 11,
@@ -1336,6 +1514,7 @@
   "cloudflare": 1,
   "clover_health": 11,
   "cockroach_labs": 1,
+  "code_and_theory": 12,
   "coder": 10,
   "cognex": 10,
   "cognition": 10,
@@ -1356,6 +1535,7 @@
   "coreweave": 10,
   "cortex": 10,
   "corti": 10,
+  "costar_campus": 12,
   "coupa_software": 10,
   "coursera": 10,
   "coveo": 10,
@@ -1363,6 +1543,7 @@
   "cresta": 10,
   "cribl": 10,
   "crispr_therapeutics": 11,
+  "critical_mass": 12,
   "crowdstrike": 10,
   "crusoe": 1,
   "cursor": 1,
@@ -1391,6 +1572,7 @@
   "dell": 10,
   "demandbase": 10,
   "denali_therapeutics": 11,
+  "dept": 12,
   "derec4_newgrad27": 1,
   "descript": 1,
   "deutsche_bank": 6,
@@ -1419,6 +1601,7 @@
   "dyno_therapeutics": 11,
   "e2b": 10,
   "ebay": 1,
+  "ecobee": 12,
   "edwards_lifesciences": 11,
   "eikon_therapeutics": 11,
   "elastic": 1,
@@ -1440,10 +1623,13 @@
   "exa_ai": 10,
   "exabeam": 10,
   "expedia_group": 10,
+  "explorance": 12,
   "f5": 10,
   "faire": 1,
   "fanduel": 10,
+  "fantasy": 12,
   "fastly": 1,
+  "fender": 12,
   "fhi_360": 11,
   "fico": 10,
   "fidelity": 6,
@@ -1472,6 +1658,8 @@
   "freenome": 11,
   "freshbooks": 10,
   "freshworks": 10,
+  "fueled": 12,
+  "fullscript": 12,
   "fullstory": 10,
   "garmin": 10,
   "gates_foundation": 11,
@@ -1516,15 +1704,19 @@
   "hackerone": 10,
   "halton_healthcare": 11,
   "hamilton_health_sciences": 11,
+  "harding_display": 12,
+  "hark": 12,
   "harness": 10,
   "harvard_university": 11,
   "harvey": 1,
+  "hasbro": 12,
   "headway": 10,
   "health_canada": 11,
   "health_sciences_north": 11,
   "health_standards_organization": 11,
   "hebbia": 10,
   "helion_energy": 10,
+  "herschel_supply": 12,
   "hex": 10,
   "heygen": 1,
   "hhmi": 11,
@@ -1532,6 +1724,7 @@
   "hinge_health": 1,
   "honeycomb_io": 10,
   "honeywell": 10,
+  "hootsuite": 12,
   "hopper": 10,
   "houlihan_lokey": 1,
   "houlihan_lokey_campus": 1,
@@ -1540,11 +1733,14 @@
   "hpe": 10,
   "hrt": 1,
   "hubspot": 10,
+  "huge": 12,
   "hugging_face": 10,
   "humana": 10,
   "humana_clinical": 11,
   "humber_river_health": 11,
   "icf": 11,
+  "id_me_university": 12,
+  "ideo": 12,
   "ideogram": 10,
   "illumina": 11,
   "illumio": 10,
@@ -1555,10 +1751,12 @@
   "inflection_ai": 10,
   "insitro": 10,
   "instacart": 1,
+  "instrument": 12,
   "insulet": 11,
   "intel": 1,
   "intel_early": 1,
   "intellia_therapeutics": 11,
+  "interac": 12,
   "intercom": 10,
   "intuit": 10,
   "intuitive_surgical": 10,
@@ -1566,10 +1764,12 @@
   "ionq": 10,
   "iqvia": 11,
   "irhythm_technologies": 11,
+  "irobot": 12,
   "ironclad": 10,
   "isomorphic_labs": 10,
   "jackson_laboratory": 11,
   "jam_city": 10,
+  "jane_app": 12,
   "jane_street": 1,
   "jefferies_campus": 6,
   "jfrog": 10,
@@ -1596,6 +1796,7 @@
   "koho": 10,
   "komodo_health": 10,
   "kong": 10,
+  "konrad_group": 12,
   "krea_ai": 10,
   "kymera_therapeutics": 11,
   "kyndryl": 10,
@@ -1605,7 +1806,9 @@
   "labelbox": 10,
   "lam_research": 10,
   "lambda_labs": 1,
+  "landor": 12,
   "langchain": 10,
+  "lasko_products": 12,
   "lattice_semiconductor": 10,
   "launchdarkly": 1,
   "lazard": 6,
@@ -1622,17 +1825,21 @@
   "linear": 1,
   "linkedin_canada": 1,
   "linkedin_canada_data": 10,
+  "linkedin_canada_design": 12,
   "linkedin_canada_hard_to_reach": 10,
   "linkedin_canada_hardware": 10,
   "linkedin_canada_health": 11,
+  "linkedin_canada_product": 12,
   "linkedin_canada_software": 10,
   "linkedin_canada_tech": 7,
   "linkedin_quant": 1,
   "linkedin_us": 1,
   "linkedin_us_data": 10,
+  "linkedin_us_design": 12,
   "linkedin_us_hard_to_reach": 10,
   "linkedin_us_hardware": 10,
   "linkedin_us_health": 11,
+  "linkedin_us_product": 12,
   "linkedin_us_software": 10,
   "linkedin_us_tech": 7,
   "liquid_ai": 10,
@@ -1655,15 +1862,18 @@
   "magic": 10,
   "magna_finance": 10,
   "magna_international": 10,
+  "magnet_forensics": 12,
   "mammoth_biosciences": 11,
   "man_group": 1,
   "manulife": 6,
+  "maple": 12,
   "march_of_dimes": 11,
   "marqeta": 1,
   "marvell": 10,
   "mass_general_brigham": 11,
   "mass_general_brigham_students": 11,
   "mastercard": 1,
+  "mastercard_campus": 12,
   "mastercard_early": 1,
   "match_group": 10,
   "material_security": 10,
@@ -1673,11 +1883,13 @@
   "mda_space": 10,
   "medallia": 10,
   "medavie_health_services": 11,
+  "media_monks": 12,
   "medtronic": 11,
   "memorial_sloan_kettering": 11,
   "merck": 11,
   "mercor": 1,
   "mercury": 1,
+  "metalab": 12,
   "microchip": 10,
   "micron": 10,
   "microsoft": 1,
@@ -1685,8 +1897,11 @@
   "microsoft_finance": 10,
   "midjourney": 1,
   "mila": 10,
+  "millerknoll": 12,
+  "milwaukee_tool": 12,
   "mimecast": 10,
   "miovision": 10,
+  "mirego": 12,
   "miro": 10,
   "mistplay": 10,
   "mistral": 10,
@@ -1713,6 +1928,7 @@
   "msci_us": 6,
   "myriad_genetics": 11,
   "nabla": 10,
+  "nanoleaf": 12,
   "nasdaq": 1,
   "natera": 10,
   "national_bank": 2,
@@ -1734,6 +1950,7 @@
   "nextracker": 10,
   "niantic_spatial": 10,
   "nike": 10,
+  "nike_design": 12,
   "nike_finance": 10,
   "nokia": 10,
   "northrop_grumman": 10,
@@ -1755,33 +1972,41 @@
   "oklo": 10,
   "okta": 10,
   "old_mission": 1,
+  "oliver": 12,
   "olympus_americas": 11,
   "omada_health": 10,
   "ontario_health": 11,
   "onto_innovation": 10,
   "openai": 1,
   "openevidence": 1,
+  "opensesame": 12,
   "opentext": 10,
   "optiver_us": 1,
   "oracle": 10,
   "orca_security": 10,
+  "orium": 12,
   "oscar_health": 1,
+  "osedea": 12,
   "otpp": 6,
   "otter_ai": 10,
   "oura": 10,
   "outreach": 10,
+  "owlet": 12,
   "pacbio": 11,
   "pagerduty": 10,
   "palantir": 1,
   "palo_alto_networks": 10,
+  "paper_education": 12,
   "parexel": 11,
   "path": 11,
   "pathai": 10,
   "patreon": 10,
+  "pax_labs": 12,
   "paxos": 10,
   "paychex": 10,
   "paypal": 1,
   "pdt_partners": 1,
+  "peak_design": 12,
   "peloton": 1,
   "pendo": 10,
   "penumbra": 11,
@@ -1799,19 +2024,27 @@
   "plane": 10,
   "planet": 10,
   "planetscale": 1,
+  "plaud": 12,
   "playstation": 10,
+  "plooto": 12,
   "point72": 1,
+  "pointclickcare": 12,
+  "poka_labs": 12,
+  "polaris": 12,
   "poolside": 1,
   "poshmark": 10,
   "posthog": 10,
   "postman": 1,
+  "potloc": 12,
   "precision_for_medicine": 11,
   "prefect": 10,
   "premier_research": 11,
   "priceline": 10,
   "procore_technologies": 10,
+  "procurify": 12,
   "profound_medical": 11,
   "proofpoint": 10,
+  "prophet": 12,
   "providence": 11,
   "providence_health_care": 11,
   "psiquantum": 10,
@@ -1819,6 +2052,7 @@
   "public_com": 10,
   "public_health_agency_of_canada": 11,
   "public_health_ontario": 11,
+  "puffco": 12,
   "pure_storage": 10,
   "qiagen": 11,
   "qlik": 10,
@@ -1831,6 +2065,7 @@
   "quera_computing": 10,
   "quest_diagnostics": 11,
   "quora": 10,
+  "r_ga": 12,
   "rady_children_s_hospital": 11,
   "railway": 10,
   "ramp": 1,
@@ -1846,10 +2081,12 @@
   "regard": 10,
   "regeneron": 11,
   "relativity_space": 10,
+  "relay_financial": 12,
   "relay_therapeutics": 11,
   "render": 10,
   "replit": 10,
   "resmed": 11,
+  "rethink": 12,
   "retool": 1,
   "revvity": 11,
   "rexall": 11,
@@ -1911,8 +2148,11 @@
   "serve_robotics": 10,
   "servicenow": 1,
   "shared_health_manitoba": 11,
+  "sharkninja": 12,
+  "sherpa": 12,
   "shield_ai": 1,
   "shoppers_drug_mart": 11,
+  "shyftlabs": 12,
   "sickkids": 11,
   "siemens_canada": 10,
   "siemens_finance": 10,
@@ -1932,6 +2172,7 @@
   "singlestore": 10,
   "skydio": 10,
   "smartsheet": 1,
+  "smile_io": 12,
   "smith_nephew": 11,
   "snap": 10,
   "snaplogic": 10,
@@ -1946,14 +2187,18 @@
   "sonos": 10,
   "sony": 10,
   "sophos": 10,
+  "soti": 12,
+  "soti_next_gen": 12,
   "sourcegraph": 10,
   "southlake_health": 11,
   "sp_global": 6,
   "spacex": 1,
+  "specialized": 12,
   "speechify": 10,
   "speechmatics": 10,
   "speedy_ai": 1,
   "speedy_swe": 1,
+  "spin_master": 12,
   "spotify": 1,
   "spring_health": 10,
   "squarepoint": 1,
@@ -1967,7 +2212,9 @@
   "standard_biotools": 11,
   "stanford_children_s_health": 11,
   "stanford_health_care": 11,
+  "stanley_black_decker": 12,
   "starburst": 1,
+  "steamclock_software": 12,
   "stepstone": 1,
   "steris": 11,
   "stockx": 10,
@@ -1981,6 +2228,7 @@
   "sun_life_students": 6,
   "suno": 1,
   "supabase": 1,
+  "superside": 12,
   "swarmia": 10,
   "sweetgreen": 1,
   "sword_health": 10,
@@ -1988,6 +2236,7 @@
   "synopsys": 10,
   "synthesia": 10,
   "sysmex_america": 11,
+  "t_mobile": 12,
   "tailscale": 10,
   "take_two": 10,
   "takeda": 11,
@@ -1998,6 +2247,7 @@
   "td": 1,
   "td_students": 2,
   "td_tech": 10,
+  "teague": 12,
   "teleflex": 11,
   "telus": 10,
   "temporal": 10,
@@ -2008,6 +2258,7 @@
   "terrapower": 10,
   "teva": 11,
   "texas_instruments": 10,
+  "textnow": 12,
   "the_aerospace": 10,
   "the_home_depot": 10,
   "the_new_york_times": 10,
@@ -2015,16 +2266,21 @@
   "thermo_fisher_scientific": 11,
   "thinkific": 10,
   "thinking_machines": 10,
+  "thinkingbox": 12,
   "thomson_reuters": 10,
   "thumbtack": 10,
   "tines": 10,
   "toast": 10,
+  "tobogganlabs": 12,
   "together_ai": 1,
+  "tonal": 12,
   "top_hat": 10,
   "torq": 10,
   "tower_research": 1,
   "tractable": 10,
+  "traeger": 12,
   "transunion": 10,
+  "tribalscale": 12,
   "trillium_health_partners": 11,
   "trimble": 10,
   "tripadvisor": 10,
@@ -2043,6 +2299,8 @@
   "udemy": 10,
   "uipath": 10,
   "ukg": 10,
+  "umbra": 12,
+  "unbounce": 12,
   "unisys": 10,
   "unitedhealth_group": 10,
   "unity": 10,
@@ -2052,6 +2310,7 @@
   "university_of_washington": 11,
   "unstructured_io": 10,
   "upstart": 1,
+  "ustwo": 12,
   "vancouver_coastal_health": 11,
   "vanderbilt_university_medical_center": 11,
   "vanguard": 6,
@@ -2065,15 +2324,21 @@
   "vatic_labs": 1,
   "vector_institute": 11,
   "veeva_systems": 10,
+  "vendasta": 12,
+  "venn": 12,
   "vercel": 1,
   "verizon": 10,
   "verkada": 1,
   "viam": 10,
   "viavi_solutions": 10,
+  "vidyard": 12,
+  "viget": 12,
   "vir_biotechnology": 11,
   "virtu": 1,
   "visa": 10,
+  "visa_early_careers": 12,
   "visier": 10,
+  "vml": 12,
   "voleon": 1,
   "voxel51": 10,
   "voyager_space": 10,
@@ -2086,11 +2351,13 @@
   "waters": 11,
   "waters_international": 11,
   "wattpad": 10,
+  "wave_hq": 12,
   "waymo": 1,
   "wayve": 10,
   "wealthfront": 10,
   "wealthsimple": 1,
   "weaviate": 10,
+  "weber": 12,
   "webflow": 1,
   "weights_and_biases": 10,
   "wells_fargo": 1,
@@ -2100,10 +2367,13 @@
   "william_blair": 1,
   "william_osler_health_system": 11,
   "wiz": 10,
+  "wolff_olins": 12,
   "womens_college_hospital": 11,
   "workato": 10,
+  "workday_early_career": 12,
   "workday_hq": 1,
   "workiva": 10,
+  "workleap": 12,
   "workos": 10,
   "world_labs": 10,
   "worldpay": 10,
@@ -2115,9 +2385,11 @@
   "xaira_therapeutics": 11,
   "yale_university": 11,
   "yelp": 10,
+  "yeti": 12,
   "yipitdata": 10,
   "you_com": 10,
   "yugabytedb": 10,
+  "zafin": 12,
   "zapier": 10,
   "zapply_ca_intern": 1,
   "zapply_ca_jobs": 1,
@@ -2135,6 +2407,7 @@
   "zoominfo": 10,
   "zoox": 1,
   "zscaler": 10,
+  "zulu_alpha_kilo": 12,
   "zuora": 10
  },
  "abbott_medtech": {
@@ -2257,6 +2530,29 @@
    "absci"
   ]
  },
+ "absolute_security": {
+  "account": [
+   "ql9aVfwj"
+  ],
+  "ats": [
+   "jobvite"
+  ],
+  "company_key": [
+   "absolute_security"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "absorb_lms": {
   "ats": [
    "ashby"
@@ -2306,6 +2602,29 @@
    "JoinAbt"
   ]
  },
+ "achievers": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "achievers"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "achievers"
+  ]
+ },
  "acorns": {
   "ats": [
    "ashby"
@@ -2327,6 +2646,29 @@
   ],
   "token": [
    "acorns"
+  ]
+ },
+ "active_theory": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "active_theory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "activetheory"
   ]
  },
  "ada": {
@@ -2964,6 +3306,40 @@
    "software engineer intern"
   ]
  },
+ "amazon_design": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "categories": [
+   [
+    "design"
+   ]
+  ],
+  "company_key": [
+   "amazon"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "label": [
+   "Amazon design roles"
+  ],
+  "max": [
+   2000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   ""
+  ]
+ },
  "amazon_finance": {
   "ats": [
    "amazon_jobs"
@@ -3014,6 +3390,40 @@
   ],
   "query": [
    "software development engineer"
+  ]
+ },
+ "amazon_product": {
+  "ats": [
+   "amazon_jobs"
+  ],
+  "categories": [
+   [
+    "project-program-product-management-non-tech"
+   ]
+  ],
+  "company_key": [
+   "amazon"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Big Tech"
+  ],
+  "label": [
+   "Amazon non-tech product manager roles"
+  ],
+  "max": [
+   3000
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   1
+  ],
+  "query": [
+   "product manager"
   ]
  },
  "amazon_tech": {
@@ -3505,6 +3915,29 @@
    "https://careers.apotex.com/search/"
   ]
  },
+ "appdirect": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "appdirect"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "appdirect"
+  ]
+ },
  "appian": {
   "ats": [
    "greenhouse"
@@ -3637,6 +4070,29 @@
    "amat"
   ]
  },
+ "apply_digital": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "apply_digital"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "applydigital"
+  ]
+ },
  "applyboard": {
   "ats": [
    "workday"
@@ -3664,6 +4120,29 @@
   ],
   "tenant": [
    "applyboard"
+  ]
+ },
+ "appnovation": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "appnovation"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "appnovation"
   ]
  },
  "apptronik": {
@@ -3749,6 +4228,29 @@
    "arcinstitute"
   ]
  },
+ "arc_teryx_equipment": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "arc_teryx_equipment"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "arcteryx.com"
+  ]
+ },
  "arctic_wolf": {
   "ats": [
    "workday"
@@ -3778,6 +4280,29 @@
    "arcticwolf"
   ]
  },
+ "area_17": {
+  "account": [
+   "a17"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "area_17"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "arize_ai": {
   "ats": [
    "greenhouse"
@@ -3799,6 +4324,35 @@
   ],
   "token": [
    "arizeai"
+  ]
+ },
+ "arlo": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "arlo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "arlo.wd12.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External_Careers"
+  ],
+  "tenant": [
+   "arlo"
   ]
  },
  "arm": {
@@ -4147,6 +4701,52 @@
    "automationanywhere"
   ]
  },
+ "autotrader_ca": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "autotrader_ca"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "autotradercanada"
+  ]
+ },
+ "axonify": {
+  "account": [
+   "axonify"
+  ],
+  "ats": [
+   "gem"
+  ],
+  "company_key": [
+   "axonify"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "axonius": {
   "ats": [
    "greenhouse"
@@ -4323,6 +4923,29 @@
   ],
   "token": [
    "baseten"
+  ]
+ },
+ "bauer_hockey": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "bauer_hockey"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bauerhockeycascademaveriklacrosse"
   ]
  },
  "bausch_lomb": {
@@ -4680,6 +5303,29 @@
   ],
   "token": [
    "beyondtrust"
+  ]
+ },
+ "big_spaceship": {
+  "account": [
+   "bigspaceship"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "big_spaceship"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "biogen": {
@@ -5295,6 +5941,35 @@
    2
   ]
  },
+ "bose": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "bose"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "boseallaboutme.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Bose_Careers"
+  ],
+  "tenant": [
+   "boseallaboutme"
+  ]
+ },
  "boston_dynamics": {
   "ats": [
    "workday"
@@ -5445,12 +6120,58 @@
    "braze"
   ]
  },
+ "bree": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "bree"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "bree"
+  ]
+ },
  "brex": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "brex"
+  ]
+ },
+ "bridgeable": {
+  "account": [
+   "bridgeable"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "bridgeable"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "bristol_myers_squibb": {
@@ -5631,6 +6352,41 @@
    2
   ]
  },
+ "brunswick": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "brunswick"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "brunswick.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Brunswick design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "designer"
+  ],
+  "site": [
+   "search"
+  ],
+  "tenant": [
+   "brunswick"
+  ]
+ },
  "bugcrowd": {
   "ats": [
    "greenhouse"
@@ -5721,6 +6477,32 @@
   ],
   "token": [
    "bungie"
+  ]
+ },
+ "c3_ai_ascend": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "c3_ai"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "label": [
+   "C3 AI Ascend internships"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "c3ascend"
   ]
  },
  "caci_international": {
@@ -6145,6 +6927,29 @@
    "cartesia"
   ]
  },
+ "caseware": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "caseware"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "caseware"
+  ]
+ },
  "catalent": {
   "ats": [
    "phenom"
@@ -6189,6 +6994,32 @@
   ],
   "token": [
    "catonetworks"
+  ]
+ },
+ "ccm_hockey": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "ccmhockey"
+  ],
+  "company_key": [
+   "ccm_hockey"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
   ]
  },
  "cdc_foundation": {
@@ -7132,6 +7963,38 @@
    "clearco"
   ]
  },
+ "clearwater_analytics": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "clearwater_analytics"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "host": [
+   "clearwateranalytics.wd1.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "Clearwater_Analytics_Careers"
+  ],
+  "tenant": [
+   "clearwateranalytics"
+  ]
+ },
  "clickhouse": {
   "ats": [
    "ashby"
@@ -7252,6 +8115,29 @@
   ],
   "token": [
    "cockroachlabs"
+  ]
+ },
+ "code_and_theory": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "code_and_theory"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "codeandtheory"
   ]
  },
  "coder": {
@@ -7688,6 +8574,38 @@
    "corti"
   ]
  },
+ "costar_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "costar_group"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "costar.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "CoStar Group campus programs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Costar_Campus"
+  ],
+  "tenant": [
+   "costar"
+  ]
+ },
  "coupa_software": {
   "ats": [
    "lever"
@@ -7868,6 +8786,29 @@
   ],
   "tenant": [
    "crisprtx"
+  ]
+ },
+ "critical_mass": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "critical_mass"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "criticalmass"
   ]
  },
  "crowdstrike": {
@@ -8543,6 +9484,29 @@
    "dnli"
   ]
  },
+ "dept": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "dept"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "dept"
+  ]
+ },
  "derec4_newgrad27": {
   "ats": [
    "github_md"
@@ -9153,6 +10117,46 @@
    "ebay"
   ]
  },
+ "ecobee": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "ecobee"
+  ],
+  "facets": [
+   {
+    "locations": [
+     "39f98e6dce941001ea81b35655790000",
+     "c631a51d674a1000e13d1e766b8e0000"
+    ]
+   }
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "generac.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "ecobee (Generac) Toronto"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "generac"
+  ]
+ },
  "edwards_lifesciences": {
   "ats": [
    "workday"
@@ -9678,6 +10682,29 @@
    "expedia"
   ]
  },
+ "explorance": {
+  "account": [
+   "explorance"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "explorance"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "f5": {
   "ats": [
    "workday"
@@ -9738,12 +10765,58 @@
    "fanduel"
   ]
  },
+ "fantasy": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "fantasy"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fantasy"
+  ]
+ },
  "fastly": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "fastly"
+  ]
+ },
+ "fender": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "fender"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fender"
   ]
  },
  "fhi_360": {
@@ -10349,6 +11422,52 @@
   ],
   "token": [
    "freshworks"
+  ]
+ },
+ "fueled": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "fueled"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fueledcareers"
+  ]
+ },
+ "fullscript": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "fullscript"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "fullscript"
   ]
  },
  "fullstory": {
@@ -11422,6 +12541,55 @@
    "2"
   ]
  },
+ "harding_display": {
+  "ats": [
+   "dayforce"
+  ],
+  "client": [
+   "hardingdis"
+  ],
+  "company_key": [
+   "harding_display"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "CANDIDATEPORTAL"
+  ]
+ },
+ "hark": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hark"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hark"
+  ]
+ },
  "harness": {
   "ats": [
    "greenhouse"
@@ -11474,6 +12642,29 @@
   ],
   "token": [
    "harvey"
+  ]
+ },
+ "hasbro": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hasbro"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hasbro"
   ]
  },
  "headway": {
@@ -11624,6 +12815,29 @@
    "helion"
   ]
  },
+ "herschel_supply": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "herschel_supply"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "herschelsupplyco"
+  ]
+ },
  "hex": {
   "ats": [
    "ashby"
@@ -11749,6 +12963,29 @@
   ],
   "site": [
    "Honeywell"
+  ]
+ },
+ "hootsuite": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "hootsuite"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hootsuite"
   ]
  },
  "hopper": {
@@ -11968,6 +13205,29 @@
    "hubspotjobs"
   ]
  },
+ "huge": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "huge"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "hugeinc"
+  ]
+ },
  "hugging_face": {
   "account": [
    "huggingface"
@@ -12136,6 +13396,55 @@
   ],
   "url": [
    "https://careers.icf.com/us/en/job/{id}"
+  ]
+ },
+ "id_me_university": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "id_me"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "label": [
+   "ID.me university recruiting"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "idmeuniversityrecruiting"
+  ]
+ },
+ "ideo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "ideo"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "ideo"
   ]
  },
  "ideogram": {
@@ -12329,6 +13638,29 @@
    "instacart"
   ]
  },
+ "instrument": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "instrument"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "instrument"
+  ]
+ },
  "insulet": {
   "ats": [
    "workday"
@@ -12429,6 +13761,35 @@
   ],
   "tenant": [
    "intelliatx"
+  ]
+ },
+ "interac": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "interac"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "interac.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Interac"
+  ],
+  "tenant": [
+   "interac"
   ]
  },
  "intercom": {
@@ -12628,6 +13989,35 @@
    "irhythmtech"
   ]
  },
+ "irobot": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "irobot"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "irobot.wd503.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "iRobot"
+  ],
+  "tenant": [
+   "irobot"
+  ]
+ },
  "ironclad": {
   "ats": [
    "ashby"
@@ -12718,6 +14108,29 @@
   ],
   "token": [
    "jamcity"
+  ]
+ },
+ "jane_app": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "jane_app"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "jane"
   ]
  },
  "jane_street": {
@@ -13352,6 +14765,29 @@
    "kong"
   ]
  },
+ "konrad_group": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "konrad_group"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "konradgroup"
+  ]
+ },
  "krea_ai": {
   "ats": [
    "ashby"
@@ -13583,6 +15019,29 @@
    "lambda"
   ]
  },
+ "landor": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "landor"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "landor"
+  ]
+ },
  "langchain": {
   "ats": [
    "ashby"
@@ -13604,6 +15063,29 @@
   ],
   "token": [
    "langchain"
+  ]
+ },
+ "lasko_products": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "lasko_products"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "laskoproducts"
   ]
  },
  "lattice_semiconductor": {
@@ -14041,6 +15523,51 @@
    "r7776000"
   ]
  },
+ "linkedin_canada_design": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Design"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "UX design co-op",
+    "product design intern",
+    "UX designer",
+    "user researcher",
+    "graphic designer",
+    "industrial design co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_canada_hard_to_reach": {
   "ats": [
    "linkedin"
@@ -14170,6 +15697,51 @@
     "research assistant",
     "regulatory affairs co-op",
     "biomedical engineering co-op"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_canada_product": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 Canada \u00b7 Product"
+  ],
+  "location": [
+   "Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product management intern",
+    "product manager co-op",
+    "associate product manager",
+    "technical product manager",
+    "product analyst co-op",
+    "product owner co-op"
    ]
   ],
   "recency": [
@@ -14391,6 +15963,51 @@
    "r7776000"
   ]
  },
+ "linkedin_us_design": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Design"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product design intern",
+    "UX designer intern",
+    "UX researcher intern",
+    "graphic design intern",
+    "content designer",
+    "industrial design intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
  "linkedin_us_hard_to_reach": {
   "ats": [
    "linkedin"
@@ -14519,6 +16136,51 @@
     "research assistant biology",
     "regulatory affairs intern",
     "public health intern"
+   ]
+  ],
+  "recency": [
+   "r2592000"
+  ],
+  "seed_pages": [
+   8
+  ],
+  "seed_recency": [
+   "r7776000"
+  ]
+ },
+ "linkedin_us_product": {
+  "ats": [
+   "linkedin"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "LinkedIn"
+  ],
+  "label": [
+   "LinkedIn \u00b7 United States \u00b7 Product"
+  ],
+  "location": [
+   "United States"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "pages": [
+   5
+  ],
+  "priority": [
+   1
+  ],
+  "queries": [
+   [
+    "product management intern",
+    "associate product manager",
+    "product manager new grad",
+    "growth product manager",
+    "product operations intern",
+    "product analyst intern"
    ]
   ],
   "recency": [
@@ -15139,6 +16801,29 @@
    "magna"
   ]
  },
+ "magnet_forensics": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "magnet_forensics"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "magnetforensics"
+  ]
+ },
  "mammoth_biosciences": {
   "ats": [
    "lever"
@@ -15212,6 +16897,29 @@
   ],
   "tenant": [
    "manulife"
+  ]
+ },
+ "maple": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "maple"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "getmaple"
   ]
  },
  "march_of_dimes": {
@@ -15385,6 +17093,38 @@
   ],
   "site": [
    "CorporateCareers"
+  ],
+  "tenant": [
+   "mastercard"
+  ]
+ },
+ "mastercard_campus": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "mastercard"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "mastercard.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Mastercard campus programs"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Campus"
   ],
   "tenant": [
    "mastercard"
@@ -15619,6 +17359,29 @@
    "medaviehs"
   ]
  },
+ "media_monks": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "media_monks"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "monks"
+  ]
+ },
  "medtronic": {
   "ats": [
    "workday"
@@ -15720,6 +17483,29 @@
   ],
   "token": [
    "mercury"
+  ]
+ },
+ "metalab": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "metalab"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "metalab"
   ]
  },
  "microchip": {
@@ -15903,6 +17689,88 @@
    2
   ]
  },
+ "millerknoll": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "millerknoll"
+  ],
+  "facets": [
+   {
+    "jobFamily": [
+     "a2c789a5ddb91001eb41e45eac1f0000",
+     "a2c789a5ddb91001e7a59877bed30000",
+     "a2c789a5ddb91001eb55c493141b0000",
+     "a2c789a5ddb91001e7e7c3bb2c830000",
+     "a2c789a5ddb91001e8c90655ba560000",
+     "a2c789a5ddb91001ea924f8762910000",
+     "a2c789a5ddb91001ebffa80648e90000",
+     "a2c789a5ddb91001e81191cd2c5c0000",
+     "a2c789a5ddb91001e7b1735a8c3c0000"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "millerknoll.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "MillerKnoll design and product roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "MillerKnoll"
+  ],
+  "tenant": [
+   "millerknoll"
+  ]
+ },
+ "milwaukee_tool": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "milwaukee_tool"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "tti.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Milwaukee Tool design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "industrial design"
+  ],
+  "site": [
+   "Milwaukee"
+  ],
+  "tenant": [
+   "tti"
+  ]
+ },
  "mimecast": {
   "ats": [
    "workday"
@@ -15953,6 +17821,29 @@
   ],
   "token": [
    "miovision"
+  ]
+ },
+ "mirego": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "mirego"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "mirego"
   ]
  },
  "miro": {
@@ -16629,6 +18520,29 @@
    "nabla"
   ]
  },
+ "nanoleaf": {
+  "account": [
+   "nanoleaf"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "nanoleaf"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "nasdaq": {
   "ats": [
    "workday"
@@ -17150,6 +19064,45 @@
    "nike"
   ]
  },
+ "nike_design": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "nike"
+  ],
+  "facets": [
+   {
+    "jobFamilyGroup": [
+     "cd128a2666561000bad388d2f6030000"
+    ]
+   }
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "host": [
+   "nike.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Nike design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "nke"
+  ],
+  "tenant": [
+   "nike"
+  ]
+ },
  "nike_finance": {
   "ats": [
    "workday"
@@ -17654,6 +19607,32 @@
    "oldmissioncapital"
   ]
  },
+ "oliver": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "oliver"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "label": [
+   "OLIVER North America"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "oliverusa"
+  ]
+ },
  "olympus_americas": {
   "ats": [
    "successfactors_portal"
@@ -17774,6 +19753,29 @@
    "openevidence"
   ]
  },
+ "opensesame": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "opensesame"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Enterprise Software"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "opensesame"
+  ]
+ },
  "opentext": {
   "ats": [
    "phenom"
@@ -17854,6 +19856,29 @@
    "orcasecurity"
   ]
  },
+ "orium": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "orium"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "orium"
+  ]
+ },
  "oscar_health": {
   "ats": [
    "greenhouse"
@@ -17864,6 +19889,29 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "osedea": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "osedea"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "osedea"
   ]
  },
  "otpp": {
@@ -17964,6 +20012,29 @@
    "outreach"
   ]
  },
+ "owlet": {
+  "account": [
+   "owlet-baby-care-1"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "owlet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "pacbio": {
   "ats": [
    "workday"
@@ -18060,6 +20131,35 @@
   ],
   "tenant": [
    "paloaltonetworks"
+  ]
+ },
+ "paper_education": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "paper_education"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "paper.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Paper_Careers"
+  ],
+  "tenant": [
+   "paper"
   ]
  },
  "parexel": {
@@ -18166,6 +20266,29 @@
    "patreon"
   ]
  },
+ "pax_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "pax_labs"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "paxlabs"
+  ]
+ },
  "paxos": {
   "ats": [
    "ashby"
@@ -18238,6 +20361,29 @@
   ],
   "token": [
    "pdtpartners"
+  ]
+ },
+ "peak_design": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "peak_design"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "peakdesign"
   ]
  },
  "peloton": {
@@ -18601,6 +20747,29 @@
    "planetscale"
   ]
  },
+ "plaud": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "plaud"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Plaud"
+  ]
+ },
  "playstation": {
   "ats": [
    "greenhouse"
@@ -18624,6 +20793,29 @@
    "sonyinteractiveentertainmentglobal"
   ]
  },
+ "plooto": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "plooto"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "plooto"
+  ]
+ },
  "point72": {
   "ats": [
    "greenhouse"
@@ -18634,6 +20826,81 @@
   "track": [
    "__missing__",
    "both"
+  ]
+ },
+ "pointclickcare": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "pointclickcare"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "pointclickcare"
+  ]
+ },
+ "poka_labs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "poka_labs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "poka"
+  ]
+ },
+ "polaris": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "polaris"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "polaris.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "PolarisJobs"
+  ],
+  "tenant": [
+   "polaris"
   ]
  },
  "poolside": {
@@ -18714,6 +20981,29 @@
   ],
   "tenant": [
    "postman"
+  ]
+ },
+ "potloc": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "potloc"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Potloc"
   ]
  },
  "precision_for_medicine": {
@@ -18849,6 +21139,29 @@
    "procore"
   ]
  },
+ "procurify": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "procurify"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "procurify"
+  ]
+ },
  "profound_medical": {
   "account": [
    "__missing__",
@@ -18900,6 +21213,29 @@
   ],
   "tenant": [
    "proofpoint"
+  ]
+ },
+ "prophet": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "prophet"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "prophet"
   ]
  },
  "providence": {
@@ -19079,6 +21415,29 @@
   ],
   "tenant": [
    "publichealthontario"
+  ]
+ },
+ "puffco": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "puffco"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "puffco"
   ]
  },
  "pure_storage": {
@@ -19398,6 +21757,29 @@
   ],
   "token": [
    "quora"
+  ]
+ },
+ "r_ga": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "r_ga"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "rga"
   ]
  },
  "rady_children_s_hospital": {
@@ -19760,6 +22142,29 @@
    "relativity"
   ]
  },
+ "relay_financial": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "relay_financial"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "relayfi"
+  ]
+ },
  "relay_therapeutics": {
   "ats": [
    "greenhouse"
@@ -19865,6 +22270,29 @@
   ],
   "tenant": [
    "resmed"
+  ]
+ },
+ "rethink": {
+  "account": [
+   "rethinkcanada"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "rethink"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "retool": {
@@ -21260,6 +23688,52 @@
    "https://careers.wrha.mb.ca/search/"
   ]
  },
+ "sharkninja": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "sharkninja"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "sharkninjaoperatingllc"
+  ]
+ },
+ "sherpa": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "sherpa"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "joinsherpa"
+  ]
+ },
  "shield_ai": {
   "ats": [
    "lever"
@@ -21298,6 +23772,29 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "shyftlabs": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "shyftlabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "shyftlabs"
   ]
  },
  "sickkids": {
@@ -21736,6 +24233,29 @@
    "smartsheet"
   ]
  },
+ "smile_io": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "smile_io"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "Smile.io"
+  ]
+ },
  "smith_nephew": {
   "ats": [
    "workday"
@@ -22079,6 +24599,67 @@
    "sophos"
   ]
  },
+ "soti": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "soti"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "host": [
+   "soti.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Careers"
+  ],
+  "tenant": [
+   "soti"
+  ]
+ },
+ "soti_next_gen": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "soti"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "soti.wd3.myworkdayjobs.com"
+  ],
+  "label": [
+   "SOTI Next Gen (students and interns)"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SOTI-Next-Gen"
+  ],
+  "tenant": [
+   "soti"
+  ]
+ },
  "sourcegraph": {
   "ats": [
    "greenhouse"
@@ -22174,6 +24755,35 @@
    "spacex"
   ]
  },
+ "specialized": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "specialized"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "specialized.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Specialized_External_Career_Site"
+  ],
+  "tenant": [
+   "specialized"
+  ]
+ },
  "speechify": {
   "ats": [
    "greenhouse"
@@ -22266,6 +24876,35 @@
   "track": [
    "__missing__",
    "tech"
+  ]
+ },
+ "spin_master": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "spin_master"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "spinmaster.wd3.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "SpinMaster_Careers"
+  ],
+  "tenant": [
+   "spinmaster"
   ]
  },
  "spotify": {
@@ -22558,12 +25197,70 @@
    "https://careers.stanfordhealthcare.org/us/en/job/{id}"
   ]
  },
+ "stanley_black_decker": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "stanley_black_decker"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "sbdinc.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "Stanley Black & Decker design roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   "designer"
+  ],
+  "site": [
+   "Stanley_Black_Decker_Career_Site"
+  ],
+  "tenant": [
+   "sbdinc"
+  ]
+ },
  "starburst": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "starburst"
+  ]
+ },
+ "steamclock_software": {
+  "account": [
+   "steamclock"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "steamclock_software"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "stepstone": {
@@ -22841,6 +25538,29 @@
    "supabase"
   ]
  },
+ "superside": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "superside"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "superside"
+  ]
+ },
  "swarmia": {
   "ats": [
    "ashby"
@@ -22989,6 +25709,51 @@
   ],
   "priority": [
    2
+  ]
+ },
+ "t_mobile": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "t_mobile"
+  ],
+  "facets": [
+   {
+    "Job_Family_Group": [
+     "92a7d1c6b8651001696685c2c59e0000",
+     "426b19690b7b1036f85c9c0f4dd30a29",
+     "426b19690b7b1036f85c8cb4b9730a21",
+     "426b19690b7b1036f85c59a787b10a19"
+    ]
+   }
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Consumer Tech"
+  ],
+  "host": [
+   "tmobile.wd1.myworkdayjobs.com"
+  ],
+  "label": [
+   "T-Mobile product, design and intern roles"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "search": [
+   ""
+  ],
+  "site": [
+   "External"
+  ],
+  "tenant": [
+   "tmobile"
   ]
  },
  "tailscale": {
@@ -23270,6 +26035,29 @@
    "td"
   ]
  },
+ "teague": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "teague"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "teague"
+  ]
+ },
  "teleflex": {
   "ats": [
    "successfactors"
@@ -23521,6 +26309,29 @@
    "CX"
   ]
  },
+ "textnow": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "textnow"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "textnowinc"
+  ]
+ },
  "the_aerospace": {
   "ats": [
    "workday"
@@ -23719,6 +26530,29 @@
    "ThinkingMachines"
   ]
  },
+ "thinkingbox": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "thinkingbox"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "thinkingbox"
+  ]
+ },
  "thomson_reuters": {
   "ats": [
    "workday"
@@ -23837,12 +26671,58 @@
    "toast"
   ]
  },
+ "tobogganlabs": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tobogganlabs"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tobogganlabs"
+  ]
+ },
  "together_ai": {
   "ats": [
    "greenhouse"
   ],
   "token": [
    "togetherai"
+  ]
+ },
+ "tonal": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "tonal"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tonal"
   ]
  },
  "top_hat": {
@@ -23922,6 +26802,29 @@
    "tractable"
   ]
  },
+ "traeger": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "traeger"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "traegergrills"
+  ]
+ },
  "transunion": {
   "ats": [
    "workday"
@@ -23949,6 +26852,29 @@
   ],
   "tenant": [
    "transunion"
+  ]
+ },
+ "tribalscale": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "tribalscale"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "tribalscale"
   ]
  },
  "trillium_health_partners": {
@@ -24353,6 +27279,52 @@
    2
   ]
  },
+ "umbra": {
+  "account": [
+   "umbra"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "umbra"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "unbounce": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "unbounce"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "unbounce"
+  ]
+ },
  "unisys": {
   "ats": [
    "workday"
@@ -24570,6 +27542,29 @@
   ],
   "token": [
    "upstart"
+  ]
+ },
+ "ustwo": {
+  "account": [
+   "ustwo"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "ustwo"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
   ]
  },
  "vancouver_coastal_health": {
@@ -24844,6 +27839,52 @@
    "veeva"
   ]
  },
+ "vendasta": {
+  "account": [
+   "vendasta"
+  ],
+  "ats": [
+   "bamboohr"
+  ],
+  "company_key": [
+   "vendasta"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "venn": {
+  "ats": [
+   "ashby"
+  ],
+  "company_key": [
+   "venn"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "venn"
+  ]
+ },
  "vercel": {
   "ats": [
    "greenhouse"
@@ -24935,6 +27976,52 @@
    "viavisolutions"
   ]
  },
+ "vidyard": {
+  "account": [
+   "vidyard"
+  ],
+  "ats": [
+   "kula"
+  ],
+  "company_key": [
+   "vidyard"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
+ "viget": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "viget"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "viget"
+  ]
+ },
  "vir_biotechnology": {
   "ats": [
    "greenhouse"
@@ -24995,6 +28082,38 @@
    "visa"
   ]
  },
+ "visa_early_careers": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "visa"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "visa.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Visa early careers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Visa_Early_Careers"
+  ],
+  "tenant": [
+   "visa"
+  ]
+ },
  "visier": {
   "ats": [
    "ashby"
@@ -25016,6 +28135,32 @@
   ],
   "token": [
    "visier"
+  ]
+ },
+ "vml": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "vml"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "label": [
+   "VML Canada"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "vmlcanadaen"
   ]
  },
  "voleon": {
@@ -25292,6 +28437,29 @@
    "wattpad"
   ]
  },
+ "wave_hq": {
+  "ats": [
+   "lever"
+  ],
+  "company_key": [
+   "wave_hq"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "waveapps"
+  ]
+ },
  "waymo": {
   "ats": [
    "greenhouse"
@@ -25375,6 +28543,35 @@
   ],
   "token": [
    "weaviate"
+  ]
+ },
+ "weber": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "weber"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "weber.wd115.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "WB"
+  ],
+  "tenant": [
+   "weber"
   ]
  },
  "webflow": {
@@ -25592,6 +28789,29 @@
    "wizinc"
   ]
  },
+ "wolff_olins": {
+  "account": [
+   "wolff-olins"
+  ],
+  "ats": [
+   "workable"
+  ],
+  "company_key": [
+   "wolff_olins"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ]
+ },
  "womens_college_hospital": {
   "ats": [
    "dayforce"
@@ -25642,6 +28862,38 @@
    "workato"
   ]
  },
+ "workday_early_career": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "workday"
+  ],
+  "geography": [
+   "global"
+  ],
+  "group": [
+   "Early Career Programs"
+  ],
+  "host": [
+   "workday.wd5.myworkdayjobs.com"
+  ],
+  "label": [
+   "Workday early careers"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "Workday_Early_Career"
+  ],
+  "tenant": [
+   "workday"
+  ]
+ },
  "workday_hq": {
   "ats": [
    "workday"
@@ -25689,6 +28941,29 @@
   ],
   "tenant": [
    "workiva"
+  ]
+ },
+ "workleap": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "workleap"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "workleap"
   ]
  },
  "workos": {
@@ -25911,6 +29186,35 @@
    2
   ]
  },
+ "yeti": {
+  "ats": [
+   "workday"
+  ],
+  "company_key": [
+   "yeti"
+  ],
+  "geography": [
+   "us"
+  ],
+  "group": [
+   "Industrial Design"
+  ],
+  "host": [
+   "yeticoolers.wd5.myworkdayjobs.com"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "site": [
+   "YETI"
+  ],
+  "tenant": [
+   "yeticoolers"
+  ]
+ },
  "yipitdata": {
   "ats": [
    "greenhouse"
@@ -25978,6 +29282,29 @@
   ],
   "token": [
    "yugabyte"
+  ]
+ },
+ "zafin": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "zafin"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Canadian Product & Design"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "zafinlabsamericasinc"
   ]
  },
  "zapier": {
@@ -26468,6 +29795,29 @@
   ],
   "token": [
    "zscaler"
+  ]
+ },
+ "zulu_alpha_kilo": {
+  "ats": [
+   "greenhouse"
+  ],
+  "company_key": [
+   "zulu_alpha_kilo"
+  ],
+  "geography": [
+   "canada"
+  ],
+  "group": [
+   "Design Studios"
+  ],
+  "min_interval": [
+   1800
+  ],
+  "priority": [
+   2
+  ],
+  "token": [
+   "zulualphakilo"
   ]
  },
  "zuora": {

@@ -4,6 +4,7 @@ import {get} from '../api.js';
 import {age, compact, deadlineText, esc, fmtDay, parseDay, toEpochMs} from '../lib.js';
 import {STATUS_LABELS, badge, categoryText, emptyState, errorState, fitMeter, icon, locationText, skeletonRows} from '../ui.js';
 import {logTouchpoint, markVisited} from '../forms.js';
+import {boardText} from '../fields.js';
 
 const today = () => new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric'});
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -66,16 +67,17 @@ function draw(root, d) {
   const alerts = p.alerts || {};
   const hf = alerts.high_fit || 75;
   const target = p.target_cycles?.length ? ` · targeting ${esc(p.target_cycles.map(c => c.replace(/_/g, ' ')).join(', '))}` : '';
+  const yours = boardText(d.boards);
   root.innerHTML = `<div class="today">
   <header class="page-head today-head">
     <div>
       <h1>${esc(today())}</h1>
-      <p class="sub">${esc(p.headline || 'Finance recruiting')}${target}</p>
+      <p class="sub">${esc(p.headline || `${yours} recruiting`)}${target}</p>
     </div>
     ${collectionLine(d)}
   </header>
   <div class="kpis">
-    ${kpi('New today', s.new_today, 'finance roles, last 24h', '#/opportunities?posted=today&sort=newest')}
+    ${kpi('New today', s.new_today, `${esc(yours)} roles, last 24h`, '#/opportunities?posted=today&sort=newest')}
     ${kpi('High fit', s.high_fit, `fit ${hf} or more`, `#/opportunities?min_fit=${hf}`, s.high_fit ? 'good' : '')}
     ${kpi('Closing soon', s.closing_soon, 'deadline within 7 days', '#/opportunities?deadline=7d&sort=deadline', s.closing_soon ? 'alert' : '')}
     ${kpi('Applications', s.applications, 'active in pipeline', '#/applications')}

@@ -10,6 +10,16 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.16', items: [
+    {icon: 'kanban', title: 'Product and Design, by specialty', link: '#/settings?tab=roles',
+      text: 'Product, UX, research and brand roles, sorted into 12 specialties you can pick from.'},
+    {icon: 'building', title: 'Over 100 more employers’ job sites', link: '#/sources',
+      text: 'Design studios and industrial design makers for Design, Canadian product teams for both.'},
+    {icon: 'file', title: 'Design resumes read correctly', link: '#/settings?tab=resume',
+      text: 'BDes, MHCI and diplomas set your level; Case Studies read as projects. Upload yours again.'},
+    {icon: 'calendar', title: 'Product and design recruiting dates', link: '#/calendar',
+      text: 'Calendar shows when APM, internship and co-op hiring typically opens on your boards.'},
+  ]},
   {version: '0.3.15', date: '2026-11-07', items: [
     {icon: 'user', title: 'Resumes for every career stage', link: '#/settings?tab=resume',
       text: 'Senior, French and no-degree resumes now read correctly, and roles rank for your level.'},

@@ -207,9 +207,10 @@ def _claim(kn: Knowledge, title: str, description: str, company_type: str, place
     claims = kn.claims
     if placed == "other" and _other_work(title):
         # Tech or business work is no board's to take, but tech work is a tech board's evidence: 'IT Test Analyst'.
+        # Product and Design left the tech track for their own (D24) and keep their claims here.
         if _BUSINESS_OCCUPATION.search(title):
             return None
-        claims = [claim for claim in claims if kn.board_track.get(claim.board) == "tech"]
+        claims = [claim for claim in claims if kn.board_track.get(claim.board) in ("tech", "product_design")]
     for claim in claims:
         if placed not in claim.takes_from or not _hits(claim.title, title) or _hits(claim.unless, title):
             continue

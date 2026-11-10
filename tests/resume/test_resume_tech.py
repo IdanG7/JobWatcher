@@ -152,7 +152,9 @@ class CsResumeTests(unittest.TestCase):
         self.assertTrue(all(field_of(r) in {"hardware", "software"} for r in profile["target_roles"]))
         self.assertEqual(1.0, max(profile["role_weights"].values()))
         self.assertTrue(profile["target_company_types"])
-        self.assertTrue(all(KN.type_tracks(t) == ["tech"] for t in profile["target_company_types"]))
+        # Tech employers only; Big Tech is also on the Product & Design track (D24), and no type is a finance one.
+        self.assertTrue(all(KN.type_tracks(t)[0] == "tech" and "finance" not in KN.type_tracks(t)
+                            for t in profile["target_company_types"]))
         self.assertIn("embedded_systems", profile["skills"])
         # Another school: the old program and GPA don't carry over.
         self.assertEqual({"level": "undergraduate", "school": "Toronto Lakeshore University", "program": "Computer Science",
@@ -188,11 +190,15 @@ class TechMatchTests(unittest.TestCase):
 
     def test_roles_nothing_places_in_a_field_are_not_matches(self):
         # "Illustrator, Intern" and "Revenue Management" internships matched a CS resume on a real install.
-        for title in ("Illustrator, Intern", "2027 Summer Internship - Business Technology"):
+        for title in ("2027 Summer Internship - Revenue Management", "2027 Summer Internship - Business Technology"):
             with self.subTest(title=title):
                 result = self.match(title)
                 self.assertFalse(result["matched"])
                 self.assertIn("Role doesn't name a field you recruit in", result["exclusions"])
+        # Design's words now place illustrators (plans/product-design-board.md, D14), outside this profile's fields.
+        result = self.match("Illustrator, Intern")
+        self.assertFalse(result["matched"])
+        self.assertIn("Design role is outside the fields you recruit in", result["exclusions"])
         # A finance profile still reviews them: vague titles are common in finance.
         finance = profile_from_resume(parse_resume(FINANCE_RESUME, KN), merge_profile(), KN)
         facts = build_facts({"title": "2027 Summer Internship - Business Technology", "location": "Toronto, ON",

@@ -16,7 +16,7 @@ async function renderList(root, ctx) {
   const state = {q: ctx.route.params.q || '', type: ctx.route.params.type || '', watched: ctx.route.params.watched === '1', data: null};
   root.innerHTML = `
   <div class="page-head">
-    <div><h1>Companies</h1><p class="sub" data-summary>Hiring activity across banks, funds and finance employers.</p></div>
+    <div><h1>Companies</h1><p class="sub" data-summary>Hiring activity at the employers in your boards.</p></div>
   </div>
   <div class="toolbar">
     <div class="segmented" role="group" aria-label="Which companies">

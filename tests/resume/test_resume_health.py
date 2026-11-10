@@ -123,22 +123,23 @@ _RIGHT_SIDE = re.compile(r"^(.*\S)\s+(\w{3} \d{4} – (?:\w{3} \d{4}|Present)|[A
 _HEADINGS = {"Education", "Experience", "Clinical Experience", "Volunteer Experience", "Projects", "Certifications", "Skills"}
 
 
-def word_docx(text, listed=None):
+def word_docx(text, listed=None, headings=_HEADINGS):
     """The resume as Word saves it: bullets are list numbering, and dates and cities sit at a right tab stop.
     ``listed``: headings, education lines and dated job lines are list items too, and duties have no full stop,
-    as many Word resumes are laid out; "nested" puts the duties a level below their job, "flat" beside it."""
+    as many Word resumes are laid out; "nested" puts the duties a level below their job, "flat" beside it.
+    ``headings``: the resume's headings."""
     numbering = ('<w:numbering><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:numFmt w:val="bullet"/></w:lvl>'
                  '<w:lvl w:ilvl="1"><w:numFmt w:val="bullet"/></w:lvl></w:abstractNum>'
                  '<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>')
     run = lambda s: f"<w:r><w:t xml:space=\"preserve\">{escape(s)}</w:t></w:r>"
     body, section = [], ""
     for line in text.splitlines():
-        section = line if line in _HEADINGS else section
+        section = line if line in headings else section
         right = _RIGHT_SIDE.match(line)
         level = None
         if line.startswith("• "):
             line, level = (line[2:].rstrip("."), int(listed == "nested")) if listed else (line[2:], 0)
-        elif listed and (line in _HEADINGS or section == "Education" or (right and re.search(r"\d{4}", right[2]))):
+        elif listed and (line in headings or section == "Education" or (right and re.search(r"\d{4}", right[2]))):
             level = 0
         props = (f'<w:numPr><w:ilvl w:val="{level}"/><w:numId w:val="1"/></w:numPr>' if level is not None else "")
         if right and not line.startswith("•"):

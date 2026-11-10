@@ -328,7 +328,8 @@ _LINKEDIN = re.compile(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+/?|(?<![
 # Experienced resumes combine headings ("Certifications & Education") and name the summary and work history.
 _SECTION = re.compile(
     r"^\s*(education|academic(?: background| history)?|experience|work experience|professional experience|clinical experience|"
-    r"relevant experience|industry experience|employment(?: history)?|(?:work|career|professional) history|"
+    r"relevant experience|industry experience|(?:design|research|product|ux) experience|employment(?: history)?|"
+    r"(?:work|career|professional) history|portfolio|selected work|case studies|"
     r"education\s*(?:&|and)\s*(?:certifications?|training|credentials|professional development)|"
     r"(?:certifications?|licen[cs]es?|training|credentials)\s*(?:&|and)\s*education|"
     r"(?:licen[cs]es?|certifications?)\s*(?:&|and)\s*(?:licen[cs]es?|certifications?|training)|"
@@ -350,10 +351,33 @@ _DEGREES = [
                                  r"b\.?s\.?(?: in)?|honou?rs business|hba|undergraduate|b\.?sc\.?n|bsn|b\.?h\.?sc|"
                                  r"b\.?kin|baccalaur[ée]at)\b", re.I)),
 ]
+# Design and HCI degrees' abbreviations ("BFA, Graphic Design", "MHCI 2026", "M.S. in Human-Computer Interaction"),
+# read after the level's own pattern and only under an Education heading, in capitals, where a degree goes on: before
+# a comma, "(Hons)", "in", a date or the line's end ("MFA Showcase" is no degree). Undotted "MS," and "MS in" only
+# start a line and a program: elsewhere they are a state ("Jackson, MS, 2024") or Microsoft ("MS in Excel").
+_ABBR_END = (r"\.?(?=[^\S\n]*(?:$|[,(|–—:]|-\s|\d{4}|(?i:in|expected|candidate|student)\b|"
+             r"(?i:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|spring|summer|fall|autumn|winter)[a-z]*\.?\s+\d{4}))")
+_DEGREE_ABBR = {
+    "masters": re.compile(rf"\b(?:M\.?\s?Des|M\.?F\.?A|MHCI)\b{_ABBR_END}|\bM\.S\.?\s+in\b|"
+                          r"^[^\S\n]*(?:[•*·-][^\S\n]*)?M\.?S\.?(?:,[^\S\n]*[A-Z][a-z]|\s+in\s+[A-Z])", re.M),
+    "undergraduate": re.compile(rf"\b(?:B\.?\s?Des|B\.?F\.?A)\b{_ABBR_END}", re.M),
+}
+_EDUCATION_DEGREES = [(key, p) for key, pattern in _DEGREES for p in (pattern, _DEGREE_ABBR.get(key)) if p]
+# A diploma or a certificate is the level "other" (Settings' "Diploma, certificate or other"), read after the four
+# and only under an Education heading (not by _degree_line: a certificate's date is no graduation, and its school
+# not the degree's).
+_OTHER_LEVEL = ("other", re.compile(r"\b(?:diploma|dipl[ôo]me|certificate|certificat)\b", re.I))
+# A program's name keeps a hyphen inside a word ("Human-Computer Interaction"), "in" before it is a whole word (not
+# the "In" of "Interaction"), and a word starting "Co-op" ("Co-operative Education") or "Coop" after a degree is
+# no program.
+_IN_WORD = r"(?<=[A-Za-z])-(?=[A-Za-z])"
+_NO_COOP = r"(?!co-op|coop\b)"
 _PROGRAM = re.compile(
     r"\b(?:bachelor|master|doctor)(?:'?s)?\s+of\s+(?:arts|science|commerce|business administration|"
-    r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in|–|-)?\s*([A-Z][A-Za-z&,' ]{2,60})", re.I)
-_PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*([A-Za-z&' ]{3,50})", re.I)
+    r"engineering|mathematics|applied science)?\s*(?:\(?(?:hons?\.?|honou?rs)\)?)?\s*(?:,|in\b|–|-)?\s*"
+    rf"{_NO_COOP}([A-Z](?:[A-Za-z&,' ]|{_IN_WORD}){{2,60}})", re.I)
+_PROGRAM_IN = re.compile(r"\b(?:major(?:ing)?|concentration|specializ(?:ation|ing)|degree)\s*(?:in|:)\s*"
+                         rf"((?:[A-Za-z&' ]|{_IN_WORD}){{3,50}})", re.I)
 _GPA = re.compile(r"\b(?:c?gpa|grade point average)\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,2})?)\s*(?:/\s*(\d{1,2}(?:\.\d{1,2})?))?", re.I)
 _MONTHS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 _MONTH = r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
@@ -366,7 +390,7 @@ _CREDENTIAL = re.compile(r"\b(?:certif\w*|licen[cs]\w*|exams?|designation|level 
                          r"cissp|istqb)\b", re.I)
 # "B.Sc., Social Sciences", "MS in Statistics": the program after an abbreviated degree.
 _PROGRAM_ABBR = re.compile(r"\b[bm]\.?\s?(?:sc|a|eng|com|math|ed|s|fa)\.?(?![a-z])\s*(?:\((?:hons?\.?|honou?rs)\))?"
-                           r"\s*(?:,|\bin\b|–|—|-|:)\s*(?:in\s+)?([A-Z][A-Za-z&' ]{2,60})", re.I)
+                           rf"\s*(?:,|\bin\b|–|—|-|:)\s*(?:in\s+)?{_NO_COOP}([A-Z](?:[A-Za-z&' ]|{_IN_WORD}){{2,60}})", re.I)
 _RANGE = insights._RANGE
 _LANG_LINE = re.compile(r"\blanguages?\s*:\s*([^\n]{3,120})", re.I)
 _KNOWN_LANGS = ["English", "French", "Mandarin", "Cantonese", "Spanish", "Portuguese", "German", "Italian",
@@ -394,7 +418,7 @@ def _sections(lines: list[str]) -> dict[str, list[str]]:
                        "experience" if ("experience" in head or "employment" in head or "history" in head
                                         or head.startswith(("expérience", "experience", "parcours"))) else
                        "skills" if "skill" in head or head.startswith(("compétence", "competence")) else
-                       "projects" if head == "projets" else
+                       "projects" if head in ("projets", "portfolio", "selected work", "case studies") else
                        "certifications" if head.startswith(("certification", "licen")) else
                        "leadership" if "leadership" in head or head in ("activities", "extracurricular") else head)
             out.setdefault(current, [])
@@ -414,19 +438,21 @@ def _guess_name(top: list[str]) -> str | None:
     return None
 
 
-def _degree_line(line: str) -> bool:
-    return any(pattern.search(line) for _, pattern in _DEGREES)
+def _degree_line(line: str, education: bool = False) -> bool:
+    """Whether a line names a degree; under an Education heading, by its abbreviation too ("MHCI 2026")."""
+    return any(pattern.search(line) for _, pattern in (_EDUCATION_DEGREES if education else _DEGREES))
 
 
-def _graduation(edu_text: str, full: str, range_text: str | None = None) -> tuple[int | None, int | None, str | None]:
+def _graduation(edu_text: str, full: str, range_text: str | None = None,
+                education: bool = False) -> tuple[int | None, int | None, str | None]:
     """The degree's date: a stated graduation, else the latest end of a date range in ``range_text``
-    (the education text when not given)."""
+    (the education text when not given). ``education``: the text is under an Education heading."""
     range_text = edu_text if range_text is None else range_text
     for pattern in _GRAD:
         for text in (edu_text, full):
             for m in pattern.finditer(text):
                 line = text[text.rfind("\n", 0, m.start()) + 1:].split("\n", 1)[0]
-                if _CREDENTIAL.search(line) and not _degree_line(line):
+                if _CREDENTIAL.search(line) and not _degree_line(line, education):
                     continue
                 groups = m.groups()
                 month = _MONTHS.get((groups[0] or "")[:3].lower()) if len(groups) > 1 else None
@@ -435,7 +461,7 @@ def _graduation(edu_text: str, full: str, range_text: str | None = None) -> tupl
     # ends with ("B.Sc., Social Sciences – University of Haifa 2003")
     best = None
     for line in range_text.splitlines():
-        degree = _degree_line(line)
+        degree = _degree_line(line, education)
         if _CREDENTIAL.search(line) and not degree:
             continue
         for m in _RANGE.finditer(line):
@@ -466,7 +492,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         school = ", ".join(pieces[next((i for i, p in enumerate(pieces) if _SCHOOL.search(p)), 0):])
         school = insights.strip_city(re.sub(r"[\s,]+(?:19|20)\d\d$", "", school))
     level, degree_text = None, None
-    for key, pattern in _DEGREES:
+    for key, pattern in [*_EDUCATION_DEGREES, _OTHER_LEVEL] if edu_lines else _DEGREES:
         m = pattern.search(text)
         if m:
             level = key
@@ -496,7 +522,7 @@ def _education(edu_lines: list[str], full: str) -> dict:
         if 0 < value <= scale and scale in (4.0, 4.3, 4.33, 5.0, 9.0, 10.0, 12.0):
             gpa = round(value / scale * 4.0, 2) if scale not in (4.0, 4.3, 4.33) else value
             gpa_text = m.group(0).strip()
-    year, month, grad_text = _graduation(text, full, range_text)
+    year, month, grad_text = _graduation(text, full, range_text, bool(edu_lines))
     # An experienced candidate's degree can be decades old; the career plan reads it as such.
     if year and not 1950 <= year <= date.today().year + 7:
         year, month, grad_text = None, None, None
@@ -623,7 +649,7 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     interests = insights.role_interests(entries, edu_text, kn, tracks)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"),
                                   years=insights.work_years(entries, kn), senior=insights.senior_title(entries))
-    skills = extract_skills(text, kn, limit=60, tracks=tracks)
+    skills = extract_skills(text, kn, limit=60, tracks=insights.resume_skill_tracks(tracks, kn))
     licences = resume_licences(sections, entries, education, tracks, kn)
     cities: Counter = Counter()
     # contact block + experience only: the school's city is not a job preference

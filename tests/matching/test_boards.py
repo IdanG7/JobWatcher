@@ -8,7 +8,8 @@ from intel import load_knowledge
 
 ROOT = Path(__file__).resolve().parents[2]
 KN = load_knowledge()
-TECH = ["data_ml", "software", "hardware", "product", "design"]
+TECH = ["data_ml", "software", "hardware"]
+PRODUCT_DESIGN = ["product", "design"]      # their own track since D24 (plans/product-design-board.md 6.1)
 
 
 def field_info() -> list[str]:
@@ -56,12 +57,14 @@ class BoardDefinitionTests(unittest.TestCase):
                     self.assertGreater(weight, 0)
 
     def test_the_tech_track_is_todays_tech_boards(self):
+        # Product and Design left it for their own track (D24); a technical occupation still beats finance words there.
         self.assertEqual(TECH, KN.track_boards["tech"])
+        self.assertEqual(PRODUCT_DESIGN, KN.track_boards["product_design"])
         self.assertEqual(["finance"], KN.track_boards["finance"])
         # Tech skills are read from every posting outside finance, as before boards had tracks.
         self.assertEqual({*KN.families, "other"}, KN.tracks["tech"].skills_from)
         self.assertEqual(frozenset(), KN.skill_tracks("finance"))
-        self.assertEqual({*TECH, "healthcare"}, KN.occupation_families)
+        self.assertEqual({*TECH, *PRODUCT_DESIGN, "healthcare"}, KN.occupation_families)
 
 
 if __name__ == "__main__":

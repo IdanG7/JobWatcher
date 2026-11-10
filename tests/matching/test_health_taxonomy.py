@@ -277,7 +277,7 @@ class EmployerAndSkillTests(unittest.TestCase):
         self.assertEqual((7, "Health Tech — recognized tech employer"), company({"fields": ["software", "healthcare"]}))
         self.assertEqual((4, "Health Tech — outside finance"), company({"fields": ["finance"]}))
         facts["company"] = {**facts["company"], "type": "hospital", "type_label": "Hospital & Health System"}
-        self.assertEqual((4, "Hospital & Health System — outside finance"), company({"fields": ["software"]}))
+        self.assertEqual((4, "Hospital & Health System — outside your boards"), company({"fields": ["software"]}))
 
     def test_healthcare_skills_are_read_only_on_the_healthcare_board(self):
         # D9: tech skills are read from Healthcare postings as before; healthcare skills only there.

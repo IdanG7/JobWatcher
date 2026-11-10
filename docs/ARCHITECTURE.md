@@ -36,7 +36,7 @@ ES-module JavaScript with no build step.
 | `intel/skills.py` | Skill extraction with synonym normalization (`DCF` → Valuation, `CapIQ` → Capital IQ). A skill with a track (`"track": "tech"` or `"healthcare"` in `skills.json`) is read only from the boards its track's `skills_from` names and from resumes on that track. |
 | `intel/hours.py` | Employment type, shifts and on-call a posting states (`facts.hours`, every board). They cost fit only through the profile's `hours` preference. |
 | `intel/licences.py` | Licences and certifications a board's postings require (`facts.licences`, Healthcare only) and a resume shows held or expected. |
-| `intel/programs.py` | A board's yearly program windows (PhORCAS, AIFA, NGG…) as Calendar items, for profiles with that board. |
+| `intel/programs.py` | A board's yearly program windows (PhORCAS, AIFA, NGG…, APM rounds, design internships, co-op terms) as Calendar items, for profiles with that board; a window two of the profile's boards list shows once. |
 | `intel/profile.py` | Candidate profile defaults, merge and validation, and the version hash that triggers rescoring. |
 | `intel/scoring.py` | Fit Score 2.0: subscores, penalties, reasons, urgency and badges. |
 | `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. A resume with a track's job or project titles, degree or signals (tech, healthcare) is also read for that track's specialties, skills and licences, and proposes its fields; any other resume is read with the finance vocabulary alone. |
@@ -78,6 +78,7 @@ A source is one feed Foothold polls (`config["boards"]` in the code). Sources li
 | `shared/` | Finance, the tech boards and Healthcare | Employers with both kinds of role: 0.3.7 sources tech boards want too (quant, fintech, lists, big tech, finance firms with 15+ tech postings), and tech employers whose feeds carry 10+ finance postings |
 | `tech/` | Software, AI & Data, Hardware, Product, Design and Healthcare | Tech-only employers and the banks' technology feeds, each fetched before it shipped (`verified`) |
 | `health/` | Healthcare | Hospitals, pharma, biotech, medtech, CROs, labs, research institutes, public health, insurers, pharmacies and the healthcare LinkedIn searches |
+| `product_design/` | Product and Design | Design studios and agencies, industrial and product design employers, Canadian product and design employers, early-career programs, the boards' LinkedIn searches, and design and product reads of employers polled elsewhere (Amazon, Nike) |
 
 Each board polls only the groups the manifest names for it, so adding a board to a folder's audience
 changes no other board (Healthcare polls `shared/lists` and the health tech groups, nothing else there).

@@ -70,7 +70,9 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
   // types and the skills outside the chosen fields' groups (Python stays for Software).
   const groups = skillGroupsFor([...answers.fields], meta);
   const groupOf = new Map(skills.map(s => [s.key, s.group]));
+  // The finance headline goes too: Today then names the boards ("Product and Design recruiting").
   const notFinance = firstRun && !answers.fields.has('finance') ? {
+    headline: '',
     target_company_types: [],
     skills: (profile.skills || []).filter(key => !groups || groups.has(groupOf.get(key))),
   } : {};

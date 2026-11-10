@@ -72,6 +72,19 @@ test('a first run asks afresh and keeps only cities in the chosen countries', ()
   assert.deepEqual(out.target_roles, ['investment_banking', 'private_markets']);
 });
 
+test('a first run without finance drops the finance headline; with finance, or run again, it stays', () => {
+  const finance = {...OLD, headline: '2027 finance recruiting · Toronto & New York'};
+  const first = fields => {
+    const answers = setupAnswers(finance, {firstRun: true, financeKeys: FINANCE});
+    fields.forEach(f => answers.fields.add(f));
+    return setupProfile(finance, answers, {firstRun: true, families: [...FAMILIES, 'product', 'design'], cities: CITIES});
+  };
+  assert.equal(first(['product']).headline, '');
+  assert.equal(first(['product', 'design']).headline, '');
+  assert.equal(first(['finance', 'design']).headline, finance.headline);
+  assert.equal(again(finance, a => { a.fields.delete('finance'); return a; }).headline, finance.headline);
+});
+
 test('setup saves the licences picked and keeps certifications the resume added', () => {
   assert.equal('licences' in again(OLD, a => { a.fields.add('healthcare'); return a; }), false);
   const nurse = {...OLD, fields: ['healthcare'], licences: ['bls']};

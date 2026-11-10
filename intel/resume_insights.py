@@ -190,6 +190,12 @@ def resume_tracks(entries: list[dict], education: dict, kn: Knowledge) -> frozen
                      if track.resume and (key in titled or (track.degree and track.degree.search(degree))))
 
 
+def resume_skill_tracks(tracks: frozenset[str], kn: Knowledge) -> frozenset[str]:
+    """The tracks whose skills the resume is read for: those it opens, and the ones each of them names in
+    ``resume.skills_also`` (a Product & Design resume reads tech's, as P&D postings do)."""
+    return tracks.union(*(kn.tracks[key].skills_also for key in tracks))
+
+
 def _hits(text: str, signals=SIGNALS) -> dict[str, tuple[float, list[str]]]:
     found: dict[str, tuple[float, list[str]]] = {}
     for key, weight, pattern in signals:

@@ -2,6 +2,7 @@
 import {get} from '../api.js';
 import {debounce, esc, fmtDay, isoDay} from '../lib.js';
 import {columnChart, funnel, hBars, heatmap} from '../charts.js';
+import {boardText} from '../fields.js';
 import {bindTooltips, emptyState, errorState, prettyKey, skeletonRows} from '../ui.js';
 
 const key = (cls, label) => `<span><i class="${cls}"></i>${label}</span>`;
@@ -27,17 +28,18 @@ export async function render(root, ctx) {
     const d = state.data;
     const w = state.window;
     const open = d.by_category.reduce((n, c) => n + c.count, 0);
+    const yours = esc(boardText(d.boards));
     const shareLegend = `<div class="legend chart-legend">${key('k-pos', 'High fit')}${key('k-ink', 'All open')}</div>`;
     body.innerHTML = `
     <div class="kpis kpis-4">
-      <div class="kpi${w === 7 ? ' current' : ''}"><div class="label">Posted · last 7 days</div><div class="value num">${d.flow[7]}</div><div class="note">finance roles</div></div>
-      <div class="kpi${w === 30 ? ' current' : ''}"><div class="label">Posted · last 30 days</div><div class="value num">${d.flow[30]}</div><div class="note">finance roles</div></div>
-      <div class="kpi${w === 90 ? ' current' : ''}"><div class="label">Posted · last 90 days</div><div class="value num">${d.flow[90]}</div><div class="note">finance roles</div></div>
-      <div class="kpi"><div class="label">Open right now</div><div class="value num">${open}</div><div class="note">finance inventory</div></div>
+      <div class="kpi${w === 7 ? ' current' : ''}"><div class="label">Posted · last 7 days</div><div class="value num">${d.flow[7]}</div><div class="note">${yours} roles</div></div>
+      <div class="kpi${w === 30 ? ' current' : ''}"><div class="label">Posted · last 30 days</div><div class="value num">${d.flow[30]}</div><div class="note">${yours} roles</div></div>
+      <div class="kpi${w === 90 ? ' current' : ''}"><div class="label">Posted · last 90 days</div><div class="value num">${d.flow[90]}</div><div class="note">${yours} roles</div></div>
+      <div class="kpi"><div class="label">Open right now</div><div class="value num">${open}</div><div class="note">${yours} inventory</div></div>
     </div>
     <div class="ledger analytics">
       <section class="panel">
-        <div class="panel-head"><h2>Finance roles posted per day <span class="count">last ${w} days</span></h2><div class="legend chart-legend">${key('k-ink', 'High fit (75+)')}${key('k-soft', 'Other finance roles')}</div></div>
+        <div class="panel-head"><h2>${yours} roles posted per day <span class="count">last ${w} days</span></h2><div class="legend chart-legend">${key('k-ink', 'High fit (75+)')}${key('k-soft', `Other ${yours} roles`)}</div></div>
         <div class="panel-body" data-daily>${d.daily.length ? '' : emptyState('No dated postings in this window', 'Uses the posting date from the source, or the time Foothold first discovered the role when a source gives none.')}</div>
       </section>
       <div class="two-col">
@@ -46,12 +48,12 @@ export async function render(root, ctx) {
       </div>
       <div class="two-col">
         <section class="panel"><div class="panel-head"><h2>Your funnel</h2><span class="panel-note">furthest stage reached · % of previous stage</span></div><div class="panel-body">${d.funnel[0]?.count ? funnel(d.funnel) : emptyState('No applications tracked yet', 'Your conversion rates appear once you start moving applications through the board.')}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Most active employers <span class="count">last ${w} days</span></h2></div><div class="panel-body">${hBars(d.companies.map(c => ({label: c.name, value: c.count, href: `#/companies/${encodeURIComponent(c.key)}`, tip: `<b>${esc(c.name)}</b> · ${esc(c.type_label)} · ${c.count} finance roles posted`})))}</div></section>
+        <section class="panel"><div class="panel-head"><h2>Most active employers <span class="count">last ${w} days</span></h2></div><div class="panel-body">${hBars(d.companies.map(c => ({label: c.name, value: c.count, href: `#/companies/${encodeURIComponent(c.key)}`, tip: `<b>${esc(c.name)}</b> · ${esc(c.type_label)} · ${c.count} ${yours} roles posted`})))}</div></section>
       </div>
       <section class="panel"><div class="panel-head"><h2>When postings appear <span class="count">last ${w} days</span></h2><span class="panel-note">time Foothold discovered new roles, UTC</span></div><div class="panel-body">${d.heatmap.flat().some(Boolean) ? heatmap(d.heatmap) : emptyState('Not enough discoveries yet')}</div></section>
       <section class="panel"><div class="panel-head"><h2>Source performance</h2><span class="panel-note">First: share of cross-listed roles this source found first</span></div>
-        <div class="table-wrap"><table class="data tidy"><thead><tr><th>Source</th><th>Kind</th><th class="num">Roles</th><th class="num">Finance</th><th class="num">High fit</th><th class="num">Avg fit</th><th class="num">First</th><th class="num">Applied via</th></tr></thead>
-        <tbody>${d.sources.map(s => `<tr class="static"><td><b>${esc(s.label)}</b></td><td class="dim">${esc(prettyKey(s.kind))}</td><td class="num">${s.jobs}</td><td class="num">${s.finance}</td><td class="num">${s.high_fit ? `<span class="hl">${s.high_fit}</span>` : '<span class="muted">0</span>'}</td><td class="num">${s.avg_fit}</td><td class="num">${s.first_share === null ? '<span class="muted">—</span>' : `${Math.round(s.first_share * 100)}%`}</td><td class="num">${s.applications || '<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table></div>
+        <div class="table-wrap"><table class="data tidy"><thead><tr><th>Source</th><th>Kind</th><th class="num">Roles</th><th class="num" title="Roles in ${yours}">In your boards</th><th class="num">High fit</th><th class="num">Avg fit</th><th class="num">First</th><th class="num">Applied via</th></tr></thead>
+        <tbody>${d.sources.map(s => `<tr class="static"><td><b>${esc(s.label)}</b></td><td class="dim">${esc(prettyKey(s.kind))}</td><td class="num">${s.jobs}</td><td class="num">${s.yours}</td><td class="num">${s.high_fit ? `<span class="hl">${s.high_fit}</span>` : '<span class="muted">0</span>'}</td><td class="num">${s.avg_fit}</td><td class="num">${s.first_share === null ? '<span class="muted">—</span>' : `${Math.round(s.first_share * 100)}%`}</td><td class="num">${s.applications || '<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table></div>
       </section>
     </div>`;
     drawDaily();
