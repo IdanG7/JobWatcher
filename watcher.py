@@ -2197,8 +2197,9 @@ def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
     locations say only 'Multiple Locations', so the places come from the page's Location facet: each
     country but the largest is searched once, and a multi-location posting is placed in the countries
     that list it (in the largest when none does). Past the end the pager repeats its last page. HDR's total
-    counts 3 postings the pager never lists (in either sort order), so its reads end short of the total and
-    are marked incomplete: they never close postings, but still place multi-location ones."""
+    counts 3 hidden postings that no sort order, filter or language lists, and every facet counts them too, so
+    no count the site sends leaves them out (plans/aec-board.md section 13). Its reads end short of the total
+    and are marked incomplete: they never close postings, but still place multi-location ones."""
     url = f"{base.rsplit('/', 1)[0]}/rest/jobboard/searchjobs"
     api_headers = {**headers, "Content-Type": "application/json", "Accept": "application/json",
                    "X-Requested-With": "XMLHttpRequest", "tz": "GMT-05:00", "tzname": "America/Toronto",

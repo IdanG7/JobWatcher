@@ -436,7 +436,17 @@ Approved 2026-11-10: "Approve all".
 - **What's new.** The 0.3.16 card holds at most four items, so the AEC entry replaced Product & Design's "Over 100
   more employers' job sites", and its resume and Calendar lines now cover both boards.
 - **HDR never closes postings.** Its Taleo total counts 3 postings the pager never lists, so every read is
-  incomplete by the reader's strict check; postings are placed but never closed. A follow-up could look at why.
+  incomplete by the reader's strict check; postings are placed but never closed (a closed one stays active until
+  the 90-day prune). Checked on 2026-11-10 (2,319 counted, 2,316 listed; 2,331 and 2,328 at 13:50): the 3 are
+  hidden requisitions, not duplicates or a location filter. Every sort order lists the same 2,316, with no row
+  repeated and every page full but the last (16 rows where the total implies 19), and no search lists them (German,
+  multi-line, all six sorts). Every facet and filter counts them as the total does: one each in Bridges (part-time,
+  Orlando FL), Water (San Diego CA) and Highway + Road (Walnut Creek CA), all US and posted over 28 days ago; every
+  other field, country and date window lists in full. No count the site sends leaves them out, so the strict check
+  stays (accepting the shortfall would be a tolerance again). A fix that keeps it: the keyword field matches a whole
+  job number (a listed posting counts 1, each of the 21 postings that closed between the two reads counts 0), so a
+  stored posting missing from an incomplete read can be confirmed gone with one search. That needs the poller to
+  give the reader its open ids; not done.
 - The sweep's employers left out, with why, are in `plans/architecture-engineering-sources.json` (`not_added`).
 - **Precision fixes found while writing tests** (each takes postings back off the board that the approved draft moved):
   a bare estimator no longer comes in when the title says collision, damage, auto, appraisal, material or cost (Tesla
