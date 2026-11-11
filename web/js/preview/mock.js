@@ -34,6 +34,7 @@ function matches(job, p) {
   const status = apps.get(job.key) || null;
   if (!p.include_hidden && hidden.has(job.key)) return false;
   if (p.resume_match === '1' && !job.eligible) return false;
+  if (p.resume_match === '1' && p.shortlist !== '0' && job.fit < 70) return false;     // sample data: high fit stands in for the short list
   if (p.q) {
     const hay = `${job.title} ${job.company} ${job.category_label} ${job.subcategory_label || ''} ${job.location} ${job.cycle_label || ''}`.toLowerCase();
     if (!p.q.toLowerCase().split(/\s+/).every(t => hay.includes(t))) return false;
@@ -107,7 +108,8 @@ async function jobList(p, meta) {
       stage: facet('stage', k => k), cycle: facet('cycle', labels.cycle), city: facet('city', labels.city),
     },
     resume_matching: {available: true, enabled: profileKey !== 'none', active: p.resume_match === '1' && profileKey !== 'none',
-      pending: 0, targets: active.profile.target_roles, unfiltered_total: unfiltered, excluded_total: unfiltered - rows.length, pending_filtered: 0},
+      pending: 0, targets: active.profile.target_roles, unfiltered_total: unfiltered, excluded_total: unfiltered - rows.length, pending_filtered: 0,
+      shortlist: p.resume_match === '1' && p.shortlist !== '0' && profileKey !== 'none'},
   };
 }
 

@@ -57,8 +57,9 @@ The dashboard shows live collection progress, active sources and failures while
 you use any tab. Results refresh as sources finish; **Sources** shows individual
 source status and error details.
 
-Resume match keeps eligible finance roles visible and ranks selected targets and
-resume experience higher. Explicit eligibility conflicts exclude roles; missing
+With a resume on, lists open on your short list: roles in a specialty you picked or your
+resume shows, in a place you can work, still listed and posted in the last 30 days.
+Every other eligible role is one switch away. Explicit eligibility conflicts exclude roles; missing
 requirements stay visible with review notes. Canada includes Canadian remote and
 multi-country postings. Finance filters distinguish engineering and clinical QA
 from financial audit and assurance, including at banks and trading firms.
@@ -177,13 +178,19 @@ and updates education and recruiting cycles. Save any profile edits before apply
 Geography and work authorization remain under your control; correct extracted
 fields in the profile form below and choose **Save profile & rescore**.
 
-Opportunities automatically enables **📄 Resume match** while matching is enabled.
-Click that chip to show all roles for the current view; pause matching in Settings
-to change the default. Clear role/stage/geography and explicit eligibility conflicts
-are excluded regardless of fit score. Preferred qualifications do not exclude a
-posting. Unknown requirements stay visible with review notes in the job drawer;
-matching is a shortlist, not a guarantee of eligibility. Saved views, their alerts
-and CSV exports use the same filter. Results appear in batches during indexing.
+While matching is enabled, Opportunities has a three-way switch. **Short list** (the
+default) shows eligible roles in a specialty you picked or your resume shows, whose
+location is known to be in your countries or remote, seen on their source in the last
+7 days and posted in the last 30 (or with a deadline still ahead). A role in another
+specialty, or one that names none, joins it when your resume's skills are most of what
+the posting asks for. **Eligible** shows every role your resume does not rule out, and
+**All roles** ignores the resume. Pause matching in Settings to turn it off everywhere.
+Clear role/stage/geography and explicit eligibility conflicts are excluded regardless of
+fit score. Preferred qualifications do not exclude a posting. Unknown requirements stay
+visible with review notes in the job drawer, which also says why a role is off the short
+list; matching is not a guarantee of eligibility. Today, Discord alerts, saved views and
+CSV exports use the short list too (a saved view keeps the list it was saved on).
+Results appear in batches during indexing.
 
 Only structured matching facts are saved locally. Original documents, raw text,
 contact details and accomplishment bullets are not retained or exported. Removing

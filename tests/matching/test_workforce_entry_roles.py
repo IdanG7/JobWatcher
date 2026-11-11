@@ -40,7 +40,7 @@ class WorkforceEntryRoleTests(unittest.TestCase):
         self.assertLess(entry["stage"]["points"], senior["stage"]["points"])
         # A licensed role with no level named is open to experienced staff: close to a target stage.
         _, _, nurse = run("Registered Nurse", NURSING, EXPERIENCED_RN)
-        self.assertEqual(16, nurse["stage"]["points"], nurse["stage"])
+        self.assertEqual(6, nurse["stage"]["points"], nurse["stage"])
 
     def test_campus_programs_stay_out(self):
         _, match, _ = run("QA Analyst Intern", QA, SENIOR_QA)

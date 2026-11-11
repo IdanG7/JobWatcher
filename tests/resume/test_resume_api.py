@@ -1,25 +1,71 @@
-"""Private resume preview/apply and SQL filtering integration."""
+"""Private resume preview/apply and SQL filtering integration.
+
+The fixture's resume targets Treasury, Real Estate and FP&A. Its Treasury posting is on the short list (the default
+list); the Investment Banking one is a finance role outside those targets: eligible, shown with shortlist=0."""
 import base64
 import json
+import time
 import unittest
 import threading
 import urllib.error
 import urllib.request
+from datetime import date, datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer
 from unittest.mock import patch
 
+import watcher
 from tests.app import test_dashboard as fixtures
 from dashboard import ApiError, JobwatchService, JobwatchHandler
+from intel import FACTS_VERSION
 from tests.resume.test_resume_health import NURSING, word_docx
 from tests.resume.test_resume_matching import RESUME
 
 
-class ResumeServiceTests(fixtures.ServiceFixture):
-    def apply(self):
+SECOND_RESUME = """TEST CANDIDATE
+EDUCATION
+Example University - Bachelor of Computer Science
+Expected Graduation: May 2028
+EXPERIENCE
+QA Engineer Intern, Example Software | May 2026 - Aug 2026
+- Wrote test plans and test cases, ran regression testing before each release and triaged defects in Jira.
+Software Test Co-op, Example Devices | Jan 2025 - Apr 2025
+- Automated regression tests in Python and Selenium and reported defects to developers.
+SKILLS
+Software Testing, Test Automation, Selenium, Python, SQL, Jira
+"""
+
+
+class ResumeFixture(fixtures.ServiceFixture):
+    """The service fixture plus one posting in a specialty the resume shows (Treasury): the short list."""
+    def setUp(self):
+        super().setUp()
+        con = watcher.db_open(self.db_path)
+        now = watcher.now()
+        con.execute("INSERT INTO jobs VALUES (?,?,?,?,?,?,?)", ("rbc", "treasury", "2027 Treasury Summer Analyst",
+                                                                "Toronto, ON", "https://example.com/treasury", now, now))
+        con.execute("INSERT INTO job_details VALUES (?,?,?,?,?)", ("rbc", "treasury", "RBC", "", time.time() - 3600))
+        con.commit()
+        con.close()
+        self.service.refresh_now()
+
+
+class ResumeServiceTests(ResumeFixture):
+    def apply(self, text=RESUME):
         with patch.object(self.service, "kick"):
-            result = self.service.apply_resume({"text": RESUME})
+            result = self.service.apply_resume({"text": text})
         self.service.refresh_now()
         return result
+
+    def keys(self, **query):
+        return sorted(j["key"] for j in self.service.jobs(query)["jobs"])
+
+    def age(self, job_id, seen_days=0, posted_days=0, deadline=None):
+        """Make a stored posting last seen and posted this many days ago, with this deadline."""
+        seen = datetime.fromtimestamp(time.time() - seen_days * 86400, timezone.utc).isoformat(timespec="seconds")
+        with self.service.db() as con:
+            con.execute("UPDATE jobs SET last_seen=? WHERE job_id=?", (seen, job_id))
+            con.execute("UPDATE job_intel SET posted_ref=?, eff_deadline=? WHERE job_id=?",
+                        (time.time() - posted_days * 86400, deadline, job_id))
 
     def test_preview_is_non_mutating_and_apply_persists_only_matching_facts(self):
         before = self.service.get_profile()
@@ -40,9 +86,15 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         self.apply()
         result = self.service.jobs({})
         self.assertTrue(result["resume_matching"]["active"])
-        self.assertEqual(["rbc:one"], [j["key"] for j in result["jobs"]])
-        self.assertGreater(self.service.jobs({"resume_match": "0"})["total"], result["total"])
-        self.assertTrue(self.service.job_detail("rbc:one")["resume_match"]["matched"])
+        self.assertEqual(["rbc:treasury"], [j["key"] for j in result["jobs"]])      # the short list
+        self.assertEqual(["rbc:one", "rbc:treasury"], self.keys(shortlist="0"))     # every eligible role
+        self.assertGreater(self.service.jobs({"resume_match": "0"})["total"], len(self.keys(shortlist="0")))
+        self.assertTrue(self.service.job_detail("rbc:treasury")["resume_match"]["shortlist"])
+        # Eligible and off the list is still a match, and says why it isn't on the list.
+        outside = self.service.job_detail("rbc:one")["resume_match"]
+        self.assertTrue(outside["matched"])
+        self.assertEqual((1, ["Investment Banking is not one of your target roles"]),
+                         (outside["tier"], outside["off_list"]))
         self.assertFalse(self.service.job_detail("demo_quant:two")["resume_match"]["matched"])
         self.service.set_resume_enabled({"enabled": False})
         self.assertFalse(self.service.jobs({})["resume_matching"]["active"])
@@ -63,7 +115,7 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         self.service.refresh_now()
         self.assertEqual(0, self.service.jobs({})["total"])
         self.assertEqual(0, self.service.get_resume()["pending"])
-        matching = self.service.jobs({})["resume_matching"]
+        matching = self.service.jobs({"shortlist": "0"})["resume_matching"]     # the list that counts the ruled out
         self.assertEqual(matching["unfiltered_total"], matching["excluded_total"])
         self.assertEqual(0, matching["pending_filtered"])
 
@@ -74,7 +126,8 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         with patch.object(self.service, "kick"):
             self.service.put_profile({"profile": profile})
         self.assertEqual(0, self.service.jobs({})["total"])
-        matching = self.service.jobs({})["resume_matching"]
+        self.assertGreater(self.service.jobs({})["resume_matching"]["pending_filtered"], 0)
+        matching = self.service.jobs({"shortlist": "0"})["resume_matching"]
         self.assertEqual(0, matching["excluded_total"])
         self.assertEqual(matching["unfiltered_total"], matching["pending_filtered"])
         self.assertGreater(self.service.get_resume()["pending"], 0)
@@ -102,9 +155,13 @@ class ResumeServiceTests(fixtures.ServiceFixture):
                 watcher.export_state(con)
         self.assertNotIn(marker, export.read_text())
         csv = self.service.csv_export({})
-        self.assertIn("Investment Banking", csv)
+        self.assertIn("Treasury Summer Analyst", csv)
+        self.assertNotIn("Investment Banking", csv)          # eligible, not on the short list
         self.assertNotIn("Quantitative Researcher", csv)
         self.assertNotIn(marker, csv)
+        eligible = self.service.csv_export({"shortlist": "0"})
+        self.assertIn("Investment Banking", eligible)
+        self.assertNotIn("Quantitative Researcher", eligible)
         self.assertIn("Quantitative Researcher", self.service.csv_export({"resume_match": "0"}))
 
     def test_a_resumes_licences_reach_the_profile(self):
@@ -170,7 +227,7 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         import watcher
         from intel_store import IntelStore
         self.apply()
-        for query in ({}, {"resume_match": "1"}, {"resume_match": "0"}):
+        for query in ({}, {"resume_match": "1"}, {"resume_match": "1", "shortlist": "0"}, {"resume_match": "0"}):
             with self.service.db() as con:
                 con.execute("DELETE FROM saved_searches")
                 con.execute("INSERT INTO saved_searches(name,query,notify,created_at) VALUES ('Test',?,1,'2020-01-01')", (json.dumps(query),))
@@ -183,6 +240,151 @@ class ResumeServiceTests(fixtures.ServiceFixture):
                     count = watcher.notify_saved_searches({}, con, [{"saved_search_alerts": True, "discord": "test"}], IntelStore(con, self.service.config))
                     self.assertEqual(expected, count)
                     self.assertTrue(send.called)
+
+    def test_the_default_list_is_the_short_list(self):
+        self.apply()
+        default, eligible = self.service.jobs({}), self.service.jobs({"shortlist": "0"})
+        self.assertEqual(["rbc:treasury"], [j["key"] for j in default["jobs"]])
+        self.assertEqual(default["jobs"], self.service.jobs({"shortlist": "1"})["jobs"])
+        self.assertGreaterEqual(eligible["total"], default["total"])
+        self.assertLessEqual({j["key"] for j in default["jobs"]}, {j["key"] for j in eligible["jobs"]})
+        self.assertEqual(["rbc:one", "rbc:treasury"], self.keys(shortlist="0"))
+        # Tiers as stored: short list 2, eligible 1, ruled out 0.
+        with self.service.db() as con:
+            tiers = {r[0]: r[1] for r in con.execute("SELECT job_id, matched FROM resume_matches").fetchall()}
+        self.assertEqual({"treasury": 2, "one": 1, "li": 1, "two": 0}, tiers)
+
+    def test_resume_matching_reports_the_short_list_and_the_eligible_total(self):
+        self.apply()
+        default = self.service.jobs({})["resume_matching"]
+        self.assertTrue(default["shortlist"])
+        # The short list is read from the resume's verdicts alone, without a pass over the board, so it
+        # has no count of the eligible or the ruled out to give. Nothing is waiting to be read.
+        self.assertEqual((None, None, None), (default["eligible_total"], default["unfiltered_total"],
+                                              default["excluded_total"]))
+        self.assertEqual(0, default["pending_filtered"])
+        eligible = self.service.jobs({"shortlist": "0"})["resume_matching"]
+        self.assertFalse(eligible["shortlist"])
+        self.assertEqual((2, 1), (eligible["eligible_total"], eligible["excluded_total"]))
+        off = self.service.jobs({"resume_match": "0"})["resume_matching"]
+        self.assertFalse(off["shortlist"])          # no resume match, no short list, whatever is asked
+        self.assertFalse(self.service.jobs({"resume_match": "0", "shortlist": "1"})["resume_matching"]["shortlist"])
+
+    def test_a_posting_no_longer_seen_or_long_posted_leaves_the_short_list_and_stays_eligible(self):
+        self.apply()
+        for name, change in (("last seen 8 days ago", {"seen_days": 8}), ("posted 31 days ago", {"posted_days": 31}),
+                             ("posted 31 days ago, deadline passed",
+                              {"posted_days": 31, "deadline": (date.today() - timedelta(days=2)).isoformat()})):
+            with self.subTest(name):
+                self.age("treasury", **change)
+                self.assertEqual([], self.keys())
+                self.assertEqual(["rbc:one", "rbc:treasury"], self.keys(shortlist="0"))
+                self.assertEqual(2, self.service.jobs({"shortlist": "0"})["resume_matching"]["eligible_total"])
+        # Within both limits it is back: seen 6 days ago, posted 29 days ago.
+        self.age("treasury", seen_days=6, posted_days=29)
+        self.assertEqual(["rbc:treasury"], self.keys())
+
+    def test_a_role_its_source_dropped_counts_as_left_out_not_as_unread(self):
+        self.apply()
+        self.age("treasury", seen_days=8)
+        result = self.service.jobs({})
+        self.assertEqual((0, 0), (result["total"], result["resume_matching"]["pending_filtered"]))
+
+    def test_a_long_posted_role_counts_as_left_out_not_as_unread(self):
+        # With no deadline the age check is NULL for a role posted over 30 days ago; it must read as off
+        # the list, never as "the resume hasn't read this yet".
+        self.apply()
+        self.age("treasury", posted_days=31)
+        result = self.service.jobs({})
+        self.assertEqual((0, 0), (result["total"], result["resume_matching"]["pending_filtered"]))
+
+    def test_a_deadline_still_ahead_keeps_a_long_posted_role_on_the_short_list(self):
+        self.apply()
+        self.age("treasury", posted_days=45, deadline=(date.today() + timedelta(days=10)).isoformat())
+        self.assertEqual(["rbc:treasury"], self.keys())
+        # ...but not one its source stopped listing.
+        self.age("treasury", seen_days=8, posted_days=45, deadline=(date.today() + timedelta(days=10)).isoformat())
+        self.assertEqual([], self.keys())
+
+    def test_a_second_resume_drops_the_firsts_specialties_and_keeps_a_hand_picked_target(self):
+        self.apply()
+        first = self.service.get_profile()["profile"]
+        self.assertIn("corporate_finance.treasury", first["resume_targets"])
+        # Picked by hand in Settings, in a board the person chose.
+        picked = {**first, "fields": ["finance", "software"],
+                  "target_roles": [*first["target_roles"], "software.security"]}
+        with patch.object(self.service, "kick"):
+            self.service.put_profile({"profile": picked})
+        saved = self.service.get_profile()["profile"]
+        self.assertEqual(first["resume_targets"], saved["resume_targets"])      # the note survives a Settings save
+        self.apply(SECOND_RESUME)
+        second = self.service.get_profile()["profile"]
+        self.assertIn("software.qa_test", second["target_roles"])
+        self.assertIn("software.qa_test", second["resume_targets"])
+        self.assertIn("software.security", second["target_roles"])
+        self.assertNotIn("software.security", second["resume_targets"])
+        for gone in first["resume_targets"]:
+            self.assertNotIn(gone, second["target_roles"])
+            self.assertNotIn(gone, second["role_weights"])
+
+    def test_removing_every_resume_target_in_settings_keeps_the_note_empty(self):
+        # An empty note still says "none of these came from a resume": a target given a priority by hand
+        # afterwards is not mistaken for an earlier resume's and dropped by the next one.
+        self.apply()
+        first = self.service.get_profile()["profile"]
+        edited = {**first, "fields": ["finance", "software"], "target_roles": ["software.security"],
+                  "role_weights": {"software.security": 0.5}}
+        with patch.object(self.service, "kick"):
+            self.service.put_profile({"profile": edited})
+        self.assertEqual([], self.service.get_profile()["profile"]["resume_targets"])
+        self.apply(SECOND_RESUME)
+        second = self.service.get_profile()["profile"]
+        self.assertIn("software.security", second["target_roles"])
+        self.assertEqual(0.5, second["role_weights"]["software.security"])
+
+    def test_the_pending_count_matches_a_posting_by_posting_count(self):
+        # _count_pending reads four index counts; this is the join over every posting it replaced.
+        def slow(con, version):
+            return con.execute("""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i
+                ON i.board=j.board AND i.job_id=j.job_id LEFT JOIN resume_matches rm
+                ON rm.board=j.board AND rm.job_id=j.job_id WHERE j.title!='' AND
+                (i.facts_version IS NOT ? OR rm.profile_version IS NULL OR rm.profile_version!=?
+                 OR i.profile_version IS NULL OR i.profile_version!=?)""", (FACTS_VERSION, version, version)).fetchone()[0]
+
+        def both():
+            with self.service.db() as con:
+                version = con.execute("SELECT version FROM candidate_resume").fetchone()[0]
+                return self.service._count_pending(con, version), slow(con, version)
+
+        self.apply()
+        self.assertEqual((0, 0), both())
+        with self.service.db() as con:      # one posting sent back for scoring, one for its facts
+            con.execute("UPDATE job_intel SET profile_version=NULL WHERE job_id='one'")
+        self.assertEqual((1, 1), both())
+        with self.service.db() as con:
+            con.execute("UPDATE job_intel SET facts_version=facts_version-1 WHERE job_id='li'")
+        fast, exact = both()
+        self.assertEqual(2, exact)
+        self.assertGreaterEqual(fast, 1)        # never zero while anything waits; it may undercount an overlap
+        with patch.object(self.service, "kick"):    # a new profile: every posting waits
+            self.service.put_profile({"profile": {**self.service.get_profile()["profile"], "target_countries": ["US"]}})
+        fast, exact = both()
+        self.assertEqual(fast, exact)
+        self.assertGreater(fast, 2)
+
+    def test_the_short_list_and_the_board_pass_list_the_same_roles(self):
+        # The default list starts from the resume's verdicts; ?shortlist=0 passes over the board. With a
+        # filter on, each must give what the filter and the verdicts say.
+        self.apply()
+        self.assertEqual(["rbc:treasury"], self.keys(q="treasury"))
+        self.assertEqual([], self.keys(q="quantitative"))
+        self.assertEqual(["rbc:treasury"], self.keys(family="finance"))
+        short = self.service.jobs({})
+        self.assertEqual(1, short["total"])
+        self.assertEqual([{"key": "corporate_finance", "count": 1}],
+                         [{"key": f["key"], "count": f["count"]} for f in short["facets"]["category"]])
+        eligible = self.service.jobs({"shortlist": "0"})
+        self.assertEqual(sum(f["count"] for f in eligible["facets"]["category"]), eligible["total"])
 
     def test_calendar_deadlines_follow_resume_matches(self):
         self.apply()
@@ -207,7 +409,7 @@ class ResumeServiceTests(fixtures.ServiceFixture):
         self.assertIn("demo_quant:two", deadlines())     # no resume: fit decides
 
 
-class ResumeHttpTests(fixtures.ServiceFixture):
+class ResumeHttpTests(ResumeFixture):
     def setUp(self):
         super().setUp()
         handler = type("ResumeTestHandler", (JobwatchHandler,), {"service": self.service})
@@ -242,7 +444,8 @@ class ResumeHttpTests(fixtures.ServiceFixture):
         self.assertEqual(200, self.call("POST", "/api/resume/parse", payload)[0])
         self.assertEqual(200, self.call("POST", "/api/resume", {"text": RESUME})[0])
         self.service.refresh_now()
-        self.assertEqual(1, self.call("GET", "/api/jobs")[1]["total"])
+        self.assertEqual(1, self.call("GET", "/api/jobs")[1]["total"])              # the short list
+        self.assertEqual(2, self.call("GET", "/api/jobs?shortlist=0")[1]["total"])  # every eligible role
         self.assertEqual(200, self.call("PATCH", "/api/resume", {"enabled": False})[0])
         self.assertFalse(self.call("GET", "/api/jobs")[1]["resume_matching"]["active"])
         self.assertEqual(200, self.call("DELETE", "/api/resume")[0])

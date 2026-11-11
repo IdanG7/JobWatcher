@@ -772,11 +772,16 @@ def profile_from_resume(parsed: dict, profile: dict, kn: Knowledge) -> dict:
     if interests:
         # The resume adds graded targets (strongest = 1.0). Targets picked in a chosen board stay
         # with their own weights; Finance targets the default profile only implied give way.
+        # What an earlier resume added goes with that resume: a QA resume after a backend one targets QA.
+        # A profile saved before these were noted can't say which targets a resume added and which were
+        # picked or given a priority by hand, so it keeps them all, and is noted from here on.
+        earlier = set(profile["resume_targets"] if isinstance(profile.get("resume_targets"), list) else ())
         boards = [f for f in profile.get("fields") or [] if isinstance(f, str)]
-        picked = [r for r in profile.get("target_roles") or [] if role_field(r, kn) in boards]
+        picked = [r for r in profile.get("target_roles") or [] if role_field(r, kn) in boards and r not in earlier]
         weights = {i["key"]: round(0.6 + 0.4 * i["strength"], 2) for i in interests}
         result["target_roles"] = list(dict.fromkeys([*weights, *picked]))
         result["role_weights"] = {**weights, **{k: w for k, w in (profile.get("role_weights") or {}).items() if k in picked}}
+        result["resume_targets"] = list(weights)
     else:
         roles = [r for r in parsed.get("role_categories", []) if r in valid]
         result["target_roles"] = list(dict.fromkeys([*(profile.get("target_roles") or []), *roles]))

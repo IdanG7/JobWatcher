@@ -115,5 +115,68 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
         reasons.append(f"Skills: {', '.join(matched_skills[:6])}")
     if not facts.get("has_description"):
         review.append("Posting description is unavailable; check the original requirements")
-    return {"matched": not exclusions, "reasons": reasons, "exclusions": list(dict.fromkeys(exclusions)),
-            "review": review, "matched_skills": matched_skills}
+    matched = not exclusions
+    off_list = _off_list(facts, profile, kn, matched_skills) if matched else []
+    return {"matched": matched, "reasons": reasons, "exclusions": list(dict.fromkeys(exclusions)),
+            "review": review, "matched_skills": matched_skills,
+            # The short list: eligible, and worth reading. What time decides (still listed, how old) is
+            # checked when the list is asked for, so it needs no rescore to stay true.
+            "shortlist": matched and not off_list, "off_list": off_list,
+            "tier": SHORTLIST if matched and not off_list else ELIGIBLE if matched else EXCLUDED}
+
+
+# What resume_matches.matched holds.
+EXCLUDED, ELIGIBLE, SHORTLIST = 0, 1, 2
+# A posting with no specialty of its own, or a neighbouring one, is on the list only when the
+# resume's skills are most of what it asks for.
+SKILLS_SHARE, SKILLS_AT_LEAST = 0.75, 2
+
+
+def _off_list(facts: dict, profile: dict, kn, matched_skills: list[str]) -> list[str]:
+    """Why an eligible posting is not on the short list (empty when it is)."""
+    cls, loc = facts["classification"], facts["location"]
+    reasons = []
+    targets = profile.get("target_roles") or []
+    category, sub = cls.get("category"), cls.get("subcategory")
+    label = cls.get("category_label") or category
+    if targets and not _specific(cls, targets, kn, facts.get("skills") or [], matched_skills):
+        mine = [t for t in targets if t.startswith(f"{category}.")]
+        if cls.get("prior_only"):
+            reasons.append("The posting doesn't name what the role does")
+        elif category not in targets and not mine:
+            reasons.append(f"{label} is not one of your target roles")
+        elif sub:
+            reasons.append(f"{cls.get('subcategory_label') or sub} is not one of your specialties, "
+                           "and the posting asks for little that your resume shows")
+        else:
+            reasons.append("The posting names no specialty, and asks for little that your resume shows"
+                           if facts.get("has_description") else
+                           "The posting names no specialty, and its description hasn't been read yet")
+    target_countries = set(profile.get("target_countries") or [])
+    countries = set(loc.get("countries") or [])
+    remote = loc.get("remote") and profile.get("open_to_remote", True)
+    if target_countries and not countries & target_countries and not (remote and not countries):
+        reasons.append("The posting doesn't say where the role is")
+    return reasons
+
+
+def _specific(cls: dict, targets: list[str], kn, job_skills: list[dict], matched_skills: list[str]) -> bool:
+    """The role is one the person picked or the resume shows, not merely somewhere in a board."""
+    from .scoring import _related_target
+    category, sub = cls.get("category"), cls.get("subcategory")
+    if cls.get("prior_only"):
+        return False
+    if sub and f"{category}.{sub}" in targets:
+        return True
+    mine = [t for t in targets if t.startswith(f"{category}.")]
+    board_level = kn is not None and category in kn.families
+    if category in targets and (not board_level or not mine):
+        # A finance area (Investment Banking) is specific. A board picked with no specialty in it is
+        # the person's own choice of breadth.
+        return True
+    if category not in targets and not mine:
+        return False
+    if kn is not None and _related_target(kn, targets, category, sub):
+        return True
+    asked = min(4, len(job_skills))
+    return bool(asked) and len(matched_skills) >= SKILLS_AT_LEAST and len(matched_skills) / asked >= SKILLS_SHARE

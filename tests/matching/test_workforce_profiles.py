@@ -39,7 +39,7 @@ class WorkforceProfileTests(unittest.TestCase):
 
     def test_a_workforce_profile_has_no_cycle_to_miss_or_graduation_to_check(self):
         result, match, subscores = run("Senior QA Test Lead", EXPERIENCED)
-        self.assertEqual(10, subscores["cycle"]["points"], subscores["cycle"])
+        self.assertEqual(4, subscores["cycle"]["points"], subscores["cycle"])
         self.assertIn("year-round", subscores["cycle"]["detail"])
         self.assertNotIn("Graduation requirement is not stated", match["review"])
 
@@ -50,7 +50,7 @@ class WorkforceProfileTests(unittest.TestCase):
             with self.subTest(profile=name):
                 _, match, subscores = run("QA Analyst", layer)
                 self.assertNotIn("year-round", subscores["cycle"]["detail"])
-                self.assertLessEqual(subscores["cycle"]["points"], 5)
+                self.assertLessEqual(subscores["cycle"]["points"], 2)
                 self.assertIn("Graduation requirement is not stated", match["review"])
 
 

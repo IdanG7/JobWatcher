@@ -1,5 +1,6 @@
 """Tech boards' filters (specialties), tech employer types and how they score.
-Finance classification and a Finance-only profile's scores must not move."""
+Finance classification must not move. A Finance-only profile's points are recorded here: they moved once, with every
+board's, in the Fit Score 3.0 rebalance (company 15 -> 10: outside the boards and unknown 4 -> 3, recognized 7 -> 5)."""
 import time
 import unittest
 
@@ -141,12 +142,12 @@ class TechFitTests(unittest.TestCase):
         points = {title: self.score(title)[1]["role"]["points"] for title in (
             "Backend Engineer Intern", "Full Stack Engineer Intern", "Software Engineer Intern",
             "Frontend Engineer Intern", "Machine Learning Engineer Intern", "Research Scientist Intern")}
-        self.assertEqual(25, points["Backend Engineer Intern"])
-        self.assertEqual(25, points["Machine Learning Engineer Intern"])
-        self.assertEqual(14, points["Full Stack Engineer Intern"])           # related to Backend
-        self.assertEqual(14, points["Research Scientist Intern"])            # related to ML Engineering
-        self.assertEqual(14, points["Software Engineer Intern"])             # no specialty named
-        self.assertEqual(9, points["Frontend Engineer Intern"])
+        self.assertEqual(35, points["Backend Engineer Intern"])
+        self.assertEqual(35, points["Machine Learning Engineer Intern"])
+        self.assertEqual(24, points["Full Stack Engineer Intern"])           # related to Backend
+        self.assertEqual(24, points["Research Scientist Intern"])            # related to ML Engineering
+        self.assertEqual(20, points["Software Engineer Intern"])             # no specialty named
+        self.assertEqual(12, points["Frontend Engineer Intern"])
         self.assertIn("related to your Backend target", self.score("Full Stack Engineer Intern")[1]["role"]["detail"])
 
     def test_specialty_targets_are_not_a_finance_mismatch(self):
@@ -159,9 +160,9 @@ class TechFitTests(unittest.TestCase):
         quant_dev = analyze(job, {"fields": ["software"], "target_roles": ["software.quant_dev"]}, KN, now=NOW)
         self.assertEqual(("quant", "quant_developer", True), (quant_dev["classification"]["category"],
                          quant_dev["classification"]["subcategory"], quant_dev["classification"]["is_finance"]))
-        self.assertEqual(25, {s["key"]: s for s in quant_dev["subscores"]}["role"]["points"])
+        self.assertEqual(35, {s["key"]: s for s in quant_dev["subscores"]}["role"]["points"])
         backend = analyze(job, {"fields": ["software"], "target_roles": ["software.backend"]}, KN, now=NOW)
-        self.assertLess({s["key"]: s for s in backend["subscores"]}["role"]["points"], 25)
+        self.assertLess({s["key"]: s for s in backend["subscores"]}["role"]["points"], 35)
 
     def test_a_tech_employer_counts_only_for_a_profile_with_a_tech_board(self):
         facts = build_facts({"title": "Backend Engineer", "company": "Acme", "location": "New York, NY"}, KN)
@@ -169,14 +170,14 @@ class TechFitTests(unittest.TestCase):
 
         def company(profile, facts=facts):
             return {s["key"]: s for s in score_job(facts, merge_profile(profile), KN, {}, NOW)["subscores"]}["company"]
-        self.assertEqual((7, "Big Tech — recognized tech employer"), (company(self.PROFILE)["points"], company(self.PROFILE)["detail"]))
-        self.assertEqual(7, company({"fields": ["finance", "data_ml"], "target_roles": []})["points"])
-        self.assertEqual(4, company(self.FINANCE)["points"])
-        self.assertEqual(4, company({})["points"])                          # no profile: the Finance board
+        self.assertEqual((5, "Big Tech — recognized tech employer"), (company(self.PROFILE)["points"], company(self.PROFILE)["detail"]))
+        self.assertEqual(5, company({"fields": ["finance", "data_ml"], "target_roles": []})["points"])
+        self.assertEqual(3, company(self.FINANCE)["points"])
+        self.assertEqual(3, company({})["points"])                          # no profile: the Finance board
         unknown = {**facts, "company": {**facts["company"], "type": "unknown", "type_label": "Unclassified"}}
-        self.assertEqual(4, company(self.FINANCE, unknown)["points"])
+        self.assertEqual(3, company(self.FINANCE, unknown)["points"])
         bank = {**facts, "company": {**facts["company"], "type": "canadian_bank", "type_label": "Canadian Bank"}}
-        self.assertEqual(7, company(self.PROFILE, bank)["points"])
+        self.assertEqual(5, company(self.PROFILE, bank)["points"])
 
     def test_every_employer_type_has_a_track_and_finance_ones_are_unchanged(self):
         tracks = {key: tuple(KN.type_tracks(key)) for key in KN.company_types if key != "unknown"}

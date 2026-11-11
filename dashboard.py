@@ -44,7 +44,8 @@ from intel_store import IntelStore, iso_epoch, load_profile, save_profile, utcno
 from intel_worker import WorkerProcess, count_pending_facts, refresh_database
 from job_intelligence import stable_job_key
 from job_query import (ACTIVE_APP_STATUSES, APP_STATUSES, FROM_CLAUSE, INTERVIEW_STATUSES,
-                       SELECT_COLUMNS, build_order, build_where, flatten, page_args, resume_params)
+                       SELECT_COLUMNS, SHORTLIST_RECENT, build_order, build_where, flatten, on_shortlist, page_args,
+                       resume_params, scan_from, shortlist_from, shortlist_recent_args)
 
 HERE = Path(__file__).parent
 WEB_DIR = HERE / "web"
@@ -59,6 +60,15 @@ STATUS_LABELS = {
 FUNNEL = [("saved", "Saved"), ("applied", "Applied"), ("interview", "Interview"),
           ("final_round", "Final round"), ("offer", "Offer")]
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+def by_deadline(base: str) -> str:
+    """``base`` for a query over a range of deadlines. The unary plus keeps the planner off the indexes that
+    lead with is_canonical (every open posting), so it takes the deadline index: a week holds a few hundred."""
+    assert base.count("i.is_canonical=1") == 1
+    return base.replace("i.is_canonical=1", "+i.is_canonical=1")
+
+
+# What the Opportunities sidebar counts roles by.
+FACET_COLUMNS = ("category", "company_type", "stage", "cycle", "city")
 # A posting's resume verdict, with FACTS_VERSION as its parameter: matched (1), ruled out (0) or not yet read (NULL).
 RESUME_VERDICT = """CASE WHEN i.facts_version=? THEN (SELECT rm.matched FROM resume_matches rm
     JOIN candidate_resume cr ON cr.id=1 WHERE rm.board=i.board AND rm.job_id=i.job_id
@@ -722,43 +732,64 @@ class JobwatchService:
             # Evaluate the (multi-join) filter once. With resume matching on, the pass leaves the resume
             # out and notes each row's verdict instead: matched (1), ruled out (0) or not yet read (NULL).
             # The list's count, the resume totals and every facet then come from those rows.
+            resume["shortlist"] = on_shortlist(params)
+            source = scan_from
             if resume["active"]:
                 scan_where, scan_args = build_where({**params, "resume_match": "0"}, store_fts, self.watched(con))
-                verdict = RESUME_VERDICT
-                scan_args = [FACTS_VERSION, *scan_args]
+                # tier: short list (2), eligible (1), ruled out (0), not yet read (NULL).
+                tier = RESUME_VERDICT
+                if resume["shortlist"]:
+                    # The short list (which also has to be recent) is a few thousand postings: the pass
+                    # starts from the resume's verdicts and never looks at the rest of the board, so it
+                    # has no count of what is eligible or ruled out to give.
+                    source, verdict, tier = shortlist_from, "1", "2"
+                    scan_where = ["rm.profile_version=?", "rm.matched=2", "i.facts_version=?", SHORTLIST_RECENT,
+                                  *scan_where]
+                    scan_args = [resume["version"], FACTS_VERSION, *shortlist_recent_args(), *scan_args]
+                else:
+                    verdict = f"MIN(1, {RESUME_VERDICT})"
+                    scan_args = [FACTS_VERSION, FACTS_VERSION, *scan_args]
             else:
-                scan_where, verdict, scan_args = where, "1", args
-            con.execute("CREATE TEMP TABLE IF NOT EXISTS _match(rid INTEGER PRIMARY KEY, matched INTEGER)")
-            con.execute("DELETE FROM _match")
-            con.execute(f"INSERT INTO _match SELECT i.rowid, {verdict} {FROM_CLAUSE} WHERE {' AND '.join(scan_where)}",
-                        scan_args)
-            verdicts = dict(con.execute("SELECT matched, COUNT(*) FROM _match GROUP BY matched").fetchall())
+                scan_where, verdict, tier, scan_args = where, "1", "1", args
+            # The pass reads what it filters and what the facets group by from one index (intel_list), and
+            # joins only the tables its filter names, so it never opens a posting's own row.
+            scan_sql = " AND ".join(scan_where)
+            con.execute(f"CREATE TEMP TABLE IF NOT EXISTS _tiers(rid INTEGER PRIMARY KEY, matched INTEGER, "
+                        f"tier INTEGER, {', '.join(FACET_COLUMNS)})")
+            con.execute("DELETE FROM _tiers")
+            con.execute(f"INSERT INTO _tiers SELECT i.rowid, {verdict}, {tier}, "
+                        f"{', '.join('i.' + c for c in FACET_COLUMNS)} {source(verdict + tier + scan_sql)} "
+                        f"WHERE {scan_sql}", scan_args)
+            verdicts = dict(con.execute("SELECT matched, COUNT(*) FROM _tiers GROUP BY matched").fetchall())
             total = verdicts.get(1, 0)
+            on_list = resume["active"] and resume["shortlist"]
+            resume["eligible_total"] = None if on_list else con.execute(
+                "SELECT COUNT(*) FROM _tiers WHERE tier >= 1").fetchone()[0]
             rows = con.execute(
                 f"SELECT {SELECT_COLUMNS} {FROM_CLAUSE} WHERE {clause} ORDER BY {build_order(params)} "
                 f"LIMIT ? OFFSET ?", [*args, per_page, (page - 1) * per_page]).fetchall()
             jobs = [self._row(r) for r in rows]
-            resume["unfiltered_total"] = sum(verdicts.values())
-            resume["excluded_total"] = verdicts.get(0, 0)
-            resume["pending_filtered"] = max(0, resume["unfiltered_total"] - total - resume["excluded_total"])
+            resume["unfiltered_total"] = None if on_list else sum(verdicts.values())
+            resume["excluded_total"] = None if on_list else verdicts.get(0, 0)
+            # On the short list, what the resume still has to read anywhere may yet belong on it.
+            resume["pending_filtered"] = resume["pending"] if on_list else max(
+                0, resume["unfiltered_total"] - total - resume["excluded_total"])
             # During a first scan, or the first poll of a board just picked, an empty list is not "no roles match".
             first_scan = not jobs and self.first_scan(con)
             self._attach_sources(con, jobs)
             facets = {}
             if want_facets:
-                for name, column in (("category", "category"), ("company_type", "company_type"),
-                                     ("stage", "stage"), ("cycle", "cycle"), ("city", "city")):
-                    facets[name] = [
+                for column in FACET_COLUMNS:
+                    facets[column] = [
                         {"key": r[0], "count": r[1],
-                         "label": (self.kn.category_label(r[0]) if name == "category"
-                                   else self.kn.type_label(r[0]) if name == "company_type"
-                                   else cycle_label(r[0]) if name == "cycle"
-                                   else (self.kn.city_by_key.get(r[0]) or {}).get("label", r[0]) if name == "city"
+                         "label": (self.kn.category_label(r[0]) if column == "category"
+                                   else self.kn.type_label(r[0]) if column == "company_type"
+                                   else cycle_label(r[0]) if column == "cycle"
+                                   else (self.kn.city_by_key.get(r[0]) or {}).get("label", r[0]) if column == "city"
                                    else r[0])}
                         for r in con.execute(
-                            f"""SELECT i.{column}, COUNT(*) FROM _match m JOIN job_intel i ON i.rowid=m.rid
-                                WHERE m.matched=1 AND i.{column} IS NOT NULL
-                                GROUP BY i.{column} ORDER BY COUNT(*) DESC LIMIT 25""")]
+                            f"""SELECT {column}, COUNT(*) FROM _tiers WHERE matched=1 AND {column} IS NOT NULL
+                                GROUP BY {column} ORDER BY COUNT(*) DESC LIMIT 25""")]
         return {"jobs": jobs, "total": total, "page": page, "per_page": per_page,
                 "pages": max(1, (total + per_page - 1) // per_page), "facets": facets,
                 "resume_matching": resume, "first_scan": first_scan}
@@ -954,12 +985,17 @@ class JobwatchService:
             stat = lambda sql, *a: con.execute(sql, a).fetchone()[0]  # noqa: E731
             fields = profile_fields(profile, self.kn)
             yours, yours_args = board_clause(fields)
+            # With a resume on, Today is about the short list; a posting the resume hasn't read yet
+            # (a rescore after an update) keeps the fit rule until it has.
+            short, short_args = self.shortlist_clause(con, now)
             stats = {
                 "new_today": stat(f"SELECT COUNT(*) {base} AND ({yours}) AND i.posted_ref >= ?", *yours_args,
                                   now - 86400),
-                "high_fit": stat(f"SELECT COUNT(*) {base} AND i.fit >= ?", high),
-                "closing_soon": stat(f"SELECT COUNT(*) {base} AND i.eff_deadline BETWEEN ? AND ? AND (i.fit >= ? OR a.status IS NOT NULL)",
-                                     today.isoformat(), (today + timedelta(days=7)).isoformat(), digest),
+                "high_fit": stat(f"SELECT COUNT(*) {base} AND i.fit >= ? AND {short}", high, *short_args),
+                "shortlist": stat(f"SELECT COUNT(*) {base} AND {short}", *short_args),
+                "closing_soon": stat(f"SELECT COUNT(*) {by_deadline(base)} AND i.eff_deadline BETWEEN ? AND ? "
+                                     f"AND ((i.fit >= ? AND {short}) OR a.status IS NOT NULL)",
+                                     today.isoformat(), (today + timedelta(days=7)).isoformat(), digest, *short_args),
                 "applications": stat(f"SELECT COUNT(*) FROM applications WHERE status IN ({','.join('?' * len(ACTIVE_APP_STATUSES))})",
                                      *ACTIVE_APP_STATUSES),
                 "interviews": stat(f"SELECT COUNT(*) FROM applications WHERE status IN ({','.join('?' * len(INTERVIEW_STATUSES))})",
@@ -971,10 +1007,10 @@ class JobwatchService:
             top = [self._row(r) for r in con.execute(
                 f"""SELECT {SELECT_COLUMNS} {base}
                     AND COALESCE(a.status,'') NOT IN ('rejected','withdrawn','archived','applied','offer')
-                    AND (i.posted_ref IS NULL OR i.posted_ref >= ?)
-                    ORDER BY i.fit DESC, COALESCE(i.posted_ref,0) DESC LIMIT 8""", (now - 30 * 86400,))]
+                    AND (i.posted_ref IS NULL OR i.posted_ref >= ?) AND {short}
+                    ORDER BY i.fit DESC, COALESCE(i.posted_ref,0) DESC LIMIT 8""", (now - 30 * 86400, *short_args))]
             self._attach_sources(con, top)
-            attention = self._attention(con, base, high, digest, now, today)
+            attention = self._attention(con, base, high, digest, now, today, short, short_args)
             follow_ups = [dict(r) for r in con.execute(
                 """SELECT * FROM contacts WHERE next_follow_up != '' AND next_follow_up <= ?
                    ORDER BY next_follow_up LIMIT 8""", ((today + timedelta(days=1)).isoformat(),))]
@@ -1005,11 +1041,35 @@ class JobwatchService:
             "generated_at": utcnow(),
         }
 
-    def _attention(self, con, base, high, digest, now, today) -> list[dict]:
+    def shortlist_clause(self, con, now: float | None = None) -> tuple[str, list]:
+        """SQL (and its arguments) that keeps a list to the short list while a resume is on, and to
+        everything otherwise.
+
+        The short list is found once, from the resume's verdicts (an index of a few thousand rows), into a
+        temporary table the caller's queries then start from: asking every open posting for its verdict
+        took Today 4 s a count. Until the resume has put anything on the list (the first read after an
+        update, or a resume nothing fits), fit decides, as it does with no resume."""
+        row = con.execute("SELECT enabled, version FROM candidate_resume WHERE id=1").fetchone()
+        if not (row and row["enabled"]):
+            return "1", []
+        con.execute("CREATE TEMP TABLE IF NOT EXISTS _short(rid INTEGER PRIMARY KEY)")
+        con.execute("DELETE FROM _short")
+        # CROSS JOIN keeps this order: left to itself the planner starts from every posting scored at this
+        # version, which is all of them (3 s against 0.4 s).
+        con.execute(f"""INSERT INTO _short SELECT i.rowid FROM resume_matches rm
+            CROSS JOIN job_intel i ON i.board=rm.board AND i.job_id=rm.job_id AND i.profile_version=rm.profile_version
+            CROSS JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
+            WHERE rm.profile_version=? AND rm.matched=2 AND i.facts_version=? AND {SHORTLIST_RECENT}""",
+                    [row["version"], FACTS_VERSION, *shortlist_recent_args(now)])
+        if not con.execute("SELECT 1 FROM _short LIMIT 1").fetchone():
+            return "1", []
+        return "i.rowid IN (SELECT rid FROM _short)", []
+
+    def _attention(self, con, base, high, digest, now, today, short="1", short_args=()) -> list[dict]:
         items = []
         for r in con.execute(
                 f"""SELECT {SELECT_COLUMNS} {base} AND i.fit >= ? AND i.posted_ref >= ? AND a.status IS NULL
-                    ORDER BY i.fit DESC LIMIT 6""", (high, now - 12 * 3600)):
+                    AND {short} ORDER BY i.fit DESC LIMIT 6""", (high, now - 12 * 3600, *short_args)):
             job = self._row(r)
             hours = max(0, int((now - (job["posted_ref"] or now)) / 3600))
             items.append({"kind": "fresh_high_fit", "severity": "high", "job": job,
@@ -1017,10 +1077,10 @@ class JobwatchService:
                           "action": "apply"})
         horizon = (today + timedelta(days=3)).isoformat()
         for r in con.execute(
-                f"""SELECT {SELECT_COLUMNS} {base} AND i.eff_deadline BETWEEN ? AND ?
-                    AND (i.fit >= ? OR a.status IN ('saved','preparing','discovered'))
+                f"""SELECT {SELECT_COLUMNS} {by_deadline(base)} AND i.eff_deadline BETWEEN ? AND ?
+                    AND ((i.fit >= ? AND {short}) OR a.status IN ('saved','preparing','discovered'))
                     AND COALESCE(a.status,'') NOT IN ('applied','rejected','withdrawn','archived','offer')
-                    ORDER BY i.eff_deadline, i.fit DESC LIMIT 6""", (today.isoformat(), horizon, digest)):
+                    ORDER BY i.eff_deadline, i.fit DESC LIMIT 6""", (today.isoformat(), horizon, digest, *short_args)):
             job = self._row(r)
             days = (date.fromisoformat(job["deadline"]) - today).days
             when = "today" if days == 0 else "tomorrow" if days == 1 else f"in {days} days"
@@ -1451,7 +1511,7 @@ class JobwatchService:
             for r in con.execute(
                     f"""SELECT i.board, i.job_id, i.eff_deadline, i.company_name, j.title, i.fit, i.deadline_confidence,
                                j.url, a.status
-                        {FROM_CLAUSE} WHERE i.eff_deadline BETWEEN ? AND ? AND i.is_canonical=1
+                        {FROM_CLAUSE} WHERE i.eff_deadline BETWEEN ? AND ? AND +i.is_canonical=1
                         AND COALESCE(s.status,'active')!='closed' AND (a.status IS NOT NULL OR ({keep}))
                         ORDER BY i.eff_deadline LIMIT 300""", (start, end, *keep_args)):
                 key = f"{r['board']}:{r['job_id']}"
@@ -1506,16 +1566,25 @@ class JobwatchService:
             limit = 50
         since = (datetime.now(timezone.utc) - timedelta(days=int(p.get("days") or 14))).isoformat(timespec="seconds")
         items = []
+        # Postings arrive by the thousand a day and the tape shows the latest few: the last day is asked
+        # first (from a whole hour, as postings are grouped by the hour), and the full window only when
+        # that day has too few to fill the tape.
+        day = (datetime.now(timezone.utc) - timedelta(days=1)).replace(minute=0, second=0, microsecond=0)
+        day = max(since, day.isoformat(timespec="seconds"))
         with self.db() as con:
-            for r in con.execute(
+            for window in dict.fromkeys((day, since)):
+                posted = con.execute(
                     """SELECT substr(j.first_seen,1,13) hour, i.company_key, MAX(i.company_name) company,
                               COUNT(*) n, MAX(j.title) sample, MAX(j.first_seen) ts, MAX(i.fit) best,
                               MAX(i.category) category, MAX(i.city) city, SUM(i.is_finance) fin,
                               MAX(i.board || ':' || i.job_id) job_key
-                       FROM job_intel i JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
-                       JOIN job_state s ON s.board=i.board AND s.job_id=i.job_id
+                       FROM jobs j CROSS JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+                       CROSS JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
                        WHERE s.discovered=1 AND j.first_seen > ? AND +i.is_canonical=1
-                       GROUP BY hour, i.company_key ORDER BY ts DESC LIMIT ?""", (since, limit)):
+                       GROUP BY hour, i.company_key ORDER BY ts DESC LIMIT ?""", (window, limit)).fetchall()
+                if len(posted) >= limit:
+                    break
+            for r in posted:
                 city = (self.kn.city_by_key.get(r["city"] or "") or {}).get("label", "")
                 if r["n"] == 1:
                     text = f"{r['company']} posted {r['sample']}" + (f" — {city}" if city else "")
@@ -1730,28 +1799,36 @@ class JobwatchService:
         con.execute("UPDATE candidate_resume SET version=? WHERE id=1", (version,))
         return version
 
+    @staticmethod
+    def _count_pending(con, version: str) -> int:
+        """Postings the resume at ``version`` hasn't read: no current facts, score or verdict.
+
+        Four counts that each read one index, in place of a join over every posting (4–5 s on a database
+        of 470,000, on every list until 0.3.16). A posting is read once it has a score and a verdict at this
+        version; one whose facts are out of date is waiting however it was scored."""
+        count = lambda sql, *args: con.execute(sql, args).fetchone()[0]  # noqa: E731
+        postings = count("SELECT COUNT(*) FROM jobs WHERE title!=''")
+        scored = count("SELECT COUNT(*) FROM job_intel WHERE profile_version=?", version)
+        verdicts = count("SELECT COUNT(*) FROM resume_matches WHERE profile_version=?", version)
+        stale = count("SELECT COUNT(*) FROM job_intel WHERE facts_version IS NOT ?", FACTS_VERSION)
+        return max(0, postings - min(scored, verdicts), min(stale, postings))
+
     def _resume_status(self, con, include_parsed=False) -> dict:
         row = con.execute("SELECT * FROM candidate_resume WHERE id=1").fetchone()
         if not row:
             return {"available": False, "enabled": False, "pending": 0}
-        # A full count over every posting (~2 s on a large database), the same for every list, saved view and
-        # page until the database changes: counted once per data version. The version is read before
-        # counting, so a commit during the count only makes the next caller count again. Only once the
-        # response cache has opened its version connection (any page asked for), so nothing new holds the file.
+        # How many postings the resume hasn't read yet, the same for every list, saved view and page until the
+        # database changes: counted once per data version. The version is read before counting, so a commit
+        # during the count only makes the next caller count again. Only once the response cache has opened
+        # its version connection (any page asked for), so nothing new holds the file.
         key = (self.data_version() if self._version_con is not None else None, row["version"])
         known = self._resume_pending
         if key[0] is not None and known and known[0] == key:
             pending = known[1]
         else:
-            # facts_version is written with facts, so this never reads the facts themselves (a third of the table).
-            pending = con.execute("""SELECT COUNT(*) FROM jobs j LEFT JOIN job_intel i
-                ON i.board=j.board AND i.job_id=j.job_id LEFT JOIN resume_matches rm
-                ON rm.board=j.board AND rm.job_id=j.job_id WHERE j.title!='' AND
-                (i.facts_version IS NOT ? OR rm.profile_version IS NULL OR rm.profile_version!=?
-                 OR i.profile_version IS NULL OR i.profile_version!=?)""",
-                (FACTS_VERSION, row["version"], row["version"])).fetchone()[0]
+            pending = self._count_pending(con, row["version"])
             self._resume_pending = (key, pending)
-        result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending,
+        result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending, "version": row["version"],
                   "filename": row["filename"], "updated_at": row["updated_at"],
                   "targets": self.profile(con).get("target_roles") or [],
                   # read by the parser before graded role targets; re-uploading improves matching
@@ -1883,6 +1960,11 @@ class JobwatchService:
         if problems:
             raise ApiError("; ".join(problems))
         with self.db() as con:
+            # Which targets a resume added is the app's note, not a form field: it stays with the targets kept.
+            # An empty note still says "none of these came from a resume".
+            earlier = self.profile(con).get("resume_targets")
+            if isinstance(earlier, list):
+                profile["resume_targets"] = [r for r in earlier if r in (profile.get("target_roles") or [])]
             save_profile(con, profile)
             self._update_resume_version(con)
             # A board picked in setup or Settings: its sources are polled now, not at the next interval, and

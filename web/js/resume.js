@@ -40,8 +40,11 @@ export function resumeChanges(changes = {}, meta = {}) {
 
 export function resumeMatchSection(match) {
   if (!match) return '';
-  return `<section class="section"><h3>Resume match · ${match.matched ? 'Included' : 'Excluded'}</h3>
-    <ul class="reasons">${[...(match.exclusions || []), ...(match.reasons || [])].map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+  // A match saved before the short list existed has no verdict on it: it reads as before.
+  const verdict = !match.matched ? 'Excluded' : match.shortlist === false ? 'Eligible, not on your short list'
+    : match.shortlist ? 'Fits your short list' : 'Included';
+  return `<section class="section"><h3>Resume match · ${verdict}</h3>
+    <ul class="reasons">${[...(match.exclusions || []), ...(match.off_list || []), ...(match.reasons || [])].map(r => `<li>${esc(r)}</li>`).join('')}</ul>
     ${match.review?.length ? `<p class="muted">Needs review</p><ul class="reasons">${match.review.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}</section>`;
 }
 

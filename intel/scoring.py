@@ -1,7 +1,11 @@
-"""Fit Score 2.0 — explainable, capped subscores plus explicit penalties.
+"""Fit Score 3.0 — explainable, capped subscores plus explicit penalties.
 
-    Role fit 25 · Career stage 20 · Company 15 · Location 10
-    Recruiting cycle 10 · Skills 10 · Freshness 10          = 100
+    Role fit 35 · Skills 20 · Location 15 · Company 10
+    Career stage 8 · Freshness 8 · Recruiting cycle 4       = 100
+
+What every eligible posting shares (a target stage, a target country, a cycle) is worth little; what
+tells one posting from the next (the specialty, the skills it asks for, the city) is worth most.
+Until 0.3.16 stage and cycle were 30 points that every match got, and skills were 10.
     minus penalties (senior role, degree, graduation year, geography,
     sponsorship, language, GPA, role mismatch, off-target finance role,
     closed/stale)
@@ -76,6 +80,13 @@ def _target_match(targets: list[str], category: str, sub: str | None,
     return "", None
 
 
+def _board_only(kn: Knowledge, targets: list[str], category: str, sub: str | None, which: str | None) -> bool:
+    """The match is the board itself ("Software") while the profile also names specialties in it, and
+    this posting is not in one of them."""
+    return (which == category and category in kn.families and f"{category}.{sub}" not in targets
+            and any(t.startswith(f"{category}.") for t in targets))
+
+
 def _related_target(kn: Knowledge, targets: list[str], category: str, sub: str | None) -> str | None:
     """A targeted specialty the posting's specialty is related to (Full-Stack and Backend)."""
     if not sub:
@@ -124,9 +135,22 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     match, which = _target_match(targets, cls["category"], cls.get("subcategory"), profile.get("role_weights"))
     if cls.get("prior_only"):
         match, which = "", None
-        pts, detail = 8, f"Division not named in the posting (the employer suggests {cls['category_label']})"
+        pts, detail = 10, f"Division not named in the posting (the employer suggests {cls['category_label']})"
+    elif match == "exact" and _board_only(kn, targets, cls["category"], cls.get("subcategory"), which):
+        # The whole board is a target, and so are specialties in it: a posting in another specialty,
+        # or in none, is in the right field but is not what the person does.
+        related = _related_target(kn, targets, cls["category"], cls.get("subcategory"))
+        if related:
+            which, pts = related, 24
+            detail = f"{role_label}: related to your {kn.subcategory_label(*which.split('.'))} target"
+        elif cls.get("subcategory"):
+            pts, detail = 12, f"{role_label}: in your {kn.category_label(cls['category'])} board, not one of your specialties"
+            which = None        # already marked down: the board's own weight is not taken off again
+        else:
+            pts, detail = 20, f"{role_label}: in your {kn.category_label(cls['category'])} board; the posting names no specialty"
+            which = None
     elif match == "exact":
-        pts, detail = 25, f"{role_label} matches your {kn.category_label(which.split('.')[0])} target"
+        pts, detail = 35, f"{role_label} matches your {kn.category_label(which.split('.')[0])} target"
         reasons.append(f"{kn.category_label(cls['category'])} target")
     elif match == "category":
         # A sibling of a target (Accounting next to an FP&A target) is related
@@ -134,13 +158,13 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         # marks as related (Full-Stack next to Backend) earn more.
         related = _related_target(kn, targets, cls["category"], cls.get("subcategory"))
         which = related or which
-        pts = 14 if not cls.get("subcategory") or related else 9
+        pts = 24 if related else 20 if not cls.get("subcategory") else 12
         detail = (f"{role_label}: {'related to' if related else 'same division as'} your "
                   f"{kn.subcategory_label(*which.split('.')) or kn.category_label(which)} target")
     elif any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or []):
-        pts, detail = 14, f"{role_label}; secondary fit with a target ({', '.join(cls.get('secondary_labels') or [])})"
+        pts, detail = 20, f"{role_label}; secondary fit with a target ({', '.join(cls.get('secondary_labels') or [])})"
     elif cls.get("is_finance"):
-        pts, detail = 5, f"{role_label} is outside your target roles"
+        pts, detail = 7, f"{role_label} is outside your target roles"
     else:
         pts, detail = 0, f"{role_label} is not a target role family"
     weight = (profile.get("role_weights") or {}).get(which or "", 1)
@@ -150,7 +174,7 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     if pts and cls.get("confidence", 1) < 0.45:
         pts *= 0.8
         detail += " (low-confidence classification)"
-    sub("role", "Role fit", pts, 25, detail)
+    sub("role", "Role fit", pts, 35, detail)
     related = match or any(_target_match(targets, s, None)[0] for s in cls.get("secondary") or [])
     if targets and not related and cls.get("is_finance") and not cls.get("prior_only"):
         # Internship + bank + city + cycle alone add up to ~60 points; without
@@ -169,25 +193,25 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     stage = lvl["stage"]
     level_label = lvl.get("level_label") or stage
     if lvl.get("level") == "spring_week":
-        pts, detail = (8, "Spring week / insight program — usually for first- and second-year students")
+        pts, detail = (3, "Spring week / insight program — usually for first- and second-year students")
     elif stage in stage_targets:
-        pts, detail = 20, f"{level_label} — target career stage"
+        pts, detail = 8, f"{level_label} — target career stage"
         reasons.append(f"{level_label} level")
     elif stage == "entry" and ({"new_grad", "entry"} & stage_targets):
         # A finance level ("Analyst") on a Finance posting is finance's entry level; other boards' postings say no board.
         in_finance = cls["is_finance"] and not lvl.get("board_level")
-        pts, detail = 16, f"{level_label} — entry level{' in finance' if in_finance else ''}"
+        pts, detail = 6, f"{level_label} — entry level{' in finance' if in_finance else ''}"
         reasons.append("Entry-level title")
     elif stage == "entry" and lvl.get("level") == "entry_to_practice" and stage_targets & {"experienced", "senior"}:
         # 'Registered Nurse': a licensed occupation with no level named hires experienced staff too.
-        pts, detail = 16, f"{level_label} — licensed role with no level named, open to experienced staff"
+        pts, detail = 6, f"{level_label} — licensed role with no level named, open to experienced staff"
     elif stage == "entry":
-        pts, detail = 10, f"{level_label} — entry level, not a target stage"
+        pts, detail = 4, f"{level_label} — entry level, not a target stage"
     elif stage == "experienced":
-        pts, detail = 4, f"{level_label} — experienced hire"
+        pts, detail = 2, f"{level_label} — experienced hire"
     else:
         pts, detail = 0, f"{level_label} — senior role"
-    sub("stage", "Career stage", pts, 20, detail)
+    sub("stage", "Career stage", pts, 8, detail)
     early_targets = stage_targets <= {"internship", "new_grad", "entry"}
     if stage == "senior" and early_targets:
         penalty("senior", "Senior role", 25, f"{level_label} is well above your target stage")
@@ -200,27 +224,27 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     watched = bool(dyn.get("watched"))
     target_types = set(profile.get("target_company_types") or [])
     if watched:
-        pts, detail = 15, f"{company['name']} is on your watchlist"
+        pts, detail = 10, f"{company['name']} is on your watchlist"
         reasons.append("Watchlist company")
     elif company["type"] in target_types:
-        pts, detail = 12, f"{company['type_label']} — a target employer tier"
+        pts, detail = 8, f"{company['type_label']} — a target employer tier"
         reasons.append(f"{company['type_label']} priority")
     elif company["type"] in FINANCE_TYPES:
-        pts, detail = 7, f"{company['type_label']} — recognized finance employer"
+        pts, detail = 5, f"{company['type_label']} — recognized finance employer"
     elif tracks := [t for t in kn.type_tracks(company["type"]) if t != "finance"]:
         # Only a board on the employer's track makes it count: Finance-only profiles score tech
         # employers as before.
         boards = {kn.board_track.get(field) for field in profile_fields(profile, kn)}
         shared = next((t for t in tracks if t in boards), None)
         if shared:
-            pts, detail = 7, f"{company['type_label']} — {kn.tracks[shared].employer_noun}"
+            pts, detail = 5, f"{company['type_label']} — {kn.tracks[shared].employer_noun}"
         else:
-            pts, detail = 4, f"{company['type_label']} — outside {'finance' if boards == {'finance'} else 'your boards'}"
+            pts, detail = 3, f"{company['type_label']} — outside {'finance' if boards == {'finance'} else 'your boards'}"
     elif company["type"] in ("consulting", "accounting_advisory"):
-        pts, detail = 6, f"{company['type_label']}"
+        pts, detail = 4, f"{company['type_label']}"
     else:
-        pts, detail = 4, "Employer not in company intelligence"
-    sub("company", "Company", pts, 15, detail)
+        pts, detail = 3, "Employer not in company intelligence"
+    sub("company", "Company", pts, 10, detail)
 
     # ---- location (10)
     target_cities = set(profile.get("target_locations") or [])
@@ -228,23 +252,25 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     hit = next((c for c in loc["cities"] if c in target_cities), None)
     if hit:
         label = kn.city_by_key[hit]["label"]
-        pts, detail = 10, f"{label} — preferred city"
+        pts, detail = 15, f"{label} — preferred city"
         reasons.append(f"{label} preferred")
     elif loc["remote"] and profile.get("open_to_remote", True) and (
             not loc["countries"] or set(loc["countries"]) & target_countries):
-        pts, detail = 7, "Remote within your target countries"
+        pts, detail = 11, "Remote within your target countries"
     elif set(loc["countries"]) & target_countries:
         country = next(c for c in loc["countries"] if c in target_countries)
         where = ", ".join(loc["city_labels"]) or kn.countries.get(country, {}).get("label", country)
-        pts, detail = 6, f"{where} — target country, not a preferred city"
+        # With no city picked, the country is the whole preference.
+        pts, detail = (6, f"{where} — target country, not a preferred city") if target_cities else (
+            11, f"{where} — target country")
     elif loc["bucket"] == "unknown":
-        pts, detail = 4, "Location not specified"
+        pts, detail = 2, "Location not specified"
     else:
         where = ", ".join(loc["city_labels"]) or ", ".join(loc["countries"]) or "this location"
         pts, detail = 0, f"{where} is outside your target geography"
         if target_countries or target_cities:
             penalty("geography", "Outside target geography", 10, detail)
-    sub("location", "Location", pts, 10, detail)
+    sub("location", "Location", pts, 15, detail)
 
     # ---- recruiting cycle (10)
     target_cycles = set(profile.get("target_cycles") or [])
@@ -255,32 +281,32 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
         grad_ok = grad["start"] <= mine <= grad["end"]
     if cyc.get("cycle") and cyc["cycle"] in target_cycles:
         if cyc.get("inferred"):
-            pts, detail = 6, f"Likely {cyc['label']} (inferred from the posting date)"
+            pts, detail = 2, f"Likely {cyc['label']} (inferred from the posting date)"
         else:
-            pts, detail = 10, f"{cyc['label']} — target recruiting cycle"
+            pts, detail = 4, f"{cyc['label']} — target recruiting cycle"
             reasons.append(f"{cyc['label']} target cycle")
     elif cyc.get("cycle"):
         same_year = any(t.endswith(str(cyc.get("year"))) for t in target_cycles)
         if cyc.get("inferred"):
-            pts, detail = 3, f"Possibly {cyc['label']} (inferred, not a target cycle)"
+            pts, detail = 1, f"Possibly {cyc['label']} (inferred, not a target cycle)"
         elif same_year:
-            pts, detail = 5, f"{cyc['label']} — right year, different season/track"
+            pts, detail = 2, f"{cyc['label']} — right year, different season/track"
         else:
             pts, detail = 0, f"{cyc['label']} is not one of your target cycles"
             if target_cycles and cyc.get("year"):
                 penalty("cycle_year", "Wrong recruiting year", 10, detail)
     elif stage in stage_targets and not stage_targets & CAMPUS_STAGES:
         # Experienced hiring runs all year: a profile in the workforce has no cycle to match, so none is missing.
-        pts, detail = 10, "Hires year-round: no recruiting cycle needed"
+        pts, detail = 4, "Hires year-round: no recruiting cycle needed"
     elif stage in stage_targets:
-        pts, detail = 5, "No recruiting cycle stated"
+        pts, detail = 2, "No recruiting cycle stated"
     else:
-        pts, detail = 3, "No recruiting cycle stated"
+        pts, detail = 1, "No recruiting cycle stated"
     if grad_ok is True:
-        pts = max(pts, 8)
+        pts = max(pts, 3)
         detail += f"; graduation window {grad['start']} → {grad['end']} includes you"
         reasons.append("Graduation window matches")
-    sub("cycle", "Recruiting cycle", pts, 10, detail)
+    sub("cycle", "Recruiting cycle", pts, 4, detail)
     if grad_ok is False:
         detail = (f"Requires graduation {grad['start']} → {grad['end']}; you graduate "
                   f"{profile['graduation_year']}-{int(profile.get('graduation_month') or 5):02d}")
@@ -294,19 +320,19 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     job_skills = facts.get("skills") or []
     mine = set(profile.get("skills") or [])
     if not job_skills:
-        pts = 5 if not facts.get("has_description") else 4
+        pts = 6 if not facts.get("has_description") else 5
         detail = ("No description available yet" if not facts.get("has_description") else
                   "No finance skills detected" if profile_fields(profile, kn) == ["finance"] else "No skills detected")
     else:
         matched = [s for s in job_skills if s["key"] in mine]
         denom = min(4, len(job_skills))
-        pts = 10 * min(1.0, len(matched) / denom) if denom else 0
+        pts = 20 * min(1.0, len(matched) / denom) if denom else 0
         if matched:
             detail = (f"Matched {', '.join(s['label'] for s in matched[:4])} "
                       f"({len(matched)} of {len(job_skills)} detected)")
         else:
             detail = f"None of your skills among {len(job_skills)} detected"
-    sub("skills", "Skills", pts, 10, detail)
+    sub("skills", "Skills", pts, 20, detail)
 
     # ---- freshness (10)
     posted = dyn.get("posted")
@@ -315,16 +341,16 @@ def score_job(facts: dict, profile: dict, kn: Knowledge, dyn: dict | None = None
     age_hours = max(0.0, (now - ref) / 3600) if ref else None
     competitive = cls.get("competitive") and stage in ("internship", "new_grad", "entry")
     if age_hours is None:
-        pts, detail = 3, "Posting date unknown"
+        pts, detail = 2, "Posting date unknown"
     else:
         curve = STEEP if competitive else GENTLE
-        pts = next((p for limit, p in curve if age_hours <= limit), 0)
+        pts = next((p for limit, p in curve if age_hours <= limit), 0) * 0.8      # the curves run to 10
         basis = "posted" if posted else "discovered"
         detail = f"{basis.title()} {_age_text(age_hours)}" + (
             " — competitive postings decay fast" if competitive else "")
         if age_hours < 24:
             reasons.append(f"{basis.title()} {_age_text(age_hours)}")
-    sub("freshness", "Freshness", pts, 10, detail)
+    sub("freshness", "Freshness", pts, 8, detail)
 
     # ---- eligibility penalties
     edu_level = ((profile.get("education") or {}).get("level") or "undergraduate").lower()

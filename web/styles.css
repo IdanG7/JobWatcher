@@ -2337,21 +2337,8 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 }
 .qf-setup { color: var(--text-3); }
 
-/* Resume match: an explicit on/off switch, since it is a mode, not a preset. */
-.qswitch {
-  display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 10px 0 6px; flex: none;
-  border: 0; border-radius: 999px; background: transparent; color: var(--text-2); font-size: 13px; font-weight: 500; white-space: nowrap;
-  transition: background-color 120ms, color 120ms;
-}
-@media (hover: hover) and (pointer: fine) { .qswitch:hover { background: var(--surface-3); color: var(--text); } }
-.qswitch .track { position: relative; width: 26px; height: 16px; flex: none; border-radius: 999px; background: var(--border-strong); transition: background-color 160ms; }
-.qswitch .track::after {
-  content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: transform 180ms var(--ease-out), background-color 160ms;
-}
-.qswitch.on { color: var(--text); }
-.qswitch.on .track { background: var(--ink); }
-.qswitch.on .track::after { transform: translateX(10px); background: var(--on-ink); }
+/* Which roles to list: the short list, every eligible role, or everything. A mode, not a preset. */
+.segmented.scope { flex: none; }
 
 /* The "More" menu: checkable items */
 .quick-more { position: relative; display: inline-flex; }

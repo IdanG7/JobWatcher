@@ -880,7 +880,7 @@ class IntelStore:
             result = score_job(facts, self.profile, self.kn, dyn, now)
             if resume:
                 match = match_resume(facts, self.profile, result, self.kn)
-                matches.append((board, job_id, int(match["matched"]), json.dumps(match), self.version))
+                matches.append((board, job_id, match["tier"], json.dumps(match), self.version))
             detail = {k: result[k] for k in ("subscores", "penalties", "reasons", "concerns", "raw_total",
                                              "urgency_label", "days_left", "posting_age_hours")}
             # Daily at the least: what no rule here sends back for a score still lands within a day.

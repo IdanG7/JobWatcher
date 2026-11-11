@@ -104,9 +104,9 @@ class FilterTests(unittest.TestCase):
             return result["classification"], {s["key"]: s for s in result["subscores"]}["role"]["points"]
         classification, points = role("UI Engineer", "design.design_engineering")
         self.assertEqual(("software", "frontend"), (classification["family"], classification["subcategory"]))
-        self.assertEqual(25, points)
-        self.assertLess(role("UI Engineer", "design.product_design")[1], 25)
-        self.assertEqual(25, role("UX Engineer", "design.design_engineering")[1])
+        self.assertEqual(35, points)
+        self.assertLess(role("UI Engineer", "design.product_design")[1], 35)
+        self.assertEqual(35, role("UX Engineer", "design.design_engineering")[1])
 
     def test_related_filters_earn_the_related_credit(self):
         profile = {"fields": ["design"], "target_roles": ["design.product_design"]}
@@ -114,10 +114,10 @@ class FilterTests(unittest.TestCase):
         def role(title):
             result = analyze({"title": title, "company": "Acme", "posted": NOW - 3600}, profile, KN, now=NOW)
             return {s["key"]: s for s in result["subscores"]}["role"]["points"]
-        self.assertEqual(25, role("Product Designer"))
-        self.assertEqual(14, role("UX Researcher"))           # related to Product & UX Design
-        self.assertEqual(14, role("UX Engineer"))
-        self.assertEqual(9, role("Graphic Designer"))
+        self.assertEqual(35, role("Product Designer"))
+        self.assertEqual(24, role("UX Researcher"))           # related to Product & UX Design
+        self.assertEqual(24, role("UX Engineer"))
+        self.assertEqual(12, role("Graphic Designer"))
 
 
 class EngineeringDesignTests(unittest.TestCase):

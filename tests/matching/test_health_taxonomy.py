@@ -70,10 +70,10 @@ class FilterTests(unittest.TestCase):
         def role(title):
             result = analyze({"title": title, "company": "Acme", "posted": NOW - 3600}, profile, KN, now=NOW)
             return {s["key"]: s for s in result["subscores"]}["role"]["points"]
-        self.assertEqual(25, role("Clinical Research Coordinator"))
-        self.assertEqual(14, role("Regulatory Affairs Specialist, Medical Devices"))   # related to Clinical Research
-        self.assertEqual(14, role("Bioinformatics Scientist"))                         # related to Lab Research
-        self.assertEqual(9, role("Medical Science Liaison"))
+        self.assertEqual(35, role("Clinical Research Coordinator"))
+        self.assertEqual(24, role("Regulatory Affairs Specialist, Medical Devices"))   # related to Clinical Research
+        self.assertEqual(24, role("Bioinformatics Scientist"))                         # related to Lab Research
+        self.assertEqual(12, role("Medical Science Liaison"))
 
 
 class PlacementTests(unittest.TestCase):
@@ -235,12 +235,12 @@ class LevelTests(unittest.TestCase):
                                  "target_stages": ["new_grad", "entry"]})
         result = analyze({"title": "Registered Nurse", "company": "Acme", "posted": NOW - 3600}, profile, KN, now=NOW)
         stage = {s["key"]: s for s in result["subscores"]}["stage"]
-        self.assertEqual((20, "Entry to practice — target career stage"), (stage["points"], stage["detail"]))
+        self.assertEqual((8, "Entry to practice — target career stage"), (stage["points"], stage["detail"]))
         self.assertNotIn("experienced", {p["key"] for p in result["penalties"]})
         intern = merge_profile({"fields": ["healthcare"], "target_stages": ["internship", "new_grad"]})
         stage = {s["key"]: s for s in analyze({"title": "Registered Nurse", "company": "Acme"}, intern, KN,
                                               now=NOW)["subscores"]}["stage"]
-        self.assertEqual((16, "Entry to practice — entry level"), (stage["points"], stage["detail"]))
+        self.assertEqual((6, "Entry to practice — entry level"), (stage["points"], stage["detail"]))
 
     def test_healthcare_levels_carry_their_badge(self):
         facts = build_facts({"title": "PGY1 Pharmacy Resident", "company": "Acme"}, KN)
@@ -264,20 +264,20 @@ class EmployerAndSkillTests(unittest.TestCase):
             self.assertIn(key, KN.company_types)
 
     def test_a_health_tech_employer_counts_for_healthcare_profiles(self):
-        # D4: 7 points for a profile with Healthcare; Finance-only and tech profiles score as before.
+        # D4: 5 points for a profile with Healthcare; Finance-only and tech profiles score as before.
         facts = build_facts({"title": "Registered Nurse", "company": "Acme"}, KN)
         facts["company"] = {**facts["company"], "type": "health_tech", "type_label": "Health Tech", "known": True}
 
         def company(profile):
             subs = {s["key"]: s for s in score_job(facts, merge_profile(profile), KN, {}, NOW)["subscores"]}
             return subs["company"]["points"], subs["company"]["detail"]
-        self.assertEqual((7, "Health Tech — recognized healthcare and science employer"), company({"fields": ["healthcare"]}))
-        self.assertEqual((7, "Health Tech — recognized healthcare and science employer"),
+        self.assertEqual((5, "Health Tech — recognized healthcare and science employer"), company({"fields": ["healthcare"]}))
+        self.assertEqual((5, "Health Tech — recognized healthcare and science employer"),
                          company({"fields": ["finance", "healthcare"]}))
-        self.assertEqual((7, "Health Tech — recognized tech employer"), company({"fields": ["software", "healthcare"]}))
-        self.assertEqual((4, "Health Tech — outside finance"), company({"fields": ["finance"]}))
+        self.assertEqual((5, "Health Tech — recognized tech employer"), company({"fields": ["software", "healthcare"]}))
+        self.assertEqual((3, "Health Tech — outside finance"), company({"fields": ["finance"]}))
         facts["company"] = {**facts["company"], "type": "hospital", "type_label": "Hospital & Health System"}
-        self.assertEqual((4, "Hospital & Health System — outside your boards"), company({"fields": ["software"]}))
+        self.assertEqual((3, "Hospital & Health System — outside your boards"), company({"fields": ["software"]}))
 
     def test_healthcare_skills_are_read_only_on_the_healthcare_board(self):
         # D9: tech skills are read from Healthcare postings as before; healthcare skills only there.

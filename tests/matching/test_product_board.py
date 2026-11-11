@@ -76,10 +76,10 @@ class FilterTests(unittest.TestCase):
         def role(title):
             result = analyze({"title": title, "company": "Acme", "posted": NOW - 3600}, profile, KN, now=NOW)
             return {s["key"]: s for s in result["subscores"]}["role"]["points"]
-        self.assertEqual(25, role("Senior Product Manager"))
-        self.assertEqual(14, role("Technical Program Manager"))         # related to Product Management
-        self.assertEqual(14, role("Associate Product Manager"))
-        self.assertEqual(9, role("Product Operations Manager"))
+        self.assertEqual(35, role("Senior Product Manager"))
+        self.assertEqual(24, role("Technical Program Manager"))         # related to Product Management
+        self.assertEqual(24, role("Associate Product Manager"))
+        self.assertEqual(12, role("Product Operations Manager"))
 
     def test_product_analytics_also_targets_ai_and_datas_analytics(self):
         # D16: scoring only. 'Data Analyst' stays on AI & Data and counts for a product-analytics target.
@@ -89,9 +89,9 @@ class FilterTests(unittest.TestCase):
                          now=NOW)
         self.assertEqual(("data_ml", "analytics"), (target["classification"]["family"],
                                                     target["classification"]["subcategory"]))
-        self.assertEqual(25, {s["key"]: s for s in target["subscores"]}["role"]["points"])
+        self.assertEqual(35, {s["key"]: s for s in target["subscores"]}["role"]["points"])
         other = analyze(job, {"fields": ["product", "data_ml"], "target_roles": ["product.product_ops"]}, KN, now=NOW)
-        self.assertLess({s["key"]: s for s in other["subscores"]}["role"]["points"], 25)
+        self.assertLess({s["key"]: s for s in other["subscores"]}["role"]["points"], 35)
 
 
 class TitleWordTests(unittest.TestCase):

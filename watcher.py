@@ -42,6 +42,8 @@ from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
 import requests
 
 from intel import load_knowledge
+from intel.matching import SHORTLIST
+from job_query import SHORTLIST_POSTED_DAYS
 from intel.sources import enabled_sources, load_config, load_packs, polled_sources
 from intel_store import (COMPLETE_LISTING_ATS, TEASER, IntelStore, load_profile, record_changes, store_department,
                          store_description, store_listing_note, store_teaser, update_lifecycle)
@@ -3730,8 +3732,9 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, s
 
     Postings with no text are fetched, and so are those holding only their listing's teaser
     (source 'teaser': Oracle, Phenom, iCIMS snippets), in the same order.
-    Priority: tracked applications, then finance roles, then finance
-    employers, newest first.  A per-board cap spreads load; failures back
+    Priority: tracked applications, then the resume's short list (a role there
+    read from its title alone is ranked on a guess), then finance roles, then
+    finance employers, newest first.  A per-board cap spreads load; failures back
     off for six hours and give up after three attempts.  ``fetched`` (a list)
     collects the (board, job_id) keys that received a description.
     ``sources`` limits it to a poll's sources (default: every enabled one).
@@ -3753,11 +3756,15 @@ def enrich_descriptions(config, con, budget=None, fetched=None, progress=None, s
     types = ",".join("?" * len(FINANCE_COMPANY_TYPES))
     # The per-board cap is applied before the budget: a few sources with thousands of postings due
     # (Oracle's teasers) would otherwise fill every candidate and leave the rest of the budget unused.
-    order = "tracked DESC, finance DESC, finance_firm DESC, posted DESC"
+    order = "tracked DESC, listed DESC, finance DESC, finance_firm DESC, posted DESC"
     rows = con.execute(f"""
         WITH due AS (
             SELECT j.board, j.job_id, j.url, a.job_key IS NOT NULL AS tracked, i.is_finance AS finance,
-                   i.company_type IN ({types}) AS finance_firm, COALESCE(d.posted, 0) AS posted
+                   i.company_type IN ({types}) AS finance_firm, COALESCE(d.posted, 0) AS posted,
+                   COALESCE((SELECT rm.matched FROM resume_matches rm JOIN candidate_resume cr
+                               ON cr.id=1 AND cr.enabled=1 AND cr.version=rm.profile_version
+                             WHERE rm.board=j.board AND rm.job_id=j.job_id
+                               AND rm.profile_version=i.profile_version), 0) = {SHORTLIST} AS listed
             FROM jobs j
             JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
             LEFT JOIN job_text t ON t.board=j.board AND t.job_id=j.job_id
@@ -4456,13 +4463,19 @@ def fetch_intel(con, gated):
         where = " OR ".join("(board=? AND job_id=?)" for _ in part)
         for row in con.execute(
                 f"""SELECT board, job_id, fit, fit_detail, facts, badges, urgency, eff_deadline,
-                           company_key, is_finance, cycle
+                           company_key, is_finance, cycle,
+                           (SELECT rm.matched FROM resume_matches rm JOIN candidate_resume cr
+                              ON cr.id=1 AND cr.enabled=1 AND cr.version=rm.profile_version
+                            WHERE rm.board=job_intel.board AND rm.job_id=job_intel.job_id
+                              AND rm.profile_version=job_intel.profile_version)
                     FROM job_intel WHERE fit_detail IS NOT NULL AND ({where})""",
                 [v for pair in part for v in pair]):
             out[(row[0], row[1])] = {
                 "fit": row[2], "detail": json.loads(row[3] or "{}"), "facts": json.loads(row[4] or "{}"),
                 "badges": (row[5] or "").replace("_", " ").split(), "urgency": row[6],
                 "deadline": row[7], "company_key": row[8], "is_finance": bool(row[9]), "cycle": row[10],
+                # the resume's verdict (intel.matching): None with no resume on, or before it has read the posting
+                "tier": row[11],
             }
     return out
 
@@ -4474,6 +4487,9 @@ def alert_tier(sub, intel, profile, watched):
         return None
     fit = intel["fit"]
     age = (intel["detail"] or {}).get("posting_age_hours")
+    if intel.get("tier") is not None and (intel["tier"] < SHORTLIST or (age or 0) > SHORTLIST_POSTED_DAYS * 24):
+        # With a resume on, alerts are for the short list: fit alone lets thousands through.
+        return None
     on_target_cycle = intel.get("cycle") in set(profile.get("target_cycles") or [])
     if fit >= tiers["urgent"] or (
             intel["company_key"] in watched and on_target_cycle and age is not None

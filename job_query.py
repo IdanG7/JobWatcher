@@ -12,7 +12,7 @@ import re
 import time
 from intel import FACTS_VERSION
 from intel.hours import EMPLOYMENT as HOURS_EMPLOYMENT, SHIFTS as HOURS_SHIFTS
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 APP_STATUSES = ["discovered", "saved", "preparing", "applied", "assessment", "phone_screen",
                 "first_round", "final_round", "offer", "rejected", "withdrawn", "archived"]
@@ -55,6 +55,34 @@ FROM_CLAUSE = """
 """
 
 
+_OPTIONAL_JOINS = (
+    ("d", "    LEFT JOIN job_details d ON d.board=i.board AND d.job_id=i.job_id\n"),
+    ("a", "    LEFT JOIN applications a ON a.job_key=(i.board||':'||i.job_id)\n"),
+)
+
+
+def scan_from(sql: str) -> str:
+    """FROM_CLAUSE without the joins ``sql`` (a filter and what is selected with it) never names. Details and
+    applications hold at most one row per posting, so leaving them out changes no count; it saves a lookup
+    per posting on a pass over a whole board."""
+    clause = FROM_CLAUSE
+    for alias, join in _OPTIONAL_JOINS:
+        if not re.search(rf"\b{alias}\.", sql):
+            assert join in clause
+            clause = clause.replace(join, "")
+    return clause
+
+
+def shortlist_from(sql: str) -> str:
+    """scan_from, starting from the resume's verdicts instead of from every posting in a board: the short
+    list is a few thousand of them. CROSS JOIN keeps that order; the planner would start from the postings."""
+    clause = scan_from(sql)
+    head = "    FROM job_intel i\n"
+    assert head in clause
+    return clause.replace(head, "    FROM resume_matches rm\n    CROSS JOIN job_intel i ON i.board=rm.board "
+                                "AND i.job_id=rm.job_id AND i.profile_version=rm.profile_version\n")
+
+
 def _list(value) -> list[str]:
     if value is None:
         return []
@@ -77,7 +105,30 @@ def resume_params(params: dict, enabled: bool) -> dict:
     result.setdefault("resume_match", "1" if enabled else "0")
     if not enabled:
         result["resume_match"] = "0"
+    # The short list is the default wherever the resume match is on; shortlist=0 asks for every eligible role.
+    result.setdefault("shortlist", "1")
+    if result["resume_match"] != "1":
+        result["shortlist"] = "0"
     return result
+
+
+# A short-list role was still on its source this recently, and is no older than this, unless it
+# states a deadline that hasn't passed (campus programs stay open for months).
+SHORTLIST_SEEN_DAYS, SHORTLIST_POSTED_DAYS = 7, 30
+SHORTLIST_RECENT = ("(j.last_seen >= ? AND "
+                    "(COALESCE(i.posted_ref, CAST(strftime('%s', j.first_seen) AS REAL)) >= ? OR i.eff_deadline >= ?))")
+
+
+def shortlist_recent_args(now: float | None = None) -> list:
+    """The cutoffs SHORTLIST_RECENT takes: last seen (the ISO text jobs stores), posted (epoch), today."""
+    now = now or time.time()
+    seen = datetime.fromtimestamp(now - SHORTLIST_SEEN_DAYS * 86400, timezone.utc).isoformat(timespec="seconds")
+    return [seen, now - SHORTLIST_POSTED_DAYS * 86400, datetime.fromtimestamp(now, timezone.utc).date().isoformat()]
+
+
+def on_shortlist(params: dict) -> bool:
+    p = flatten(params)
+    return str(p.get("resume_match", "0")) == "1" and str(p.get("shortlist", "0")) == "1"
 
 
 def fts_query(text: str) -> str:
@@ -103,8 +154,12 @@ def build_where(params: dict, fts: bool, watched: set[str] | None = None,
         where.append("i.facts_version=?")
         args.append(FACTS_VERSION)
         where.append("""EXISTS (SELECT 1 FROM resume_matches rm JOIN candidate_resume cr ON cr.id=1
-            WHERE rm.board=i.board AND rm.job_id=i.job_id AND rm.matched=1
+            WHERE rm.board=i.board AND rm.job_id=i.job_id AND rm.matched>=?
             AND rm.profile_version=i.profile_version AND rm.profile_version=cr.version AND cr.enabled=1)""")
+        args.append(2 if on_shortlist(p) else 1)
+        if on_shortlist(p):
+            where.append(SHORTLIST_RECENT)
+            args.extend(shortlist_recent_args(now))
 
     q = (p.get("q") or "").strip()
     if q:
