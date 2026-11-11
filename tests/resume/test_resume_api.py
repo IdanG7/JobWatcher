@@ -254,6 +254,34 @@ class ResumeServiceTests(ResumeFixture):
             tiers = {r[0]: r[1] for r in con.execute("SELECT job_id, matched FROM resume_matches").fetchall()}
         self.assertEqual({"treasury": 2, "one": 1, "li": 1, "two": 0}, tiers)
 
+    def tape(self):
+        """What Today's tape says was posted, and which postings it says changed."""
+        items = self.service.overview()["activity"]
+        return (sum(i["count"] for i in items if i["kind"] == "posted"),
+                sorted(i["job_key"] for i in items if i["kind"] == "description_changed"))
+
+    def test_today_counts_and_tape_follow_the_short_list(self):
+        now = watcher.now()
+        with self.service.db() as con:
+            watcher.update_lifecycle(con, "rbc", {"one", "treasury"}, False, now, {"one", "treasury"}, discovered=True)
+            watcher.update_lifecycle(con, "demo_quant", {"two"}, False, now, {"two"}, discovered=True)
+            for board, job_id in (("rbc", "treasury"), ("rbc", "one"), ("demo_quant", "two")):
+                con.execute("INSERT INTO job_changes(board, job_id, ts, kind) VALUES (?,?,?,'description_changed')",
+                            (board, job_id, now))
+        # No resume: the tape is the person's boards (Finance here, which all three roles are in).
+        self.assertEqual((3, ["demo_quant:two", "rbc:one", "rbc:treasury"]), self.tape())
+        before = self.service.overview()
+        self.assertFalse(before["shortlist_on"])
+        self.assertEqual(3, before["stats"]["new_today"])
+        self.apply()
+        after = self.service.overview()
+        self.assertTrue(after["shortlist_on"])
+        self.assertEqual(1, after["stats"]["new_today"])
+        self.assertEqual((1, ["rbc:treasury"]), self.tape())
+        # A role the person tracks stays on the tape whatever the resume makes of it.
+        self.service.save_application({"key": "rbc:one", "status": "saved"})
+        self.assertEqual((1, ["rbc:one", "rbc:treasury"]), self.tape())
+
     def test_resume_matching_reports_the_short_list_and_the_eligible_total(self):
         self.apply()
         default = self.service.jobs({})["resume_matching"]

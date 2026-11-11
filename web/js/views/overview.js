@@ -77,7 +77,8 @@ function draw(root, d) {
     ${collectionLine(d)}
   </header>
   <div class="kpis">
-    ${kpi('New today', s.new_today, `${esc(yours)} roles, last 24h`, '#/opportunities?posted=today&sort=newest')}
+    ${kpi('New today', s.new_today, d.shortlist_on ? 'on your short list, last 24h' : `${esc(yours)} roles, last 24h`,
+      '#/opportunities?posted=today&sort=newest')}
     ${kpi('High fit', s.high_fit, `fit ${hf} or more`, `#/opportunities?min_fit=${hf}`, s.high_fit ? 'good' : '')}
     ${kpi('Closing soon', s.closing_soon, 'deadline within 7 days', '#/opportunities?deadline=7d&sort=deadline', s.closing_soon ? 'alert' : '')}
     ${kpi('Applications', s.applications, 'active in pipeline', '#/applications')}
