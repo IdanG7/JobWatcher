@@ -80,7 +80,9 @@ COMPANY_TYPES = {
     "wealth": ["canadian_bank", "asset_manager"],
     "risk": ["canadian_bank", "global_bank"],
 }  # the other boards' employers are their employer_types in taxonomy.json
-_STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term)\b", re.I)
+# French too: "Stagiaire", "Étudiante", "Stage en génie civil" (not "Stage Manager").
+_STUDENT_ROLE = re.compile(r"\b(?:intern(?:ship)?|co-?op|student|summer (?:analyst|associate)|placement|work term|"
+                           r"stagiaire|[ée]tudiante?|stage\s+(?:en|de|d['’]|co-?op\w*))\b", re.I)
 _BULLET = re.compile(r"^\s*(?:[•●▪◦\-–*·]|\d+\.)\s*")
 # Month names and abbreviations in English and French ("Sept.", "juil.", "Février", "aout"); re.I reads "AOÛT" too.
 MONTH_NAMES = (r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|"
@@ -88,13 +90,17 @@ MONTH_NAMES = (r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july
                r"janv(?:ier)?|f[ée]v(?:r(?:ier)?)?|mars|avr(?:il)?|mai|juin|juil(?:l(?:et)?)?|ao[uû]t|septembre|"
                r"octobre|novembre|d[ée]c(?:embre)?")
 _MON = rf"\b(?:{MONTH_NAMES})"
+# A French role that goes on: "Présent", "actuellement", "aujourd'hui".
+FRENCH_ONGOING = r"pr[ée]sent|actuel(?:lement)?|aujourd['’]hui"
+# Between a range's ends: a dash, "to", "à", or "a" typed without its accent ("2016 a 2019"; not "2019 a current").
+_TO = r"(?:-|–|—|to|à|\ba\b(?!\s*(?:current|now)\b))"
 # Resume dates: "May 2025 – Aug 2025", "May – Aug 2026", "05/2026 – 08/2026",
 # "Summer 2025", or a role line ending in a bare "2025" / "Aug 2025".
 _YEAR = r"(?:19|20)\d\d"     # an experienced candidate's roles can start in the 1990s
 _RANGE = re.compile(
-    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:{_YEAR})?|\b{_YEAR})\s*(?:-|–|—|to|à)\s*"
+    rf"(?:(?:{_MON}\.?\s*|\b\d{{1,2}}\s*/\s*)(?:{_YEAR})?|\b{_YEAR})\s*{_TO}\s*"
     rf"(?:(?P<end_month>{_MON})\.?\s*|(?P<end_num>\d{{1,2}})\s*/\s*)?"
-    rf"(?P<end>{_YEAR}|present|current|now|pr[ée]sent|actuel(?:lement)?|aujourd['’]hui)\b"
+    rf"(?P<end>{_YEAR}|present|current|now|{FRENCH_ONGOING})\b"
     rf"|\b(?P<season>summer|fall|autumn|winter|spring)\s+(?P<season_year>{_YEAR})\b"
     rf"|(?:(?P<one_month>{_MON})\.?\s+|\b(?P<one_num>\d{{1,2}})\s*/\s*)?\b(?P<one>{_YEAR})\s*\)?\s*$", re.I)
 _MONTH_NUMBERS = {m: i for i, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)} | {
