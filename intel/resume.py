@@ -257,10 +257,27 @@ _PDF_BULLET = re.compile(r"^([ \t]*)[\x88\x95]", re.M)
 _SPLIT_WORD = re.compile(r"\b([A-Z]{1,2}) ([a-z]{2,}|[A-Z]{2,})\b")
 
 
+# A PDF's right-aligned date or city can come out with no space before it: "Vice PresidentApril 2025 – June
+# 2026", "University of WaterlooWaterloo, ON". A capitalised month before a year, or a city and its province or
+# state at the line's end, straight after lower-case letters, starts a new word. Three letters before a city keep
+# "McAllen, TX" whole; only real provinces and states count, so "TypeScript, JS" is no city.
+_REGIONS = ("AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT|AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|"
+            "MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY")
+_GLUED_DATE = re.compile(r"(?<=[a-z)])(?=(?:January|February|March|April|May|June|July|August|September|October|"
+                         r"November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\.? ?(?:19|20)\d\d\b)")
+_GLUED_CITY = re.compile(r"(?<=[a-z]{3})(?=(?:(?:New|San|Los|Las|Salt|St\.?|Saint|Fort|Grand|Thunder|Niagara) )?"
+                         rf"[A-Z][a-z.'-]+, ?(?:{_REGIONS})[^\S\n]*$)", re.M)
+
+
+def unglue(text: str) -> str:
+    """Text with a space put back before a date or a closing city that ran into the word before it."""
+    return _GLUED_CITY.sub(" ", _GLUED_DATE.sub(" ", text))
+
+
 def clean_pdf_text(text: str) -> str:
-    """PDF text with font codes read as letters, dashes and bullets, and kerning splits
-    rejoined where the whole word also appears elsewhere in the text."""
-    text = _PDF_BULLET.sub(r"\1•", text.translate(_PDF_CODES))
+    """PDF text with font codes read as letters, dashes and bullets, glued dates and cities set apart, and
+    kerning splits rejoined where the whole word also appears elsewhere in the text."""
+    text = unglue(_PDF_BULLET.sub(r"\1•", text.translate(_PDF_CODES)))
     words = set(re.findall(r"[A-Za-z]+", text))
     return _SPLIT_WORD.sub(lambda m: m[1] + m[2] if m[1] + m[2] in words else m[0], text)
 
@@ -334,7 +351,10 @@ _SECTION = re.compile(
     r"(?:certifications?|licen[cs]es?|training|credentials)\s*(?:&|and)\s*education|"
     r"(?:licen[cs]es?|certifications?)\s*(?:&|and)\s*(?:licen[cs]es?|certifications?|training)|"
     r"skills|technical skills(?:\s*(?:&|and)\s*interests)?|skills\s*(?:&|and)\s*interests|leadership(?:\s*(?:&|and)\s*activities)?|activities|extracurricular|"
-    r"projects|interests|languages|certifications|awards|summary|professional summary|career summary|"
+    r"projects|interests|hobbies(?:\s*(?:&|and)\s*interests)?|languages|certifications|awards|"
+    # a PDF's kerning can split the capital off: "Achievements & A wards"
+    r"(?:achievements|honou?rs|a ?wards)(?:\s*(?:&|and)\s*(?:achievements|honou?rs|a ?wards))?|"
+    r"summary|professional summary|career summary|"
     r"summary of qualifications|profile|professional profile|objective|"
     # French resumes (Quebec): the same sections
     r"exp[ée]riences?(?: professionnelles?| de travail)?|parcours professionnel|formation|[ée]ducation|[ée]tudes|"
@@ -419,7 +439,9 @@ def _sections(lines: list[str]) -> dict[str, list[str]]:
                        "skills" if "skill" in head or head.startswith(("compétence", "competence")) else
                        "projects" if head in ("projets", "portfolio", "selected work", "case studies") else
                        "certifications" if head.startswith(("certification", "licen")) else
-                       "leadership" if "leadership" in head or head in ("activities", "extracurricular") else head)
+                       "leadership" if "leadership" in head or head in ("activities", "extracurricular") else
+                       "awards" if re.search(r"achievement|honou?r|a ?wards", head) else
+                       "interests" if head.startswith("hobbies") else head)
             out.setdefault(current, [])
             continue
         out.setdefault(current, []).append(line)
@@ -627,7 +649,7 @@ def _languages(text: str) -> list[str]:
 def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     """Structured, explainable fields from resume text. ``wrapped``: its lines may be wrapped (a PDF, pasted
     text); a .docx's are whole paragraphs, so a plain line after a bullet is never the rest of it."""
-    text = (text or "").replace("\r\n", "\n").replace("\r", "\n")[:MAX_CHARS]
+    text = unglue((text or "").replace("\r\n", "\n").replace("\r", "\n")[:MAX_CHARS])
     if len(text.strip()) < 40:
         raise ResumeError("the resume text is too short to parse")
     lines = [l.rstrip() for l in text.split("\n")]
@@ -645,7 +667,7 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
     tracks = insights.resume_tracks(entries, education, kn)
     roles, bullets = _experience(exp_lines or lines, kn, tracks, wrapped)
     edu_text = "\n".join(edu_lines + sections.get("certifications", []) + sections.get("awards", []))
-    interests = insights.role_interests(entries, edu_text, kn, tracks)
+    interests = insights.role_interests(entries, edu_text, kn, tracks, education)
     career = insights.career_plan(education.get("graduation_year"), education.get("graduation_month"),
                                   years=insights.work_years(entries, kn, tracks), senior=insights.senior_title(entries))
     skills = extract_skills(text, kn, limit=60, tracks=insights.resume_skill_tracks(tracks, kn))
