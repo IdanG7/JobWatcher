@@ -15,6 +15,7 @@ from collections import Counter
 from datetime import date
 
 from . import letterhead, resume_facts
+from . import resume_insights as insights
 from .pdf_tools import CLOSING, GREETING
 
 OLLAMA = "http://127.0.0.1:11434"
@@ -458,16 +459,17 @@ CHECKLIST = """Write the cover letter for this posting now. Before you do, check
 - Claim only the experience, skills, tools and certifications the resume shows, with their status exactly as the facts for today give it (a passed exam is not "candidate"; a planned one is not passed). Leave out posting requirements the resume doesn't show.
 - The posting's responsibilities are work in this new job, not things the candidate has done."""
 
-_MONTHS = {m: n for n, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)}
-_MONTH = f"(?:{'|'.join(_MONTHS)})[a-z]*\\.?\\s+\\d{{4}}"
-_RANGE = re.compile(rf"\b{_MONTH}\s*[-–—]+\s*(?P<end>{_MONTH}|present|current|now)\b", re.I)
+_MONTH = rf"(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|{insights.MONTH_NAMES})\.?\s+\d{{4}}"
+# "Juin 2016 à Avril 2019", "Mai 2019 – Présent"; an unaccented "a" too, but not "May 2019 a current project".
+_RANGE = re.compile(rf"\b{_MONTH}\s*(?:[-–—]+|à|\ba\b(?!\s*(?:current|now)\b))\s*"
+                    rf"(?P<end>{_MONTH}|present|current|now|{insights.FRENCH_ONGOING})\b", re.I)
 
 
 def mark_dates(resume_text: str, today: date) -> str:
     """'Jan 2026 - Aug 2026 (ended)': small models can't compare dates to today."""
     def mark(match: re.Match) -> str:
         end = match["end"].split()
-        ongoing = len(end) == 1 or (int(end[-1]), _MONTHS[end[0][:3].lower()]) >= (today.year, today.month)
+        ongoing = len(end) == 1 or (int(end[-1]), insights.month_number(end[0])) >= (today.year, today.month)
         return f"{match[0]} ({'ongoing' if ongoing else 'ended'})"
     return _RANGE.sub(mark, resume_text)
 

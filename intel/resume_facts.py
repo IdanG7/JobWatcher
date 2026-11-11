@@ -13,6 +13,7 @@ import re
 from datetime import date
 
 from . import letterhead
+from . import resume_insights as insights
 
 PROMPT = """You read a resume and copy out its roles and credentials.
 - Copy every value exactly as the resume writes it; never reword, complete or guess. Use "" for what the resume doesn't state.
@@ -30,12 +31,12 @@ _HEADINGS = frozenset("""languages language skills skill certifications certific
 licenses licence license designations designation professional technical interests awards honours honors education
 experience activities and other""".split())
 
-_MONTHS = {m: n for n, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)}
 _SEASONS = {"winter": (1, 4), "spring": (3, 6), "summer": (5, 8), "fall": (9, 12), "autumn": (9, 12)}
-_ONGOING = re.compile(r"\b(?:present|current|now|today|ongoing)\b", re.I)
-# Between the two ends: a dash (not the one inside "2025-05"), or "to", "until", "through".
-_SPLIT = re.compile(r"\s*(?:[–—]+|(?<!\d)-+|-+(?!\d)|(?<=\d{4})-(?=\d{4}\b)|\bto\b|\buntil\b|\bthrough\b)\s*", re.I)
-_POINT = re.compile(r"(?:(?P<month>jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?|"
+_ONGOING = re.compile(rf"\b(?:present|current|now|today|ongoing|{insights.FRENCH_ONGOING})\b", re.I)
+# Between the two ends: a dash (not the one inside "2025-05"), or "to", "until", "through", "à" (or "a").
+_SPLIT = re.compile(r"\s*(?:[–—]+|(?<!\d)-+|-+(?!\d)|(?<=\d{4})-(?=\d{4}\b)|\bto\b|\buntil\b|\bthrough\b|\b[àa]\b)\s*",
+                    re.I)
+_POINT = re.compile(rf"(?:(?P<month>(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|{insights.MONTH_NAMES})\.?|"
                     r"(?P<season>winter|spring|summer|fall|autumn))?\s*(?P<year>(?:19|20)\d\d)?", re.I)
 _NUMERIC = re.compile(r"(\d{1,2})[/.](\d{4})|(\d{4})[-/.](\d{1,2})")
 
@@ -52,7 +53,7 @@ def _point(text: str, last: bool) -> tuple[int | None, int] | None:
         return None
     year = int(m["year"]) if m["year"] else None
     if m["month"]:
-        return year, _MONTHS[m["month"][:3].lower()]
+        return year, insights.month_number(m["month"])
     if m["season"]:
         return year, _SEASONS[m["season"].lower()][1 if last else 0]
     return year, 12 if last else 1
