@@ -10,7 +10,7 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
-  {version: '0.3.16', items: [
+  {version: '0.3.16', date: '2026-11-11', items: [
     {icon: 'filter', title: 'A short list you can read', link: '#/opportunities',
       text: 'Lists now open on recent roles in your specialties. Every other role is one click away.'},
     {icon: 'kanban', title: 'Product and Design, by specialty', link: '#/settings?tab=roles',
