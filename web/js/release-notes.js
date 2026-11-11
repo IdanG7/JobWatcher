@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.17', date: '2026-11-11', items: [
+    {icon: 'pulse', title: 'Today is about your short list',
+      text: 'New today and the tape now show only roles on your short list and ones you track.'},
+    {icon: 'file', title: 'Student resumes land on the right board', link: '#/settings?tab=resume',
+      text: 'The degree now picks the board and title-first layouts read whole. Upload yours again.'},
+    {icon: 'check', title: 'Fewer roles you cannot take', link: '#/opportunities',
+      text: 'Roles needing citizenship or a clearance wait until you confirm it in Settings.'},
+  ]},
   {version: '0.3.16', date: '2026-11-11', items: [
     {icon: 'filter', title: 'A short list you can read', link: '#/opportunities',
       text: 'Lists now open on recent roles in your specialties. Every other role is one click away.'},
