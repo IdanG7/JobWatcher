@@ -83,6 +83,7 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
     generic_citizenship = citizenship.startswith("Permanent resident")
     if generic_citizenship and len(countries) == 1:
         required_country = next(iter(countries))
+    unconfirmed = ""
     if required_country:
         known = auth.get(required_country)
         permitted = ("citizen",) if required_country == "US" and not generic_citizenship else ("citizen", "permanent_resident")
@@ -90,6 +91,7 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
             exclusions.append(citizenship)
         elif known in (None, "unknown"):
             review.append("Citizenship / work authorization needs confirmation")
+            unconfirmed = citizenship
     if elig.get("sponsorship") == "not_available":
         if any(auth.get(c) == "needs_sponsorship" for c in countries):
             exclusions.append("Posting does not offer required sponsorship")
@@ -116,7 +118,7 @@ def match_resume(facts: dict, profile: dict, scored: dict, kn=None) -> dict:
     if not facts.get("has_description"):
         review.append("Posting description is unavailable; check the original requirements")
     matched = not exclusions
-    off_list = _off_list(facts, profile, kn, matched_skills) if matched else []
+    off_list = _off_list(facts, profile, kn, matched_skills, unconfirmed) if matched else []
     return {"matched": matched, "reasons": reasons, "exclusions": list(dict.fromkeys(exclusions)),
             "review": review, "matched_skills": matched_skills,
             # The short list: eligible, and worth reading. What time decides (still listed, how old) is
@@ -132,8 +134,9 @@ EXCLUDED, ELIGIBLE, SHORTLIST = 0, 1, 2
 SKILLS_SHARE, SKILLS_AT_LEAST = 0.75, 2
 
 
-def _off_list(facts: dict, profile: dict, kn, matched_skills: list[str]) -> list[str]:
-    """Why an eligible posting is not on the short list (empty when it is)."""
+def _off_list(facts: dict, profile: dict, kn, matched_skills: list[str], unconfirmed: str = "") -> list[str]:
+    """Why an eligible posting is not on the short list (empty when it is). ``unconfirmed``: the citizenship
+    or residency the posting requires, when the profile doesn't say whether the person has it."""
     cls, loc = facts["classification"], facts["location"]
     reasons = []
     targets = profile.get("target_roles") or []
@@ -157,6 +160,9 @@ def _off_list(facts: dict, profile: dict, kn, matched_skills: list[str]) -> list
     remote = loc.get("remote") and profile.get("open_to_remote", True)
     if target_countries and not countries & target_countries and not (remote and not countries):
         reasons.append("The posting doesn't say where the role is")
+    if unconfirmed:
+        # A role open only to citizens (or the cleared) is worth reading once the person has said they are one.
+        reasons.append(f"{unconfirmed}, and your settings don't say you have it")
     return reasons
 
 

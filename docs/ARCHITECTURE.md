@@ -167,7 +167,8 @@ stage and cycle were 30 of the 100 points and skills 10, so most of a board scor
 list. Tier 2 is an eligible posting whose role is a specialty the person picked or the resume shows
 (`matching._specific`: a board picked with no specialty in it counts whole; otherwise a posting in another
 specialty or in none needs a related specialty or most of its skills on the resume) and whose location is
-known to be in a target country, or remote. What time decides is checked when a list is asked for
+known to be in a target country, or remote. A posting that requires citizenship, residency or a clearance
+the profile's work authorization leaves unknown stays at tier 1 until the person says they have it. What time decides is checked when a list is asked for
 (`job_query.SHORTLIST_RECENT`): seen on its source within 7 days, and posted within 30 or with a deadline
 still ahead, so no rescore is needed for a role to age off. `resume_params` makes the short list the default
 wherever the resume match is on (`shortlist=0` asks for every eligible role); Today
