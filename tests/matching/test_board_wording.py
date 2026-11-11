@@ -1,5 +1,5 @@
 """The fit breakdown's wording names the profile's boards, not finance, outside Finance (plans/product-design-board.md
-decision D44). Points never change, and a Finance-only profile reads every line as before."""
+decision D44). The wording never changes the points, and a Finance-only profile reads every line as before."""
 import time
 import unittest
 
@@ -25,8 +25,8 @@ class EntryLevelTests(unittest.TestCase):
     def test_a_finance_posting_keeps_finance_entry_level(self):
         for fields in (["finance"], ["product"], ["design"], []):
             with self.subTest(fields=fields):
-                self.assertEqual((16, "Analyst — entry level in finance"), row("stage", "Financial Analyst", fields))
-                self.assertEqual((16, "Analyst — entry level in finance"),
+                self.assertEqual((6, "Analyst — entry level in finance"), row("stage", "Financial Analyst", fields))
+                self.assertEqual((6, "Analyst — entry level in finance"),
                                  row("stage", "Investment Banking Analyst", fields))
 
     def test_other_boards_postings_name_no_board(self):
@@ -34,7 +34,7 @@ class EntryLevelTests(unittest.TestCase):
                              ("Associate Product Designer", "Associate")):
             for fields in (["finance"], ["product"], ["design"]):
                 with self.subTest(title=title, fields=fields):
-                    self.assertEqual((16, f"{label} — entry level"), row("stage", title, fields))
+                    self.assertEqual((6, f"{label} — entry level"), row("stage", title, fields))
 
 
 class SkillsTests(unittest.TestCase):
@@ -42,28 +42,28 @@ class SkillsTests(unittest.TestCase):
         # No boards picked reads as Finance (profile_fields), as before boards.
         for fields in (["finance"], []):
             with self.subTest(fields=fields):
-                self.assertEqual((4, "No finance skills detected"), row("skills", "Product Designer", fields))
-                self.assertEqual((4, "No finance skills detected"), row("skills", "Financial Analyst", fields))
+                self.assertEqual((5, "No finance skills detected"), row("skills", "Product Designer", fields))
+                self.assertEqual((5, "No finance skills detected"), row("skills", "Financial Analyst", fields))
 
     def test_other_profiles_read_no_skills(self):
         for fields in (["product"], ["design"], ["software"], ["finance", "design"]):
             with self.subTest(fields=fields):
-                self.assertEqual((4, "No skills detected"), row("skills", "Product Designer", fields))
+                self.assertEqual((5, "No skills detected"), row("skills", "Product Designer", fields))
 
     def test_a_posting_without_text_says_so_for_every_profile(self):
         for fields in (["finance"], ["design"]):
-            self.assertEqual((5, "No description available yet"), row("skills", "Product Designer", fields, description=""))
+            self.assertEqual((6, "No description available yet"), row("skills", "Product Designer", fields, description=""))
 
 
 class CompanyTests(unittest.TestCase):
     def test_outside_names_finance_only_for_a_finance_only_profile(self):
-        self.assertEqual((4, "Semiconductors — outside finance"), row("company", "Product Designer", ["finance"],
+        self.assertEqual((3, "Semiconductors — outside finance"), row("company", "Product Designer", ["finance"],
                                                                       "semiconductors"))
-        self.assertEqual((4, "Semiconductors — outside finance"), row("company", "Product Designer", [],
+        self.assertEqual((3, "Semiconductors — outside finance"), row("company", "Product Designer", [],
                                                                       "semiconductors"))
         for fields in (["product"], ["design"], ["healthcare"], ["finance", "design"]):
             with self.subTest(fields=fields):
-                self.assertEqual((4, "Semiconductors — outside your boards"),
+                self.assertEqual((3, "Semiconductors — outside your boards"),
                                  row("company", "Product Designer", fields, "semiconductors"))
 
 

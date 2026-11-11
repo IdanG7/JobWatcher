@@ -1,6 +1,8 @@
 """A posting in both a targeted specialty and a targeted whole board earns the stronger of the two weights. A
 resume's QA & Test (x1.0) beats a Software board kept at x0.78 from an earlier resume, so QA work isn't scored like
-any other software role, and a board picked at full weight is never cut to a specialty's lower one. Invented postings."""
+any other software role, and a board picked at full weight is never cut to a specialty's lower one. A posting in
+another of the board's specialties is marked down once, for not being a specialty picked, and the board's weight is
+not taken off as well. Invented postings."""
 import time
 import unittest
 
@@ -31,20 +33,29 @@ class RoleWeightTests(unittest.TestCase):
         targets, weights = ["software.qa_test", "software", "hardware"], {"software.qa_test": 1.0, "software": 0.78}
         sub, qa = role(QA, targets, weights)
         self.assertEqual("qa_test", sub)
-        self.assertEqual(25, qa["points"], qa)
+        self.assertEqual(35, qa["points"], qa)
         self.assertNotIn("weighted", qa["detail"])
         sub, backend = role(BACKEND, targets, weights)
         self.assertEqual("backend", sub)
-        self.assertEqual(20, backend["points"], backend)   # the board's x0.78, as before
+        # In the board, not a specialty picked: 12 of 35, and the board's x0.78 is not taken off again.
+        self.assertEqual(12, backend["points"], backend)
+        self.assertIn("in your Software board, not one of your specialties", backend["detail"])
+        self.assertNotIn("weighted", backend["detail"])
+
+    def test_a_board_alone_keeps_its_own_weight(self):
+        # With no specialty picked beside it, the board is the target: 35 x 0.78 = 27.
+        sub, backend = role(BACKEND, ["software", "hardware"], {"software": 0.78})
+        self.assertEqual("backend", sub)
+        self.assertEqual(27, backend["points"], backend)
         self.assertIn("weighted ×0.78", backend["detail"])
 
     def test_a_full_weight_board_is_not_cut_to_a_weaker_specialty(self):
         _, qa = role(QA, ["software", "software.qa_test"], {"software.qa_test": 0.6})
-        self.assertEqual(25, qa["points"], qa)
+        self.assertEqual(35, qa["points"], qa)
 
     def test_a_specialty_alone_keeps_its_own_weight(self):
         _, qa = role(QA, ["software.qa_test"], {"software.qa_test": 0.6})
-        self.assertEqual(15, qa["points"], qa)
+        self.assertEqual(21, qa["points"], qa)       # 35 x 0.6
 
 
 if __name__ == "__main__":

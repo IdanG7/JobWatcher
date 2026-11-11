@@ -290,7 +290,8 @@ export async function render(root, ctx) {
     const parts = [`<span class="num">${d.total.toLocaleString()}</span> ${d.total === 1 ? 'role' : 'roles'} in <b>${esc(interestText())}</b>`];
     if (state.params.q) parts.push(`matching “${esc(state.params.q)}”`);
     parts.push(`sorted by ${esc(sortLabel(state.params.sort))}`);
-    if (rm?.active) parts.push(`resume eligibility on, ${rm.excluded_total || 0} of ${(rm.unfiltered_total ?? d.total).toLocaleString()} excluded`);
+    if (rm?.active && rm.shortlist) parts.push('your short list');
+    else if (rm?.active) parts.push(`every eligible role, ${(rm.excluded_total || 0).toLocaleString()} of ${(rm.unfiltered_total ?? d.total).toLocaleString()} ruled out`);
     if (rm?.active && rm.pending) parts.push(`checking ${rm.pending.toLocaleString()} postings`);
     if (rm?.outdated) parts.push('<a class="link" href="#/settings?tab=resume">re-upload your resume</a> for better matching');
     $('[data-summary]').innerHTML = parts.join(' · ');
@@ -421,8 +422,13 @@ export async function render(root, ctx) {
         <button type="button" class="qf qf-more" data-act="quick-more" aria-haspopup="true" aria-expanded="${open}" aria-controls="opp-quick-menu">More${onHidden ? `<span class="qf-count" aria-label="${onHidden} on">${onHidden}</span>` : ''}${icon('chevronDown', 12)}</button>
         <div class="menu quick-menu" id="opp-quick-menu" role="group" aria-label="More quick filters"${open ? '' : ' hidden'}>${menuItems}</div>
       </div>` : '';
+    const scope = !resume?.active ? 'all' : resume.shortlist ? 'short' : 'eligible';
+    const seg = (key, label, title) => `<button type="button" class="${scope === key ? 'on' : ''}" data-resume-scope="${key}" aria-pressed="${scope === key}" title="${title}">${label}</button>`;
     const rm = resume?.enabled
-      ? `<button type="button" class="qswitch${resume.active ? ' on' : ''}" data-resume-match role="switch" aria-checked="${!!resume.active}" title="Hide roles your resume is clearly ineligible for; unknown requirements stay visible with review notes."><span class="track" aria-hidden="true"></span>Resume match</button>`
+      ? `<div class="segmented scope" role="group" aria-label="Which roles to list">${
+        seg('short', 'Short list', 'Roles in your specialties, in a place you can work, posted in the last 30 days and still listed.')}${
+        seg('eligible', 'Eligible', 'Every role your resume does not rule out.')}${
+        seg('all', 'All roles', 'Everything in these job families, whatever your resume says.')}</div>`
       : `<button type="button" class="qf qf-setup" data-resume-match title="Set up resume matching in Settings">${icon('user', 12)}Resume match</button>`;
     $('[data-quick]').innerHTML = `${rm}${SEP}<div class="quick-scroll">${shown}</div>${more}`;
   }
@@ -744,9 +750,11 @@ export async function render(root, ctx) {
     if (t.closest('[data-act=interests]')) { toggleInterestPop(); return; }
     if (t.closest('[data-interest-reset]')) { set({family: null}); return; }
     if (t.closest('[data-interest-all]')) { set({family: 'all'}); return; }
-    if (t.closest('[data-resume-match]')) {
-      if (!state.data?.resume_matching?.enabled) ctx.navigate(['settings'], {tab: 'resume'});
-      else set({resume_match: state.data.resume_matching.active ? '0' : '1'});
+    if (t.closest('[data-resume-match]')) { ctx.navigate(['settings'], {tab: 'resume'}); return; }
+    const scope = t.closest('[data-resume-scope]')?.dataset.resumeScope;
+    if (scope) {
+      state.refocus = `[data-resume-scope="${scope}"]`;
+      set({resume_match: scope === 'all' ? '0' : '1', shortlist: scope === 'eligible' ? '0' : null});
       return;
     }
     if (t.closest('[data-act=quick-more]')) { toggleQuickMenu(); return; }
@@ -779,6 +787,7 @@ export async function render(root, ctx) {
       const keep = {};
       for (const k of ['family', 'q', 'sort', 'dir']) if (state.params[k]) keep[k] = state.params[k];
       if (state.data?.resume_matching?.active) keep.resume_match = '1';
+      if (state.params.shortlist) keep.shortlist = state.params.shortlist;
       ctx.navigate(['opportunities'], keep);
       return;
     }
@@ -874,6 +883,8 @@ export async function render(root, ctx) {
     delete p.job; delete p.page; delete p.saved;
     if (!p.family && profileInterests().length) p.family = profileInterests().join(',');
     p.resume_match = state.data?.resume_matching?.active ? '1' : '0';
+    // A saved view keeps the list it was made on: the short list, or every eligible role.
+    p.shortlist = state.data?.resume_matching?.shortlist ? '1' : '0';
     return p;
   }
 

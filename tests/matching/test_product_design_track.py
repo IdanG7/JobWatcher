@@ -69,28 +69,28 @@ class TrackTests(unittest.TestCase):
 
 class CompanyPointTests(unittest.TestCase):
     def test_a_pd_profile_scores_its_four_types_as_recognized_and_other_tech_types_as_outside(self):
-        # D24: 7 at the four shared types and at its own types, 4 at the other tech types (semiconductors 549
+        # D24: 5 at the four shared types and at its own types, 3 at the other tech types (semiconductors 549
         # Product and 1,354 Design postings among them).
         for fields in (["product"], ["design"], ["product", "design"]):
             with self.subTest(fields=fields):
-                self.assertEqual((7, "Big Tech — recognized product and design employer"), company_points("big_tech", fields))
-                self.assertEqual((7, "Design Studio & Agency — recognized product and design employer"),
+                self.assertEqual((5, "Big Tech — recognized product and design employer"), company_points("big_tech", fields))
+                self.assertEqual((5, "Design Studio & Agency — recognized product and design employer"),
                                  company_points("design_studio", fields))
-                self.assertEqual((4, "Semiconductors — outside your boards"), company_points("semiconductors", fields))
-                self.assertEqual((4, "Gaming — outside your boards"), company_points("gaming", fields))
-                self.assertEqual((12, "Big Tech — a target employer tier"), company_points("big_tech", fields, SHARED))
+                self.assertEqual((3, "Semiconductors — outside your boards"), company_points("semiconductors", fields))
+                self.assertEqual((3, "Gaming — outside your boards"), company_points("gaming", fields))
+                self.assertEqual((8, "Big Tech — a target employer tier"), company_points("big_tech", fields, SHARED))
 
     def test_other_boards_score_the_shared_types_as_before_and_the_new_ones_as_outside(self):
-        self.assertEqual((7, "Big Tech — recognized tech employer"), company_points("big_tech", ["software"]))
-        self.assertEqual((7, "Semiconductors — recognized tech employer"), company_points("semiconductors", ["hardware"]))
-        self.assertEqual((7, "Big Tech — recognized tech employer"), company_points("big_tech", ["software", "product"]))
-        self.assertEqual((7, "Semiconductors — recognized tech employer"), company_points("semiconductors", ["software", "design"]))
-        self.assertEqual((4, "Big Tech — outside finance"), company_points("big_tech", ["finance"]))
-        self.assertEqual((4, "Big Tech — outside your boards"), company_points("big_tech", ["healthcare"]))
+        self.assertEqual((5, "Big Tech — recognized tech employer"), company_points("big_tech", ["software"]))
+        self.assertEqual((5, "Semiconductors — recognized tech employer"), company_points("semiconductors", ["hardware"]))
+        self.assertEqual((5, "Big Tech — recognized tech employer"), company_points("big_tech", ["software", "product"]))
+        self.assertEqual((5, "Semiconductors — recognized tech employer"), company_points("semiconductors", ["software", "design"]))
+        self.assertEqual((3, "Big Tech — outside finance"), company_points("big_tech", ["finance"]))
+        self.assertEqual((3, "Big Tech — outside your boards"), company_points("big_tech", ["healthcare"]))
         for fields in (["software"], ["data_ml"], ["hardware"], ["healthcare"], ["finance"]):
             with self.subTest(fields=fields):
-                self.assertEqual(4, company_points("design_studio", fields)[0])
-                self.assertEqual(4, company_points("consumer_products", fields)[0])
+                self.assertEqual(3, company_points("design_studio", fields)[0])
+                self.assertEqual(3, company_points("consumer_products", fields)[0])
 
 
 class SkillTests(unittest.TestCase):

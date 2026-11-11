@@ -14,7 +14,7 @@ ES-module JavaScript with no build step.
                ▼
           intel_store.IntelStore
                │ facts_pass: intel.build_facts()  — profile-independent, cached by input hash
-               │ score_pass: intel.score_job()    — Fit Score 2.0, rescored when the profile changes
+               │ score_pass: intel.score_job()    — Fit Score 3.0, rescored when the profile changes
                ▼
           job_intel (+ job_fts FTS5) ──► job_query.build_where() ──► dashboard.py JSON API ──► web/
                │
@@ -38,7 +38,7 @@ ES-module JavaScript with no build step.
 | `intel/licences.py` | Licences and certifications a board's postings require (`facts.licences`, Healthcare only) and a resume shows held or expected. |
 | `intel/programs.py` | A board's yearly program windows (PhORCAS, AIFA, NGG…, APM rounds, design internships, co-op terms) as Calendar items, for profiles with that board; a window two of the profile's boards list shows once. |
 | `intel/profile.py` | Candidate profile defaults, merge and validation, and the version hash that triggers rescoring. |
-| `intel/scoring.py` | Fit Score 2.0: subscores, penalties, reasons, urgency and badges. |
+| `intel/scoring.py` | Fit Score 3.0: subscores, penalties, reasons, urgency and badges. |
 | `intel/resume.py` | Local PDF/DOCX/TXT extraction, bounded document decoding, structured facts and profile proposals. A resume with a track's job or project titles, degree or signals (tech, healthcare) is also read for that track's specialties, skills and licences, and proposes its fields; any other resume is read with the finance vocabulary alone. |
 | `intel/matching.py` | Resume shortlist decisions, explicit conflicts and unknown requirements for review. Roles outside the profile's fields are excluded; finance roles stay eligible only when Finance is one of them. |
 | `intel/sources.py` | Source packs and selection: which sources each profile's boards poll (see Sources). |
@@ -145,17 +145,57 @@ re-pointed it. A source shipped again after a release without it counts from the
 installs that lost it get it back. Raise `sources_version` in `tools/build_windows.py` whenever source
 defaults change; the build refuses otherwise.
 
-## Fit Score 2.0
+## Fit Score 3.0
+
+What every eligible posting shares (a target stage, a target country, a cycle) is worth little; what tells
+one posting from the next (the specialty, the skills it asks for, the city) is worth most. Until 0.3.16
+stage and cycle were 30 of the 100 points and skills 10, so most of a board scored 65–75.
 
 | Subscore | Max | Signal |
 |---|---|---|
-| Role | 25 | Category/subcategory vs. `target_roles` (with `role_weights`) |
-| Stage | 20 | Level/stage vs. `target_stages` |
-| Company | 15 | Employer type vs. `target_company_types`, plus a watchlist bonus |
-| Location | 10 | Target cities > target countries > remote (if open) |
-| Cycle | 10 | `target_cycles`, plus a year match with the graduation year |
-| Skills | 10 | Overlap of extracted skills with profile skills |
-| Freshness | 10 | Steep decay for competitive categories, gentle decay for others |
+| Role | 35 | Category/subcategory vs. `target_roles` (with `role_weights`). A targeted specialty or finance area 35; a related specialty 24; a posting naming no specialty 20, and another specialty 12, when the profile targets specialties in that board |
+| Skills | 20 | Share of the posting's skills (up to 4) on the profile; 6 with no description yet |
+| Location | 15 | Target city 15 > remote 11 > target country 6 (11 when no city is picked) > unknown 2 |
+| Company | 10 | Employer type vs. `target_company_types`, plus a watchlist bonus |
+| Stage | 8 | Level/stage vs. `target_stages` |
+| Freshness | 8 | Steep decay for competitive categories, gentle decay for others |
+| Cycle | 4 | `target_cycles`, plus a year match with the graduation year |
+
+## The short list
+
+`intel.match_resume` returns a tier, stored in `resume_matches.matched`: 0 ruled out, 1 eligible, 2 short
+list. Tier 2 is an eligible posting whose role is a specialty the person picked or the resume shows
+(`matching._specific`: a board picked with no specialty in it counts whole; otherwise a posting in another
+specialty or in none needs a related specialty or most of its skills on the resume) and whose location is
+known to be in a target country, or remote. What time decides is checked when a list is asked for
+(`job_query.SHORTLIST_RECENT`): seen on its source within 7 days, and posted within 30 or with a deadline
+still ahead, so no rescore is needed for a role to age off. `resume_params` makes the short list the default
+wherever the resume match is on (`shortlist=0` asks for every eligible role); Today
+(`dashboard.shortlist_clause`) and fit alerts (`watcher.alert_tier`) use it too. `match["off_list"]` holds
+the reasons a posting is eligible but off the list, for the posting panel. A new resume replaces the
+targets an earlier resume added (`profile["resume_targets"]`); targets picked by hand stay, and a profile
+saved before the note existed keeps every target.
+
+## How lists stay fast
+
+A posting's row in `job_intel` holds its facts (kilobytes), so anything that reads a column of every posting
+in a board reads hundreds of megabytes. Measured on a database of 471,000 postings (0.3.15 â†’ 0.3.16, cold):
+the default Opportunities list 8.3 s â†’ 0.5 s, every eligible role 7.6 s â†’ 1.5 s, Today 11.6 s â†’ 0.8 s.
+
+- `intel_list` (schema v9) is one index holding what a list filters, counts and groups by. The pass that
+  builds a list (`dashboard.jobs`, into the temporary `_tiers` table) reads it instead of the rows, joins
+  only the tables its filter names (`job_query.scan_from`), and keeps the facet columns, so the sidebar
+  counts never go back to `job_intel`.
+- The short list starts from the resume's verdicts (`job_query.shortlist_from`, `dashboard.shortlist_clause`):
+  a few thousand rows through `resume_matches_filter`, not a verdict looked up for every posting in a board.
+  That pass therefore has no count of eligible or ruled-out roles; `resume_matching.eligible_total`,
+  `unfiltered_total` and `excluded_total` are null on the short list and filled with `shortlist=0`.
+- How many postings the resume hasn't read (`dashboard._count_pending`) is four index counts, not a join
+  over every posting.
+- Where the planner picks a worse index, the query says so: `CROSS JOIN` fixes a join order (the short list,
+  the market tape), and a unary plus on `is_canonical` (`dashboard.by_deadline`) sends a deadline range to
+  the deadline index. Check a new list query with `EXPLAIN QUERY PLAN` on a real-size database; tests use a
+  handful of postings and cannot show a slow plan.
 
 Penalties apply only to explicit evidence:
 

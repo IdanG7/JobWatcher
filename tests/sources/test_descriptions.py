@@ -201,6 +201,29 @@ class PageEnrichmentTests(unittest.TestCase):
         rows = dict(con.execute("SELECT job_id, source || ':' || attempts || ':' || (description != '') FROM job_text"))
         self.assertEqual({"1": "detail:1:1", "2": ":1:0"}, rows)
 
+    def test_the_short_list_gets_its_text_before_finance_roles(self):
+        ld = json.dumps({"@type": "JobPosting", "description": DUTIES * 2})
+        found = response("u", page("", f'<script type="application/ld+json">{ld}</script>'))
+        # the resume's verdict on the second posting: only a short-list one moves it ahead of the finance role
+        for verdict, first in ((2, "2"), (1, "1"), (None, "1")):
+            with self.subTest(verdict=verdict):
+                con = watcher.db_open(":memory:")
+                now = watcher.now()
+                for job_id, title in (("1", "Investment Banking Analyst"), ("2", "Quality Assurance Lead")):
+                    con.execute("INSERT INTO jobs VALUES ('bofa',?,?,?,?,?,?)", (job_id, title, "New York",
+                                f"https://careers.bankofamerica.com/en-us/job-detail/{job_id}/x", now, now))
+                    con.execute("INSERT INTO job_details VALUES ('bofa',?,?,?,?)", (job_id, "Bank of America", "", None))
+                config = {"boards": {"bofa": {"ats": "bofa"}}, "profile": {}}
+                IntelStore(con, config).refresh()
+                version = con.execute("SELECT profile_version FROM job_intel WHERE job_id='2'").fetchone()[0]
+                con.execute("INSERT INTO candidate_resume VALUES (1,'resume.pdf','{}',1,?,?)", (version, now))
+                if verdict is not None:
+                    con.execute("INSERT INTO resume_matches VALUES ('bofa','2',?,'{}',?)", (verdict, version))
+                fetched = []
+                with patch.object(watcher.requests, "get", return_value=found):
+                    self.assertEqual(1, watcher.enrich_descriptions(config, con, budget=1, fetched=fetched))
+                self.assertEqual([("bofa", first)], fetched)
+
 
 class LinkedInPostingTests(unittest.TestCase):
     def setUp(self):

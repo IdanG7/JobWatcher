@@ -394,7 +394,7 @@ class FitScoreTests(unittest.TestCase):
         self.assertIn("CLOSED", closed["badges"])
         watched = analyze({"title": "Investment Banking Analyst", "company": "Unknown Advisors LLC"},
                           dyn={"watched": True})
-        self.assertEqual(15, {s["key"]: s["points"] for s in watched["subscores"]}["company"])
+        self.assertEqual(10, {s["key"]: s["points"] for s in watched["subscores"]}["company"])
 
     def test_profile_drives_ranking_for_other_families(self):
         swe = {"target_roles": ["software"], "target_company_types": ["fintech"],

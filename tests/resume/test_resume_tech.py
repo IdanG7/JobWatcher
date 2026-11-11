@@ -162,8 +162,10 @@ class CsResumeTests(unittest.TestCase):
         self.assertEqual((2027, 4), (profile["graduation_year"], profile["graduation_month"]))
 
     def test_chosen_tech_fields_stay_as_they_are(self):
+        # No earlier resume added a target (resume_targets is empty): both were picked by hand.
         before = merge_profile({"fields": ["software", "hardware"], "role_weights": {"software.backend": 0.5},
-                                "target_roles": ["software.backend", "hardware.embedded_firmware"]})
+                                "target_roles": ["software.backend", "hardware.embedded_firmware"],
+                                "resume_targets": []})
         profile = profile_from_resume(self.parsed, before, KN)
         self.assertEqual(["software", "hardware"], profile["fields"])
         self.assertTrue(all(field_of(r) in {"hardware", "software"} for r in profile["target_roles"]))
@@ -171,6 +173,20 @@ class CsResumeTests(unittest.TestCase):
         self.assertIn("software.backend", profile["target_roles"])
         self.assertEqual(0.5, profile["role_weights"]["software.backend"])
         self.assertEqual(len(profile["target_roles"]), len(set(profile["target_roles"])))
+        # What this resume added is noted, so the next resume can take it away again.
+        self.assertNotIn("software.backend", profile["resume_targets"])
+        self.assertIn("hardware.embedded_firmware", profile["resume_targets"])
+
+    def test_a_profile_from_before_resume_targets_were_noted_keeps_every_target(self):
+        # Saved by an older version: nothing says whether a resume or the person added a target, or set its
+        # priority, so none is taken away. What this resume adds is noted from here on.
+        before = merge_profile({"fields": ["software", "hardware"], "role_weights": {"software.backend": 0.5},
+                                "target_roles": ["software.backend", "software.security"]})
+        profile = profile_from_resume(self.parsed, before, KN)
+        self.assertIn("software.backend", profile["target_roles"])
+        self.assertEqual(0.5, profile["role_weights"]["software.backend"])
+        self.assertIn("software.security", profile["target_roles"])
+        self.assertNotIn("software.backend", profile["resume_targets"])
 
 
 class TechMatchTests(unittest.TestCase):

@@ -314,7 +314,7 @@ class BadgeTests(unittest.TestCase):
             self.assertIn(badge, scored["badges"], title)
         _, scored = self.badges("Associate Product Manager Program", "product")
         stage = {s["key"]: s for s in scored["subscores"]}["stage"]
-        self.assertEqual((20, "APM Program — target career stage"), (stage["points"], stage["detail"]))
+        self.assertEqual((8, "APM Program — target career stage"), (stage["points"], stage["detail"]))
 
     def test_other_board_levels_show_no_badge(self):
         for title, field in (("Associate Product Manager", "product"), ("Product Manager", "product"),
@@ -328,7 +328,7 @@ class BadgeTests(unittest.TestCase):
         profile = merge_profile({"fields": ["product"], "target_stages": ["internship", "new_grad"]})
         result = analyze({"title": "Associate Product Manager", "company": "Acme"}, profile, KN, now=NOW)
         stage = {s["key"]: s for s in result["subscores"]}["stage"]
-        self.assertEqual((16, "Associate PM — entry level"), (stage["points"], stage["detail"]))
+        self.assertEqual((6, "Associate PM — entry level"), (stage["points"], stage["detail"]))
 
 
 if __name__ == "__main__":

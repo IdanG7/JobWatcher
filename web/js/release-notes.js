@@ -11,14 +11,14 @@
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
   {version: '0.3.16', items: [
+    {icon: 'filter', title: 'A short list you can read', link: '#/opportunities',
+      text: 'Lists now open on recent roles in your specialties. Every other role is one click away.'},
     {icon: 'kanban', title: 'Product and Design, by specialty', link: '#/settings?tab=roles',
       text: 'Product, UX, research and brand roles, sorted into 12 specialties you can pick from.'},
     {icon: 'building', title: 'Architecture, Engineering & Construction', link: '#/settings?tab=roles',
       text: 'A new board for co-op to senior roles at over 120 engineering and building firms.'},
     {icon: 'file', title: 'Design and engineering resumes', link: '#/settings?tab=resume',
       text: 'BDes, civil and architecture degrees, P.Eng and EIT read from resumes. Upload yours again.'},
-    {icon: 'calendar', title: 'Recruiting dates for the new boards', link: '#/calendar',
-      text: 'Calendar shows when APM, internship, co-op and EIT hiring typically opens on your boards.'},
   ]},
   {version: '0.3.15', date: '2026-11-07', items: [
     {icon: 'user', title: 'Resumes for every career stage', link: '#/settings?tab=resume',

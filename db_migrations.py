@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -256,8 +256,20 @@ def _v8_due_indexes(con: sqlite3.Connection) -> None:
         con.execute(f"CREATE TRIGGER IF NOT EXISTS {trigger}")
 
 
+def _v9_list_index(con: sqlite3.Connection) -> None:
+    """What a list filters, counts and groups by, in one index, so building a list never opens the postings'
+    own rows: each holds its facts (kilobytes), and a list over two boards read 350,000 of them to keep 87,000
+    (2–4 s; 0.02 s through the index). It leads with what every list asks for (canonical, then the board),
+    and costs about 80 MB on a database of 470,000 postings and a few seconds to build."""
+    con.execute("""CREATE INDEX IF NOT EXISTS intel_list ON job_intel(
+        is_canonical, family, board, job_id, window_status, is_finance, facts_version, profile_version, fit,
+        posted_ref, eff_deadline, category, subcategory, stage, level, city, country, location_bucket,
+        company_type, company_key, cycle, cycle_year, urgency)""")
+
+
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
-              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes, 8: _v8_due_indexes}
+              5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes, 8: _v8_due_indexes,
+              9: _v9_list_index}
 
 
 def migrate(con: sqlite3.Connection) -> int:
