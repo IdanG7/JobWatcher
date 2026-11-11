@@ -35,10 +35,20 @@ def country_of(body):
     return (chosen["selectedValues"] or [""])[0]
 
 
-def server(lists):
+def keyword_of(body):
+    return body["fieldData"]["fields"]["KEYWORD"]
+
+
+def server(lists, hidden=()):
     """A fake searchjobs endpoint: lists maps a country id ('' = everything) to its pages (lists of rows).
-    Asking past the last page answers the last page again, as HDR's pager does."""
+    Asking past the last page answers the last page again, as HDR's pager does. A keyword search for a job
+    number counts the posting the site knows: one it lists (with its row) or one of `hidden`, which it counts
+    but never lists; any other number counts 0."""
     def post(url, params=None, json=None, **kw):
+        number = keyword_of(json)
+        if number:
+            rows = [r for page in lists[""] for r in page if r["contestNo"] == number]
+            return faceted(rows, 1 if rows or number in hidden else 0, json["pageNo"])
         pages = lists[country_of(json)]
         n = json["pageNo"]
         rows = pages[min(n, len(pages)) - 1]
@@ -91,6 +101,59 @@ class TaleoFacetedTests(unittest.TestCase):
         self.assertEqual(([5, 4, 3, 2, 1], 8, False), ([int(j["id"]) for j in jobs], jobs.total, jobs.complete))
         self.assertIn("ended at 5 of reported total 8", jobs.reason)
         self.assertEqual("Canada", jobs[4]["location"])
+
+    @patch("watcher.requests.post")
+    @patch("watcher.requests.get")
+    def test_stored_postings_missing_from_a_short_read_are_looked_up_by_job_number(self, get, post, sleep):
+        get.return_value = response(text=FACETED_PAGE)
+        page = [row(n, f"Engineer {n}", "Canada-Ontario-Toronto") for n in (5, 4, 3)]
+        # the site counts 3 postings its pager never lists; 7 is one of them (stored, still open), 8 and 9 closed
+        post.side_effect = server({"": [page], "_over": {"": 3}}, hidden={"7"})
+        jobs = watcher.fetch_taleo({**HDR, "_open_ids": {"5", "4", "7", "8", "9", "x-1"}})
+        self.assertEqual((frozenset({"8", "9"}), False, 6), (jobs.gone, jobs.complete, jobs.total))
+        asked = [keyword_of(c.kwargs["json"]) for c in post.call_args_list if keyword_of(c.kwargs["json"])]
+        # a posting this read listed comes first (the lookup must find it, or no zero is trusted); an id that
+        # is not a job number is never looked up, since a keyword search for other text proves nothing
+        self.assertEqual(["5", "7", "8", "9"], asked)
+        self.assertIn("ended at 3 of reported total 6", jobs.reason)
+        self.assertIn("2 of 3 missing postings looked up by job number are gone", jobs.reason)
+
+    @patch("watcher.requests.post")
+    @patch("watcher.requests.get")
+    def test_job_number_lookups_are_capped_and_only_trusted_when_they_find_a_listed_posting(self, get, post, sleep):
+        get.return_value = response(text=FACETED_PAGE)
+        page = [row(n, f"Engineer {n}", "Canada-Ontario-Toronto") for n in (5, 4, 3)]
+        post.side_effect = server({"": [page], "_over": {"": 3}})
+        with patch.object(watcher, "TALEO_LOOKUPS", 2):
+            jobs = watcher.fetch_taleo({**HDR, "_open_ids": {"7", "8", "9"}})
+        self.assertEqual(frozenset({"7", "8"}), jobs.gone)
+        self.assertIn("2 of 2 missing postings looked up by job number are gone (1 more not looked up)", jobs.reason)
+        listed_only = server({"": [page], "_over": {"": 3}})
+        post.side_effect = lambda url, json=None, **kw: (faceted([], 0, 1) if keyword_of(json)
+                                                          else listed_only(url, json=json, **kw))
+        post.reset_mock()
+        jobs = watcher.fetch_taleo({**HDR, "_open_ids": {"5", "8"}})
+        # the lookup did not find posting 5, which the read just listed: its zeros say nothing
+        self.assertEqual((None, False), (jobs.gone, jobs.complete))
+        self.assertEqual(["5"], [keyword_of(c.kwargs["json"]) for c in post.call_args_list if keyword_of(c.kwargs["json"])])
+
+    @patch("watcher.requests.post")
+    @patch("watcher.requests.get")
+    def test_whole_capped_and_unasked_reads_look_nothing_up(self, get, post, sleep):
+        get.return_value = response(text=FACETED_PAGE)
+        page = [row(n, f"Engineer {n}", "Canada-Ontario-Toronto") for n in (5, 4, 3)]
+        post.side_effect = server({"": [page]})
+        whole = watcher.fetch_taleo({**HDR, "_open_ids": {"5", "8"}})          # the read itself closes 8
+        capped = watcher.fetch_taleo({**HDR, "max": 2, "_open_ids": {"5", "8"}})
+        post.side_effect = server({"": [page], "_over": {"": 3}})
+        unasked = watcher.fetch_taleo(HDR)                                      # no stored postings given
+        nothing_missing = watcher.fetch_taleo({**HDR, "_open_ids": {"5", "4"}})
+        post.side_effect = server({"": [[]], "_over": {"": 2}})
+        empty = watcher.fetch_taleo({**HDR, "_open_ids": {"5", "8"}})         # no listed posting to check a lookup by
+        self.assertEqual([None, None, None, frozenset(), None],
+                         [j.gone for j in (whole, capped, unasked, nothing_missing, empty)])
+        self.assertTrue(whole.complete)
+        self.assertFalse(any(keyword_of(c.kwargs["json"]) for c in post.call_args_list))
 
     @patch("watcher.requests.post")
     @patch("watcher.requests.get")

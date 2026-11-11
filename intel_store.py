@@ -170,9 +170,12 @@ def forget_boards(con: sqlite3.Connection, boards: list[str]) -> int:
 
 
 def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], complete: bool,
-                     ts: str, fresh_ids: set[str] = frozenset(), discovered: bool = False) -> dict:
-    """Mark discovery, reopenings and (for complete listings) closures. ``changed`` lists the postings whose
-    status changed, for IntelStore.recluster_postings: a cluster's pick ranks active members first."""
+                     ts: str, fresh_ids: set[str] = frozenset(), discovered: bool = False,
+                     gone_ids: set[str] = frozenset()) -> dict:
+    """Mark discovery, reopenings and (for complete listings) closures. An incomplete listing closes only
+    ``gone_ids``, the missing postings its reader looked up one by one and found gone; each is missed as a
+    complete listing's would be. ``changed`` lists the postings whose status changed, for
+    IntelStore.recluster_postings: a cluster's pick ranks active members first."""
     stats = {"possibly_closed": 0, "closed": 0, "reopened": 0, "changed": []}
     if fresh_ids:
         con.executemany(
@@ -197,7 +200,7 @@ def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], co
         stats["changed"] += [(board, jid) for (jid,) in reopen]
     con.executemany("UPDATE job_state SET missing_count=0 WHERE board=? AND job_id=? AND missing_count>0",
                     [(board, jid) for jid in seen_ids])
-    if not complete:
+    if not (complete or gone_ids):
         return stats
 
     known = con.execute(
@@ -206,7 +209,7 @@ def update_lifecycle(con: sqlite3.Connection, board: str, seen_ids: set[str], co
            WHERE j.board=? AND j.title != ''""", (board,)).fetchall()
     now_epoch = time.time()
     for jid, last_seen, status, missing in known:
-        if jid in seen_ids or status == "closed":
+        if jid in seen_ids or status == "closed" or not (complete or jid in gone_ids):
             continue
         missing += 1
         hours = (now_epoch - (iso_epoch(last_seen) or now_epoch)) / 3600

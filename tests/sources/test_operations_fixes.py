@@ -41,6 +41,28 @@ class CycleTests(ServiceFixture):
         self.assertEqual("failed", finished["rbc"]["outcome"])
         self.assertTrue(any(f["outcome"] == "ok" for b, f in finished.items() if b != "rbc"))
 
+    def test_a_reader_given_its_open_postings_closes_the_ones_it_found_gone(self):
+        self.service.config["boards"]["rbc"] = {"ats": "taleo", "host": "rbc.taleo.net", "section": "ex"}
+        given = {}
+
+        def fetch(listing):
+            def f(name, cfg):
+                given[name] = cfg.get("_open_ids")
+                return name, listing if name == "rbc" else []
+            return f
+        rows = [{"id": i, "title": f"Analyst {i}", "location": "Toronto", "url": f"https://e/{i}"} for i in ("one", "t1", "t2")]
+        self.run_cycle(fetch(watcher.SourceListing(rows, complete=True, total=3)))
+        short = watcher.SourceListing(rows[:1], reason="Taleo pagination ended at 1 of reported total 4", total=4)
+        short.gone = frozenset({"t1"})        # t2 is missing too, but the site still counts it
+        self.run_cycle(fetch(short))
+        self.assertEqual(frozenset({"one", "t1", "t2"}), given["rbc"])      # what was stored and open
+        self.assertIsNone(given["demo_quant"])                              # only Taleo readers look postings up
+        with self.service.db() as con:
+            state = dict(con.execute("SELECT job_id, status FROM job_state WHERE board='rbc'").fetchall())
+            coverage = json.loads(con.execute("SELECT v FROM kv WHERE k='source_coverage:rbc'").fetchone()[0])
+        self.assertEqual(("possibly_closed", "active"), (state["t1"], state.get("t2", "active")))
+        self.assertEqual((False, True), (coverage["complete"], coverage["detects_removals"]))
+
     def test_estimated_dates_never_move_later(self):
         self.service.config["boards"]["rbc"]["ats"] = "workday"
         day = 86400
