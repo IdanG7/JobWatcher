@@ -71,12 +71,15 @@ def log(msg):
 
 
 class SourceListing(list):
-    """A list with coverage evidence; a partial read must never close jobs."""
+    """A list with coverage evidence; a partial read must never close jobs. A reader given the source's
+    open postings (cfg["_open_ids"]) that looked the missing ones up one by one sets ``gone`` to those the
+    site no longer has; only they may close after a partial read (None: nothing was looked up)."""
     def __init__(self, jobs=(), *, complete=False, reason="", total=None):
         super().__init__(jobs)
         self.complete = complete
         self.reason = reason
         self.total = total
+        self.gone = None
 
 
 def _source_limit(cfg):
@@ -2032,6 +2035,7 @@ def fetch_bamboohr(cfg):
 
 # ---------------------------------------------------------------- begin taleo block
 TALEO_PAUSE = 0.5       # seconds between requests to one career section
+TALEO_LOOKUPS = 100     # missing postings a short faceted read looks up by job number, at most
 
 
 def _taleo_base(cfg):
@@ -2174,14 +2178,14 @@ def _taleo_place(value):
     return "; ".join(dict.fromkeys(out))
 
 
-def _taleo_faceted_query(page_no, country=None):
+def _taleo_faceted_query(page_no, country=None, keyword=""):
     """The search the faceted page posts: Posting Date, newest first, optionally narrowed to one
-    country of its Location facet."""
+    country of its Location facet or to a keyword (a whole job number finds that one posting)."""
     def selections(ids):
         return [{"id": name, "selectedValues": [country] if (name == "LOCATION" and country) else []} for name in ids]
     return {"multilineEnabled": False,
             "sortingSelection": {"sortBySelectionParam": "3", "ascendingSortingOrder": "false"},
-            "fieldData": {"fields": {"KEYWORD": "", "LOCATION": ""}, "valid": True},
+            "fieldData": {"fields": {"KEYWORD": keyword, "LOCATION": ""}, "valid": True},
             "filterSelectionParam": {"searchFilterSelections": selections(
                 ["POSTING_DATE", "LOCATION", "JOB_FIELD", "JOB_TYPE", "JOB_SCHEDULE", "JOB_LEVEL"])},
             "advancedSearchFiltersSelectionParam": {"searchFilterSelections": selections(
@@ -2199,15 +2203,17 @@ def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
     that list it (in the largest when none does). Past the end the pager repeats its last page. HDR's total
     counts 3 hidden postings that no sort order, filter or language lists, and every facet counts them too, so
     no count the site sends leaves them out (plans/aec-board.md section 13). Its reads end short of the total
-    and are marked incomplete: they never close postings, but still place multi-location ones."""
+    and are marked incomplete, but still place multi-location ones. Given the source's open postings
+    (cfg["_open_ids"], from the poller), such a read looks the missing ones up by job number, and only those
+    the site no longer counts (listing.gone) may close."""
     url = f"{base.rsplit('/', 1)[0]}/rest/jobboard/searchjobs"
     api_headers = {**headers, "Content-Type": "application/json", "Accept": "application/json",
                    "X-Requested-With": "XMLHttpRequest", "tz": "GMT-05:00", "tzname": "America/Toronto",
                    "Referer": f"{base}/jobsearch.ftl?lang=en"}
 
-    def search(page_no, country=None):
+    def search(page_no, country=None, keyword=""):
         time.sleep(TALEO_PAUSE)
-        resp = requests.post(url, params={"lang": "en", "portal": portal}, json=_taleo_faceted_query(page_no, country),
+        resp = requests.post(url, params={"lang": "en", "portal": portal}, json=_taleo_faceted_query(page_no, country, keyword),
                              headers=api_headers, cookies=cookies, timeout=TIMEOUT)
         resp.raise_for_status()
         data = resp.json()
@@ -2250,6 +2256,24 @@ def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
                 out.reason = f"Taleo pagination did not end by page {page_no - 1} of reported total {out.total}"
                 return out, facets, False
 
+    def looked_up_gone(out):
+        """The stored open postings missing from a read that ended short which the site no longer counts.
+        The keyword field matches a whole job number: a posting the site still has counts 1 (listed or one
+        of the postings it counts but never lists), a closed one 0. A posting this read listed is looked up
+        first, and if it is not found no zero is trusted (None)."""
+        listed = {j["id"] for j in out}
+        missing = sorted((i for i in set(cfg["_open_ids"]) - listed if i.isascii() and i.isdigit()), key=int)
+        if not missing:
+            return frozenset()
+        if not out or search(1, keyword=out[0]["id"])["pagingData"]["totalCount"] < 1:
+            out.reason += "; no listed posting confirmed the job-number lookup, so missing ones were not looked up"
+            return None
+        looked = missing[:TALEO_LOOKUPS]
+        gone = frozenset(n for n in looked if search(1, keyword=n)["pagingData"]["totalCount"] == 0)
+        out.reason += (f"; {len(gone)} of {len(looked)} missing postings looked up by job number are gone"
+                       + (f" ({len(missing) - len(looked)} more not looked up)" if len(missing) > len(looked) else ""))
+        return gone
+
     out, facets, ended = read()
     if ended and any(j["location"] == "Multiple Locations" for j in out):
         countries = next((f.get("facetValueResults") or [] for f in facets if f.get("id") == "LOCATION"), [])
@@ -2269,6 +2293,8 @@ def _fetch_taleo_faceted(base, portal, cfg, limit, headers, cookies):
         for job in out:
             if job["location"] == "Multiple Locations":
                 job["location"] = "; ".join(found.get(job["id"]) or [main["text"]])
+    if ended and not out.complete and cfg.get("_open_ids") is not None:
+        out.gone = looked_up_gone(out)
     return _finish_listing(out, "Taleo", limit)
 
 
@@ -3860,6 +3886,19 @@ def known_ids(con, board):
     return {r[0] for r in con.execute("SELECT job_id FROM jobs WHERE board=?", (board,))}
 
 
+# Readers that can look a stored posting up by its id, so a read short of the site's total may still close the
+# postings the site no longer has (SourceListing.gone). They are given the source's open postings (Taleo's
+# faceted sections use them; its classic sections ignore them).
+LOOKS_UP_MISSING_ATS = frozenset({"taleo"})
+
+
+def open_ids(con, board):
+    """The stored postings a source has not closed (the ones update_lifecycle could close)."""
+    return frozenset(r[0] for r in con.execute(
+        """SELECT j.job_id FROM jobs j LEFT JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+           WHERE j.board=? AND j.title != '' AND COALESCE(s.status,'active') != 'closed'""", (board,)))
+
+
 def board_row(con, board):
     r = con.execute("SELECT seeded, failures, last_poll FROM boards WHERE board=?",
                     (board,)).fetchone()
@@ -4998,6 +5037,8 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
             skipped += 1
             continue
         due[name] = {**cfg, "_initial_seed": not seeded}
+        if cfg.get("ats") in LOOKS_UP_MISSING_ATS:
+            due[name]["_open_ids"] = open_ids(con, name)
 
     # New board rows must not hold a write lock during the first network wait.
     con.commit()
@@ -5083,6 +5124,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                     elif j.get("department"):
                         store_department(con, name, j["id"], j["department"])
                 runtime_complete = getattr(jobs, "complete", None)
+                gone = getattr(jobs, "gone", None)      # missing postings the reader looked up and found gone
                 complete = all_boards[name].get("complete_listing", runtime_complete if runtime_complete is not None
                                                  else all_boards[name].get("ats") in COMPLETE_LISTING_ATS)
                 complete = bool(complete and runtime_complete is not False)
@@ -5100,12 +5142,12 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                               "queries": source_cfg.get("queries") or [source_cfg.get("query", "software engineer intern")]}
                 coverage = {"fetched": len(jobs), "reported_total": getattr(jobs, "total", None),
                             "complete": bool(runtime_complete if runtime_complete is not None else complete),
-                            "detects_removals": complete,
+                            "detects_removals": complete or gone is not None,
                             "reason": coverage_warning, "fetched_at": ts, "window": window}
                 con.execute("INSERT OR REPLACE INTO kv(k,v) VALUES (?,?)",
                             (f"source_coverage:{name}", json.dumps(coverage)))
                 life = update_lifecycle(con, name, {j["id"] for j in jobs if j["id"]}, complete, ts,
-                                        {j["id"] for j in fresh}, discovered=bool(seeded))
+                                        {j["id"] for j in fresh}, discovered=bool(seeded), gone_ids=gone or frozenset())
                 closed_count += life["closed"]
                 status_changed += life["changed"]
 

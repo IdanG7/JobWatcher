@@ -435,18 +435,23 @@ Approved 2026-11-10: "Approve all".
   `tech/semiconductors` (21 sources) comes along with `shared/semiconductors`.
 - **What's new.** The 0.3.16 card holds at most four items, so the AEC entry replaced Product & Design's "Over 100
   more employers' job sites", and its resume and Calendar lines now cover both boards.
-- **HDR never closes postings.** Its Taleo total counts 3 postings the pager never lists, so every read is
-  incomplete by the reader's strict check; postings are placed but never closed (a closed one stays active until
-  the 90-day prune). Checked on 2026-11-10 (2,319 counted, 2,316 listed; 2,331 and 2,328 at 13:50): the 3 are
+- **HDR closes postings by job number.** Its Taleo total counts 3 postings the pager never lists, so every read
+  is incomplete by the reader's strict check, and an incomplete read closed nothing (a closed posting stayed active
+  until the 90-day prune). Checked on 2026-11-10 (2,319 counted, 2,316 listed; 2,331 and 2,328 at 13:50): the 3 are
   hidden requisitions, not duplicates or a location filter. Every sort order lists the same 2,316, with no row
   repeated and every page full but the last (16 rows where the total implies 19), and no search lists them (German,
   multi-line, all six sorts). Every facet and filter counts them as the total does: one each in Bridges (part-time,
   Orlando FL), Water (San Diego CA) and Highway + Road (Walnut Creek CA), all US and posted over 28 days ago; every
   other field, country and date window lists in full. No count the site sends leaves them out, so the strict check
-  stays (accepting the shortfall would be a tolerance again). A fix that keeps it: the keyword field matches a whole
-  job number (a listed posting counts 1, each of the 21 postings that closed between the two reads counts 0), so a
-  stored posting missing from an incomplete read can be confirmed gone with one search. That needs the poller to
-  give the reader its open ids; not done.
+  stays (accepting the shortfall would be a tolerance again). Instead the keyword field, which matches a whole job
+  number (a listed posting counts 1, each of the 21 postings that closed between the two reads counts 0), confirms
+  each stored posting missing from a read that ended short: the poller gives Taleo readers their open postings
+  (`_open_ids`), the reader looks the missing ones up (at most 100 a read, after a listed one confirms the lookup
+  works) and returns those counted 0 as `listing.gone`, and only those are missed toward closing, as a complete
+  read's would be. The Sources page then says "Detects removals". One real poll on a scratch database (2026-11-11,
+  127 s) looked up the 20 stored postings missing from the read and found all 20 gone; 3 of the previous day's closed
+  numbers were listed again (HDR re-posts), which the three-miss rule allows for. Unverified: that one of the 3
+  hidden postings counts 1 (none of their numbers is known); a posting the site still lists does.
 - The sweep's employers left out, with why, are in `plans/architecture-engineering-sources.json` (`not_added`).
 - **Precision fixes found while writing tests** (each takes postings back off the board that the approved draft moved):
   a bare estimator no longer comes in when the title says collision, damage, auto, appraisal, material or cost (Tesla

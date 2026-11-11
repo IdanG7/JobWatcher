@@ -196,6 +196,19 @@ class LifecycleTests(unittest.TestCase):
             update_lifecycle(self.con, "rbc", set(), False, iso())
         self.assertIsNone(self.con.execute("SELECT status FROM job_state").fetchone())
 
+    def test_an_incomplete_listing_closes_only_the_postings_its_reader_found_gone(self):
+        for jid in ("1", "2", "3"):
+            add_job(self.con, "rbc", jid, "Analyst", first_seen=iso(48))
+        self.con.execute("UPDATE jobs SET last_seen=?", (iso(30),))
+        status = lambda: dict(self.con.execute("SELECT job_id, status FROM job_state").fetchall())  # noqa: E731
+        update_lifecycle(self.con, "rbc", {"3"}, False, iso(), gone_ids={"1", "3"})     # a listed one is not gone
+        self.assertEqual({"1": "possibly_closed"}, status())
+        update_lifecycle(self.con, "rbc", {"3"}, False, iso(), gone_ids={"1"})
+        stats = update_lifecycle(self.con, "rbc", {"3"}, False, iso(), gone_ids={"1"})
+        self.assertEqual((1, {"1": "closed"}), (stats["closed"], status()))   # 2 was missed but never found gone
+        update_lifecycle(self.con, "rbc", {"1", "3"}, False, iso())
+        self.assertEqual({"1": "active"}, status())
+
 
 class StoreTests(unittest.TestCase):
     def setUp(self):
