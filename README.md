@@ -59,6 +59,7 @@ source status and error details.
 
 With a resume on, lists open on your short list: roles in a specialty you picked or your
 resume shows, in a place you can work, still listed and posted in the last 30 days.
+A role that requires citizenship or a clearance you haven't confirmed in Settings waits with the eligible ones.
 Every other eligible role is one switch away. Explicit eligibility conflicts exclude roles; missing
 requirements stay visible with review notes. Canada includes Canadian remote and
 multi-country postings. Finance filters distinguish engineering and clinical QA

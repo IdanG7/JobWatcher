@@ -98,6 +98,17 @@ class LocationTests(unittest.TestCase):
         self.assertEqual(EXCLUDED, match["tier"], match)
         self.assertEqual([], match["off_list"])        # ruled out: the short list has nothing to add
 
+    def test_citizenship_the_person_has_not_confirmed_keeps_a_role_off_the_list(self):
+        cleared = (QA[0], QA[1] + " U.S. citizenship required; an active security clearance is an asset.")
+        match = verdict(cleared, ["software.qa_test"], location="Dallas, TX")
+        self.assertEqual(ELIGIBLE, match["tier"], match)
+        self.assertEqual(["U.S. citizenship required, and your settings don't say you have it"], match["off_list"])
+        # said in Settings, it is on the list; and the same role without the requirement always was
+        citizen = verdict(cleared, ["software.qa_test"], location="Dallas, TX",
+                          work_authorization={"CA": "citizen", "US": "citizen"})
+        self.assertEqual(SHORTLIST, citizen["tier"], citizen)
+        self.assertEqual(SHORTLIST, verdict(QA, ["software.qa_test"], location="Dallas, TX")["tier"])
+
     def test_no_target_countries_means_any_place(self):
         self.assertEqual(SHORTLIST, verdict(QA, ["software.qa_test"], location="", target_countries=[],
                                             target_locations=[])["tier"])
