@@ -160,12 +160,17 @@ def experience_entries(sections: dict[str, list[str]], wrapped: bool = True) -> 
 
     A line with a date range is a role; the plain line before it names the
     employer; bullet lines (and their wrapped continuations, where lines can be
-    wrapped: not a .docx's paragraphs) belong to it.
+    wrapped: not a .docx's paragraphs) belong to it. A section that opens on a
+    dated line is laid out the other way round ("Vice President  Apr 2025 – Jun
+    2026", then "Engineering Club, Barrie, ON"): there the plain line after a
+    role names its organisation.
     """
     entries: list[dict] = []
     for block in ("experience", "leadership", "projects"):
         company = ""
         current = None
+        first = next((l.strip() for l in sections.get(block, []) if l.strip()), "")
+        title_first = bool(first) and not _BULLET.match(first) and bool(_RANGE.search(first))
         for raw in sections.get(block, []):
             line = raw.strip()
             if not line:
@@ -179,11 +184,14 @@ def experience_entries(sections: dict[str, list[str]], wrapped: bool = True) -> 
                 continue
             dates = _RANGE.search(line)
             if dates:
-                current = {"block": block, "company": company, "title": without_dates(line, dates),
+                current = {"block": block, "company": "" if title_first else company,
+                           "title": without_dates(line, dates),
                            "start": span_start(dates), "end": span_end(dates)[0], "bullets": []}
                 entries.append(current)
                 continue
-            if wrapped and current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
+            if title_first and current and current["title"] and not current["company"] and not current["bullets"]:
+                current["company"] = strip_city(line)
+            elif wrapped and current and current["bullets"] and not current["bullets"][-1].endswith((".", "!", "?")):
                 current["bullets"][-1] += " " + line          # wrapped bullet text
             else:
                 company = strip_city(line)        # drop a trailing "Toronto, ON"
@@ -226,13 +234,20 @@ def _hits(text: str, signals=SIGNALS) -> dict[str, tuple[float, list[str]]]:
 
 
 def role_interests(entries: list[dict], education_text: str, kn: Knowledge,
-                   tracks: frozenset[str] = frozenset()) -> list[dict]:
-    """Graded role targets with the evidence behind each; ``tracks`` (see resume_tracks) adds their roles."""
+                   tracks: frozenset[str] = frozenset(), education: dict | None = None) -> list[dict]:
+    """Graded role targets with the evidence behind each; ``tracks`` (see resume_tracks) adds their roles.
+
+    ``education`` (the parsed degree) speaks for its field when nothing else does: a first-year student's
+    degree is the evidence, and a school project in another field ("Mechanical Arm") is not a target."""
     scores: dict[str, float] = {}
     evidence: dict[str, list[str]] = {}
     titled: set[str] = set()
+    worked: set[str] = set()        # targets a job or an activity (not only a project) gave evidence for
+    entry = None
 
     def add(key, points, why):
+        if entry is not None and entry["block"] != "projects":
+            worked.add(key)
         scores[key] = scores.get(key, 0.0) + points
         evidence.setdefault(key, [])
         for w in why:
@@ -271,8 +286,24 @@ def role_interests(entries: list[dict], education_text: str, kn: Knowledge,
             add(key, points * weight * COMPANY_SIGNAL_FACTOR, [f"employer: {p}" for p in phrases])
         for key, (points, phrases) in _hits(" ".join(entry["bullets"]), signals).items():
             add(key, points * weight, phrases)
+    entry = None
     for key, (points, phrases) in _hits(education_text, default_signals).items():
         add(key, points * BLOCK_WEIGHT["education"], phrases)
+    degree = " ".join((education or {}).get(k) or "" for k in ("program", "degree_text"))
+    studied = {key: kn.tracks[key].degree.search(degree) for key in tracks if kn.tracks[key].degree}
+    studied = {key: m for key, m in studied.items() if m}
+    if studied:
+        def boards_of(key):
+            return [b for b in kn.track_boards.get(key, []) if b in kn.families]
+        for key, m in studied.items():
+            # The degree names the board when the track has one board and nothing on the resume scored there.
+            own = boards_of(key)
+            if len(own) == 1 and not any(k.split(".")[0] == own[0] for k in scores):
+                add(own[0], TITLE_POINTS * BLOCK_WEIGHT["education"], [f"degree: {m.group(0).lower()}"])
+        # Beside a degree in one field, another field counts only when a job or activity showed it.
+        elsewhere = {b for key in tracks if key not in studied for b in boards_of(key)}
+        for key in [k for k in scores if k.split(".")[0] in elsewhere and k not in worked]:
+            del scores[key]
     for key, factor in TASK_DISCOUNT.items():
         if key in scores and key not in titled:
             scores[key] *= factor

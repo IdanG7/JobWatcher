@@ -988,9 +988,11 @@ class JobwatchService:
             # With a resume on, Today is about the short list; a posting the resume hasn't read yet
             # (a rescore after an update) keeps the fit rule until it has.
             short, short_args = self.shortlist_clause(con, now)
+            listed = short != "1"
+            # New today is what the list it opens shows: the short list's new roles, or the boards' with no resume.
+            new, new_args = (short, short_args) if listed else (f"({yours})", yours_args)
             stats = {
-                "new_today": stat(f"SELECT COUNT(*) {base} AND ({yours}) AND i.posted_ref >= ?", *yours_args,
-                                  now - 86400),
+                "new_today": stat(f"SELECT COUNT(*) {base} AND {new} AND i.posted_ref >= ?", *new_args, now - 86400),
                 "high_fit": stat(f"SELECT COUNT(*) {base} AND i.fit >= ? AND {short}", high, *short_args),
                 "shortlist": stat(f"SELECT COUNT(*) {base} AND {short}", *short_args),
                 "closing_soon": stat(f"SELECT COUNT(*) {by_deadline(base)} AND i.eff_deadline BETWEEN ? AND ? "
@@ -1022,16 +1024,18 @@ class JobwatchService:
             searches = self.cached(("/api/saved-searches", ""), self.saved_searches, keep=False)["saved_searches"]
             pending = self.pending_facts(con)
             pipeline = dict(con.execute("SELECT status, COUNT(*) FROM applications GROUP BY status").fetchall())
+            tape = self.activity({"limit": ["12"]}, con, short)["items"]
         enabled = len(polled_sources(self.config, profile, self.kn))      # the sources this profile's boards poll
         return {
             "profile": {k: profile.get(k) for k in ("name", "headline", "graduation_year", "target_cycles", "alerts")},
             "boards": self.board_labels(fields),
             "stats": stats,
+            "shortlist_on": listed,
             "top": top,
             "attention": attention,
             "follow_ups": follow_ups,
             "upcoming": upcoming,
-            "activity": self.activity({"limit": ["12"]})["items"],
+            "activity": tape,
             "saved_searches": searches,
             "pipeline": pipeline,
             "sources": {"enabled": enabled, "healthy": sum(1 for r in source_rows if r[0] and not r[1]),
@@ -1558,7 +1562,15 @@ class JobwatchService:
         return {"ok": True}
 
     # ------------------------------------------------------------ activity
-    def activity(self, params: dict) -> dict:
+    def activity(self, params: dict, con=None, short: str | None = None) -> dict:
+        """The tape: what was posted and what changed among the person's roles, and what they did.
+
+        Their roles are the short list while a resume is on and their boards otherwise, plus anything they
+        track; every other posting the app collects stays off it. ``con`` and ``short`` are Today's, which
+        has already found the short list (shortlist_clause) on that connection."""
+        if con is None:
+            with self.db() as own:
+                return self.activity(params, own, self.shortlist_clause(own)[0])
         p = flatten(params)
         try:
             limit = max(1, min(200, int(p.get("limit") or 50)))
@@ -1571,50 +1583,62 @@ class JobwatchService:
         # that day has too few to fill the tape.
         day = (datetime.now(timezone.utc) - timedelta(days=1)).replace(minute=0, second=0, microsecond=0)
         day = max(since, day.isoformat(timespec="seconds"))
-        with self.db() as con:
-            for window in dict.fromkeys((day, since)):
-                posted = con.execute(
-                    """SELECT substr(j.first_seen,1,13) hour, i.company_key, MAX(i.company_name) company,
-                              COUNT(*) n, MAX(j.title) sample, MAX(j.first_seen) ts, MAX(i.fit) best,
-                              MAX(i.category) category, MAX(i.city) city, SUM(i.is_finance) fin,
-                              MAX(i.board || ':' || i.job_id) job_key
-                       FROM jobs j CROSS JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
-                       CROSS JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id
-                       WHERE s.discovered=1 AND j.first_seen > ? AND +i.is_canonical=1
-                       GROUP BY hour, i.company_key ORDER BY ts DESC LIMIT ?""", (window, limit)).fetchall()
-                if len(posted) >= limit:
-                    break
-            for r in posted:
-                city = (self.kn.city_by_key.get(r["city"] or "") or {}).get("label", "")
-                if r["n"] == 1:
-                    text = f"{r['company']} posted {r['sample']}" + (f" — {city}" if city else "")
-                else:
-                    text = f"{r['company']} posted {r['n']} {self.kn.category_label(r['category'])} roles" \
-                        if r["fin"] else f"{r['company']} posted {r['n']} roles"
-                items.append({"ts": r["ts"], "kind": "posted", "text": text, "company_key": r["company_key"],
-                              "fit": r["best"], "count": r["n"], "job_key": r["job_key"] if r["n"] == 1 else None})
-            for r in con.execute(
-                    """SELECT c.ts, c.kind, c.field, c.old, c.new, c.board, c.job_id, j.title,
-                              COALESCE(i.company_name, d.company) company, i.company_key
-                       FROM job_changes c JOIN jobs j ON j.board=c.board AND j.job_id=c.job_id
-                       LEFT JOIN job_intel i ON i.board=c.board AND i.job_id=c.job_id
-                       LEFT JOIN job_details d ON d.board=c.board AND d.job_id=c.job_id
-                       WHERE c.ts > ? AND c.kind != 'possibly_closed' ORDER BY c.ts DESC LIMIT ?""", (since, limit)):
-                verb = {"removed": "role removed from careers site", "reopened": "role reopened",
-                        "description_changed": "description updated", "title_changed": "title changed",
-                        "location_changed": f"location changed: {r['old']} → {r['new']}",
-                        "compensation_changed": f"compensation changed: {r['old']} → {r['new']}",
-                        "link_changed": "application link changed",
-                        "deadline_changed": f"deadline changed: {r['old']} → {r['new']}"}.get(r["kind"], r["kind"])
-                items.append({"ts": r["ts"], "kind": r["kind"], "text": f"{r['company']} — {r['title']}: {verb}",
-                              "company_key": r["company_key"], "job_key": f"{r['board']}:{r['job_id']}"})
-            for r in con.execute(
-                    """SELECT e.ts, e.job_key, e.from_status, e.to_status, a.company, a.title
-                       FROM application_events e JOIN applications a ON a.job_key=e.job_key
-                       WHERE e.ts > ? ORDER BY e.ts DESC LIMIT ?""", (since, limit)):
-                items.append({"ts": r["ts"], "kind": "application",
-                              "text": f"You moved {r['company']} — {r['title']} to {STATUS_LABELS.get(r['to_status'], r['to_status'])}",
-                              "job_key": r["job_key"]})
+        if short != "1":
+            # The short list is a few thousand postings: the pass starts from it, whatever the window.
+            mine, mine_args, windows = short, [], (since,)
+            source = """FROM _short x CROSS JOIN job_intel i ON i.rowid=x.rid
+                       CROSS JOIN jobs j ON j.board=i.board AND j.job_id=i.job_id
+                       CROSS JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id"""
+        else:
+            yours, mine_args = board_clause(profile_fields(self.profile(con), self.kn))
+            mine, windows = f"({yours or '1'})", dict.fromkeys((day, since))
+            source = """FROM jobs j CROSS JOIN job_state s ON s.board=j.board AND s.job_id=j.job_id
+                       CROSS JOIN job_intel i ON i.board=j.board AND i.job_id=j.job_id"""
+        for window in windows:
+            posted = con.execute(
+                f"""SELECT substr(j.first_seen,1,13) hour, i.company_key, MAX(i.company_name) company,
+                          COUNT(*) n, MAX(j.title) sample, MAX(j.first_seen) ts, MAX(i.fit) best,
+                          MAX(i.category) category, MAX(i.city) city, SUM(i.is_finance) fin,
+                          MAX(i.board || ':' || i.job_id) job_key
+                   {source}
+                   WHERE s.discovered=1 AND j.first_seen > ? AND +i.is_canonical=1 AND {mine}
+                   GROUP BY hour, i.company_key ORDER BY ts DESC LIMIT ?""",
+                (window, *mine_args, limit)).fetchall()
+            if len(posted) >= limit:
+                break
+        for r in posted:
+            city = (self.kn.city_by_key.get(r["city"] or "") or {}).get("label", "")
+            if r["n"] == 1:
+                text = f"{r['company']} posted {r['sample']}" + (f" — {city}" if city else "")
+            else:
+                text = f"{r['company']} posted {r['n']} {self.kn.category_label(r['category'])} roles" \
+                    if r["fin"] else f"{r['company']} posted {r['n']} roles"
+            items.append({"ts": r["ts"], "kind": "posted", "text": text, "company_key": r["company_key"],
+                          "fit": r["best"], "count": r["n"], "job_key": r["job_key"] if r["n"] == 1 else None})
+        for r in con.execute(
+                f"""SELECT c.ts, c.kind, c.field, c.old, c.new, c.board, c.job_id, j.title,
+                          COALESCE(i.company_name, d.company) company, i.company_key
+                   FROM job_changes c JOIN jobs j ON j.board=c.board AND j.job_id=c.job_id
+                   LEFT JOIN job_intel i ON i.board=c.board AND i.job_id=c.job_id
+                   LEFT JOIN job_details d ON d.board=c.board AND d.job_id=c.job_id
+                   WHERE c.ts > ? AND c.kind != 'possibly_closed'
+                     AND ({mine} OR EXISTS (SELECT 1 FROM applications a WHERE a.job_key=(c.board||':'||c.job_id)))
+                   ORDER BY c.ts DESC LIMIT ?""", (since, *mine_args, limit)):
+            verb = {"removed": "role removed from careers site", "reopened": "role reopened",
+                    "description_changed": "description updated", "title_changed": "title changed",
+                    "location_changed": f"location changed: {r['old']} → {r['new']}",
+                    "compensation_changed": f"compensation changed: {r['old']} → {r['new']}",
+                    "link_changed": "application link changed",
+                    "deadline_changed": f"deadline changed: {r['old']} → {r['new']}"}.get(r["kind"], r["kind"])
+            items.append({"ts": r["ts"], "kind": r["kind"], "text": f"{r['company']} — {r['title']}: {verb}",
+                          "company_key": r["company_key"], "job_key": f"{r['board']}:{r['job_id']}"})
+        for r in con.execute(
+                """SELECT e.ts, e.job_key, e.from_status, e.to_status, a.company, a.title
+                   FROM application_events e JOIN applications a ON a.job_key=e.job_key
+                   WHERE e.ts > ? ORDER BY e.ts DESC LIMIT ?""", (since, limit)):
+            items.append({"ts": r["ts"], "kind": "application",
+                          "text": f"You moved {r['company']} — {r['title']} to {STATUS_LABELS.get(r['to_status'], r['to_status'])}",
+                          "job_key": r["job_key"]})
         items.sort(key=lambda i: i["ts"] or "", reverse=True)
         return {"items": items[:limit]}
 
