@@ -3421,3 +3421,39 @@ main { max-width: 1304px; }
   .companies-table th:nth-child(n+4):nth-child(-n+5) { width: 72px; }
   .funnel-row { grid-template-columns: 96px minmax(0, 1fr) 72px; }
 }
+
+/* ---------------------------------------------------------------- Intro */
+.intro { font-size: 15px; }
+.intro .welcome-top { padding: 22px 0 18px; }
+.intro .welcome-brand strong { font-weight: 600; font-stretch: normal; }
+.intro .welcome-top .set-link { font-size: 13.5px; color: var(--text-2); }
+.intro .welcome-top .set-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+.intro-copy { gap: 14px; }
+.intro-copy h1 { font-size: clamp(32px, 4.6vw, 56px); font-weight: 600; font-stretch: normal; letter-spacing: -.035em; line-height: 1.04; text-wrap: balance; }
+.intro-copy .sub { margin: 0; font-size: 15px; line-height: 1.6; }
+.intro .welcome-foot { padding: 16px 0 22px; border-top: 1px solid var(--border); background: var(--bg); }
+.intro .welcome-foot .btn { height: 40px; padding: 0 16px; border-radius: 8px; font-size: 15px; font-weight: 500; }
+.intro-progress i { width: 24px; }
+.intro-progress i.on { background: var(--pos); }
+.intro-count { font: 400 12px var(--mono); }
+.intro-choices .choice { gap: 12px; padding: 14px 16px; border-radius: 8px; align-items: flex-start; }
+.intro-choices .choice:has(input:checked) { background: var(--surface); }
+.intro-choices .choice-icon { width: 22px; height: 22px; margin-top: 1px; border-radius: 0; background: none; color: var(--text-3); }
+.intro-choices .choice:has(input:checked) .choice-icon { background: none; color: var(--pos); }
+.intro-choices .choice-text b { font-size: 15px; font-weight: 500; }
+.intro-choices .choice-text small { font-size: 13.5px; line-height: 1.45; }
+.intro-live .nav-status { border-radius: 8px; }
+.intro-pop { padding: 18px 20px; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-raised); }
+.intro-pop strong { font-size: 15px; font-weight: 500; }
+.intro-pop p { font-size: 13.5px; }
+.intro-bar i { background: var(--pos); }
+.intro-card { border-radius: 12px; box-shadow: var(--shadow-raised); }
+.intro-role { padding: 18px 20px; }
+.intro-card .reasons { padding: 14px 20px 18px; font-size: 13.5px; }
+.intro-table { border-top: 1px solid var(--border-strong); }
+.intro-table > div { grid-template-columns: minmax(0, 1fr) auto 44px; padding: 12px 0; }
+:is(.intro-role, .intro-table) b { font-size: 15px; font-weight: 500; }
+:is(.intro-role, .intro-table) small { font-size: 13.5px; }
+
+/* ---------------------------------------------------------------- Top bar on the page column */
+@media (min-width: 761px) { .topnav { padding-inline: max(32px, calc((100% - 1304px) / 2 + 32px)); } }

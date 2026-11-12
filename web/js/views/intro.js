@@ -80,8 +80,7 @@ export async function render(root, ctx) {
     const last = state.step === STEPS.length - 1;
     const n = state.step + 1;
     root.querySelector('[data-steps]').innerHTML = `<section class="intro-step" data-dir="${dir}">
-        <div class="intro-copy"><p class="eyebrow">How Foothold works · ${n} of ${STEPS.length}</p>
-          <h1 tabindex="-1">${esc(step.title)}</h1><p class="sub">${esc(step.text)}</p></div>
+        <div class="intro-copy"><h1 tabindex="-1">${esc(step.title)}</h1><p class="sub">${esc(step.text)}</p></div>
         <div class="intro-still" aria-hidden="true" inert>${step.still()}</div>
       </section>`;
     root.querySelector('[data-foot]').innerHTML = `
