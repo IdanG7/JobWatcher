@@ -3123,3 +3123,130 @@ main:has(.apps-page) { max-width: 1304px; }
   .apps-list tr.group th, .apps-list tr.group th:first-child { display: block; padding: 0; border: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .apps-page .apps-board .card { transition: none; } }
+
+/* ---------------------------------------------------------------- Settings */
+main:has(.set-layout) { max-width: 1304px; }
+.settings-head { max-width: none; margin-bottom: 0; padding: 12px 0 32px; align-items: flex-end; }
+.settings-head h1 { font-size: 32px; line-height: 1.15; font-weight: 600; font-stretch: normal; letter-spacing: -.025em; }
+.settings-head .sub { margin-top: 8px; font-size: 15px; color: var(--text-3); }
+.settings-head .btn.icon { width: 36px; height: 36px; border-radius: 8px; }
+.set-layout { grid-template-columns: 200px minmax(0, 760px); gap: 72px; font-size: 15px; }
+
+/* Sections: a plain list; the current one is named in ink with a green mark. */
+.set-tabs { gap: 24px; }
+.set-tabs-group { gap: 2px; }
+.set-tabs-label { margin: 0 0 6px; padding: 0 10px; font: 400 12px/1.4 var(--font); letter-spacing: 0; color: var(--text-3); }
+.set-tab { height: 34px; border-radius: 8px; font-size: 13.5px; font-weight: 400; }
+.set-tab[aria-current] { background: var(--hover); font-weight: 500; }
+.set-tab[aria-current] svg { color: var(--pos); }
+.set-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.set-tab-dot { background: var(--warn); }
+
+/* A section: its name, then ruled groups. No boxes. */
+.set-panel { gap: 40px; }
+.set-head { gap: 8px; }
+.set-head h2 { font-size: 20px; line-height: 1.25; font-weight: 600; font-stretch: normal; letter-spacing: -.015em; }
+.set-head p { font-size: 15px; line-height: 1.55; color: var(--text-2); }
+.set-group { gap: 0; }
+.set-group-head { padding: 0; }
+.set-group-head h3 { font-size: 15px; font-weight: 600; }
+.set-note { margin: 4px 0 0; padding: 0; font-size: 13.5px; line-height: 1.55; }
+.set-card { margin-top: 12px; border: 0; border-top: 1px solid var(--border-strong); border-radius: 0; background: none; box-shadow: none; }
+.set-group:not(:has(.set-group-head, .set-note)) > .set-card { margin-top: 0; }
+.set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 320px); min-height: 60px; padding: 12px 0; }
+.set-label { gap: 3px; }
+.set-label b { font-size: 15px; font-weight: 500; }
+.set-label small { font-size: 13.5px; line-height: 1.45; }
+.set-block { gap: 14px; padding: 18px 0; }
+.set-card > :is(.set-row, .set-block, .set-cat, .set-empty):last-child { border-bottom: 1px solid var(--border); }
+.set-empty { padding: 16px 0; font-size: 13.5px; }
+.set-layout :is(.input, .select) { height: 36px; border-radius: 8px; font-size: 13.5px; }
+.set-layout textarea.input { height: auto; }
+.set-layout .btn.sm { height: 32px; padding: 0 12px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.set-control .input.num { width: 76px; font: 500 15px/1 var(--mono); }
+.set-toolbar { margin-bottom: -16px; }
+.set-count { font: 400 12px/1 var(--mono); }
+.set-layout .set-link { font-size: 13.5px; font-weight: 400; color: var(--text-2); text-decoration-color: var(--border-strong); }
+.set-mini { font: 500 13.5px/1.4 var(--font); letter-spacing: 0; color: var(--text-2); }
+.set-after { margin-top: -24px; padding: 0; }
+.set-more { margin: -20px 0 0; padding: 0; }
+.set-card .set-cat .set-block { padding-top: 4px; }
+.set-layout .conn { font-size: 13.5px; font-weight: 400; }
+.set-layout .conn.on i { box-shadow: none; }
+.set-layout .reasons { font-size: 13.5px; line-height: 1.6; }
+.set-layout .fine { font-size: 13.5px; }
+.set-layout .inline-field .btn { height: 36px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.switch { width: 34px; height: 20px; }
+.switch::after { width: 16px; height: 16px; }
+.switch:checked { background: var(--pos); }
+.switch:checked::after { transform: translateX(14px); background: #fff; }
+.switch:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Chips and option tiles, as in setup: a chosen chip inverts to ink. */
+.set-layout .picks { gap: 8px; }
+.set-layout .pick { min-height: 34px; padding: 5px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 400; }
+.set-layout .pick:has(input:checked) { background: var(--ink); border-color: var(--ink); color: var(--on-ink); font-weight: 500; }
+.set-layout .pick:has(input:checked) small { color: inherit; opacity: .7; }
+.set-layout .pick small { font-size: 12px; }
+.set-layout .pick.marked::after { background: var(--pos); }
+.set-layout .field-pick:has(input:checked) svg { color: inherit; }
+/* A wrapper or note with nothing in it yet must not hold a gap open. */
+.set-panel > :empty { display: none; }
+.set-layout .choices { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.set-layout .choice { gap: 12px; padding: 13px 14px; border-radius: 8px; }
+.set-layout .choice:has(input:checked) { background: var(--surface); }
+.set-layout .choice-text { gap: 3px; }
+.set-layout .choice-text b { font-size: 15px; font-weight: 500; }
+.set-layout .choice-text small { font-size: 13.5px; line-height: 1.45; }
+.set-layout .choice-mark { margin-top: 2px; }
+
+/* Saved views: the same ruled table. */
+.set-card.flush table.data th { height: 36px; background: none; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 500; color: var(--text-3); }
+.set-card.flush table.data td { padding-top: 12px; padding-bottom: 12px; font-size: 15px; }
+.set-card.flush table.data :is(th, td):first-child { padding-left: 0; }
+.set-card.flush table.data td.c-filters { font-size: 13.5px; }
+
+/* Resume: the file goes in a dashed zone; what was read is ruled. */
+#s-resume { gap: 24px; }
+#s-resume .field > span { font-size: 15px; font-weight: 500; }
+#s-resume .field > span small { margin-left: 6px; font-size: 13.5px; font-weight: 400; color: var(--text-3); }
+#s-resume .input[type=file] {
+  height: auto; padding: 22px 20px; border: 1.5px dashed var(--border-strong); border-radius: 12px; background: var(--surface);
+  font-size: 13.5px; color: var(--text-3); cursor: pointer; transition: border-color 120ms;
+}
+@media (hover: hover) and (pointer: fine) { #s-resume .input[type=file]:hover { border-color: var(--text-3); } }
+#s-resume .input[type=file]::file-selector-button {
+  height: 36px; margin-right: 14px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 8px; background: var(--ink); color: var(--on-ink);
+  font: 500 13.5px/1 var(--font); cursor: pointer;
+}
+#s-resume summary { font-size: 13.5px; font-weight: 500; }
+#s-resume .form-actions .btn { height: 36px; padding: 0 14px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+#s-resume .resume-saved { padding: 16px 0; border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border); }
+#s-resume .resume-saved p { font-size: 13.5px; }
+#s-resume .facts { grid-template-columns: 120px minmax(0, 1fr); gap: 0 20px; font-size: 15px; }
+#s-resume .facts dt, #s-resume .facts dd { padding: 10px 0; border-top: 1px solid var(--border); }
+#s-resume .facts dt { font-size: 13.5px; color: var(--text-3); }
+#s-resume [data-resume-result] > h3 { margin: 8px 0 12px; font-size: 15px; font-weight: 600; }
+#s-resume .resume-change { font-size: 13.5px; }
+
+/* Unsaved changes. */
+.savebar { border-radius: 12px; }
+.savebar-text { font-size: 13.5px; }
+.savebar-text i { background: var(--warn); }
+.savebar .btn { height: 32px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+
+@media (max-width: 1100px) { .set-layout { gap: 44px; } }
+@media (max-width: 900px) {
+  .settings-head { padding: 4px 0 20px; }
+  .settings-head h1 { font-size: 26px; }
+  .set-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .set-tabs { gap: 2px; }
+  .set-tab { height: 42px; }
+  .set-tab[aria-current] { background: none; box-shadow: inset 0 -2px 0 var(--pos); }
+}
+@media (max-width: 640px) {
+  .set-row { grid-template-columns: minmax(0, 1fr); padding: 14px 0; }
+  .set-row:has(.switch) { grid-template-columns: minmax(0, 1fr) auto; }
+  .set-block { padding: 16px 0; }
+  #s-resume .facts { grid-template-columns: 96px minmax(0, 1fr); gap: 0 14px; }
+}
