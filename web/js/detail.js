@@ -14,6 +14,7 @@ import {
 import {contactForm} from './forms.js';
 import {resumeMatchSection} from './resume.js';
 import {documentsSections, mountDocuments} from './documents.js';
+import {applyAnswer, askHtml, clearOpened, noteOpened, noteReturned, readOpened, shouldAsk} from './apply-ask.js';
 
 let current = null;   // {key, job, el}
 let ctxRef = null;
@@ -34,8 +35,22 @@ export function setDrawerDocked(value) {
 
 const closeButton = () => `<button type="button" class="btn ghost sm icon" data-act="close" aria-label="Close" title="Close (Esc)">${icon('x', 15)}</button>`;
 
+// Back from the employer's site (the window is in front again): the open posting asks "Did you apply?".
+let watchingReturn = false;
+function watchReturn() {
+  if (watchingReturn) return;
+  watchingReturn = true;
+  const back = () => {
+    if (document.hidden || !ctxRef?.store) return;
+    if (noteReturned(ctxRef.store).includes(current?.key)) reloadDrawer();
+  };
+  window.addEventListener('focus', back);
+  document.addEventListener('visibilitychange', back);
+}
+
 export async function openDrawer(key, ctx) {
   ctxRef = ctx;
+  watchReturn();
   const root = document.getElementById('drawer-root');
   if (!current) {
     root.innerHTML = `<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Posting details" tabindex="-1"></aside>`;
@@ -182,6 +197,7 @@ function render(el, job, {docs = null} = {}) {
   <div class="drawer-body">
     ${closed ? `<div class="callout neg dh-callout">${icon('clock')}<div>Removed from ${esc(sourceName(job.source_label))}${job.closed_at ? ` on ${fmtDay(String(job.closed_at).slice(0, 10))}` : ''}. The role may be filled or closed.</div></div>`
       : job.job_status === 'possibly_closed' ? `<div class="callout info dh-callout">${icon('clock')}<div>Missing from the latest check of ${esc(sourceName(job.source_label))}. Foothold marks it closed if it stays missing.</div></div>` : ''}
+    ${ctxRef?.store && shouldAsk(readOpened(ctxRef.store)[job.key], status) ? askHtml() : ''}
     ${glance(job, f)}
     ${fitSection(job, job.fit_detail || {})}
     ${resumeMatchSection(job.resume_match)}
@@ -440,6 +456,7 @@ export async function quickAction(action, job, ctx) {
       else await saveJob(job, 'applied');
       toast(`Marked applied · ${job.company}`);
     } else if (action === 'open') {
+      if (ctx.store) noteOpened(ctx.store, job.key);
       openExternal(safeUrl(job.url));
       return;
     }
@@ -483,7 +500,25 @@ function bind(el, job) {
   on('desc-check', describeAgain);
   on('desc-retry', describeAgain);
   on('save', () => quickAction('save', job, ctx));
-  on('applied', () => quickAction('applied', job, ctx));
+  on('applied', () => { if (ctx.store) clearOpened(ctx.store, job.key); quickAction('applied', job, ctx); });
+  // The link opens by itself (in the person's browser); note it so "Did you apply?" can be asked on return.
+  on('open', () => { if (ctx.store) noteOpened(ctx.store, job.key); });
+  on('ask', async e => {
+    const answer = e.currentTarget.dataset.answer;
+    const box = e.currentTarget.closest('.ask-applied');
+    box.querySelectorAll('button').forEach(b => { b.disabled = true; });
+    try {
+      const said = await applyAnswer(answer, job, {post, patch,
+        hide: () => put(`/api/jobs/${enc(job.key)}/override`, overrideBody(job, {hidden: true}))});
+      clearOpened(ctx.store, job.key);
+      if (!said) { box.remove(); return; }          // "Don't ask": nothing changes
+      toast(said, answer === 'no' ? {action: {label: 'Undo', fn: async () => { await put(`/api/jobs/${enc(job.key)}/override`, overrideBody(job, {hidden: false})); ctx.changed(); }}} : {});
+      ctx.changed();
+    } catch (err) {
+      toast(err.message, {error: true});
+      box.querySelectorAll('button').forEach(b => { b.disabled = false; });
+    }
+  });
   on('copy', async () => {
     try { await navigator.clipboard.writeText(location.href); toast('Link copied'); } catch { toast('Couldn’t copy the link', {error: true}); }
   });
