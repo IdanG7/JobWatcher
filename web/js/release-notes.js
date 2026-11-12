@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.18', date: '2026-11-11', items: [
+    {icon: 'bell', title: 'Alerts as Windows notifications', link: '#/settings?tab=alerts',
+      text: 'New short-list roles and the morning summary now show on this PC. No Discord needed.'},
+    {icon: 'file', title: 'Setup starts with your resume', link: '#/welcome',
+      text: 'Foothold reads it and fills in the steps that follow, so you confirm instead of typing.'},
+    {icon: 'check', title: 'Resumes read more accurately', link: '#/settings?tab=resume',
+      text: 'Languages under a heading, percentage averages and school names now read correctly.'},
+  ]},
   {version: '0.3.17', date: '2026-11-11', items: [
     {icon: 'pulse', title: 'Today is about your short list',
       text: 'New today and the tape now show only roles on your short list and ones you track.'},
