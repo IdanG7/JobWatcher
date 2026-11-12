@@ -24,6 +24,57 @@ const card = (type, name, value, checked, title, note, glyph = '') => `<label cl
   <span class="choice-text"><b>${esc(title)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span></label>`;
 const chip = (name, value, checked, text, sub = '') => `<label class="pick"><input type="checkbox" name="${name}" value="${esc(value)}"${checked ? ' checked' : ''}><span>${esc(text)}</span>${sub ? `<small>${esc(sub)}</small>` : ''}</label>`;
 
+/** The resume step. Until a resume is read, the drop zone holds the step's one primary action and going
+ * on without one is a quiet link in the footer; once read, the step shows what was read and Continue leads. */
+export function resumeStep({resume = null, resumeNote = '', resumeError = false} = {}) {
+  const status = `<p class="resume-status" role="${resumeError ? 'alert' : 'status'}" aria-live="polite" data-setup-status>${esc(resumeNote)}</p>`;
+  const file = '<input class="sr-only" type="file" accept=".pdf,.docx,.txt,.md" tabindex="-1" aria-label="Resume file" data-setup-file>';
+  const title = 'Start with your resume';
+  if (resume) {
+    return {
+      title, ready: true, next: 'Continue',
+      sub: 'Check what was read. The next steps are filled in from it, and you can change anything there that is wrong.',
+      body: `<section class="welcome-read" data-setup-drop>
+          <header class="read-head"><h2>What Foothold read${resume.file ? ` from ${esc(resume.name)}` : ''}</h2>
+            <button type="button" class="btn ghost" data-act="choose-file">Use a different file</button>${file}</header>
+          ${resumeFacts(resume.preview.parsed)}
+          ${status}
+        </section>`,
+    };
+  }
+  return {
+    title, ready: true, next: 'Continue without a resume', quietNext: true,
+    sub: 'Foothold reads it to pick your fields, level and skills, then ranks roles against your experience.',
+    body: `<section class="welcome-resume">
+        <div class="drop" data-setup-drop>
+          <span class="drop-icon" aria-hidden="true">${icon('upload', 22)}</span>
+          <p class="drop-title">Drop your resume here</p>
+          <p class="drop-sub">PDF, DOCX or TXT, up to 5 MB</p>
+          <button type="button" class="btn primary" data-act="choose-file">Choose a file</button>${file}
+          ${status}
+        </div>
+        <p class="drop-note">Read on this computer only. It is never sent anywhere.</p>
+        <details class="disclose"><summary>Or paste the text</summary>
+          <label class="field"><span class="sr-only">Resume text</span><textarea class="input" rows="7" maxlength="60000" data-setup-text placeholder="Paste your resume here"></textarea></label>
+          <div class="form-actions"><button type="button" class="btn" data-act="read-text">Read this text</button></div></details>
+      </section>`,
+  };
+}
+
+/** Setup's footer: Back, a hint while the step is not ready, and the way forward. */
+export function footHtml(view, {step = 0, canAddResume = false} = {}) {
+  const forward = view.last
+    ? `<span class="welcome-actions">${canAddResume ? '<button type="button" class="btn" data-act="save" data-then="resume">Save and add my resume</button>' : ''}<button type="button" class="btn primary" data-act="save" data-then="matches">Save and see my matches</button></span>`
+    : view.quietNext
+      ? `<button type="button" class="set-link welcome-skip" data-act="next">${esc(view.next)}</button>`
+      : `<button type="button" class="btn primary" data-act="next"${view.ready ? '' : ' disabled'}>${esc(view.next || 'Continue')}</button>`;
+  return `<footer class="welcome-foot">
+      ${step ? '<button type="button" class="btn ghost" data-act="back">Back</button>' : '<span></span>'}
+      <span class="welcome-hint" aria-live="polite">${view.ready ? '' : esc(view.hint)}</span>
+      ${forward}
+    </footer>`;
+}
+
 /** Setup answers filled in from the saved profile, so running setup again changes only what you change. */
 export function setupAnswers(profile, {firstRun = false, financeKeys = [], thisYear = new Date().getFullYear()} = {}) {
   // A first run starts from the built-in default profile; its targets were never the user's choice.
@@ -162,19 +213,7 @@ export async function render(root, ctx) {
   document.body.classList.add('onboarding');
 
   const STEPS = {
-    resume: () => ({
-      title: 'Start with your resume',
-      sub: 'Foothold reads it to pick your fields, level and skills, then ranks roles against your experience. No resume to hand? Continue and answer a few questions instead.',
-      body: `<section class="welcome-q welcome-resume">
-          <label class="field"><span>Your resume <small>PDF, DOCX or TXT, up to 5 MB</small></span><input class="input" type="file" accept=".pdf,.docx,.txt,.md" data-setup-file></label>
-          <details class="disclose"><summary>Or paste resume text</summary><label class="field"><span class="sr-only">Resume text</span><textarea class="input" rows="6" maxlength="60000" data-setup-text placeholder="Paste your resume here"></textarea></label></details>
-          <div class="form-actions"><button type="button" class="btn" data-act="read-resume">${state.resume ? 'Read a different one' : 'Read my resume'}</button><span class="fine">Read on this computer only. It is never sent anywhere.</span></div>
-          <p class="resume-status" role="${state.resumeError ? 'alert' : 'status'}" aria-live="polite" data-setup-status>${esc(state.resumeNote)}</p>
-        </section>
-        ${state.resume ? `<section class="welcome-q welcome-read"><h2>What Foothold read${state.resume.file ? ` from ${esc(state.resume.name)}` : ''}</h2>${resumeFacts(state.resume.preview.parsed)}
-          <p class="fine">The next steps are filled in from this. Change anything there that is wrong.</p></section>` : ''}`,
-      ready: true, next: state.resume ? 'Continue' : 'Continue without a resume',
-    }),
+    resume: () => resumeStep(state),
     fields: () => ({
       title: 'What are you recruiting for?',
       sub: 'Pick every field you are applying in. Foothold shows the settings and filters for each one, and you can change this later.',
@@ -260,22 +299,16 @@ export async function render(root, ctx) {
     root.innerHTML = `<div class="welcome" data-step="${id}">
       <header class="welcome-top">
         <span class="welcome-brand">${MARK}<strong>foothold</strong></span>
+        <span class="welcome-count">Step ${state.step + 1} of ${list.length}</span>
         <button type="button" class="set-link" data-act="leave">${firstRun ? 'Skip for now' : 'Cancel'}</button>
       </header>
       <div class="welcome-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="1" aria-valuemax="${list.length}" aria-valuenow="${state.step + 1}"><i style="width:${((state.step + 1) / list.length) * 100}%"></i></div>
       <form class="welcome-body" data-welcome novalidate>
-        <p class="eyebrow">Step ${state.step + 1} of ${list.length}</p>
         <h1 tabindex="-1">${esc(view.title)}</h1>
         <p class="sub">${esc(view.sub)}</p>
         <div class="welcome-content">${view.body}</div>
       </form>
-      <footer class="welcome-foot">
-        ${state.step ? '<button type="button" class="btn ghost" data-act="back">Back</button>' : '<span></span>'}
-        <span class="welcome-hint" aria-live="polite">${view.ready ? '' : esc(view.hint)}</span>
-        ${view.last
-          ? `<span class="welcome-actions">${state.resume || savedResume.available ? '' : '<button type="button" class="btn" data-act="save" data-then="resume">Save and add my resume</button>'}<button type="button" class="btn primary" data-act="save" data-then="matches">Save and see my matches</button></span>`
-          : `<button type="button" class="btn primary" data-act="next"${view.ready ? '' : ' disabled'}>${esc(view.next || 'Continue')}</button>`}
-      </footer>
+      ${footHtml(view, {step: state.step, canAddResume: !(state.resume || savedResume.available)})}
     </div>`;
     if (focus) root.querySelector('h1').focus({preventScroll: true});
     window.scrollTo({top: 0});
@@ -293,15 +326,15 @@ export async function render(root, ctx) {
   const profileOut = (base = profile, fromResume = false) => setupProfile(base, state, {firstRun, fromResume, families, cities: meta.cities || [], skills: meta.skills || [], meta});
 
   // Read the chosen resume (nothing is saved yet) and fill the steps that follow from it.
-  async function readResume(btn) {
-    const file = root.querySelector('[data-setup-file]');
-    const text = root.querySelector('[data-setup-text]');
+  async function readResume(file, text = '') {
+    if (state.reading) return;      // a second file dropped mid-read waits its turn
+    state.reading = true;
     const status = root.querySelector('[data-setup-status]');
-    btn.disabled = true;
+    root.querySelectorAll('[data-act=choose-file], [data-act=read-text]').forEach(b => { b.disabled = true; });
     status.setAttribute('role', 'status');
     status.textContent = 'Reading resume…';
     try {
-      const payload = await resumePayload(file.files?.[0], text.value);
+      const payload = await resumePayload(file, text);
       const preview = await post('/api/resume/parse', payload);
       if (!root.isConnected) return;
       state.resume = {payload, preview, file: Boolean(payload.filename), name: payload.filename || 'Pasted text'};
@@ -311,6 +344,7 @@ export async function render(root, ctx) {
       if (!root.isConnected) return;
       Object.assign(state, {resumeNote: err.message, resumeError: true});
     }
+    state.reading = false;
     draw();
   }
 
@@ -333,6 +367,7 @@ export async function render(root, ctx) {
   }
 
   root.addEventListener('change', e => {
+    if (e.target.matches('[data-setup-file]')) { if (e.target.files?.[0]) readResume(e.target.files[0]); return; }
     const {name, value, checked} = e.target;
     const toggle = set => (checked ? set.add(value) : set.delete(value));
     if (name === 'field') toggle(state.fields);
@@ -358,7 +393,8 @@ export async function render(root, ctx) {
     else if (act === 'all-finance') {
       state.finance = state.finance.size === financeKeys.length ? new Set() : new Set(financeKeys);
       draw();
-    } else if (act === 'read-resume') readResume(e.target.closest('[data-act]'));
+    } else if (act === 'choose-file') root.querySelector('[data-setup-file]').click();
+    else if (act === 'read-text') readResume(null, root.querySelector('[data-setup-text]').value);
     else if (act === 'save') save(e.target.closest('[data-act=save]'));
     else if (act === 'leave') {
       if (firstRun) {
@@ -369,6 +405,28 @@ export async function render(root, ctx) {
     }
   });
 
+  // A file dragged onto the resume step is read where it lands; one dropped beside the zone must not
+  // make the browser open it in place of the app.
+  const hasFile = e => [...(e.dataTransfer?.types || [])].includes('Files');
+  const drag = new AbortController();
+  root.addEventListener('dragover', e => {
+    if (!hasFile(e)) return;
+    e.preventDefault();
+    const zone = e.target.closest('[data-setup-drop]');
+    e.dataTransfer.dropEffect = zone ? 'copy' : 'none';
+    root.querySelector('[data-setup-drop]')?.classList.toggle('over', Boolean(zone));
+  }, {signal: drag.signal});
+  root.addEventListener('dragleave', e => {
+    if (!root.contains(e.relatedTarget)) root.querySelector('[data-setup-drop]')?.classList.remove('over');
+  }, {signal: drag.signal});
+  root.addEventListener('drop', e => {
+    if (!hasFile(e)) return;
+    e.preventDefault();
+    const zone = e.target.closest('[data-setup-drop]');
+    root.querySelector('[data-setup-drop]')?.classList.remove('over');
+    if (zone && e.dataTransfer.files[0]) readResume(e.dataTransfer.files[0]);
+  }, {signal: drag.signal});
+
   draw();
-  return {update() {}, cleanup() { document.body.classList.remove('onboarding'); }};
+  return {update() {}, cleanup() { drag.abort(); document.body.classList.remove('onboarding'); }};
 }

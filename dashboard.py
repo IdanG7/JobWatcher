@@ -263,6 +263,27 @@ def cycle_label(key: str | None) -> str:
     return f"{season.replace('_', ' ').title()} {year}".strip()
 
 
+_SKILLS_MATCHED = re.compile(r"^Matched (.+) \((\d+) of (\d+) detected\)$")
+# Reasons a list row already shows another way: the category it is filed under, and how old it is.
+_WHY_SHOWN = re.compile(r" target$|^(Posted|Updated|First seen|Seen|Listed)\b")
+
+
+def fit_why(detail: dict | None) -> dict:
+    """A list row's reason in words: up to two short phrases, and the first concern.
+
+    Skills come first because they are what separates two roles in the same category; then the
+    score's own reasons, minus the ones the row shows already."""
+    detail = detail or {}
+    why = []
+    for sub in detail.get("subscores") or []:
+        found = _SKILLS_MATCHED.match(sub.get("detail") or "") if sub.get("key") == "skills" else None
+        if found:
+            names, matched, total = found.group(1), int(found.group(2)), int(found.group(3))
+            why.append(f"{matched} of {total} skills" if total > 1 else f"{names} matched")
+    why += [r for r in detail.get("reasons") or [] if not _WHY_SHOWN.search(r)]
+    return {"fit_why": why[:2], "fit_caution": next(iter(detail.get("concerns") or []), "")}
+
+
 class JobwatchService:
     def __init__(self, db_path=watcher.DB_PATH, config_path=watcher.CONFIG,
                  subscribers_path=watcher.SUBSCRIBERS):
@@ -703,6 +724,15 @@ class JobwatchService:
         return job
 
     def _attach_sources(self, con, jobs: list[dict]) -> None:
+        # The reason in words rides along: one look-up per row by primary key, for a page of rows.
+        for job in jobs:
+            row = con.execute("SELECT fit_detail FROM job_intel WHERE board=? AND job_id=?",
+                              (job["board"], job["job_id"])).fetchone()
+            try:
+                detail = json.loads(row[0]) if row and row[0] else None
+            except ValueError:
+                detail = None
+            job.update(fit_why(detail))
         keys = list({j["cluster_key"] for j in jobs if j.get("cluster_key")})
         if not keys:
             return

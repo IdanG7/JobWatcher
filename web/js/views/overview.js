@@ -1,25 +1,27 @@
-// Today: what deserves attention now. A printed brief: the date, a strip of
-// figures, then ruled sections. Rows are the actions; nothing is boxed.
+// Today: what deserves attention now. The date and a sentence of counts, the best role on the short
+// list in the one raised panel, then the rest of the list beside what needs action.
 import {get} from '../api.js';
-import {age, compact, deadlineText, esc, fmtDay, parseDay, toEpochMs} from '../lib.js';
-import {STATUS_LABELS, badge, categoryText, emptyState, errorState, fitMeter, icon, locationText, skeletonRows} from '../ui.js';
+import {SOON_DAYS, age, compact, daysUntil, daysWords, esc, fmtDay, parseDay, toEpochMs} from '../lib.js';
+import {STATUS_LABELS, categoryText, emptyState, errorState, fitMeter, fitWord, icon, locationText, logo, skeletonRows} from '../ui.js';
 import {logTouchpoint, markVisited} from '../forms.js';
 import {boardText} from '../fields.js';
+import {mountContours} from '../contours.js';
+import {quickAction} from '../detail.js';
 
-const today = () => new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric'});
+const todayText = () => new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric'});
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-// Time signals worth a tag in a top-opportunity row; years and levels are in the title already.
-const SIGNALS = ['TODAY', 'NEW', 'DEADLINE SOON', 'UPDATED', 'POSSIBLY CLOSED', 'CLOSED'];
 
 export async function render(root, ctx) {
   root.innerHTML = `<div class="today">
-    <header class="page-head today-head"><div><h1>${esc(today())}</h1><div class="skel" style="width:300px;margin-top:12px"></div></div></header>
-    <div class="kpis">${'<div class="kpi"><div class="skel" style="width:60%"></div><div class="skel" style="height:26px;width:40%;margin-top:10px"></div></div>'.repeat(6)}</div>
-    <div class="grid-main ledger"><section class="panel">${skeletonRows(8)}</section><section class="panel">${skeletonRows(5)}</section></div></div>`;
+    <header class="today-head"><h1>${esc(todayText())}</h1><div class="skel" style="width:420px;margin-top:14px"></div></header>
+    <section class="lead lead-loading"><div>${skeletonRows(4)}</div></section>
+    <div class="today-cols"><section>${skeletonRows(7)}</section><aside>${skeletonRows(4)}</aside></div></div>`;
   let data;
+  let contours = null;
   const load = async () => {
     data = await get('/api/overview');
-    draw(root, data);
+    contours?.destroy();
+    contours = draw(root, data);
   };
   try { await load(); } catch (err) {
     root.innerHTML = errorState(err);
@@ -32,112 +34,166 @@ export async function render(root, ctx) {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=button]')) { e.preventDefault(); e.target.click(); }
   });
   const timer = setInterval(() => { if (!document.hidden) load().catch(() => {}); }, 90000);
-  return {refresh: () => load().catch(() => {}), cleanup: () => clearInterval(timer)};
-}
-
-function kpi(label, value, note, href, cls = '') {
-  const n = Number(value);
-  return `<a class="kpi ${cls}" href="${href}"><div class="label">${esc(label)}</div><div class="value num">${Number.isFinite(n) ? n.toLocaleString() : esc(value ?? '—')}</div><div class="note">${note}</div></a>`;
+  return {refresh: () => load().catch(() => {}), cleanup: () => { clearInterval(timer); contours?.destroy(); }};
 }
 
 function section(title, body, {count = '', link = '', cls = ''} = {}) {
-  return `<section class="panel${cls ? ` ${cls}` : ''}"><div class="panel-head"><h2>${title}${count !== '' ? ` <span class="count">${count}</span>` : ''}</h2>${link}</div>${body}</section>`;
+  return `<section class="today-sec${cls ? ` ${cls}` : ''}"><div class="sec-head"><h2>${title}${count !== '' ? ` <span class="count">${count}</span>` : ''}</h2>${link}</div>${body}</section>`;
 }
 
-/** Quiet text for the right of the date: collection health in one line. */
-function collectionLine(d) {
-  const s = d.stats;
-  const run = d.last_run;
+const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
+
+/** The day's figures as one sentence of links. A figure that is zero is left out. */
+export function countsLine(s = {}, {shortlistOn = false} = {}) {
+  const parts = [
+    [s.new_today, 'new today', '#/opportunities?posted=today&sort=newest'],
+    [shortlistOn ? s.shortlist : 0, 'on your short list', '#/opportunities'],
+    [s.closing_soon, 'closing this week', '#/opportunities?deadline=7d&sort=deadline'],
+    [s.applications, plural(s.applications, 'application'), '#/applications'],
+    [s.interviews, plural(s.interviews, 'interview'), '#/applications?status=interviewing'],
+    [s.follow_ups, `${plural(s.follow_ups, 'follow-up')} due`, '#/applications?tab=contacts'],
+  ].filter(([n]) => Number(n) > 0)
+    .map(([n, words, href]) => `<a href="${esc(href)}"><b class="num">${Number(n).toLocaleString()}</b> ${words}</a>`);
+  if (!parts.length) return 'Nothing new since yesterday.';
+  const last = parts.pop();
+  return `${parts.length ? `${parts.join(', ')} and ` : ''}${last}.`;
+}
+
+/** What is wrong or still running, said quietly under the counts. Collection figures live in the Live card. */
+function healthLine(d) {
   const pending = d.indexing?.pending || 0;
   const bits = [];
-  if (s.tracked_jobs) bits.push(`<span><b class="num">${compact(s.tracked_jobs)}</b> postings</span>`);
-  bits.push(`<span><b class="num">${d.sources.enabled}</b> sources</span>`);
-  if (d.sources.failing) bits.push(`<a class="today-fail" href="#/sources">${d.sources.failing} failing</a>`);
-  const when = run ? toEpochMs(run.finished_at || run.started_at) : null;
-  bits.push(`<span>${when ? `polled ${esc(age(when))} ago${run.new_count ? `, <span class="num">${run.new_count}</span> new` : ''}` : 'not polled yet'}</span>`);
-  return `<div class="today-status">
-      <p class="today-coll">${bits.join('<span class="dot" aria-hidden="true">·</span>')}<a class="link" href="#/sources">Sources</a></p>
-      ${pending ? `<p class="today-busy">${icon('refresh', 12)}Analyzing ${compact(pending)} postings; scores fill in as they finish.</p>` : ''}
+  if (d.sources.failing) bits.push(`<a class="today-fail" href="#/sources">${d.sources.failing} ${plural(d.sources.failing, 'source')} failing</a>`);
+  if (pending) bits.push(`<span class="today-busy">${icon('refresh', 12)}Reading ${compact(pending)} postings; scores fill in as they finish.</span>`);
+  return bits.length ? `<p class="today-health">${bits.join('')}</p>` : '';
+}
+
+function agoWords(value, now) {
+  const t = toEpochMs(value);
+  if (t === null) return '';
+  const hours = Math.max(0, (now - t) / 36e5);
+  if (hours < 1) { const m = Math.max(1, Math.round(hours * 60)); return `${m} ${plural(m, 'minute')} ago`; }
+  if (hours < 24) { const h = Math.floor(hours); return `${h} ${plural(h, 'hour')} ago`; }
+  const days = Math.floor(hours / 24);
+  return days < 30 ? `${days} ${plural(days, 'day')} ago` : age(value, now);
+}
+
+/** Why this role, as tokens: the reasons with a check, a concern with a warning mark. */
+function whyTokens(j) {
+  return [...(j.fit_why || []).map(w => `<span class="tok">${icon('check', 13)}${esc(w)}</span>`),
+    j.fit_caution ? `<span class="tok warn">${icon('alert', 13)}${esc(j.fit_caution)}</span>` : ''].join('');
+}
+
+/** The best role on the list, at full size: who, when, why, how well it fits, and what to do. */
+export function leadHtml(j, {now = Date.now(), today = new Date()} = {}) {
+  const fresh = (j.badges || []).some(b => b === 'NEW' || b === 'TODAY');
+  const ago = agoWords(j.posted_ref, now);
+  const left = j.deadline ? daysUntil(j.deadline, today) : null;
+  const place = locationText(j);
+  const facts = [
+    left !== null ? `<div><dt>Apply by</dt><dd${left <= SOON_DAYS ? ' class="soon"' : ''}>${esc(fmtDay(j.deadline))}<span>${daysWords(left)}</span></dd></div>` : '',
+    j.cycle_label ? `<div><dt>Cycle</dt><dd>${esc(j.cycle_label)}</dd></div>` : '',
+    categoryText(j) ? `<div><dt>Field</dt><dd>${esc(categoryText(j))}</dd></div>` : '',
+  ].join('');
+  const why = whyTokens(j);
+  const tracked = j.app_status ? `<span class="lead-tracked">${esc(STATUS_LABELS[j.app_status] || j.app_status)}</span>` : '';
+  return `<div class="lead-text">
+      <p class="lead-status${fresh ? ' new' : ''}">${fresh ? '<span class="dot" aria-hidden="true"></span>New' : 'Posted'}${ago ? `${fresh ? ' · ' : ' '}${esc(ago)}` : ''}</p>
+      <h2 title="${esc(j.title)}">${esc(j.title)}</h2>
+      <p class="lead-sub">${esc(j.company || '')}${place ? ` · ${esc(place)}` : ''}</p>
+      ${facts ? `<dl class="lead-facts">${facts}</dl>` : ''}
+      ${why ? `<div class="lead-why"><span class="why-label">Why it fits</span>${why}</div>` : ''}
+      <div class="lead-actions">
+        <button type="button" class="btn primary lead-go" data-lead-act="review" data-job="${esc(j.key)}">Review role${icon('arrowRight', 14)}</button>
+        ${j.app_status ? tracked : '<button type="button" class="btn ghost" data-lead-act="save">Save</button>'}
+      </div>
+    </div>
+    <div class="lead-fit">
+      <p class="fit-figure"><span class="sr-only">Fit </span><span class="fit-num num">${j.fit ?? '—'}</span><span class="fit-of num">/ 100</span></p>
+      <p class="fit-word ${j.fit >= 85 ? 'high' : ''}">${fitWord(j.fit)}</p>
+      <div class="fit-scale" aria-hidden="true">
+        <div class="scale-track"><div class="scale-fill${j.fit >= 85 ? ' high' : ''}" style="width:${Math.max(0, Math.min(100, j.fit || 0))}%"></div></div>
+        <div class="scale-ticks"><span style="left:0">0</span><span style="left:25%">25</span><span style="left:50%">50</span><span style="left:75%">75</span><span style="left:100%">100</span></div>
+      </div>
     </div>`;
 }
 
+/** One row of the short list: fit, role with its reason in words, employer, age, deadline. */
+export function listRow(j, {now = Date.now(), today = new Date()} = {}) {
+  const left = j.deadline ? daysUntil(j.deadline, today) : null;
+  const reason = j.fit_caution || (j.fit_why || []).join(' · ');
+  const posted = age(j.posted_ref, now);
+  const place = locationText(j);
+  return `<tr data-job="${esc(j.key)}" tabindex="0" role="button" aria-label="${esc(`${j.company} ${j.title}, fit ${j.fit}`)}">
+    <td class="c-fit">${fitMeter(j.fit)}</td>
+    <td class="c-role"><div class="role"><span>${esc(j.title)}</span>${j.app_status ? `<span class="tag">${esc(STATUS_LABELS[j.app_status] || j.app_status)}</span>` : ''}</div>${
+  reason ? `<div class="reason${j.fit_caution ? ' warn' : ''}">${j.fit_caution ? icon('alert', 13) : ''}${esc(reason)}</div>` : ''}</td>
+    <td class="c-emp"><div class="emp">${logo(j.company)}<span class="emp-name">${esc(j.company || '')}</span><span class="emp-place">${esc(place)}</span></div></td>
+    <td class="c-posted num">${posted === '—' ? '' : `${esc(posted)} ago`}</td>
+    <td class="c-by">${left === null ? '<span class="by none" aria-label="No deadline listed">–</span>'
+    : `<span class="by${left <= SOON_DAYS ? ' soon' : ''}">${esc(fmtDay(j.deadline))}<small>${daysWords(left)}</small></span>`}</td>
+    <td class="c-go">${icon('chevronRight', 14)}</td>
+  </tr>`;
+}
+
+function shortList(rows) {
+  return `<table class="today-list">
+    <thead><tr><th class="c-fit" scope="col">Fit</th><th class="c-role" scope="col">Role</th><th class="c-emp" scope="col">Employer</th>
+      <th class="c-posted" scope="col">Posted</th><th class="c-by" scope="col">Apply by</th><th class="c-go" scope="col"><span class="sr-only">Open</span></th></tr></thead>
+    <tbody>${rows.map(j => listRow(j)).join('')}</tbody></table>`;
+}
+
 function draw(root, d) {
-  const s = d.stats;
-  const p = d.profile || {};
-  const alerts = p.alerts || {};
-  const hf = alerts.high_fit || 75;
-  const target = p.target_cycles?.length ? ` · targeting ${esc(p.target_cycles.map(c => c.replace(/_/g, ' ')).join(', '))}` : '';
   const yours = boardText(d.boards);
+  const [lead, ...rest] = d.top;
+  const none = emptyState('No scored roles yet', d.indexing?.pending ? 'Foothold is still reading postings.' : 'Roles show here after the next check of your sources.');
   root.innerHTML = `<div class="today">
-  <header class="page-head today-head">
-    <div>
-      <h1>${esc(today())}</h1>
-      <p class="sub">${esc(p.headline || `${yours} recruiting`)}${target}</p>
-    </div>
-    ${collectionLine(d)}
+  <header class="today-head">
+    <h1>${esc(todayText())}</h1>
+    <p class="today-counts">${countsLine(d.stats, {shortlistOn: d.shortlist_on})}</p>
+    ${healthLine(d)}
   </header>
-  <div class="kpis">
-    ${kpi('New today', s.new_today, d.shortlist_on ? 'on your short list, last 24h' : `${esc(yours)} roles, last 24h`,
-      '#/opportunities?posted=today&sort=newest')}
-    ${kpi('High fit', s.high_fit, `fit ${hf} or more`, `#/opportunities?min_fit=${hf}`, s.high_fit ? 'good' : '')}
-    ${kpi('Closing soon', s.closing_soon, 'deadline within 7 days', '#/opportunities?deadline=7d&sort=deadline', s.closing_soon ? 'alert' : '')}
-    ${kpi('Applications', s.applications, 'active in pipeline', '#/applications')}
-    ${kpi('Interviews', s.interviews, 'OA to superday', '#/applications?status=interviewing')}
-    ${kpi('Follow-ups', s.follow_ups, 'networking due', '#/applications?tab=contacts', s.follow_ups ? 'alert' : '')}
-  </div>
-  <div class="grid-main ledger">
-    <div class="stack">
-      ${section('Top opportunities', d.top.length ? `<div class="opp-list">${d.top.map(oppRow).join('')}</div>`
-        : emptyState('No scored opportunities yet', d.indexing?.pending ? 'Foothold is still analyzing postings.' : 'Run <code>python watcher.py --once</code> to collect postings, then refresh.'),
-      {cls: 'sec-top', count: 'ranked by fit', link: '<a class="link" href="#/opportunities">All opportunities</a>'})}
-      ${section('Market tape', d.activity.length ? `<ul class="feed">${d.activity.map(feedRow).join('')}</ul>`
-        : emptyState('Quiet so far', 'New postings appear here as sources are polled. The first poll of each source seeds silently.'),
-      {cls: 'sec-tape', count: 'latest postings and changes', link: '<a class="link" href="#/analytics">Analytics</a>'})}
+  ${lead ? `<section class="lead" aria-label="Best role on your list"><canvas class="lead-contours" aria-hidden="true"></canvas>${leadHtml(lead)}</section>` : `<section class="lead lead-empty">${none}</section>`}
+  <div class="today-cols">
+    <div class="today-main">
+      ${section(d.shortlist_on ? 'Short list' : `${esc(yours)} roles`, rest.length ? shortList(rest)
+        : `<p class="today-note">${lead ? 'That is the only role on the list right now.' : 'Nothing to rank yet.'}</p>`,
+      {cls: 'sec-top', count: 'ranked by fit', link: '<a class="link" href="#/opportunities">All roles</a>'})}
+      ${section('Latest changes', d.activity.length ? `<ul class="feed">${d.activity.map(feedRow).join('')}</ul>`
+        : emptyState('Quiet so far', 'New postings appear here as sources are checked.'),
+      {cls: 'sec-tape', link: '<a class="link" href="#/analytics">Analytics</a>'})}
     </div>
-    <div class="stack">
+    <aside class="today-rail">
       ${section('Needs attention', d.attention.length ? `<div class="attn-list">${d.attention.map(attnRow).join('')}</div>`
         : emptyState('All clear', 'No deadlines, interviews or follow-ups need action right now.'), {cls: 'sec-attn', count: d.attention.length || ''})}
       ${section('Next 7 days', d.upcoming.length ? `<ul class="mini-list">${d.upcoming.map(eventRow).join('')}</ul>`
         : emptyState('Nothing scheduled', 'Deadlines, interviews and follow-ups show up here.'), {cls: 'sec-next', link: '<a class="link" href="#/calendar">Calendar</a>'})}
-      ${section('Saved views', d.saved_searches.length ? `<ul class="mini-list">${d.saved_searches.map(savedRow).join('')}</ul>`
-        : emptyState('No saved views', 'Filter opportunities, then choose View › Save this view to see what is new here.'), {cls: 'sec-saved', link: '<a class="link" href="#/opportunities">New view</a>'})}
       ${section('Pipeline', pipelineMini(d.pipeline), {cls: 'sec-pipe', link: '<a class="link" href="#/applications">Board</a>'})}
-    </div>
+      ${d.saved_searches.length ? section('Saved views', `<ul class="mini-list">${d.saved_searches.map(savedRow).join('')}</ul>`,
+    {cls: 'sec-saved', link: '<a class="link" href="#/opportunities">New view</a>'}) : ''}
+    </aside>
   </div></div>`;
+  const panel = root.querySelector('.lead:not(.lead-empty)');
+  return panel ? mountContours({panel, canvas: panel.querySelector('.lead-contours'), anchor: panel.querySelector('.fit-num'),
+    side: panel.querySelector('.lead-fit'), fit: lead.fit}) : null;
 }
 
-export function oppRow(j) {
-  const signal = SIGNALS.find(b => (j.badges || []).includes(b));
-  const posted = age(j.posted_ref);
-  return `<div class="opp" data-job="${esc(j.key)}" tabindex="0" role="button" aria-label="${esc(`${j.company} ${j.title}`)}">
-    ${fitMeter(j.fit)}
-    <div class="opp-main">
-      <div class="title">${esc(j.title)}</div>
-      <div class="meta"><span class="company">${esc(j.company || '')}</span>${categoryText(j) ? `<span class="sep">${esc(categoryText(j))}</span>` : ''}${locationText(j) ? `<span class="sep">${esc(locationText(j))}</span>` : ''}${j.deadline ? `<span class="sep ${daysClass(j.deadline)}">Deadline ${esc(deadlineText(j.deadline))}</span>` : ''}</div>
-    </div>
-    <div class="side">${signal ? badge(signal) : ''}${posted === '—' ? '' : `<span class="age num" title="Posted ${esc(posted)} ago">${esc(posted)}</span>`}</div>
-  </div>`;
-}
-
-function daysClass(iso) {
-  const d = parseDay(iso);
-  if (!d) return '';
-  const n = Math.round((d - new Date(new Date().toDateString())) / 864e5);
-  return n < 0 ? 'dl-closed' : n <= 7 ? 'dl-warn' : '';
-}
+const ATTN_ICON = {deadline: 'clock', interview: 'calendar', follow_up: 'users', fresh_high_fit: 'spark'};
 
 function attnRow(a) {
   const job = a.job;
   const app = a.application;
   const contact = a.contact;
-  const line = job ? `${esc(job.company || '')} <span>${esc(job.title)}</span>`
-    : app ? `${esc(app.company || '')} <span>${esc(app.title)}</span>`
-      : contact ? `${esc(contact.name)} <span>${esc(contact.company || '')}</span>` : '';
+  const line = job ? `${esc(job.company || '')}, ${esc(job.title)}`
+    : app ? `${esc(app.company || '')}, ${esc(app.title)}`
+      : contact ? `${esc(contact.name)}${contact.company ? `, ${esc(contact.company)}` : ''}` : '';
   const target = job ? `data-job="${esc(job.key)}"` : app ? `data-job="${esc(app.job_key)}"` : contact ? `data-contact="${contact.id}"` : '';
   const cta = {apply: 'Review', prepare: 'Prepare', update: 'Update', review: 'Review', log_contact: 'Log'}[a.action] || 'Open';
+  const mark = ATTN_ICON[a.kind] || (/deadline/.test(a.kind || '') ? 'clock' : /interview/.test(a.kind || '') ? 'calendar' : 'bell');
   return `<div class="attn ${esc(a.severity)}" data-kind="${esc(a.kind || '')}" ${target} tabindex="0" role="button">
+    ${icon(mark, 15)}
     <div class="attn-main"><div class="what">${esc(a.title)}</div><div class="line">${line}</div></div>
-    <span class="attn-go">${cta}${icon('chevronRight', 12)}</span>
+    <span class="btn sm attn-go">${cta}</span>
   </div>`;
 }
 
@@ -161,21 +217,21 @@ function feedRow(it) {
   return `<li><time>${esc(stamp)}</time><span class="k-${esc(it.kind)}">${body}${it.fit >= 75 ? ` <span class="feed-fit num">fit ${it.fit}</span>` : ''}</span></li>`;
 }
 
+/** The tracker as one proportional bar with its four figures beneath. */
 function pipelineMini(pipeline = {}) {
   const groups = [
     ['Saved', ['saved', 'preparing', 'discovered']], ['Applied', ['applied']],
     ['Interviewing', ['assessment', 'phone_screen', 'first_round', 'final_round'], '?status=interviewing'], ['Offers', ['offer']],
-  ];
-  const total = Object.values(pipeline).reduce((a, b) => a + b, 0);
-  if (!total) return '<p class="today-note">Save roles with <kbd>s</kbd> to start tracking applications.</p>';
-  return `<div class="pipe">${groups.map(([label, keys, query = '']) => {
-    const n = keys.reduce((sum, k) => sum + (pipeline[k] || 0), 0);
-    return `<a class="pipe-stage${n ? '' : ' zero'}${label === 'Offers' && n ? ' good' : ''}" href="#/applications${query}"><b class="num">${n}</b><span>${label}</span></a>`;
-  }).join('')}</div>
-    ${pipeline.rejected ? `<p class="today-note">${pipeline.rejected} ${STATUS_LABELS.rejected.toLowerCase()} · keep going.</p>` : ''}`;
+  ].map(([label, keys, query = ''], i) => ({label, query, i, n: keys.reduce((sum, k) => sum + (pipeline[k] || 0), 0)}));
+  if (!Object.values(pipeline).reduce((a, b) => a + b, 0)) return '<p class="today-note">Save roles with <kbd>s</kbd> to start tracking applications.</p>';
+  return `<div class="pipe-bar" aria-hidden="true">${groups.map(g => `<i class="s${g.n ? g.i + 1 : 0}" style="flex:${g.n || 0} 1 ${g.n ? 0 : '22px'}"></i>`).join('')}</div>
+    <div class="pipe">${groups.map(g => `<a class="pipe-stage${g.n ? '' : ' zero'}${g.label === 'Offers' && g.n ? ' good' : ''}" href="#/applications${g.query}"><b class="num">${g.n}</b><span>${g.label}</span></a>`).join('')}</div>
+    ${pipeline.rejected ? `<p class="today-note">${pipeline.rejected} ${STATUS_LABELS.rejected.toLowerCase()}.</p>` : ''}`;
 }
 
 async function onClick(e, ctx, data) {
+  const act = e.target.closest('[data-lead-act]');
+  if (act?.dataset.leadAct === 'save') { await quickAction('save', data.top[0], ctx); return; }
   const saved = e.target.closest('[data-saved]');
   if (saved) {
     const s = data.saved_searches.find(x => String(x.id) === saved.dataset.saved);

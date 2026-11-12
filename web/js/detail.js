@@ -188,9 +188,9 @@ function render(el, job, {docs = null} = {}) {
     <p class="dh-meta"><span>${role}${guess}</span><span class="sep" aria-hidden="true">·</span><span>${where}</span></p>
     ${job.badges?.length ? `<div class="dh-badges">${badges(job.badges, 8)}</div>` : ''}
     <div class="dh-actions">
-      ${!status ? `<button type="button" class="btn primary" data-act="save" title="Save to your tracker (s)">${icon('bookmark')}Save</button>`
-        : EARLY_STATUSES.includes(status) ? `<button type="button" class="btn primary" data-act="applied" title="Mark as applied (a)">${icon('check')}Mark applied</button>` : ''}
-      <a class="btn" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer" data-act="open" title="Open the posting (o)">${icon('external')}Open posting</a>
+      ${EARLY_STATUSES.includes(status) ? `<button type="button" class="btn primary" data-act="applied" title="Mark as applied (a)">${icon('check')}Mark applied</button>` : ''}
+      <a class="btn${status ? '' : ' primary'}" href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer" data-act="open" title="Open the posting (o)">${icon('external')}Open posting</a>
+      ${!status ? `<button type="button" class="btn" data-act="save" title="Save to your tracker (s)">${icon('bookmark')}Save</button>` : ''}
       ${status ? `<label class="status-control st-${esc(status)}" title="Application status"><i aria-hidden="true"></i><span class="sr-only">Application status</span><select id="drawer-status">${options(STATUS_ORDER.map(k => ({key: k, label: STATUS_LABELS[k]})), status)}</select>${icon('chevronDown', 12)}</label>` : ''}
     </div>
   </header>

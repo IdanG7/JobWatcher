@@ -142,6 +142,23 @@ class DashboardServiceTests(ServiceFixture):
         self.assertGreaterEqual(overview["stats"]["new_today"], 1)
         self.assertTrue(overview["top"])
         self.assertTrue(any(a["kind"] == "fresh_high_fit" for a in overview["attention"]))
+        # List rows say why in a few words, so equal-looking scores can be told apart without opening each.
+        for row in (job, overview["top"][0]):
+            self.assertIsInstance(row["fit_why"], list)
+            self.assertLessEqual(len(row["fit_why"]), 2)
+            self.assertIn("fit_caution", row)
+        self.assertTrue(overview["top"][0]["fit_why"])
+
+    def test_the_reason_in_words_leaves_out_what_the_row_already_shows(self):
+        from dashboard import fit_why
+        detail = {"reasons": ["Hardware target", "Intern level", "Semiconductors priority", "Toronto preferred", "Posted 2 days ago"],
+                  "concerns": ["Experience required"],
+                  "subscores": [{"key": "skills", "detail": "Matched Python, Computer Networking (4 of 7 detected)"}]}
+        self.assertEqual({"fit_why": ["4 of 7 skills", "Intern level"], "fit_caution": "Experience required"}, fit_why(detail))
+        one = {"reasons": ["Software target"], "subscores": [{"key": "skills", "detail": "Matched Embedded Systems & Firmware (1 of 1 detected)"}]}
+        self.assertEqual({"fit_why": ["Embedded Systems & Firmware matched"], "fit_caution": ""}, fit_why(one))
+        self.assertEqual({"fit_why": [], "fit_caution": ""}, fit_why({}))
+        self.assertEqual({"fit_why": [], "fit_caution": ""}, fit_why(None))
 
     def test_full_text_search_covers_description_and_skills(self):
         self.assertEqual(1, self.service.jobs({"q": ["modeling"]})["total"])

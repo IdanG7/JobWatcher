@@ -63,7 +63,17 @@ export function icon(name, size = 14) {
 export function fitMeter(fit) {
   if (fit === null || fit === undefined) return '<span class="fit low"><b>—</b><i style="--w:0%"></i></span>';
   const band = fitBand(fit);
-  return `<span class="fit ${band}" title="Fit score ${fit}/100"><b>${fit}</b><i style="--w:${Math.max(4, fit)}%"></i></span>`;
+  return `<span class="fit ${band}" title="Fit score ${fit}/100"><b>${fit}</b><i style="--w:${fitWidth(fit)}%"></i></span>`;
+}
+
+/** Bar length for a fit score. A short list lives between 60 and 100, so that range gets the bar. */
+function fitWidth(fit) {
+  return Math.max(4, Math.min(100, Math.round((fit - 60) / 40 * 100)));
+}
+
+/** The fit band in words, for where the figure stands alone. */
+export function fitWord(fit) {
+  return {high: 'Strong fit', good: 'Good fit', mid: 'Possible fit', low: 'Weak fit', none: 'Not scored yet'}[fitBand(fit)];
 }
 
 const BADGE_CLASS = {
