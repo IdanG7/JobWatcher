@@ -118,7 +118,7 @@ async function renderCompany(root, ctx, key) {
     root.innerHTML = `
     <nav class="crumbs" aria-label="Breadcrumb"><a href="#/companies">${icon('chevronLeft', 12)} Companies</a></nav>
     <div class="page-head company-head">
-      <div class="company-title">${logo(data.name, true)}<div><p class="eyebrow">${esc(data.type_label || 'Employer')}${data.hq ? ` · ${esc(data.hq)}` : ''}</p><h1>${esc(data.name)}</h1></div></div>
+      <div class="company-title">${logo(data.name, true)}<div><h1>${esc(data.name)}</h1><p class="sub">${esc(data.type_label || 'Employer')}${data.hq ? ` · ${esc(data.hq)}` : ''}</p></div></div>
       <div class="page-actions">
         <button type="button" class="btn watch-btn${data.watched ? ' on' : ''}" data-act="watch" aria-pressed="${data.watched}" title="${data.watched ? 'Remove from watchlist' : 'Add to watchlist: its roles get a fit boost and priority alerts'}">${icon('star')} ${data.watched ? 'Watching' : 'Watch'}</button>
         <a class="btn primary" href="#/opportunities?company=${enc(key)}&family=all">See all roles ${icon('arrowRight')}</a>

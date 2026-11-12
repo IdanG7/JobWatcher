@@ -3305,3 +3305,119 @@ main:has(.cal-head) { max-width: 1304px; }
   .agenda-day { grid-template-columns: 48px minmax(0, 1fr); gap: 12px; }
   .agenda-item .t, .agenda-item .s { white-space: normal; }
 }
+
+/* ---------------------------------------------------------------- Companies, Analytics, Sources
+   Every screen is on the 1304px column now, so the shared page parts move to the Modern steps here. */
+main { max-width: 1304px; }
+.page-head { margin-bottom: 0; padding: 12px 0 24px; align-items: flex-end; }
+.page-head h1 { font-size: 32px; line-height: 1.15; font-weight: 600; font-stretch: normal; letter-spacing: -.025em; }
+.page-head .sub { margin-top: 8px; font-size: 15px; color: var(--text-3); }
+.page-head .btn { height: 36px; padding: 0 14px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.page-head .btn.icon { width: 36px; padding: 0; }
+.page-head .segmented button { height: 30px; padding: 0 12px; font-size: 13.5px; }
+.toolbar { margin: 0 0 24px; gap: 10px; }
+.toolbar .segmented button { height: 28px; padding: 0 12px; font-size: 13.5px; }
+.seg-n { font: 400 12px/1 var(--mono); }
+.toolbar-search .input, .quiet-select .select { height: 34px; border-radius: 8px; font-size: 13.5px; }
+.crumbs { margin: 0 0 4px; font-size: 13.5px; }
+
+/* Tables on the page: 12px headings, 15px names, mono figures. */
+.sheet { border-top: 0; }
+:is(.sheet, .ledger) table.data { font-size: 13.5px; }
+:is(.sheet, .ledger) table.data th { height: 36px; background: none; border-bottom: 1px solid var(--border-strong); font-size: 12px; font-weight: 500; color: var(--text-3); }
+:is(.sheet, .ledger) table.data td { padding-top: 12px; padding-bottom: 12px; }
+:is(.sheet, .ledger) table.data :is(td.num, td .num) { font: 400 13.5px/1.4 var(--mono); }
+:is(.sheet, .ledger) table.data tbody tr:last-child td { border-bottom: 1px solid var(--border); }
+:is(.sheet, .ledger) table.data .figure { font-family: var(--font); font-size: 13.5px; }
+.hl { font-weight: 500; }
+
+/* Figures in a ruled strip: a label, then the number. No tiles. */
+.kpis { margin-bottom: 48px; border-top: 1px solid var(--border-strong); }
+.kpi { padding: 18px 20px 20px; }
+.kpi::before { background: var(--pos); }
+.kpi .label { font-size: 13.5px; font-weight: 400; color: var(--text-3); }
+.kpi .value, .kpi .value.num { margin-top: 8px; font: 500 32px/1 var(--mono); letter-spacing: -.04em; font-stretch: normal; }
+.kpi .note { margin-top: 8px; font-size: 13.5px; }
+
+/* Ruled sections. */
+.ledger .panel { border-top-color: var(--border-strong); }
+.ledger .panel-head { padding: 16px 0 12px; align-items: baseline; }
+.ledger .panel-head h2 { font-size: 20px; line-height: 1.25; font-weight: 600; font-stretch: normal; letter-spacing: -.015em; gap: 10px; }
+.ledger .panel-head h2 .count { font-size: 13.5px; font-weight: 400; letter-spacing: 0; }
+.ledger .panel-body { padding: 8px 0 16px; }
+.panel-note, .panel-empty { font-size: 13.5px; }
+.chart-legend { font-size: 13.5px; }
+.ledger.analytics, .ledger.sources { gap: 48px; }
+.ledger.analytics .two-col { gap: 64px; }
+.hbars { gap: 10px; }
+.hbar { grid-template-columns: 170px minmax(0, 1fr) 56px; gap: 14px; font-size: 13.5px; }
+.hbar .fill { height: 8px; border-radius: 2px; }
+.hbar .fill .hi { border-radius: 2px; }
+.hbar .v { font: 400 13.5px var(--mono); }
+.chart text { font: 12px var(--mono); }
+/* The funnel's bars were inline spans and never drew; they are blocks now. */
+.funnel { gap: 10px; }
+.funnel-row { grid-template-columns: 170px minmax(0, 1fr) 90px; gap: 14px; font-size: 13.5px; }
+.funnel-row .track { display: block; height: 8px; border-radius: 2px; }
+.funnel-row .fill { display: block; border-radius: 2px; }
+.funnel-row .v { font: 400 13.5px var(--mono); }
+.funnel-row .v small { font-size: 12px; }
+.ledger .mini-list .t { font-size: 15px; font-weight: 500; }
+.ledger .mini-list .s { font-size: 13.5px; }
+
+/* Companies */
+.companies-table { table-layout: fixed; }
+.companies-table th.c-star, .companies-table td.c-star { width: 40px; padding-left: 0; }
+.companies-table th:nth-child(3) { width: 200px; }
+.companies-table th:nth-child(n+4):nth-child(-n+7) { width: 92px; }
+.companies-table th:nth-child(8) { width: 104px; }
+.companies-table th:nth-child(9) { width: 176px; }
+.companies-table td { overflow: hidden; text-overflow: ellipsis; }
+.companies-table a.co { font-size: 15px; font-weight: 500; }
+.companies-table a.co span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.companies-table .logo { width: 24px; height: 24px; }
+.star-btn { border-radius: 6px; }
+.star-btn.on, .star-btn.on:hover, .watch-btn.on svg { color: var(--warn); }
+.star-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.company-head { padding-top: 8px; }
+.company-title { gap: 16px; align-items: flex-start; }
+.company-title .logo.lg { margin-top: 2px; border-radius: 8px; }
+.company-body { margin-top: 0; }
+.company-body table.data .role .t { font-size: 15px; font-weight: 500; }
+.company-body .notes-body .input { font-size: 13.5px; border-radius: 8px; }
+.company-body .panel-head .btn { height: 30px; font-size: 13.5px; }
+
+/* Sources */
+.sources-table { table-layout: fixed; }
+.sources-table th:nth-child(2) { width: 150px; }
+.sources-table th:nth-child(3) { width: 104px; }
+.sources-table th:nth-child(4) { width: 180px; }
+.sources-table th:nth-child(5), .sources-table th:nth-child(7) { width: 76px; }
+.sources-table th:nth-child(6), .sources-table th:nth-child(8) { width: 104px; }
+.sources-table th:nth-child(9) { width: 200px; }
+.sources-table td.c-source, .sources-table td.c-coverage { min-width: 0; max-width: none; }
+.sources-table td.c-group { white-space: normal; }
+.sources-table td.c-health { white-space: normal; }
+.sources-table td.c-adapter { overflow: hidden; text-overflow: ellipsis; }
+.sources-table td.c-source b { font-size: 15px; font-weight: 500; }
+.sources-table td.c-source small, .sources-table td.c-health small, .sources-table td.c-group small, .sources-table td.c-coverage small { font-size: 12px; }
+.sources-table td.c-adapter { font: 400 12px var(--mono); }
+.sources-table td.c-coverage { font-size: 13.5px; }
+.sources-table .status-pill { font-size: 13.5px; }
+.sources-table tr.pack-row td { padding-top: 28px; padding-bottom: 8px; font-size: 13.5px; border-bottom-color: var(--border-strong); }
+.sources-table tr.pack-row b { font-weight: 600; }
+.sources-table tr.pack-row .count { font: 400 12px var(--mono); }
+.source-error { font-size: 12px; }
+
+@media (max-width: 760px) {
+  .page-head { padding: 4px 0 16px; }
+  .page-head h1 { font-size: 26px; }
+  .kpis { margin-bottom: 32px; }
+  .kpi .value { font-size: 26px; }
+  .hbar { grid-template-columns: 110px minmax(0, 1fr) 48px; }
+  .ledger.analytics .two-col { gap: 40px; }
+  .sources-table { table-layout: auto; }
+  .companies-table th.c-star, .companies-table td.c-star { width: 34px; }
+  .companies-table th:nth-child(n+4):nth-child(-n+5) { width: 72px; }
+  .funnel-row { grid-template-columns: 96px minmax(0, 1fr) 72px; }
+}
