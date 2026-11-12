@@ -618,6 +618,12 @@ export async function render(root, ctx) {
     return `<span class="rtag${cls ? ` ${cls}` : ''}">${esc(badgeLabel(text))}</span>`;
   }
 
+  /** Why this fit, in a few words: what separates two roles with the same score. */
+  function why(j) {
+    const text = j.fit_caution || (j.fit_why || []).join(' · ');
+    return text ? `<span class="why${j.fit_caution ? ' warn' : ''}">${esc(text)}</span>` : '';
+  }
+
   function row(j, i) {
     const closed = j.job_status === 'closed' || j.window_status === 'closed';
     // At most one time signal and one level tag: the rest lives in the posting.
@@ -629,7 +635,7 @@ export async function render(root, ctx) {
       <td class="c-fit">${fitMeter(j.fit)}</td>
       <td class="c-role"><div class="role">
         <a class="t" href="#/opportunities?job=${encodeURIComponent(j.key)}" data-open-job title="${esc(j.title)}">${esc(j.title)}</a>
-        <div class="m">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>${lvl}${signal ? `<span class="tags">${tag(signal)}</span>` : ''}</div>
+        <div class="m">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>${lvl}${signal ? `<span class="tags">${tag(signal)}</span>` : ''}${why(j)}</div>
       </div></td>
       <td class="c-cat"><div class="cat">${esc(j.category_label || prettyKey(j.family || ''))}${j.subcategory_label && j.subcategory_label !== j.category_label ? `<small>${esc(j.subcategory_label)}</small>` : ''}</div></td>
       <td class="c-loc" title="${esc(j.location || '')}"><span class="clip">${esc(locationText(j) || '—')}</span></td>
