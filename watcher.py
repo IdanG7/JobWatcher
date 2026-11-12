@@ -43,6 +43,7 @@ from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
 
 import requests
 
+import desktop_alerts
 from intel import load_knowledge
 from intel.matching import SHORTLIST
 from job_query import SHORTLIST_POSTED_DAYS
@@ -57,6 +58,9 @@ SUBSCRIBERS = HERE / "subscribers.json"
 STATE_JSON = HERE / "state.json"
 # GitHub Actions starts every run with an empty database (see state.json).
 EPHEMERAL = bool(os.environ.get("GITHUB_ACTIONS"))
+# The installed Windows app sets this: only there do alerts also show as Windows notifications
+# (never from a run of the source, a test, or a poll of a copy).
+DESKTOP_APP = False
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
 TIMEOUT = 25
@@ -4143,12 +4147,16 @@ def _resolve_secret(v, quiet=False):
 
 def load_subscribers(global_filters):
     subs = json.loads(SUBSCRIBERS.read_text(encoding="utf-8"))
+    desktop = DESKTOP_APP and desktop_alerts.supported()
+    if desktop and desktop_alerts.OWNER not in subs:
+        subs[desktop_alerts.OWNER] = dict(desktop_alerts.OWNER_DEFAULTS)     # no Discord: Windows notifications
     out = []
     for name, s in subs.items():
         if name.startswith("_") or s.get("mute"):
             continue
         out.append({
             "name": name,
+            "desktop": desktop and name == desktop_alerts.OWNER and desktop_alerts.enabled(s),
             "companies": set(s.get("companies", ["all"])),
             "filt": Filt(s.get("filters", {}), fallback=global_filters),
             "watch": Filt._c(s.get("watchlist", "")),
@@ -4670,6 +4678,7 @@ def deliver_fit(sub, jobs, intel_rows, con, config, profile):
     dashboard_url = config.get("dashboard_url", "http://127.0.0.1:8787")
     cap = sub["max_ping_jobs"]
     ok = True
+    noticed = []
     for tier in ("urgent", "high"):
         items = sorted(buckets[tier], key=lambda t: -t[2]["fit"])
         shown, overflow = items[:cap], items[cap:]
@@ -4690,9 +4699,15 @@ def deliver_fit(sub, jobs, intel_rows, con, config, profile):
                 f"⭐ Fit {intel['fit']}/100 · {_short_loc(job.get('location') or '')}\n{job['url']}"
                 for board, job, intel, company in shown)
             ok &= send_telegram(sub["telegram_chat"], text)
+        noticed.extend(shown)
         con.executemany("INSERT INTO alert_log VALUES (?,?,?,?,?)",
                         [(ts, sub["name"], tier, company, f"{board}:{job['id']}")
                          for board, job, intel, company in shown])
+    if noticed and sub.get("desktop"):
+        # one Windows notification for the whole poll, however many roles it found
+        desktop_alerts.show(*desktop_alerts.roles_notice(
+            [(company, job["title"], _short_loc(job.get("location") or ""), f"{board}:{job['id']}")
+             for board, job, intel, company in noticed], dashboard_url))
     for board, job, intel, company in buckets["digest"]:
         cat = _category(job["title"])
         con.execute("INSERT INTO pending VALUES (?,?,?,?,?,?,?,?,?)",
@@ -4916,8 +4931,26 @@ def closed_saved_jobs(con):
     return out
 
 
-def maybe_reminders(con, subs, now_local=None):
-    targets = [s for s in subs if s["reminders"] and s["discord"]]
+_NOTE_LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)")       # a Discord link in a reminder line: [words](address)
+
+
+def _remind(sub, title, text, color, config=None, page="overview"):
+    """One reminder to wherever this person is reached: Discord, a Windows notification, or both."""
+    ok = True
+    if sub["discord"]:
+        ok = send_discord_note(sub["discord"], title, text, color)
+    if sub.get("desktop"):
+        lines = [_NOTE_LINK.sub(r"\1", line).lstrip("• ") for line in text.splitlines() if line.strip()]
+        if len(lines) > 2:
+            lines[1:] = [f"{lines[1]}, and {len(lines) - 2} more"]
+        base = ((config or {}).get("dashboard_url") or "").rstrip("/")
+        # not retried when Windows has notifications off: that is the person's own setting
+        desktop_alerts.show(title, lines, f"{base}/#/{page}" if base else "")
+    return ok
+
+
+def maybe_reminders(con, subs, now_local=None, config=None):
+    targets = [s for s in subs if s["reminders"] and (s["discord"] or s.get("desktop"))]
     if not targets:
         return
     closed = closed_saved_jobs(con)
@@ -4925,10 +4958,11 @@ def maybe_reminders(con, subs, now_local=None):
         desc = "\n".join(f"• {_item(c, t, u)}" for _, c, t, u, _ in closed[:20])
         if len(closed) > 20:
             desc += f"\n…and {len(closed) - 20} more"
-        desc += "\n\nThese were saved but not applied to. Check the Applications tab."
         ok = True
         for sub in targets:
-            ok &= send_discord_note(sub["discord"], "🚫 Saved job taken down", desc, 0xE67E22)
+            ok &= _remind(sub, "🚫 Saved job taken down", desc + (
+                "\n\nThese were saved but not applied to. Check the Applications tab." if sub["discord"] else ""),
+                0xE67E22, config, "applications")
         if ok:
             con.executemany("INSERT OR REPLACE INTO kv VALUES (?,?)",
                             [(f"closed_notified:{key}", closed_at) for key, *_, closed_at in closed])
@@ -4943,7 +4977,7 @@ def maybe_reminders(con, subs, now_local=None):
     lines = reminder_lines(con, today)
     if lines:
         for sub in targets:
-            send_discord_note(sub["discord"], f"📅 Foothold today — {today:%a %b %d}", "\n".join(lines), 0x3E63DD)
+            _remind(sub, f"📅 Foothold today — {today:%a %b %d}", "\n".join(lines), 0x3E63DD, config)
 
 
 # ================================================================ core cycle
@@ -5372,7 +5406,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
     report_progress(progress, "phase", phase="finishing")
     maybe_digest(config, con, subs)
     try:
-        maybe_reminders(con, subs)
+        maybe_reminders(con, subs, config=config)
     except Exception as e:      # reminders must never stop the cycle
         log(f"! reminders failed: {type(e).__name__}: {e}")
 

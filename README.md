@@ -333,7 +333,12 @@ and configure secrets in GitHub Actions to enable the scheduled poller:
 - `TELEGRAM_BOT_TOKEN` (optional)
 - `HEALTHCHECK_URL` (optional)
 
-The Windows app can send Discord alerts too: open **Settings → Discord notifications**, paste a channel
+The Windows app shows new short-list roles and the morning summary as Windows notifications, with nothing
+to set up; they are on until Discord is connected, and **Settings → Notifications** switches them either
+way. Windows itself must have notifications on (Windows Settings → System → Notifications); the page says
+when it does not. Only the installed app shows them, never a run from source.
+
+The Windows app can send Discord alerts too: open **Settings → Notifications**, paste a channel
 webhook URL and press **Connect & send test**. New postings that match your profile are posted
 while Foothold is running.
 
