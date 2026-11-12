@@ -26,6 +26,7 @@ ES-module JavaScript with no build step.
 | Module | Responsibility |
 |---|---|
 | `watcher.py` | Adapters, polling loop, dedupe gate, notifications, CLI. The original adapters and the delivery flow are unchanged. Finance hooks run inside `cycle()`. |
+| `desktop_alerts.py` | Windows notifications for the person at this PC (the `desktop` entry of `subscribers.json`): new short-list roles, one per poll, and the morning summary. Shown through Windows' own PowerShell, with the words passed in the environment, never in the command. Only the installed app turns them on (`watcher.DESKTOP_APP`, set by `portable_start` and the worker's `--desktop`); on by default until Discord is connected. |
 | `db_migrations.py` | Versioned migrations through `PRAGMA user_version`. v1 is the original schema. v2 adds the intelligence, CRM and alert tables. Each migration is additive and idempotent. |
 | `intel/knowledge.py` | Loads and validates `config/*.json`, compiles regex fragments, matches companies and fingerprints the config so facts recompute when knowledge changes. Boards are defined here from data (see Boards). |
 | `intel/taxonomy.py` | Hierarchical classification: category, subcategory, secondary categories and confidence, with evidence. Finance decides first; a board's `claims` and `fallback_title` place what it leaves. |

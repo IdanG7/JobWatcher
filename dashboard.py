@@ -32,6 +32,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
+import desktop_alerts
 import watcher
 from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version, prune_profile
@@ -554,7 +555,7 @@ class JobwatchService:
                    "-X", "utf8", str(HERE / "intel_worker.py"), "--db", str(self.db_path),
                    "--config", str(self.config_path), "--subscribers", str(self.subscribers_path),
                    "--state", str(watcher.STATE_JSON), "--dashboard-url", self.config.get("dashboard_url", ""),
-                   "--interval", str(interval)]
+                   "--interval", str(interval), *(["--desktop"] if self.desktop else [])]
         self._worker = WorkerProcess(command, on_event=self._worker_event, on_exit=self._worker_exited,
                                      on_give_up=lambda: self._work_here(interval), pid_path=self.worker_pid_path)
         if not self._worker.start():
@@ -2052,12 +2053,16 @@ class JobwatchService:
             raise ApiError("Discord rejected the webhook. Check that it still exists and try again.")
         with self._discord_lock:
             subs = self._read_subscribers()
+            before = subs.get(DISCORD_SUBSCRIBER, {})
             subs[DISCORD_SUBSCRIBER] = {
                 "companies": ["all"], "alert_mode": "fit", "finance_only": False,
                 "ops": True, "reminders": True, "saved_search_alerts": True,
                 "discord_webhook": webhook,
                 # replacing the webhook keeps the chosen alert mode
-                "match_alerts": subs.get(DISCORD_SUBSCRIBER, {}).get("match_alerts", True),
+                "match_alerts": before.get("match_alerts", True),
+                # and what was chosen for Windows notifications (unset: they stop once Discord is connected)
+                **({"desktop_notifications": before["desktop_notifications"]}
+                   if "desktop_notifications" in before else {}),
             }
             self._write_subscribers(subs)
         return self.get_discord()
@@ -2076,9 +2081,47 @@ class JobwatchService:
     def delete_discord(self) -> dict:
         with self._discord_lock:
             subs = self._read_subscribers()
-            if subs.pop(DISCORD_SUBSCRIBER, None) is not None:
+            entry = subs.pop(DISCORD_SUBSCRIBER, None)
+            if entry is not None:
+                if "desktop_notifications" in entry:      # the choice about Windows notifications stays
+                    subs[DISCORD_SUBSCRIBER] = {**desktop_alerts.OWNER_DEFAULTS,
+                                                "desktop_notifications": entry["desktop_notifications"]}
                 self._write_subscribers(subs)
         return self.get_discord()
+
+    # ------------------------------------------------------------ Windows notifications
+    def get_desktop_alerts(self, fresh: bool = False) -> dict:
+        """Whether this is the Windows app, whether its notifications are on here, and whether Windows
+        itself will show them ('on', 'off' in Windows' own settings, or 'unknown')."""
+        supported = self.desktop and desktop_alerts.supported()
+        with self._discord_lock:
+            entry = self._read_subscribers().get(DISCORD_SUBSCRIBER)
+        enabled = supported and desktop_alerts.enabled(entry)
+        return {"supported": supported, "enabled": enabled,
+                "windows": desktop_alerts.windows_state(fresh) if enabled else "unknown"}
+
+    def put_desktop_alerts(self, payload: dict) -> dict:
+        if not isinstance(payload.get("enabled"), bool):
+            raise ApiError("enabled must be true or false")
+        with self._discord_lock:
+            subs = self._read_subscribers()
+            subs[DISCORD_SUBSCRIBER] = {**desktop_alerts.OWNER_DEFAULTS, **subs.get(DISCORD_SUBSCRIBER, {}),
+                                        "desktop_notifications": payload["enabled"]}
+            self._write_subscribers(subs)
+        return self.get_desktop_alerts(fresh=True)
+
+    def test_desktop_alerts(self) -> dict:
+        state = self.get_desktop_alerts()
+        if not state["supported"]:
+            raise ApiError("Windows notifications are only available in the installed Windows app.")
+        url = self.config.get("dashboard_url", "")
+        if not desktop_alerts.show("Foothold test", ["If you can read this, Windows notifications are working."],
+                                   f"{url.rstrip('/')}/#/settings?tab=alerts" if url else ""):
+            if desktop_alerts.windows_state() == "off":
+                raise ApiError("Windows has notifications switched off. Turn them on in Windows Settings › "
+                               "System › Notifications, then try again.")
+            raise ApiError("Windows did not show the notification.")
+        return {"ok": True}
 
     # ------------------------------------------------------------ background running
     def background_info(self) -> dict:
@@ -2964,6 +3007,9 @@ ROUTES = [
     ("PUT", r"/api/discord/settings", lambda s, m, q, b: s.put_discord_settings(b)),
     ("POST", r"/api/discord/test", lambda s, m, q, b: s.test_discord()),
     ("DELETE", r"/api/discord", lambda s, m, q, b: s.delete_discord()),
+    ("GET", r"/api/desktop-alerts", lambda s, m, q, b: s.get_desktop_alerts()),
+    ("PUT", r"/api/desktop-alerts", lambda s, m, q, b: s.put_desktop_alerts(b)),
+    ("POST", r"/api/desktop-alerts/test", lambda s, m, q, b: s.test_desktop_alerts()),
     ("GET", r"/api/background", lambda s, m, q, b: s.background_info()),
     ("PUT", r"/api/background", lambda s, m, q, b: s.put_background(b)),
     ("POST", r"/api/shutdown", lambda s, m, q, b: s.shutdown()),

@@ -177,7 +177,9 @@ def main(argv=None) -> int:
     parser.add_argument("--state", required=True)
     parser.add_argument("--dashboard-url", default="")
     parser.add_argument("--interval", type=int, default=60)
+    parser.add_argument("--desktop", action="store_true", help="the installed app: alerts also show in Windows")
     args = parser.parse_args(argv)
+    watcher.DESKTOP_APP = args.desktop
     sys.stdout = sys.stderr = WholeLines(sys.__stdout__)
     watcher.DB_PATH = Path(args.db)
     watcher.CONFIG = Path(args.config)

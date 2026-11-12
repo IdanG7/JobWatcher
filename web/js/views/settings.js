@@ -78,12 +78,14 @@ export async function render(root, ctx) {
   let saved;
   let searches = [];
   let discord = {configured: false, webhook_hint: ''};
+  let desktopAlerts = {supported: false, enabled: false, windows: 'unknown'};
   let writer = {ollama: {running: false, version: '', models: []}, model: '', computer: {gpus: [], ram: 0, unified: false}, suggestions: [], download: null,
     references: [], max_letters: 10};
   let background = {can_stop: false, autostart_supported: false, autostart: false, log: ''};
   try {
-    const [p, s, d, a, b] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/letters'), get('/api/background'), ctx.loadMeta()]);
+    const [p, s, d, a, b, w] = await Promise.all([ctx.loadProfile(), get('/api/saved-searches'), get('/api/discord'), get('/api/letters'), get('/api/background'), get('/api/desktop-alerts').catch(() => desktopAlerts), ctx.loadMeta()]);
     discord = d;
+    desktopAlerts = w;
     writer = a;
     background = b;
     profile = structuredClone(p.profile);
@@ -119,6 +121,14 @@ export async function render(root, ctx) {
       : `<div class="set-row">${label('Connection', conn(false, 'Not connected'))}</div>${block(webhookField())}`)
     + (discord.configured ? '<p class="fine set-after">To alert on your own filters: on <a class="link" href="#/opportunities">Opportunities</a>, pick <b>Save this view</b> from the <b>View</b> menu, then switch its alerts on under <a class="link" href="#/settings?tab=views">Saved views</a>.</p>' : '');
   const redrawDiscord = () => { root.querySelector('#s-discord').innerHTML = discordHtml(); };
+  // Windows notifications: only the installed Windows app has them. When Windows itself has notifications
+  // switched off nothing can show, so the page says so instead of looking as if it works.
+  const desktopHtml = () => (!desktopAlerts.supported ? '' : group('Windows notifications', 'A notification on this PC when new roles reach your short list, and a morning summary of deadlines, interviews and follow-ups. Clicking one opens Foothold.',
+    row('Show notifications on this PC', discord.configured ? 'As well as Discord' : '', `<input type="checkbox" class="switch" data-desktop-alerts${desktopAlerts.enabled ? ' checked' : ''}>`)
+    + (desktopAlerts.enabled ? `<div class="set-row">${label('Check that they show', desktopAlerts.windows === 'off' ? 'Windows has notifications switched off, so none will show. Turn them on in Windows Settings › System › Notifications.' : '')}<span class="set-control"><button type="button" class="btn sm" data-act="desktop-test">Send test</button></span></div>` : '')));
+  const redrawDesktop = () => { root.querySelector('#s-desktop').innerHTML = desktopHtml(); };
+  // Connecting or disconnecting Discord changes what Windows notifications do when the person never chose.
+  const reloadDesktop = async () => { desktopAlerts = await get('/api/desktop-alerts').catch(() => desktopAlerts); redrawDesktop(); };
 
   // Cover letters are written by a model Ollama runs on this computer.
   const gb = bytes => `${(bytes / 1e9).toFixed(1)} GB`;
@@ -224,7 +234,7 @@ export async function render(root, ctx) {
     const rows = (background.autostart_supported ? row('Start at sign-in', 'Start Foothold automatically when you sign in to Windows', `<input type="checkbox" class="switch" data-autostart${background.autostart ? ' checked' : ''}>`) : '')
       + (background.can_stop ? `<div class="set-row">${label('Stop Foothold', 'It stops checking for jobs and sending alerts until you open it again.')}<span class="set-control"><button type="button" class="btn sm danger" data-act="shutdown">Stop Foothold</button></span></div>` : '');
     return `<div class="set-group"><div class="set-group-head"><h3>Running in the background</h3></div>
-      <p class="set-note">Foothold runs without a window, checking for jobs and sending Discord alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
+      <p class="set-note">Foothold runs without a window, checking for jobs and sending alerts. It uses about 200 MB of memory and very little CPU between checks. Open ${startHint()} any time to reopen this dashboard.</p>
       ${rows ? `<div class="set-card">${rows}</div>` : ''}</div>
       ${background.log ? `<p class="fine set-after">Log file: <code>${esc(background.log)}</code></p>` : ''}`;
   };
@@ -374,8 +384,8 @@ export async function render(root, ctx) {
       + group('Remote', '', row('Open to remote roles', 'Remote postings in your target countries count as a near match', `<input type="checkbox" class="switch" name="open_to_remote"${profile.open_to_remote ? ' checked' : ''}>`)));
 
     const alerts = panel('alerts', 'Notifications', 'Where alerts go and how good a match must be to send one.',
-      `<div id="s-discord">${discordHtml()}</div>`
-      + group('Alert thresholds', 'Fit scores that count as urgent, high or digest-worthy. They drive Discord alerts and the High fit counts, and are saved with your profile.',
+      `<div id="s-desktop">${desktopHtml()}</div><div id="s-discord">${discordHtml()}</div>`
+      + group('Alert thresholds', 'Fit scores that count as urgent, high or digest-worthy. They drive alerts and the High fit counts, and are saved with your profile.',
         row('Urgent', 'Instant, with a ping', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="urgent_fit" value="${esc(profile.alerts?.urgent_fit ?? 90)}">`)
         + row('High', 'Instant, no ping', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="high_fit" value="${esc(profile.alerts?.high_fit ?? 75)}">`)
         + row('Digest', 'Collected into the daily summary', `<input class="input num" type="number" min="0" max="100" form="profile-form" name="digest_fit" value="${esc(profile.alerts?.digest_fit ?? 55)}">`)));
@@ -731,6 +741,7 @@ export async function render(root, ctx) {
       try {
         discord = await put('/api/discord', {webhook: input.value});
         redrawDiscord();
+        reloadDesktop();
         toast('Discord connected. Check your channel for the test message.');
       } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
       return;
@@ -743,9 +754,16 @@ export async function render(root, ctx) {
       finally { btn.disabled = false; }
       return;
     }
+    if (e.target.closest('[data-act=desktop-test]')) {
+      const btn = e.target.closest('[data-act=desktop-test]');
+      btn.disabled = true;
+      try { await post('/api/desktop-alerts/test', {}); toast('Test sent. Look for it at the corner of your screen.'); } catch (err) { toast(err.message, {error: true, timeout: 10000}); }
+      btn.disabled = false;
+      return;
+    }
     if (e.target.closest('[data-act=discord-remove]')) {
       if (!await confirmDialog('Stop sending Discord notifications?', {confirmLabel: 'Disconnect', title: 'Disconnect Discord'})) return;
-      try { discord = await del('/api/discord'); redrawDiscord(); toast('Discord disconnected'); } catch (err) { toast(err.message, {error: true}); }
+      try { discord = await del('/api/discord'); redrawDiscord(); reloadDesktop(); toast('Discord disconnected'); } catch (err) { toast(err.message, {error: true}); }
       return;
     }
     if (e.target.closest('[data-act=letters-check]')) {
@@ -822,6 +840,14 @@ export async function render(root, ctx) {
     if (e.target.matches('[data-discord-mode]')) {
       try { discord = await put('/api/discord/settings', {mode: e.target.value}); toast(discord.mode === 'views_only' ? 'Discord will only send your saved views' : 'Discord will send good matches and your saved views'); }
       catch (err) { toast(err.message, {error: true}); redrawDiscord(); }
+      return;
+    }
+    if (e.target.matches('[data-desktop-alerts]')) {
+      try {
+        desktopAlerts = await put('/api/desktop-alerts', {enabled: e.target.checked});
+        toast(desktopAlerts.enabled ? 'New short-list roles will show as Windows notifications' : 'Windows notifications are off');
+      } catch (err) { toast(err.message, {error: true, timeout: 8000}); }
+      redrawDesktop();
       return;
     }
     if (e.target.matches('[data-autostart]')) {

@@ -578,6 +578,7 @@ def main(argv=None) -> int:
         service.log_path = data / "jobwatch.log" if args.serve else None
         service.app_root = app.parent
         service.desktop = True          # the page's links to other sites open in the user's browser
+        watcher.DESKTOP_APP = True      # and alerts also show as Windows notifications
         if not os.environ.get("JOBWATCH_NO_UPDATES"):
             from updater import Updater
             service.updater = Updater(data)
