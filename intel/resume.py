@@ -411,7 +411,10 @@ _CREDENTIAL = re.compile(r"\b(?:certif\w*|licen[cs]\w*|exams?|designation|level 
 _PROGRAM_ABBR = re.compile(r"\b[bm]\.?\s?(?:sc|a|eng|com|math|ed|s|fa)\.?(?![a-z])\s*(?:\((?:hons?\.?|honou?rs)\))?"
                            rf"\s*(?:,|\bin\b|–|—|-|:)\s*(?:in\s+)?{_NO_COOP}([A-Z](?:[A-Za-z&' ]|{_IN_WORD}){{2,60}})", re.I)
 _RANGE = insights._RANGE
+_GRADE_PERCENT = re.compile(r"\b(?:c?gpa|grade point average|(?:cumulative|overall|academic)\s+average|average)"
+                            r"\s*[:\-]?\s*(\d{2,3}(?:\.\d{1,2})?)\s*%", re.I)
 _LANG_LINE = re.compile(r"\blanguages?\s*:\s*([^\n]{3,120})", re.I)
+_LANG_LEVEL = r"(?:fluent|native|bilingual|proficient|conversational|intermediate|advanced|basic|beginner|mother tongue)"
 _KNOWN_LANGS = ["English", "French", "Mandarin", "Cantonese", "Spanish", "Portuguese", "German", "Italian",
                 "Japanese", "Korean", "Hindi", "Punjabi", "Urdu", "Arabic", "Russian", "Hebrew", "Farsi",
                 "Vietnamese", "Tagalog", "Polish", "Dutch", "Turkish", "Bengali", "Tamil", "Gujarati"]
@@ -542,7 +545,12 @@ def _education(edu_lines: list[str], full: str) -> dict:
         scale = float(m.group(2)) if m.group(2) else 4.0
         if 0 < value <= scale and scale in (4.0, 4.3, 4.33, 5.0, 9.0, 10.0, 12.0):
             gpa = round(value / scale * 4.0, 2) if scale not in (4.0, 4.3, 4.33) else value
-            gpa_text = m.group(0).strip()
+            gpa_text = m.group(1) + (f"/{m.group(2)}" if m.group(2) else "")       # as written: "3.7/4.0"
+    if gpa is None:
+        # A percentage average is shown as written; it is no GPA to compare with a posting's minimum.
+        m = _GRADE_PERCENT.search(full)
+        if m and 50 <= float(m.group(1)) <= 100:
+            gpa_text = f"{m.group(1)}%"
     year, month, grad_text = _graduation(text, full, range_text, bool(edu_lines))
     # An experienced candidate's degree can be decades old; the career plan reads it as such.
     if year and not 1950 <= year <= date.today().year + 7:
@@ -636,12 +644,17 @@ _RUNS_ON = re.compile(r"[a-z][a-z'’-]*(?![\w'’-])")
 _ENDS_SENTENCE = re.compile(r"(?<![\w.])[a-z][a-z'’-]*[.!?]$")
 
 
-def _languages(text: str) -> list[str]:
+def _languages(text: str, listed: list[str] = ()) -> list[str]:
+    """Spoken languages: those on a "Languages:" line or under a Languages heading (``listed``, that
+    section's lines), and any written with a level, before it ("fluent in Spanish") or right beside it
+    ("Hindi (native)", "French - conversational")."""
     found = []
     m = _LANG_LINE.search(text)
-    scope = m.group(1) if m else ""
+    scope = "\n".join([m.group(1) if m else "", *listed])
     for lang in _KNOWN_LANGS:
-        if re.search(rf"\b{lang}\b", scope, re.I) or re.search(rf"\b(?:fluent|native|bilingual|proficient)[^.\n]{{0,30}}\b{lang}\b", text, re.I):
+        if (re.search(rf"\b{lang}\b", scope, re.I)
+                or re.search(rf"\b(?:fluent|native|bilingual|proficient)[^.\n]{{0,30}}\b{lang}\b", text, re.I)
+                or re.search(rf"\b{lang}\b\s*(?:\(\s*|[-–—:]\s*){_LANG_LEVEL}\b", text, re.I)):
             found.append(lang)
     return found
 
@@ -701,7 +714,7 @@ def parse_resume(text: str, kn: Knowledge, wrapped: bool = True) -> dict:
         "company_types": insights.company_types(interests, kn),
         "entries": [{k: e[k] for k in ("block", "company", "title", "end")} for e in entries],
         "cities": [c for c, _ in cities.most_common(6)],
-        "languages": _languages(text),
+        "languages": _languages(text, sections.get("languages", [])),
         "work_authorization": work_auth,
         "internships": insights.student_roles(entries),
         "chars": len(text),
