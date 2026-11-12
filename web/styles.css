@@ -1906,6 +1906,10 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 
 /* ---------------------------------------------------------------- drawer sections */
 .dh-callout { margin-top: 20px; }
+/* "Did you apply?", asked in the posting once the person is back from the employer's site. */
+.ask-applied p { margin: 0; }
+.ask-applied .ask-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.ask-applied .ask-actions .icon { margin-left: auto; }
 .drawer-body > .section { padding: 24px 0; border-bottom: 1px solid var(--border); }
 .drawer-body > .section:last-child { border-bottom: 0; }
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 22px; margin: 0 0 14px; }
