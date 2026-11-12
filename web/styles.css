@@ -2843,3 +2843,90 @@ main:has(.today) { max-width: 1304px; }
   .scale-fill { animation: none; }
   .lead-contours, .lead-go svg, .today-list .c-go svg { transition: none; }
 }
+
+/* ---------------------------------------------------------------- Opportunities */
+main:has(.opp-page) { max-width: 1304px; }
+.opp-page { gap: 16px; font-size: 15px; }
+.opp-head { margin: 12px 0 8px; }
+.opp-title h1 { font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -.025em; }
+.opp-title .sub { margin-top: 8px; font-size: 15px; color: var(--text-3); }
+.opp-title .sub b, .opp-title .sub .num { color: var(--text); font-weight: 500; }
+.opp-page .opp-toolbar { min-height: 44px; border-radius: 10px; border-color: var(--border-strong); }
+.opp-page .opp-toolbar:has(.opp-search input:focus) { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent); }
+.opp-page .opp-search .input { font-size: 15px; }
+.opp-page .opp-toolbar :is(.interest-btn, .opp-filters-btn, .opp-view-btn) { font-size: 13.5px; }
+.opp-bar-tools > :last-child > .btn { border-radius: 0 9px 9px 0; }
+.opp-page .opp-quick { margin-top: 4px; }
+.qf { height: 30px; padding: 0 12px; border-radius: 8px; font-size: 13.5px; }
+.segmented { border-radius: 9px; }
+.segmented button { border-radius: 7px; }
+.segmented button.on { font-weight: 500; box-shadow: 0 1px 2px rgba(16, 24, 32, .1), 0 0 0 1px var(--border); }
+.opp-page .scope button { height: 28px; padding: 0 12px; font-size: 13.5px; }
+.ftoken { border-radius: 6px; font-size: 13px; }
+.opp-layout { gap: 40px; }
+.opp-layout .filters { border-top: 0; }
+.opp-page .fbody .check { font-size: 13.5px; }
+
+/* The list: the same row as Today's short list. No box around it. */
+.opp-page .results { border: 0; background: none; border-radius: 0; }
+table.data.opp-table { table-layout: fixed; }
+table.data.opp-table th { height: 34px; padding: 0 12px 0 0; background: none; border-bottom: 1px solid var(--border-strong); font-size: 12px; font-weight: 500; color: var(--text-3); }
+table.data.opp-table th.c-fit, table.data.opp-table td.c-fit { width: 76px; padding-left: 12px; padding-right: 0; }
+table.data.opp-table td { padding: 10px 12px 10px 0; height: 64px; vertical-align: middle; transition: background-color 120ms; }
+:root[data-density="compact"] table.data.opp-table td { height: 44px; padding-block: 5px; }
+table.data.opp-table tbody tr:last-child td { border-bottom: 1px solid var(--border); }
+table.data.opp-table tbody tr td:first-child { border-radius: 8px 0 0 8px; }
+table.data.opp-table tbody tr td:last-child { border-radius: 0 8px 8px 0; }
+table.data.opp-table tbody tr.cursor td:first-child, table.data.opp-table tbody tr.reviewing td:first-child { box-shadow: inset 2px 0 0 var(--pos); }
+table.data.opp-table td.c-role { width: auto; max-width: none; min-width: 0; }
+table.data.opp-table .role { min-width: 0; }
+table.data.opp-table .role .t { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 500; line-height: 1.35; letter-spacing: 0; }
+:root[data-density="compact"] table.data.opp-table .role .t { font-size: 14px; }
+table.data.opp-table .role .m { gap: 8px; margin-top: 2px; font-size: 13.5px; line-height: 1.4; color: var(--text-3); }
+table.data.opp-table .role .lvl::before { content: none; }
+table.data.opp-table .tags { margin-left: 0; }
+table.data.opp-table .role .m .why::before { content: none; }
+table.data.opp-table .role .m > * + .why::before, table.data.opp-table .role .m > * + .lvl::before { content: "·"; margin-right: 8px; color: var(--border-strong); }
+table.data.opp-table .c-emp { width: 216px; }
+table.data.opp-table .emp { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 10px; align-items: center; }
+table.data.opp-table .emp .logo { grid-row: 1 / span 2; width: 24px; height: 24px; }
+table.data.opp-table .emp .co { font-size: 15px; line-height: 1.35; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.data.opp-table .emp .place { font-size: 13.5px; line-height: 1.4; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-density="compact"] table.data.opp-table .emp .place, :root[data-density="compact"] table.data.opp-table .emp .logo { display: none; }
+:root[data-density="compact"] table.data.opp-table .emp { display: block; }
+table.data.opp-table .c-posted { width: 60px; }
+table.data.opp-table .c-deadline { width: 100px; }
+table.data.opp-table .c-status { width: 100px; }
+table.data.opp-table td.c-posted, table.data.opp-table td.c-deadline { font-family: var(--font); font-size: 13.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+table.data.opp-table .actions { width: 68px; }
+.opp-page .pager { padding: 14px 0; border-top: 0; font-size: 13.5px; }
+@container results (max-width: 760px) {
+  table.data.opp-table .c-status { display: none; }
+  table.data.opp-table .c-emp { width: 184px; }
+}
+@container results (max-width: 600px) {
+  table.data.opp-table .c-posted { display: none; }
+}
+@media (max-width: 900px) {
+  table.data.opp-table.cards { table-layout: auto; }
+  table.data.opp-table.cards td { height: auto; padding: 0; }
+  table.data.opp-table.cards tbody tr td:first-child, table.data.opp-table.cards tbody tr td:last-child { border-radius: 0; }
+  table.data.opp-table.cards td.c-emp { flex: 1 1 100%; width: auto; margin-left: 40px; font-size: 13.5px; }
+  table.data.opp-table.cards .emp { display: flex; gap: 6px; }
+  table.data.opp-table.cards .emp .logo { display: none; }
+  table.data.opp-table.cards .emp .co { font-size: 13.5px; color: var(--text-2); flex: 0 1 auto; }
+  table.data.opp-table.cards .emp .place::before { content: "· "; }
+  table.data.opp-table.cards td.c-posted, table.data.opp-table.cards td.c-deadline { margin-left: 40px; width: auto; }
+  table.data.opp-table.cards td.c-deadline { margin-left: 0; }
+  table.data.opp-table.cards .role .t { white-space: normal; }
+}
+
+/* The posting panel, in the same steps. */
+.drawer { font-size: 14.5px; }
+.drawer-head h2 { font-size: 24px; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+.drawer .fit-figure b { font: 500 44px/1 var(--mono); letter-spacing: -.04em; }
+.drawer .fit-figure span { font: 400 13.5px/1 var(--mono); }
+.drawer .fit-label { font-size: 15px; font-weight: 500; }
+.fit-reasons li { font-size: 14.5px; }
+.drawer-body .kv { font-size: 14px; }
+.drawer .breakdown { border-radius: 10px; }

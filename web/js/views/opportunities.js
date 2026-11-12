@@ -18,11 +18,9 @@ export const COUNTRY_FILTERS = [{key: 'canada', label: 'Canada'}, {key: 'us', la
 const COLUMNS = [
   {key: 'fit', label: 'Fit', sort: 'fit', cls: 'c-fit'},
   {key: 'role', label: 'Role', sort: 'title', cls: 'c-role'},
-  {key: 'cat', label: 'Category', sort: 'category', cls: 'c-cat'},
-  {key: 'loc', label: 'Location', sort: 'location', cls: 'c-loc'},
-  {key: 'cycle', label: 'Cycle', sort: 'cycle', cls: 'c-cycle'},
+  {key: 'emp', label: 'Employer', sort: 'company', cls: 'c-emp'},
   {key: 'posted', label: 'Posted', sort: 'newest', cls: 'c-posted'},
-  {key: 'deadline', label: 'Deadline', sort: 'deadline', cls: 'c-deadline'},
+  {key: 'deadline', label: 'Apply by', sort: 'deadline', cls: 'c-deadline'},
   {key: 'status', label: 'Status', sort: 'status', cls: 'c-status'},
   {key: 'actions', label: '', cls: 'actions'},
 ];
@@ -258,6 +256,7 @@ export async function render(root, ctx) {
     const zone = quiet && document.activeElement?.closest?.('[data-summary], [data-interests], [data-quick], [data-active], [data-table], [data-pager]');
     const held = zone && root.contains(zone) ? document.activeElement : null;
     const heldId = held && focusId(held);
+    autoRail();
     drawSummary();
     drawInterests();
     drawQuick();
@@ -396,12 +395,13 @@ export async function render(root, ctx) {
   }
 
   const SEP = '<span class="quick-sep" aria-hidden="true"></span>';
-  const MORE_LABELS = {profile: 'From your profile', tracking: 'Tracking'};
+  const MORE_LABELS = {role: 'Specialties', profile: 'From your profile', tracking: 'Tracking'};
 
   function drawQuick() {
     const resume = state.data?.resume_matching;
     state.quick = quickItems();
-    const items = state.quick.map((q, i) => ({...q, i, on: quickActive(q)}));
+    // Specialties sit under "More" with the profile's other targets: the row keeps to the scope and three toggles.
+    const items = state.quick.map((q, i) => ({...q, i, on: quickActive(q), more: q.more || (q.group === 'role' && !q.params.family)}));
     const tip = q => (q.title ? ` title="${esc(q.title)}"` : '');
     let last = null;
     const shown = items.filter(q => !q.more).map(q => {
@@ -600,12 +600,10 @@ export async function render(root, ctx) {
         `<div class="empty-actions">${appliedChips().length ? '<button type="button" class="btn sm" data-act="clear">Clear filters</button>' : ''}${narrow}</div>`);
       return;
     }
-    const ariaSort = c => (c.sort && (c.sort === sort || (c.key === 'role' && sort === 'company'))
-      ? ` aria-sort="${(dir || defaultDir(sort)) === 'asc' ? 'ascending' : 'descending'}"` : '');
+    const ariaSort = c => (c.sort && c.sort === sort ? ` aria-sort="${(dir || defaultDir(sort)) === 'asc' ? 'ascending' : 'descending'}"` : '');
     wrap.innerHTML = `<table class="data opp-table cards" aria-rowcount="${d.total}">
-      <thead><tr>${COLUMNS.map(c => `<th class="${c.cls}" scope="col"${ariaSort(c)}>${c.key === 'role'
-        ? `${sortButton('title', 'Role', sort, dir)}<span class="th-sep" aria-hidden="true">·</span>${sortButton('company', 'Company', sort, dir)}`
-        : c.sort ? sortButton(c.sort, c.label, sort, dir) : `<span class="sr-only">Actions</span>`}</th>`).join('')}</tr></thead>
+      <thead><tr>${COLUMNS.map(c => `<th class="${c.cls}" scope="col"${ariaSort(c)}>${
+        c.sort ? sortButton(c.sort, c.label, sort, dir) : `<span class="sr-only">Actions</span>`}</th>`).join('')}</tr></thead>
       <tbody>${d.jobs.map((j, i) => row(j, i)).join('')}</tbody></table>`;
   }
 
@@ -624,6 +622,11 @@ export async function render(root, ctx) {
     return text ? `<span class="why${j.fit_caution ? ' warn' : ''}">${esc(text)}</span>` : '';
   }
 
+  /** The most specific name for what the role is: its specialty, else its category. */
+  function field(j) {
+    return j.subcategory_label && j.subcategory_label !== j.category_label ? j.subcategory_label : j.category_label || prettyKey(j.family || '');
+  }
+
   function row(j, i) {
     const closed = j.job_status === 'closed' || j.window_status === 'closed';
     // At most one time signal and one level tag: the rest lives in the posting.
@@ -635,11 +638,10 @@ export async function render(root, ctx) {
       <td class="c-fit">${fitMeter(j.fit)}</td>
       <td class="c-role"><div class="role">
         <a class="t" href="#/opportunities?job=${encodeURIComponent(j.key)}" data-open-job title="${esc(j.title)}">${esc(j.title)}</a>
-        <div class="m">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>${lvl}${signal ? `<span class="tags">${tag(signal)}</span>` : ''}${why(j)}</div>
+        <div class="m">${signal ? `<span class="tags">${tag(signal)}</span>` : ''}${lvl}${why(j)}</div>
       </div></td>
-      <td class="c-cat"><div class="cat">${esc(j.category_label || prettyKey(j.family || ''))}${j.subcategory_label && j.subcategory_label !== j.category_label ? `<small>${esc(j.subcategory_label)}</small>` : ''}</div></td>
-      <td class="c-loc" title="${esc(j.location || '')}"><span class="clip">${esc(locationText(j) || '—')}</span></td>
-      <td class="c-cycle nowrap">${esc(j.cycle_label || '—')}</td>
+      <td class="c-emp"><div class="emp">${logo(j.company)}<span class="co" title="${esc(j.company_type_label || '')}">${esc(j.company || '—')}</span>
+        <span class="place" title="${esc([j.location, j.cycle_label].filter(Boolean).join(' · '))}">${esc([locationText(j), field(j)].filter(Boolean).join(' · '))}</span></div></td>
       <td class="c-posted nowrap num" title="${j.posted_ref ? esc(new Date(j.posted_ref * 1000).toLocaleString()) : 'Unknown'}">${esc(age(j.posted_ref))}</td>
       <td class="c-deadline nowrap">${deadlineCell(j.deadline, j.window_status)}</td>
       <td class="c-status">${j.app_status ? statusPill(j.app_status) : '<span class="sr-only">Not tracked</span>'}</td>
@@ -692,7 +694,15 @@ export async function render(root, ctx) {
     state.filtersHidden = !state.filtersHidden;
     layout.classList.toggle('filters-hidden', state.filtersHidden);
     $('.opp-filters-btn').setAttribute('aria-expanded', String(!state.filtersHidden));
-    ctx.store.set('jw-filters', state.filtersHidden ? 'hidden' : null);
+    ctx.store.set('jw-filters', state.filtersHidden ? 'hidden' : 'shown');
+  }
+  /** Until the person chooses, the rail is closed on the short list (it is short already) and open elsewhere. */
+  function autoRail() {
+    if (ctx.store.get('jw-filters')) return;
+    const rm = state.data?.resume_matching;
+    state.filtersHidden = Boolean(rm?.active && rm.shortlist);
+    $('[data-layout]').classList.toggle('filters-hidden', state.filtersHidden);
+    $('.opp-filters-btn').setAttribute('aria-expanded', String(!state.filtersHidden));
   }
   function closeFilterSheet() {
     const layout = $('[data-layout]');
