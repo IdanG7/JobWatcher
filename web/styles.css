@@ -3250,3 +3250,58 @@ main:has(.set-layout) { max-width: 1304px; }
   .set-block { padding: 16px 0; }
   #s-resume .facts { grid-template-columns: 96px minmax(0, 1fr); gap: 0 14px; }
 }
+
+/* ---------------------------------------------------------------- Calendar */
+main:has(.cal-head) { max-width: 1304px; }
+.cal-head { margin-bottom: 0; padding: 12px 0 24px; align-items: flex-end; }
+.cal-head h1 { font-size: 32px; line-height: 1.15; font-weight: 600; font-stretch: normal; letter-spacing: -.025em; }
+.cal-head .page-actions { gap: 10px; }
+.cal-head .btn { height: 36px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.cal-head .btn.icon { width: 36px; }
+.cal-head .btn-group .btn { border-radius: 0; }
+.cal-head .btn-group .btn:first-child { border-radius: 8px 0 0 8px; }
+.cal-head .btn-group .btn:last-child { border-radius: 0 8px 8px 0; }
+.cal-head .segmented button { height: 30px; padding: 0 12px; font-size: 13.5px; }
+.cal-sheet { border-top: 1px solid var(--border-strong); font-size: 15px; }
+.cal-sheet .cal .dow { padding: 10px 8px 9px; font: 500 12px/1.4 var(--font); letter-spacing: 0; text-transform: none; }
+.cal-sheet .cal .day { min-height: 124px; padding: 8px 6px 10px; }
+.cal-sheet .cal .day.we { background: color-mix(in srgb, var(--surface-3) 30%, transparent); }
+.cal-sheet .cal .day .d { font: 400 12px/22px var(--mono); white-space: nowrap; letter-spacing: -.02em; }
+.cal-sheet .cal .day.today .d { border-radius: 6px; background: var(--pos); color: #fff; font-weight: 500; }
+.cal-sheet .ev { padding: 3px 6px 3px 18px; border-radius: 6px; font-size: 12px; line-height: 1.5; }
+.cal-sheet .ev.interview { font-weight: 500; }
+.cal-sheet .ev.deadline { --ev: var(--warn); }
+.cal-sheet .ev time { font: 400 12px var(--mono); }
+.cal-sheet .cal.week .ev { font-size: 13.5px; }
+.cal-sheet .cal.week .ev::before { top: 13px; }
+.cal-sheet .ev:focus-visible, .more-link:focus-visible, .day-add:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.more-link { margin: 2px 0 0 4px; font-size: 12px; font-weight: 500; }
+.day-add { border-radius: 6px; }
+.cal-legend { gap: 6px 18px; font-size: 13.5px; }
+.cal-legend i.k-deadline { background: var(--warn); }
+.cal-foot { margin-top: 20px; }
+.cal-foot p { font-size: 13.5px; line-height: 1.55; }
+
+/* The list: a date, then what is on it. */
+.agenda-day { grid-template-columns: 64px minmax(0, 1fr); gap: 24px; padding: 18px 0; }
+.agenda-day:last-child { border-bottom: 1px solid var(--border); }
+.agenda-date { padding-top: 6px; line-height: 1.2; }
+.agenda-date small { font: 400 12px/1.4 var(--font); letter-spacing: 0; text-transform: none; }
+.agenda-date b { font: 500 20px/1.3 var(--mono); letter-spacing: -.02em; }
+.agenda-day.today .agenda-date b { padding: 0 6px; background: var(--pos); color: #fff; }
+.agenda-item { gap: 12px; padding: 8px 10px; border-radius: 8px; }
+.agenda-item > i { margin-top: 8px; }
+.agenda-item.deadline { --ev: var(--warn); }
+.agenda-item .t { font-size: 15px; font-weight: 500; }
+.agenda-item .s { font-size: 13.5px; }
+.agenda-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+@media (max-width: 760px) {
+  .cal-head { padding: 4px 0 16px; }
+  .cal-head h1 { font-size: 26px; }
+  .cal-sheet .cal .dow { padding: 8px 4px; font-size: 12px; }
+  .cal-sheet .cal .day { min-height: 64px; padding: 4px 3px; }
+  .cal-sheet .ev { padding: 0; font-size: 0; }
+  .agenda-day { grid-template-columns: 48px minmax(0, 1fr); gap: 12px; }
+  .agenda-item .t, .agenda-item .s { white-space: normal; }
+}

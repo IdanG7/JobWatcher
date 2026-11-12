@@ -6,7 +6,7 @@ import {eventForm} from '../forms.js';
 import {bindTooltips, confirmDialog, emptyState, errorState, icon, skeletonRows, toast} from '../ui.js';
 
 const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const KIND_LABEL = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up', program: 'Program window'};
+const KIND_LABEL = {deadline: 'Deadline', interview: 'Interview', next_action: 'Next step', follow_up: 'Follow-up', program: 'Program window', event: 'Event'};
 const VIEW_KEYS = {m: 'month', w: 'week', l: 'list'};
 const STEP_LABEL = {month: 'month', week: 'week', list: '60 days'};
 
@@ -21,7 +21,7 @@ export async function render(root, ctx) {
   const state = {view: ctx.route.params.view || 'month', anchor: parseDay(ctx.route.params.date) || new Date(), items: []};
   root.innerHTML = `
   <div class="page-head cal-head">
-    <div><p class="eyebrow">Recruiting calendar</p><h1 data-range>&nbsp;</h1></div>
+    <div><h1 data-range>&nbsp;</h1></div>
     <div class="page-actions">
       <div class="btn-group" role="group" aria-label="Move through dates">
         <button type="button" class="btn icon" data-step="-1" data-step-prev>${icon('chevronLeft')}</button>
