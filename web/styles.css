@@ -956,10 +956,13 @@ a.wn-item:focus-visible .wn-go { opacity: 1; color: var(--float-text); }
 .resume-saved { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
 .resume-saved p { margin: 4px 0 0; color: var(--text-2); }
 .resume-change { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(0, 3fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-#s-resume dd, .resume-change { overflow-wrap: anywhere; }
-#s-resume .facts { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px 14px; margin: 0; }
-#s-resume .facts dt { color: var(--text-2); }
-#s-resume .facts dd { margin: 0; }
+:is(#s-resume, .welcome-read) dd, .resume-change { overflow-wrap: anywhere; }
+:is(#s-resume, .welcome-read) .facts { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px 14px; margin: 0; }
+:is(#s-resume, .welcome-read) .facts dt { color: var(--text-2); }
+:is(#s-resume, .welcome-read) .facts dd { margin: 0; }
+/* Setup's first step: what was read from the resume, as the same card Settings shows. */
+.welcome-read { padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); font-size: 13.5px; }
+.welcome-read > .muted { margin: 4px 0 0; }
 #s-resume [data-resume-result] > h3 { margin: 20px 0 10px; }
 #s-resume .input[type=file] { height: auto; padding: 8px; max-width: 100%; }
 .tree { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px 18px; }

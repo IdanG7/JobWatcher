@@ -48,6 +48,22 @@ export function resumeMatchSection(match) {
     ${match.review?.length ? `<p class="muted">Needs review</p><ul class="reasons">${match.review.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}</section>`;
 }
 
+/** What the server reads a resume from: the chosen file (a promise, the file has to be read), else the
+ * pasted text (returned at once). Either can be awaited. */
+export function resumePayload(selected, text = '') {
+  if (!selected) {
+    if (!text.trim()) throw new Error('Choose a resume file or paste its text first.');
+    return {text};
+  }
+  if (selected.size > 5_000_000) throw new Error('Choose a file up to 5 MB.');
+  return selected.arrayBuffer().then(buffer => {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    return {filename: selected.name, data: btoa(binary)};
+  });
+}
+
 export async function mountResume(root, {meta, onApply, canApply = () => true}, deps = {}) {
   const request = {...{get, post, patch, del, confirm: confirmDialog, toast}, ...deps};
   let saved, preview = null, payload = null, busy = false;
@@ -100,16 +116,7 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
       if (button.matches('[data-resume-preview]')) {
         lock(true); discard(); message('Reading resume…');
         const selected = file.files?.[0];
-        if (selected) {
-          if (selected.size > 5_000_000) throw new Error('Choose a file up to 5 MB.');
-          const bytes = new Uint8Array(await selected.arrayBuffer());
-          let binary = '';
-          for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
-          payload = {filename: selected.name, data: btoa(binary)};
-        } else {
-          if (!text.value.trim()) throw new Error('Choose a resume file or paste its text first.');
-          payload = {text: text.value};
-        }
+        payload = selected ? await resumePayload(selected) : resumePayload(null, text.value);
         preview = await request.post('/api/resume/parse', payload);
         if (!root.isConnected) return;
         $('[data-resume-result]').innerHTML = `<h3>Review extracted facts</h3>${resumeFacts(preview.parsed)}

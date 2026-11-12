@@ -1,7 +1,8 @@
 // Setup (#/welcome): a few questions on first run that tailor Settings and the
 // Opportunities filters to the fields someone recruits in. "Run setup again"
 // in Settings comes back here with the saved answers filled in.
-import {put} from '../api.js';
+import {get, post, put} from '../api.js';
+import {resumeFacts, resumePayload} from '../resume.js';
 import {esc} from '../lib.js';
 import {errorState, icon, options, toast} from '../ui.js';
 import {FIELD_INFO, countryList as allCountries, fieldList, licencesFor, profileFields, skillGroupsFor, specialtyFamilies, suggestCycles} from '../fields.js';
@@ -46,9 +47,36 @@ export function setupAnswers(profile, {firstRun = false, financeKeys = [], thisY
   };
 }
 
-/** The profile to save from setup answers; whatever setup doesn't ask about is kept as it was. */
-export function setupProfile(profile, answers, {firstRun = false, families = [], cities = [], skills = [], meta = {}} = {}) {
-  const targets = firstRun ? [] : profile.target_roles || [];
+/** Setup answers after a resume was read (the server's preview): each answer the resume speaks to is
+ * filled in from it, so the steps that follow are confirmed, not typed. The rest stay as they were. */
+export function resumeAnswers(answers, preview, {firstRun = false, financeKeys = [], cities = [], thisYear = new Date().getFullYear()} = {}) {
+  // What the profile would be with the resume applied; an answer is taken from it only where the resume
+  // itself says something (on a first run the rest of that profile is the built-in default, not the person).
+  const read = setupAnswers(preview.profile || {}, {financeKeys, thisYear});
+  const parsed = preview.parsed || {};
+  const edu = parsed.education || {};
+  const career = parsed.career || {};
+  const out = {...answers};
+  if (parsed.role_interests?.length || parsed.role_categories?.length) Object.assign(out, {fields: read.fields, finance: read.finance, specialties: read.specialties});
+  if (career.stages?.length) out.stages = read.stages;
+  if (edu.level) out.level = read.level;
+  if (edu.graduation_year && !career.experienced) Object.assign(out, {gradYear: read.gradYear, gradMonth: read.gradMonth});
+  // The resume's own cycles (none for someone with years of work) stand; they are not re-suggested.
+  if (edu.graduation_year || career.experienced) Object.assign(out, {cycles: read.cycles, cyclesTouched: true});
+  if (parsed.licences?.length) out.licences = read.licences;
+  if (firstRun) {
+    // A first run's saved places are the built-in default's, so the resume's cities never replaced them.
+    const found = (parsed.cities || []).map(key => cities.find(c => c.key === key)).filter(Boolean).slice(0, 3);
+    if (found.length) Object.assign(out, {cities: new Set(found.map(c => c.key)), countries: new Set(found.map(c => c.country).filter(Boolean))});
+  } else Object.assign(out, {cities: read.cities, countries: read.countries});     // a resume only fills empty places
+  return out;
+}
+
+/** The profile to save from setup answers; whatever setup doesn't ask about is kept as it was.
+ * ``fromResume``: the profile already has a resume applied, so its targets, skills and employer types are
+ * the person's own even on a first run. */
+export function setupProfile(profile, answers, {firstRun = false, fromResume = false, families = [], cities = [], skills = [], meta = {}} = {}) {
+  const targets = firstRun && !fromResume ? [] : profile.target_roles || [];
   const familyKeys = new Set(families);
   // Finance targets: keep any narrower groups already picked inside a chosen area.
   const finance = answers.fields.has('finance') ? [...answers.finance].flatMap(cat => {
@@ -73,8 +101,10 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
   // The finance headline goes too: Today then names the boards ("Product and Design recruiting").
   const notFinance = firstRun && !answers.fields.has('finance') ? {
     headline: '',
-    target_company_types: [],
-    skills: (profile.skills || []).filter(key => !groups || groups.has(groupOf.get(key))),
+    ...(fromResume ? {} : {
+      target_company_types: [],
+      skills: (profile.skills || []).filter(key => !groups || groups.has(groupOf.get(key))),
+    }),
   } : {};
   return {
     ...profile,
@@ -102,8 +132,9 @@ export function setupProfile(profile, answers, {firstRun = false, families = [],
 export async function render(root, ctx) {
   let meta;
   let data;
+  let savedResume;
   try {
-    [meta, data] = await Promise.all([ctx.loadMeta(), ctx.loadProfile()]);
+    [meta, data, savedResume] = await Promise.all([ctx.loadMeta(), ctx.loadProfile(), get('/api/resume').catch(() => ({available: true}))]);
   } catch (err) {
     root.innerHTML = errorState(err);
     root.querySelector('[data-action=retry]')?.addEventListener('click', () => ctx.remount());
@@ -114,13 +145,16 @@ export async function render(root, ctx) {
   const financeKeys = (meta.taxonomy || []).map(c => c.key);
   const families = (meta.families || []).map(f => f.key);
   const thisYear = new Date().getFullYear();
-  const state = {step: 0, ...setupAnswers(profile, {firstRun, financeKeys, thisYear})};
+  // resume: what was read in the first step ({payload, preview, name}); applied when setup is saved.
+  const state = {step: 0, resume: null, resumeNote: '', ...setupAnswers(profile, {firstRun, financeKeys, thisYear})};
+  // Setup starts with the resume when none is saved yet; a saved one is changed in Settings.
+  const askResume = !savedResume.available;
 
   // Job families split into specialties (Software, AI & Data, Hardware, Healthcare) that were picked as fields.
   const chosenSpecialtyFamilies = () => specialtyFamilies(meta).filter(f => state.fields.has(f.key));
   // The licences those fields' postings can require (Healthcare's), asked on the same step.
   const chosenLicences = () => licencesFor([...state.fields], meta).filter(l => l.kind === 'licence');
-  const steps = () => ['fields', ...(state.fields.has('finance') ? ['finance'] : []),
+  const steps = () => [...(askResume ? ['resume'] : []), 'fields', ...(state.fields.has('finance') ? ['finance'] : []),
     ...(chosenSpecialtyFamilies().length || chosenLicences().length ? ['specialties'] : []), 'you', 'where', 'done'];
   const countryList = allCountries(meta, profile);
   const countryName = new Map(countryList);
@@ -128,6 +162,19 @@ export async function render(root, ctx) {
   document.body.classList.add('onboarding');
 
   const STEPS = {
+    resume: () => ({
+      title: 'Start with your resume',
+      sub: 'Foothold reads it to pick your fields, level and skills, then ranks roles against your experience. No resume to hand? Continue and answer a few questions instead.',
+      body: `<section class="welcome-q welcome-resume">
+          <label class="field"><span>Your resume <small>PDF, DOCX or TXT, up to 5 MB</small></span><input class="input" type="file" accept=".pdf,.docx,.txt,.md" data-setup-file></label>
+          <details class="disclose"><summary>Or paste resume text</summary><label class="field"><span class="sr-only">Resume text</span><textarea class="input" rows="6" maxlength="60000" data-setup-text placeholder="Paste your resume here"></textarea></label></details>
+          <div class="form-actions"><button type="button" class="btn" data-act="read-resume">${state.resume ? 'Read a different one' : 'Read my resume'}</button><span class="fine">Read on this computer only. It is never sent anywhere.</span></div>
+          <p class="resume-status" role="${state.resumeError ? 'alert' : 'status'}" aria-live="polite" data-setup-status>${esc(state.resumeNote)}</p>
+        </section>
+        ${state.resume ? `<section class="welcome-q welcome-read"><h2>What Foothold read${state.resume.file ? ` from ${esc(state.resume.name)}` : ''}</h2>${resumeFacts(state.resume.preview.parsed)}
+          <p class="fine">The next steps are filled in from this. Change anything there that is wrong.</p></section>` : ''}`,
+      ready: true, next: state.resume ? 'Continue' : 'Continue without a resume',
+    }),
     fields: () => ({
       title: 'What are you recruiting for?',
       sub: 'Pick every field you are applying in. Foothold shows the settings and filters for each one, and you can change this later.',
@@ -184,7 +231,7 @@ export async function render(root, ctx) {
     },
     done: () => {
       const fieldNames = fieldList(meta).filter(([k]) => state.fields.has(k)).map(([, label]) => label);
-      const rows = [['Fields', fieldNames.join(', ')],
+      const rows = [...(state.resume ? [['Resume', state.resume.name]] : []), ['Fields', fieldNames.join(', ')],
         ...(state.fields.has('finance') ? [['Finance areas', (meta.taxonomy || []).filter(c => state.finance.has(c.key)).map(c => c.label).join(', ')]] : []),
         ...chosenSpecialtyFamilies().map(f => [f.label, f.subcategories.filter(s => state.specialties.has(`${f.key}.${s.key}`)).map(s => s.label).join(', ') || 'Every specialty']),
         ...(chosenLicences().length ? [['Licences', chosenLicences().filter(l => state.licences.has(l.key)).map(l => l.label).join(', ') || 'None yet']] : []),
@@ -198,7 +245,8 @@ export async function render(root, ctx) {
         title: 'Ready when you are',
         sub: 'Save this and your matches are re-ranked. Everything here can be changed in Settings.',
         body: `<dl class="welcome-summary">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
-          <p class="fine">Next, add your resume in Settings so skills and experience count too. It's read on this computer only.</p>`,
+          <p class="fine">${state.resume ? 'Your resume is saved with this, so roles are ranked against your skills and experience.'
+            : savedResume.available ? '' : 'Next, add your resume in Settings so skills and experience count too. It’s read on this computer only.'}</p>`,
         ready: true, last: true,
       };
     },
@@ -225,8 +273,8 @@ export async function render(root, ctx) {
         ${state.step ? '<button type="button" class="btn ghost" data-act="back">Back</button>' : '<span></span>'}
         <span class="welcome-hint" aria-live="polite">${view.ready ? '' : esc(view.hint)}</span>
         ${view.last
-          ? `<span class="welcome-actions"><button type="button" class="btn" data-act="save" data-then="resume">Save and add my resume</button><button type="button" class="btn primary" data-act="save" data-then="matches">Save and see my matches</button></span>`
-          : `<button type="button" class="btn primary" data-act="next"${view.ready ? '' : ' disabled'}>Continue</button>`}
+          ? `<span class="welcome-actions">${state.resume || savedResume.available ? '' : '<button type="button" class="btn" data-act="save" data-then="resume">Save and add my resume</button>'}<button type="button" class="btn primary" data-act="save" data-then="matches">Save and see my matches</button></span>`
+          : `<button type="button" class="btn primary" data-act="next"${view.ready ? '' : ' disabled'}>${esc(view.next || 'Continue')}</button>`}
       </footer>
     </div>`;
     if (focus) root.querySelector('h1').focus({preventScroll: true});
@@ -242,13 +290,37 @@ export async function render(root, ctx) {
     if (hint) hint.textContent = view.ready ? '' : view.hint;
   }
 
-  const profileOut = () => setupProfile(profile, state, {firstRun, families, cities: meta.cities || [], skills: meta.skills || [], meta});
+  const profileOut = (base = profile, fromResume = false) => setupProfile(base, state, {firstRun, fromResume, families, cities: meta.cities || [], skills: meta.skills || [], meta});
+
+  // Read the chosen resume (nothing is saved yet) and fill the steps that follow from it.
+  async function readResume(btn) {
+    const file = root.querySelector('[data-setup-file]');
+    const text = root.querySelector('[data-setup-text]');
+    const status = root.querySelector('[data-setup-status]');
+    btn.disabled = true;
+    status.setAttribute('role', 'status');
+    status.textContent = 'Reading resume…';
+    try {
+      const payload = await resumePayload(file.files?.[0], text.value);
+      const preview = await post('/api/resume/parse', payload);
+      if (!root.isConnected) return;
+      state.resume = {payload, preview, file: Boolean(payload.filename), name: payload.filename || 'Pasted text'};
+      Object.assign(state, resumeAnswers(state, preview, {firstRun, financeKeys, cities: meta.cities || [], thisYear}),
+        {resumeNote: '', resumeError: false});
+    } catch (err) {
+      if (!root.isConnected) return;
+      Object.assign(state, {resumeNote: err.message, resumeError: true});
+    }
+    draw();
+  }
 
   async function save(btn) {
     root.querySelectorAll('[data-act=save]').forEach(b => { b.disabled = true; });
     btn.textContent = 'Saving…';
     try {
-      const result = await put('/api/profile', {profile: profileOut()});
+      // The resume first, then the answers confirmed here on top of it: what the person changed wins.
+      const applied = state.resume ? await post('/api/resume', state.resume.payload) : null;
+      const result = await put('/api/profile', {profile: applied ? profileOut(applied.profile, true) : profileOut()});
       ctx.profile = result.profile;
       if (firstRun && ctx.store.get(TOUR_KEY) !== 'seen') ctx.store.set(TOUR_KEY, 'due');      // the next page shows where things are
       toast('You’re set up. Matches are being re-ranked.');
@@ -286,7 +358,8 @@ export async function render(root, ctx) {
     else if (act === 'all-finance') {
       state.finance = state.finance.size === financeKeys.length ? new Set() : new Set(financeKeys);
       draw();
-    } else if (act === 'save') save(e.target.closest('[data-act=save]'));
+    } else if (act === 'read-resume') readResume(e.target.closest('[data-act]'));
+    else if (act === 'save') save(e.target.closest('[data-act=save]'));
     else if (act === 'leave') {
       if (firstRun) {
         ctx.store.set('jw-setup-skipped', '1');      // don't ask again in this browser; Settings can run it
