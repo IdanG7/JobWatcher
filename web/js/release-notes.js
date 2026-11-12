@@ -10,6 +10,16 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.20', date: '2026-11-12', items: [
+    {icon: 'contrast', title: 'A new look', link: '#/settings?tab=appearance',
+      text: 'Larger type, one green accent and calmer pages on every screen, in light and dark.'},
+    {icon: 'pulse', title: 'Today leads with your best role',
+      text: 'The top role on your list comes first, with its fit and the reasons in words.'},
+    {icon: 'upload', title: 'Drop your resume to start', link: '#/welcome',
+      text: 'Setup reads a dropped or chosen file at once, with no separate button to press.'},
+    {icon: 'kanban', title: 'Applications as a list', link: '#/applications',
+      text: 'Each one shows its stage and next step. The board takes over from five active.'},
+  ]},
   {version: '0.3.19', date: '2026-11-11', items: [
     {icon: 'check', title: 'Did you apply?', link: '#/applications',
       text: 'After you open a posting, Foothold asks once you are back and records your answer.'},
