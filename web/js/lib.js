@@ -139,6 +139,14 @@ export function daysUntil(iso, today = new Date()) {
   return Math.round((d - start) / 864e5);
 }
 
+/** A deadline this many days away or nearer is shown as a warning. */
+export const SOON_DAYS = 7;
+
+/** Days left, in words, for beside a date. */
+export function daysWords(n) {
+  return n < 0 ? 'closed' : n === 0 ? 'today' : n === 1 ? 'tomorrow' : `${n} days`;
+}
+
 export function deadlineText(iso, today = new Date()) {
   const n = daysUntil(iso, today);
   if (n === null) return '';

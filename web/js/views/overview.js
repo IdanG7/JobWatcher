@@ -1,7 +1,7 @@
 // Today: what deserves attention now. The date and a sentence of counts, the best role on the short
 // list in the one raised panel, then the rest of the list beside what needs action.
 import {get} from '../api.js';
-import {age, compact, daysUntil, esc, fmtDay, parseDay, toEpochMs} from '../lib.js';
+import {SOON_DAYS, age, compact, daysUntil, daysWords, esc, fmtDay, parseDay, toEpochMs} from '../lib.js';
 import {STATUS_LABELS, categoryText, emptyState, errorState, fitMeter, fitWord, icon, locationText, logo, skeletonRows} from '../ui.js';
 import {logTouchpoint, markVisited} from '../forms.js';
 import {boardText} from '../fields.js';
@@ -10,7 +10,6 @@ import {quickAction} from '../detail.js';
 
 const todayText = () => new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric'});
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const SOON_DAYS = 7;
 
 export async function render(root, ctx) {
   root.innerHTML = `<div class="today">
@@ -77,10 +76,6 @@ function agoWords(value, now) {
   if (hours < 24) { const h = Math.floor(hours); return `${h} ${plural(h, 'hour')} ago`; }
   const days = Math.floor(hours / 24);
   return days < 30 ? `${days} ${plural(days, 'day')} ago` : age(value, now);
-}
-
-function daysWords(n) {
-  return n < 0 ? 'closed' : n === 0 ? 'today' : n === 1 ? 'tomorrow' : `${n} days`;
 }
 
 /** Why this role, as tokens: the reasons with a check, a concern with a warning mark. */
