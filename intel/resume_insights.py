@@ -152,7 +152,8 @@ COMPANY_SIGNAL_FACTOR = 0.5    # the employer's business ("Properties", "Capital
 
 
 def strip_city(text: str) -> str:
-    return _CITY_SUFFIX.sub("", text).strip()
+    # "Northwind Software, Vancouver, BC": the comma before the city goes with it
+    return _CITY_SUFFIX.sub("", text).strip().rstrip(" ,")
 
 
 def experience_entries(sections: dict[str, list[str]], wrapped: bool = True) -> list[dict]:
