@@ -2930,3 +2930,106 @@ table.data.opp-table .actions { width: 68px; }
 .fit-reasons li { font-size: 14.5px; }
 .drawer-body .kv { font-size: 14px; }
 .drawer .breakdown { border-radius: 10px; }
+
+/* ---------------------------------------------------------------- Setup */
+.welcome { max-width: 760px; font-size: 15px; }
+.welcome .welcome-top { justify-content: flex-start; padding: 22px 0 18px; }
+.welcome .welcome-brand strong { font-weight: 600; font-stretch: normal; }
+.welcome-count { margin-left: auto; font: 400 12px/1 var(--mono); color: var(--text-3); }
+.welcome .welcome-top .set-link { font-size: 13.5px; color: var(--text-2); }
+.welcome-progress { height: 2px; border-radius: 0; background: var(--border); }
+.welcome-progress i { background: var(--pos); border-radius: 0; }
+.welcome-body { gap: 10px; padding: 56px 0 40px; }
+.welcome-body > h1 { font-size: 32px; line-height: 1.15; font-weight: 600; font-stretch: normal; letter-spacing: -.025em; }
+.welcome-body > .sub { margin: 0; max-width: 58ch; font-size: 15px; line-height: 1.6; }
+.welcome-content { gap: 36px; margin-top: 30px; }
+.welcome-q { gap: 14px; }
+.welcome-q h2 { font-size: 15px; font-weight: 600; }
+.welcome .fine { font-size: 13.5px; }
+.welcome-q .fine { margin-top: -8px; }
+.welcome .btn { height: 40px; padding: 0 16px; font-size: 15px; font-weight: 500; }
+.welcome .btn.ghost { padding: 0 12px; }
+.welcome .field > span { font-size: 13.5px; font-weight: 500; }
+.welcome .input, .welcome .select { height: 40px; font-size: 15px; }
+.welcome textarea.input { height: auto; font-size: 13.5px; }
+
+/* The resume step: one place to put the file, and one button. */
+.welcome-resume { display: grid; gap: 14px; }
+.drop {
+  display: grid; justify-items: center; gap: 6px; padding: 48px 24px 44px; text-align: center;
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius-lg); background: var(--surface);
+  transition: border-color 120ms, background-color 120ms;
+}
+.drop.over { border-style: solid; border-color: var(--pos); background: var(--pos-soft); }
+.drop-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border: 1px solid var(--border); border-radius: 50%; color: var(--text-2); transition: color 120ms, border-color 120ms, transform 200ms var(--ease-out); }
+.drop.over .drop-icon { color: var(--pos); border-color: var(--pos); transform: translateY(-3px); }
+.drop-title { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.015em; }
+.drop-sub { margin: 0 0 14px; font: 400 12px/1.5 var(--mono); color: var(--text-3); }
+.drop .resume-status { margin: 10px 0 0; font-size: 13.5px; }
+.drop-note { margin: 0; font-size: 13.5px; color: var(--text-3); }
+.welcome .disclose > summary { font-size: 13.5px; font-weight: 500; cursor: pointer; }
+.welcome .disclose .form-actions { margin-top: 10px; }
+.welcome .disclose .btn { height: 34px; font-size: 13.5px; }
+
+/* What was read: the step's one raised surface. */
+.welcome-read { display: grid; gap: 18px; padding: 24px 28px 26px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-raised); font-size: 15px; transition: border-color 120ms; }
+.welcome-read.over { border-color: var(--pos); }
+.read-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.read-head h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.015em; overflow-wrap: anywhere; }
+.welcome .read-head .btn { height: 34px; margin-right: -12px; font-size: 13.5px; }
+.welcome-read .facts { grid-template-columns: 140px minmax(0, 1fr); gap: 0; }
+.welcome-read .facts dt, .welcome-read .facts dd { padding: 10px 0; border-top: 1px solid var(--border); }
+.welcome-read .facts dt { padding-right: 20px; color: var(--text-3); font-size: 13.5px; line-height: 1.7; }
+.welcome-read > .muted { margin: 0; font-size: 13.5px; }
+.welcome-read .reasons { font-size: 13.5px; }
+.welcome-read .resume-status { margin: 0; font-size: 13.5px; }
+
+/* Choices: flat tiles; a chosen one inverts its mark, not the whole tile. */
+.welcome .choices { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.welcome .choice { gap: 12px; padding: 14px 16px; border-radius: var(--radius); }
+.welcome .choice:has(input:checked) { background: var(--surface); }
+.welcome .choice-mark { margin-top: 2px; }
+.welcome .choice-text { gap: 3px; }
+.welcome .choice-text b { font-size: 15px; font-weight: 500; }
+.welcome .choice-text small { font-size: 13.5px; line-height: 1.45; }
+.welcome .choice.big { align-items: flex-start; }
+.welcome .choice-icon { width: 22px; height: 22px; margin-top: 1px; border-radius: 0; background: none; color: var(--text-3); }
+.welcome .choice.big:has(input:checked) .choice-icon { background: none; color: var(--pos); }
+.welcome .choice-icon svg { width: 20px; height: 20px; }
+.welcome .set-link { font-size: 13.5px; }
+.welcome .picks { gap: 8px; }
+.welcome .pick { min-height: 36px; padding: 6px 14px; border-radius: var(--radius); font-size: 13.5px; }
+.welcome .pick:has(input:checked) { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+.welcome .pick small { font-size: 12px; }
+.welcome .pick:has(input:checked) small { color: inherit; opacity: .7; }
+.welcome-seg { justify-self: start; }
+.welcome .seg-option span { height: 34px; padding: 0 16px; font-size: 13.5px; }
+.welcome .cycle-row { grid-template-columns: 56px minmax(0, 1fr); }
+.welcome .cycle-year { font-size: 13.5px; }
+.welcome-grad { grid-template-columns: minmax(0, 240px) 130px; margin-top: 4px; }
+.welcome-switch { max-width: none; padding: 18px 0 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: none; }
+.welcome-switch b { font-size: 15px; font-weight: 500; }
+.welcome-switch small { font-size: 13.5px; }
+
+/* The last step: a ruled summary, no box. */
+.welcome-summary { border: 0; border-top: 1px solid var(--border); border-radius: 0; background: none; }
+.welcome-summary > div { grid-template-columns: 170px minmax(0, 1fr); gap: 20px; padding: 13px 0; }
+.welcome-summary > div + div { border-top: 1px solid var(--border); }
+.welcome-summary > div:last-child { border-bottom: 1px solid var(--border); }
+.welcome-summary dt { font-size: 13.5px; }
+.welcome-summary dd { font-size: 15px; font-weight: 500; }
+
+.welcome .welcome-foot { padding: 16px 0 22px; border-top: 1px solid var(--border); background: var(--bg); }
+.welcome .welcome-hint { font-size: 13.5px; }
+.welcome .welcome-skip { min-height: 40px; color: var(--text-2); font-size: 15px; text-decoration-color: var(--border-strong); }
+.welcome .welcome-skip:focus-visible, .welcome-top .set-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+@media (max-width: 640px) {
+  .welcome-body { padding: 32px 0 28px; }
+  .welcome-body > h1 { font-size: 28px; }
+  .drop { padding: 36px 16px 32px; }
+  .welcome-read { padding: 20px 18px 22px; }
+  .welcome-read .facts { grid-template-columns: 104px minmax(0, 1fr); }
+  .welcome-summary > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .welcome-actions .btn { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) { .drop, .drop-icon, .welcome-read { transition: none; } .drop.over .drop-icon { transform: none; } }

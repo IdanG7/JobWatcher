@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {apiParams} from '../js/views/opportunities.js';
-import {resumeAnswers, setupAnswers, setupProfile} from '../js/views/welcome.js';
+import {footHtml, resumeAnswers, resumeStep, setupAnswers, setupProfile} from '../js/views/welcome.js';
 
 const FINANCE = ['investment_banking', 'markets', 'private_markets', 'public_markets'];
 const FAMILIES = ['software', 'data_ml', 'healthcare'];
@@ -162,4 +162,46 @@ test('an old saved view still sends every filter it was saved with', () => {
   assert.deepEqual(apiParams({...view, saved: '4'}, ['finance', 'software']), {...view, family: 'finance,software'});
   // Saved with interests: those win over whatever the profile says now.
   assert.deepEqual(apiParams({...view, family: 'finance', saved: '4'}, ['software']), {...view, family: 'finance'});
+});
+
+const primaries = html => (html.match(/class="btn primary[^"]*"/g) || []).length;
+
+test('before a resume is read, choosing a file is the one primary action and skipping is a quiet link', () => {
+  const view = resumeStep({resume: null, resumeNote: ''});
+  assert.match(view.body, /class="drop"[^>]*data-setup-drop/);
+  assert.match(view.body, /<button type="button" class="btn primary" data-act="choose-file">Choose a file<\/button>/);
+  assert.match(view.body, /<input[^>]*type="file"[^>]*data-setup-file/);
+  assert.equal(primaries(view.body), 1);
+  assert.match(view.body, /Read on this computer only/);
+  const foot = footHtml(view, {step: 0});
+  assert.equal(primaries(foot), 0);
+  assert.match(foot, /class="set-link welcome-skip" data-act="next">Continue without a resume</);
+});
+
+test('once a resume is read, Continue is the primary and the step shows what was read', () => {
+  const resume = {file: true, name: 'avery-quill.pdf', preview: {parsed: {education: {school: 'Northfield College'}}}};
+  const view = resumeStep({resume, resumeNote: ''});
+  assert.equal(primaries(view.body), 0);
+  assert.match(view.body, /What Foothold read from avery-quill\.pdf/);
+  assert.match(view.body, /Northfield College/);
+  assert.match(view.body, /data-act="choose-file">Use a different file</);
+  const foot = footHtml(view, {step: 0});
+  assert.equal(primaries(foot), 1);
+  assert.match(foot, /class="btn primary" data-act="next">Continue</);
+});
+
+test('a resume that could not be read says why, as an alert, and the drop zone stays', () => {
+  const view = resumeStep({resume: null, resumeNote: 'Choose a file up to 5 MB.', resumeError: true});
+  assert.match(view.body, /role="alert"[^>]*>Choose a file up to 5 MB\.</);
+  assert.match(view.body, /data-setup-drop/);
+});
+
+test('the last step keeps its two ways to save, and a step that is not ready disables Continue', () => {
+  const last = footHtml({ready: true, last: true}, {step: 5, canAddResume: true});
+  assert.match(last, /data-then="resume">Save and add my resume</);
+  assert.equal(primaries(last), 1);
+  const waiting = footHtml({ready: false, hint: 'Pick at least one field'}, {step: 1});
+  assert.match(waiting, /data-act="next" disabled>Continue</);
+  assert.match(waiting, /Pick at least one field/);
+  assert.match(waiting, /data-act="back"/);
 });
