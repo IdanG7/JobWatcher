@@ -25,10 +25,12 @@ Env: TELEGRAM_BOT_TOKEN, HEALTHCHECK_URL (optional).
 import argparse
 import hashlib
 import html
+import ipaddress
 import json
 import os
 import random
 import re
+import socket
 import sqlite3
 import sys
 import threading
@@ -3639,6 +3641,44 @@ def _page_html(r):
         return raw.decode("utf-8", "replace")
 
 
+def _host_ips(host):
+    """The addresses a host name leads to; none when it can't be looked up (the fetch then fails by itself)."""
+    try:
+        return {info[4][0] for info in socket.getaddrinfo(host, None)}
+    except (OSError, UnicodeError):
+        return set()
+
+
+def _public_url(url):
+    """The link, when it is a web page on the public internet. Listings come from community lists, and a link
+    to this machine or its network must not be fetched. (A name that changes where it leads between this look-up
+    and the fetch is not caught.)"""
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower().rstrip(".")
+    if parts.scheme not in ("http", "https") or not host:
+        raise ValueError("the posting's link is not a web address")
+    try:
+        ips = {str(ipaddress.ip_address(host))}
+    except ValueError:
+        if host == "localhost" or "." not in host or host.endswith((".localhost", ".local", ".internal", ".lan")):
+            raise ValueError("the posting's link leads to a private address") from None
+        ips = _host_ips(host)
+    for ip in ips:
+        try:
+            public = ipaddress.ip_address(ip.split("%")[0]).is_global
+        except ValueError:
+            public = False
+        if not public:
+            raise ValueError("the posting's link leads to a private address")
+    return url
+
+
+def _refuse_private_redirect(r, *args, **kwargs):
+    """A requests response hook: each hop of a redirect is checked before it is followed."""
+    if r.is_redirect:
+        _public_url(urljoin(r.url, r.headers.get("location", "")))
+
+
 def detail_page(url):
     """A posting's description from its link: through its ATS's API when the link
     (after redirects) is one, else the page's JobPosting data or main text."""
@@ -3646,8 +3686,8 @@ def detail_page(url):
     api = _posting_api(url)
     if not api:
         _not_linkedin(url)
-        with requests.get(_page_url(url), headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
-                          timeout=TIMEOUT, stream=True) as r:
+        with requests.get(_public_url(_page_url(url)), headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"},
+                          timeout=TIMEOUT, stream=True, hooks={"response": _refuse_private_redirect}) as r:
             r.raise_for_status()
             api = _posting_api(r.url)
             if not api:
@@ -4157,7 +4197,9 @@ def _post_with_retry(fn, what):
             return True
         except Exception as e:
             if attempt == SEND_RETRIES - 1:
-                log(f"! send failed ({what}): {e}")
+                # never the error's own text: requests puts the address in it, and the address is the secret
+                status = getattr(getattr(e, "response", None), "status_code", None)
+                log(f"! send failed ({what}): {type(e).__name__}{f' {status}' if status else ''}")
                 return False
             time.sleep(2 ** attempt)
     return False
@@ -5253,11 +5295,16 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                 mine.extend((board, j) for j in jobs if sub["filt"].ok(j))
         if mine:
             mine.sort(key=lambda t: (t[1].get("company", ""), t[1]["title"]))
-            if sub["alert_mode"] == "fit":
-                sent = deliver_fit(sub, mine, intel_rows, con, config, store.profile)
-            else:
-                deliver(sub, mine, con)
-                sent = len(mine)
+            try:
+                if sub["alert_mode"] == "fit":
+                    sent = deliver_fit(sub, mine, intel_rows, con, config, store.profile)
+                else:
+                    deliver(sub, mine, con)
+                    sent = len(mine)
+            except Exception as e:
+                # the poll goes on: these roles are still recorded, and the rest of the cycle still runs
+                log(f"! alerts for {sub['name']} failed: {type(e).__name__}")
+                continue
             delivered += sent
             alerted_jobs.update(id(j) for _, j in mine)
             log(f"  -> {sub['name']}: {sent} job(s)")
@@ -5273,7 +5320,10 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
                          j["title"], j["url"], j.get("location") or "",
                          j.get("salary") or ""))
 
-    flush_feeds(config, con, subs)
+    try:
+        flush_feeds(config, con, subs)
+    except Exception as e:
+        log(f"! digest failed: {type(e).__name__}")
 
     # ---- backlog indexing: alerts only need the new postings above, so older
     # unindexed postings are processed after alerts instead of delaying them.
