@@ -10,6 +10,14 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.19', date: '2026-11-11', items: [
+    {icon: 'check', title: 'Did you apply?', link: '#/applications',
+      text: 'After you open a posting, Foothold asks once you are back and records your answer.'},
+    {icon: 'clock', title: 'A follow-up when you apply', link: '#/calendar',
+      text: 'Answering “I applied” sets a reminder to check for a reply in two weeks.'},
+    {icon: 'bell', title: 'Clearer Discord alerts', link: '#/settings?tab=alerts',
+      text: 'Cards name the role on every board and are signed Foothold, not jobwatch.'},
+  ]},
   {version: '0.3.18', date: '2026-11-11', items: [
     {icon: 'bell', title: 'Alerts as Windows notifications', link: '#/settings?tab=alerts',
       text: 'New short-list roles and the morning summary now show on this PC. No Discord needed.'},
