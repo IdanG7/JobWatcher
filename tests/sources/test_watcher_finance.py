@@ -172,6 +172,37 @@ class FitAlertTests(unittest.TestCase):
         self.assertEqual("high", watcher.alert_tier(sub, self.intel(82), {"target_cycles": ["summer_2027"]},
                                                     set()))
 
+    def test_cards_say_foothold_and_name_the_role_on_every_board(self):
+        job = {"id": "7", "_board": "northwind", "title": "Backend Engineer Intern", "location": "Toronto, ON",
+               "url": "https://x/7"}
+        software = self.intel(91, finance=False, company="Northwind")
+        software["facts"]["classification"] = {"category_label": "Software", "subcategory_label": "Backend",
+                                               "is_finance": False}
+        card = watcher._finance_card(job, software, "Northwind", "urgent", "http://127.0.0.1:5550")
+        self.assertIn("Software — Backend", card["description"])
+        self.assertNotIn("🏦", card["description"])                 # the bank mark is for finance roles
+        self.assertIn("🏦 Investment Banking — M&A", watcher._finance_card(
+            job, self.intel(91), "RBC", "high", "")["description"])
+        self.assertEqual("Foothold", card["footer"]["text"])
+        contents = []
+        with patch("watcher._post_with_retry", side_effect=lambda send, what: send() or True), \
+                patch("watcher.requests.post", side_effect=lambda url, json, timeout: contents.append(json.get("content", ""))):
+            watcher.send_finance_alerts("hook", [card], "urgent")
+            watcher.send_finance_alerts("hook", [card, card, card], "high")
+        self.assertEqual(["🚨 New top match", "⭐ 3 new strong matches"], [c.splitlines()[0] for c in contents])
+        self.assertFalse(any("finance" in c.lower() or "jobwatch" in c.lower() for c in contents))
+
+    def test_no_message_is_signed_jobwatch(self):
+        embeds = []
+        with patch("watcher._post_with_retry", side_effect=lambda send, what: send() or True), \
+                patch("watcher.requests.post", side_effect=lambda url, json, timeout: embeds.extend(json["embeds"])):
+            job = {"id": "1", "title": "Analyst Intern", "location": "Toronto, ON", "url": "https://x/1", "company": "RBC"}
+            watcher.send_discord_ping("hook", [("rbc", job)], "internship")
+            watcher.send_discord_feed("hook", "🛠️ {n} new internship{s}", [("", job)], 0x5865F2)
+            watcher.send_discord_note("hook", "A note", "Text", 0x3E63DD)
+        self.assertEqual(3, len(embeds))
+        self.assertTrue(all(e["footer"]["text"].startswith("Foothold") for e in embeds), [e["footer"] for e in embeds])
+
 
 class CycleIntegrationTests(unittest.TestCase):
     def test_cycle_tracks_changes_closures_and_intelligence(self):

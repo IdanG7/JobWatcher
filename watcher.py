@@ -4301,7 +4301,7 @@ def send_discord_ping(webhook, jobs, kind, mention="", omitted=0):
             "description": "\n".join(parts),
             "color": color,
             "timestamp": ts,
-            "footer": {"text": "jobwatch"},
+            "footer": {"text": "Foothold"},
         })
     ok = True
     for i in range(0, len(embeds), 10):     # 10 embeds max per message
@@ -4380,7 +4380,7 @@ def send_discord_feed(webhook, label, jobs, color, watch=None):
             title += f"  ·  {i + 1}/{len(descs)}"
         payload = {"embeds": [{"title": title, "description": desc,
                                "color": color, "timestamp": ts,
-                               "footer": {"text": "jobwatch · quiet digest"}}],
+                               "footer": {"text": "Foothold · quiet digest"}}],
                    "flags": 4096}
         ok &= _post_with_retry(
             lambda p=payload: requests.post(webhook, json=p, timeout=10),
@@ -4391,7 +4391,7 @@ def send_discord_feed(webhook, label, jobs, color, watch=None):
 def send_discord_note(webhook, title, desc, color):
     """Single small embed for digests / ops notices."""
     payload = {"embeds": [{"title": title, "description": desc[:3900],
-                           "color": color, "footer": {"text": "jobwatch"}}]}
+                           "color": color, "footer": {"text": "Foothold"}}]}
     return _post_with_retry(
         lambda: requests.post(webhook, json=payload, timeout=10), "discord")
 
@@ -4564,8 +4564,8 @@ def _finance_card(job, intel, company, tier, dashboard_url):
     loc = _short_loc(job.get("location") or "")
     if loc:
         lines.append(f"📍 {loc}")
-    if role and cls.get("is_finance"):
-        lines.append(f"🏦 {role}")
+    if role:
+        lines.append(f"{'🏦' if cls.get('is_finance') else '🧭'} {role}")
     if cyc.get("label"):
         lines.append(f"🎓 {cyc['label']}")
     lines.append(f"⭐ Fit: {intel['fit']}/100")
@@ -4599,14 +4599,14 @@ def _finance_card(job, intel, company, tier, dashboard_url):
         "description": "\n".join(lines)[:3900],
         "color": color,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "footer": {"text": f"jobwatch · {tier} tier"},
+        "footer": {"text": "Foothold"},
     }
 
 
 def send_finance_alerts(webhook, cards, tier, mention=""):
-    header = {"urgent": "🚨 HIGH-PRIORITY FINANCE ROLE", "high": "⭐ HIGH-FIT FINANCE ROLE"}[tier]
-    if len(cards) > 1:
-        header += f"S ({len(cards)})"
+    # every board's roles come through here, not only Finance's
+    mark, kind = {"urgent": ("🚨", "top match"), "high": ("⭐", "strong match")}[tier]
+    header = f"{mark} New {kind}" if len(cards) == 1 else f"{mark} {len(cards)} new {kind}es"
     lines = [header] + [f"• {c['title']}"[:170] for c in cards[:5]]
     content = "\n".join(lines)
     if mention and tier == "urgent":
@@ -5398,7 +5398,7 @@ def cycle(config, con, progress=None, sources=None, ranking=None):
         for sub in subs:
             if sub["ops"] and sub["discord"]:
                 send_discord_note(
-                    sub["discord"], "⚠️ jobwatch: board trouble",
+                    sub["discord"], "⚠️ Foothold: source trouble",
                     f"{len(broke)} board(s) failing 10 polls in a row: {detail}\n"
                     f"Check the token / run `python watcher.py --verify`.",
                     0xE74C3C)
@@ -5568,7 +5568,7 @@ def cmd_test(config, who):
                  f"env: secret, export it first")
     if sub["discord"]:
         send_discord_note(
-            sub["discord"], "🧪 jobwatch test — every delivery scenario",
+            sub["discord"], "🧪 Foothold test — every delivery scenario",
             "How this works, in one line: **high-signal watchlist roles "
             "buzz you; every match lands quietly in the feeds.**"
             "\n\nThe next messages demo it with fake jobs:\n\n"
