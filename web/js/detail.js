@@ -20,6 +20,8 @@ import {applyAnswer, askHtml, clearOpened, noteOpened, noteReturned, readOpened,
 let current = null;   // {key, job, el}
 let ctxRef = null;
 let tab = 'role';     // the tab showing; a different posting opens on Role again
+// The Apply tab's sections keep what the person typed and loaded across a refresh of the panel.
+const DOC_ROOTS = ['[data-cover-root]', '[data-tweaks-root]', '[data-merge-root]'];
 
 export function drawerOpen() { return !!current; }
 export function drawerJob() { return current?.job || null; }
@@ -118,7 +120,7 @@ export async function reloadDrawer() {
   if (current?.key !== key) return;
   const drafts = {};
   el.querySelectorAll('[data-app-form] [name]').forEach(f => { if (f.value !== f.defaultValue) drafts[f.name] = f.value; });
-  const docs = ['[data-cover-root]', '[data-merge-root]'].map(sel => el.querySelector(sel));
+  const docs = DOC_ROOTS.map(sel => el.querySelector(sel));
   const body = el.querySelector('.drawer-body');
   const scroll = body?.scrollTop || 0;
   const focused = document.activeElement && el.contains(document.activeElement) ? document.activeElement : null;
@@ -217,8 +219,7 @@ function render(el, job, {docs = null} = {}) {
 
   bind(el, job);
   if (docs) {
-    el.querySelector('[data-cover-root]').replaceWith(docs[0]);
-    el.querySelector('[data-merge-root]').replaceWith(docs[1]);
+    DOC_ROOTS.forEach((sel, i) => el.querySelector(sel).replaceWith(docs[i]));
   } else {
     mountDocuments(el, job);
   }

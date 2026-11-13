@@ -38,7 +38,7 @@ from intel import FACTS_VERSION, load_knowledge, merge_profile, validate_profile
 from intel.profile import profile_version, prune_profile
 from intel.eligibility import KNOWN_LANGUAGES
 from intel.programs import program_windows
-from intel import cover_letter, hardware, letterhead, pdf_tools
+from intel import cover_letter, hardware, letterhead, pdf_tools, resume_check
 from intel.resume import MAX_BYTES, MAX_CHARS, ResumeError, extract_text, parse_resume, profile_from_resume, rejoin_runs
 from intel.sources import load_config, load_packs, pack_boards, polled_sources, profile_fields
 from intel_store import IntelStore, iso_epoch, load_profile, save_profile, utcnow, watched_companies
@@ -211,7 +211,8 @@ CACHE_READY_PAGES = 64       # the pages asked for most recently are recomputed 
 CACHE_PAGES = 2 * CACHE_READY_PAGES     # pages kept, with room so pages asked for on demand never push those out
 # Changes that leave every cached page as it was (opening a link, an update, a letter): nothing is recomputed.
 KEEPS_PAGES = re.compile(r"/api/(open|refresh|shutdown|background|whats-new/seen|update/.+|discord/test|letters/.+"
-                         r"|documents/merge|jobs/[^/]+/(cover-letter(/revise)?|recipient(/lookup)?))")
+                         r"|resume/reword|jobs/[^/]+/(cover-letter(/revise)?|recipient(/lookup)?|resume-tweaks))")
+# /api/documents/merge is not among them: a merged PDF can write the resume sent on an application.
 
 
 class _Computation:
@@ -1989,7 +1990,7 @@ class JobwatchService:
                 con.execute("DELETE FROM resume_files WHERE main=1")
                 if "text" not in payload and preview["filename"].lower().endswith(".pdf"):
                     con.execute("INSERT INTO resume_files(name, filename, data, main, added_at) VALUES (?,?,?,1,?)",
-                                (_file_name(preview["filename"]), preview["filename"],
+                                (_file_name(preview["filename"]) or "Resume", preview["filename"],
                                  base64.b64decode(payload["data"]), utcnow()))
             con.execute("DELETE FROM resume_matches")
             con.execute("UPDATE job_intel SET profile_version=NULL")
@@ -2014,6 +2015,61 @@ class JobwatchService:
             con.execute("DELETE FROM resume_files WHERE main=1")
         return {"ok": True}
 
+    def resume_check(self) -> dict:
+        """What a rule can see to improve in the saved resume (intel/resume_check.py): no model, no score."""
+        with self.db() as con:
+            text = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
+            parsed = con.execute("SELECT parsed FROM candidate_resume WHERE id=1").fetchone()
+            main = con.execute("SELECT data FROM resume_files WHERE main=1").fetchone()
+        if not text:
+            return {"available": False, "findings": []}
+        career = (json.loads(parsed[0]) if parsed else {}).get("career") or {}
+        pages = pdf_tools.page_count(bytes(main[0])) if main else None
+        return {"available": True, "pages": pages, "lines": resume_check.bullets(text[0]),
+                "findings": resume_check.check(text[0], bool(career.get("experienced")), pages)}
+
+    def _wording_setup(self) -> tuple[str, str]:
+        """(model, resume text) for rewording a resume line; says what is missing first."""
+        ollama = self._ollama(fresh=True)
+        if not ollama["running"]:
+            raise ApiError(cover_letter.NOT_RUNNING)
+        with self.db() as con:
+            resume = con.execute("SELECT v FROM kv WHERE k='resume_text'").fetchone()
+            model = self._cover_model(con, ollama["models"])
+        if not model:
+            raise ApiError("Download a writing model in Settings › Cover letters first.")
+        if not resume:
+            raise ApiError("Upload your resume in Settings first.")
+        return model, resume[0]
+
+    def reword_resume_line(self, payload: dict) -> dict:
+        """One line of the saved resume reworded by the local model (cover_letter.reword_line), toward a
+        posting's ``phrase`` when given. Only a line the resume has: nothing else is sent to be dressed up."""
+        line, phrase = payload.get("line"), payload.get("phrase") or ""
+        if not isinstance(line, str) or not line.strip() or len(line) > cover_letter.MAX_LINE:
+            raise ApiError("choose a line of your resume")
+        if not isinstance(phrase, str) or len(phrase) > 120:
+            raise ApiError("phrase must be a few words")
+        model, resume = self._wording_setup()
+        if " ".join(line.split()) not in " ".join(resume.replace("•", " ").split()):
+            raise ApiError("that line isn't in your saved resume")
+        try:
+            new = cover_letter.reword_line(model, line, phrase)
+        except cover_letter.CoverLetterError as exc:
+            raise ApiError(str(exc)) from exc
+        if not new:
+            raise ApiError("The model's rewording added something your resume doesn't say, so it isn't shown. "
+                           "Try again, or reword the line yourself.")
+        return {"line": new}
+
+    def resume_tweaks(self, key: str) -> dict:
+        """What this posting stresses most, and whether the resume says each in its words, in other words (with
+        the line that does) or not at all (cover_letter.tweak_items). The reading is the letter's, kept per posting."""
+        model, resume = self._wording_setup()
+        job = self.job_detail(key)
+        needs = self.posting_needs(key, job, resume, model)
+        return {"items": cover_letter.tweak_items(needs, resume), "posting": bool((job.get("description") or "").strip())}
+
     # Resumes kept as files (PDFs) to send: the main one, which the saved resume was read from, and others.
     @staticmethod
     def _resume_files(con) -> list[dict]:
@@ -2036,13 +2092,14 @@ class JobwatchService:
             if con.execute("SELECT COUNT(*) FROM resume_files").fetchone()[0] >= RESUME_FILES:
                 raise ApiError(f"Foothold keeps up to {RESUME_FILES} resumes; remove one first.")
             con.execute("INSERT INTO resume_files(name, filename, data, main, added_at) VALUES (?,?,?,0,?)",
-                        (_file_name(payload.get("name") or filename), filename, data, utcnow()))
+                        (_file_name(str(payload.get("name") or "")) or _file_name(filename) or "Resume",
+                         filename, data, utcnow()))
         return self.get_resume()
 
     def update_resume_file(self, file_id: int, payload: dict) -> dict:
         """Rename a kept resume, or make it the main one: read as an upload is, the old main kept as a file."""
         with self.db() as con:
-            row = con.execute("SELECT filename, data FROM resume_files WHERE id=?", (file_id,)).fetchone()
+            row = con.execute("SELECT filename, data, main FROM resume_files WHERE id=?", (file_id,)).fetchone()
             if not row:
                 raise ApiError("resume not found", HTTPStatus.NOT_FOUND)
             if "name" in payload:
@@ -2050,7 +2107,7 @@ class JobwatchService:
                 if not name:
                     raise ApiError("give the resume a name")
                 con.execute("UPDATE resume_files SET name=? WHERE id=?", (name, file_id))
-        if payload.get("main") is True:
+        if payload.get("main") is True and not row[2]:        # already main: nothing is read again
             return self.apply_resume({"filename": row[0], "data": base64.b64encode(bytes(row[1])).decode()}, file_id)
         return self.get_resume()
 
@@ -2064,6 +2121,8 @@ class JobwatchService:
         application made later, and written on one that exists unless the person wrote their own note there."""
         with self.db() as con:
             names = {f["id"]: f["name"] for f in self._resume_files(con)}
+            if file_id not in names or len(key) > 400:      # removed while the PDF was built
+                return
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("sent_resume:" + key, names[file_id]))
             con.execute(f"""UPDATE applications SET resume_version=? WHERE job_key=?
                             AND COALESCE(resume_version,'') IN ('',{','.join('?' * len(names))})""",
@@ -3097,6 +3156,9 @@ ROUTES = [
     ("POST", r"/api/resume", lambda s, m, q, b: s.apply_resume(b)),
     ("PATCH", r"/api/resume", lambda s, m, q, b: s.set_resume_enabled(b)),
     ("DELETE", r"/api/resume", lambda s, m, q, b: s.delete_resume()),
+    ("GET", r"/api/resume/check", lambda s, m, q, b: s.resume_check()),
+    ("POST", r"/api/resume/reword", lambda s, m, q, b: s.reword_resume_line(b)),
+    ("POST", r"/api/jobs/(?P<key>[^/]+)/resume-tweaks", lambda s, m, q, b: s.resume_tweaks(unquote(m["key"]))),
     ("POST", r"/api/resume/files", lambda s, m, q, b: s.add_resume_file(b)),
     ("PATCH", r"/api/resume/files/(?P<id>\d+)", lambda s, m, q, b: s.update_resume_file(int(m["id"]), b)),
     ("DELETE", r"/api/resume/files/(?P<id>\d+)", lambda s, m, q, b: s.delete_resume_file(int(m["id"]))),

@@ -197,6 +197,18 @@ Matching uses only structured facts. The resume's text is kept on this computer 
 cover letters, and a resume uploaded as a PDF is kept as a file so the posting panel's
 "One PDF to upload" can start with it; neither is exported or sent anywhere. Removing
 the saved resume removes both, stops matching and leaves applied profile fields editable.
+
+Settings › Resume also keeps up to five resumes as PDFs ("Resumes to send"): the main
+one, which Foothold reads, and others that are only sent. The one that went into a
+posting's PDF is written on that application. Under it, the resume check lists what a
+rule can see (bullets that open with a duty or have no number, length for your career
+stage, mixed date forms, missing contact details or headings), each with the lines it
+is about and no score. On a posting's Apply tab, "What to tweak in your resume" shows
+what the posting stresses most and whether your resume says it in those words, in
+other words, or not at all. "Suggest wording" asks the model on this computer to reword
+one line; a rewording that adds a number, a name or a claim the line doesn't have is
+refused. Suggestions are text to copy into your own file: Foothold doesn't edit it, and
+never suggests a line for work the resume doesn't show.
 Incomplete/unreadable replacements preserve the saved resume. PDF extraction is
 limited to 10 pages and 60,000 characters, with a 2 MB limit per decoded stream;
 scanned PDFs need pasted text. DOCX XML is bounded before decompression.

@@ -30,6 +30,17 @@ class PdfError(ValueError):
     """A message safe to show the user."""
 
 
+def page_count(data: bytes) -> int | None:
+    """How many pages a PDF has; None when it can't be opened."""
+    try:
+        import pypdf
+        logging.getLogger("pypdf").setLevel(logging.ERROR)
+        with _pdf_limits(pypdf):
+            return len(pypdf.PdfReader(io.BytesIO(data)).pages)
+    except Exception:           # pypdf raises many types on bad input
+        return None
+
+
 def merge_pdfs(files: list[tuple[str, bytes]]) -> bytes:
     """Concatenate PDFs in order; ``files`` is [(filename, data), ...]."""
     if not files:

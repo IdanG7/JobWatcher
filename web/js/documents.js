@@ -4,6 +4,7 @@
 import {api, download, enc, fileToBase64, get, put} from './api.js';
 import {buildHash, esc, fmtDay, parseHash} from './lib.js';
 import {confirmDialog, icon, toast} from './ui.js';
+import {mountTweaks} from './resume-tools.js';
 
 // The two sections of the posting panel's Apply tab.
 const head = (title, aside = '') => `<div class="section-head"><h3>${title}</h3>${aside}</div>`;
@@ -81,6 +82,7 @@ const stepSegments = w => stepFill(w).map(({cls}) => `<li class="${cls}"></li>`)
 
 export function documentsSections() {
   return `<section class="section" data-cover-root>${head('Cover letter')}<p class="section-empty">Loading…</p></section>
+    <section class="section" data-tweaks-root hidden></section>
     <section class="section" data-merge-root></section>`;
 }
 
@@ -216,6 +218,12 @@ export async function mountDocuments(el, job, deps = {}) {
 
   const redraw = () => { drawCover(); drawMerge(); };
   redraw();
+  // What to tweak in the resume for this posting: read by the same model, so offered once it is ready.
+  const tweaks = el.querySelector('[data-tweaks-root]');
+  if (tweaks && state.running && state.model && state.resume) {
+    tweaks.hidden = false;
+    mountTweaks(tweaks, job, deps);
+  }
 
   // While the letter is written only its progress changes, in place: what the user is typing stays put, and a
   // segment keeps filling where it is rather than start again.

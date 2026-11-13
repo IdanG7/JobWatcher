@@ -1193,6 +1193,39 @@ class CoverLetterServiceTests(unittest.TestCase):
         self.assertNotIn(("SWE", True), self.resumes())
         self.assertTrue(self.service.get_resume()["available"])
 
+    def test_the_resume_check_reads_the_saved_text_and_counts_the_kept_files_pages(self):
+        self.assertEqual({"available": False, "findings": []}, self.service.resume_check())
+        self.upload("Jordan Lee.pdf")
+        check = self.service.resume_check()
+        self.assertEqual((True, 1), (check["available"], check["pages"]))
+        self.assertIn("missing_contact", [f["key"] for f in check["findings"]])      # the fixture has no email
+
+    def test_a_resume_line_is_reworded_only_if_it_is_in_the_resume(self):
+        self.service.apply_resume({"text": RESUME})
+        line = "Built 13-week cash flow forecasts and liquidity reports for the CFO."
+        with self.ollama(running=False), self.assertRaisesRegex(ApiError, "isn't running"):
+            self.service.reword_resume_line({"line": line})
+        with self.ollama("qwen3:8b"):
+            for bad in ({}, {"line": "Ran the firm's trading desk."}, {"line": line, "phrase": 7}):
+                with self.assertRaises(ApiError):
+                    self.service.reword_resume_line(bad)
+            with mock.patch.object(cover_letter, "reword_line", return_value="Prepared forecasts.") as reword:
+                self.assertEqual({"line": "Prepared forecasts."},
+                                 self.service.reword_resume_line({"line": line, "phrase": "cash forecasting"}))
+            self.assertEqual(("qwen3:8b", line, "cash forecasting"), reword.call_args.args)
+            with mock.patch.object(cover_letter, "reword_line", return_value=""), \
+                    self.assertRaisesRegex(ApiError, "isn't shown"):
+                self.service.reword_resume_line({"line": line})
+
+    def test_what_to_tweak_for_a_posting_comes_from_its_key_requirements(self):
+        self.service.apply_resume({"text": RESUME})
+        needs = [{"phrase": "cash flow forecasts", "evidence": "Example Company, Treasury Analyst Intern: built forecasts"},
+                 {"phrase": "capital raising", "evidence": ""}]
+        with self.ollama("qwen3:8b"), mock.patch.object(cover_letter, "key_requirements", return_value=needs):
+            tweaks = self.service.resume_tweaks("rbc:1")
+        self.assertEqual([("cash flow forecasts", "in_words"), ("capital raising", "absent")],
+                         [(i["phrase"], i["state"]) for i in tweaks["items"]])
+
     def test_the_resume_sent_is_written_on_the_application(self):
         self.upload("Jordan Lee.pdf")
         main = self.service.get_resume()["files"][0]["id"]

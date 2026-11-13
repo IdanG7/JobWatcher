@@ -52,8 +52,12 @@ Resume matching uses schema v5 side tables: singleton `candidate_resume` stores
 structured matching facts, enabled state and the authoritative profile version;
 `resume_matches` stores a decision and explanation per job. Apply/profile/watchlist
 mutations update that version in the same transaction as the corresponding change.
-Schema v10 adds singleton `resume_file`: the resume as uploaded when it is a PDF, for the
-posting panel's merged PDF. A Word or pasted resume, or removing the resume, clears it.
+Schema v10 adds `resume_files`: resumes kept as PDFs for the posting panel's merged PDF.
+`main=1` is the file the saved resume was read from (a Word or pasted resume, or removing
+the resume, clears it); the others are only sent. `intel/resume_check.py` finds weaknesses
+by rule in the kept resume text; `cover_letter.reword_line` rewords one line with the local
+model and refuses additions in code; `cover_letter.tweak_items` sets a posting's key
+requirements against the resume.
 Scoring workers never advance it, so an older worker cannot revive stale matches.
 List/detail queries require matching profile versions and current facts versions.
 Resume indexing scores and commits batches, prioritizing existing finance postings;

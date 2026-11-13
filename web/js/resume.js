@@ -2,6 +2,7 @@
 import {del, get, patch, post} from './api.js';
 import {esc} from './lib.js';
 import {confirmDialog, prettyKey, toast} from './ui.js';
+import {mountCheck} from './resume-tools.js';
 
 export function resumeFacts(parsed = {}) {
   const edu = parsed.education || {};
@@ -89,11 +90,12 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
   if (!root.isConnected) return;
   root.innerHTML = `${head('<p>Your resume sets your target roles, skills and education from your experience. Review extracted facts before applying them.</p>')}
     <div data-resume-saved></div>
+    <div data-resume-check></div>
     <fieldset class="resume-inputs" data-resume-inputs>
       <legend class="sr-only">Add a resume</legend>
       <label class="field"><span>Upload resume <small>PDF, DOCX or TXT, up to 5 MB</small></span><input class="input" type="file" accept=".pdf,.docx,.txt,.md" data-resume-file></label>
       <details class="disclose"><summary>Or paste resume text</summary><label class="field"><span class="sr-only">Resume text</span><textarea class="input" rows="6" maxlength="60000" data-resume-text placeholder="Paste your resume here"></textarea></label></details>
-      <div class="form-actions"><button type="button" class="btn" data-resume-preview>Preview extracted facts</button><span class="fine">Parsed on this machine. No AI service or resume optimization.</span></div>
+      <div class="form-actions"><button type="button" class="btn" data-resume-preview>Preview extracted facts</button><span class="fine">Read on this computer. Nothing is sent anywhere.</span></div>
     </fieldset>
     <div class="resume-status" role="status" aria-live="polite" data-resume-status></div>
     <div class="resume-review" data-resume-result hidden></div>`;
@@ -149,6 +151,8 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
   file.addEventListener('change', () => {text.value = ''; discard();});
   text.addEventListener('input', () => {file.value = ''; discard();});
   drawSaved();
+  const checkRoot = $('[data-resume-check]');
+  if (checkRoot && saved.available) mountCheck(checkRoot, deps);
   root.addEventListener('click', async e => {
     const button = e.target.closest('button');
     if (!button || busy) return;

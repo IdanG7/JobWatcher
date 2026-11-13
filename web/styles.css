@@ -3467,6 +3467,32 @@ main { max-width: 1304px; }
 @media (hover: hover) and (pointer: fine) { .dr-tab:not([aria-selected="true"]):hover { color: var(--text); background: var(--hover); } }
 .doc-to + .field { margin-top: 14px; }
 
+/* ---------------------------------------------------------------- Resume tools: the check, what to tweak, one line reworded */
+.rt-check { margin-top: 28px; }
+.rt-check h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.rt-findings, .rt-lines, .rt-tweaks { list-style: none; margin: 0; padding: 0; }
+.rt-findings { margin-top: 14px; border-top: 1px solid var(--border); }
+.rt-finding { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.rt-finding > strong { font-size: 13.5px; font-weight: 600; }
+.rt-finding > p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--text-2); }
+.rt-clear { margin: 12px 0 0; font-size: 13.5px; color: var(--pos); }
+.rt-lines { margin-top: 8px; display: grid; gap: 6px; }
+.rt-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: start; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); }
+.rt-line q { quotes: none; font-size: 13.5px; line-height: 1.5; color: var(--text); overflow-wrap: anywhere; }
+.rt-new { grid-column: 1 / -1; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 13.5px; line-height: 1.5; color: var(--pos); }
+.rt-new[hidden] { display: none; }
+.rt-new.failed { color: var(--text-2); font-size: 12px; }
+.rt-new .btn { flex: none; }
+.rt-tweaks { display: grid; gap: 14px; }
+.rt-need { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; font-size: 13.5px; }
+.rt-need svg { align-self: center; flex: none; color: var(--text-3); }
+.rt-need strong { font-weight: 600; }
+.rt-need span { color: var(--text-3); font-size: 12px; }
+.rt-in_words .rt-need svg { color: var(--pos); }
+.rt-other_words .rt-need svg { color: var(--warn); }
+.rt-tweak .doc-note { margin-top: 6px; }
+.rt-check .disclose { margin-top: 14px; }
+
 /* ---------------------------------------------------------------- Settings: resumes kept to send */
 .resume-files { margin-top: 28px; }
 .resume-files h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
