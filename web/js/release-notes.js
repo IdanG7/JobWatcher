@@ -10,6 +10,16 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.21', date: '2026-11-13', items: [
+    {icon: 'kanban', title: 'Role, Apply and Track tabs', link: '#/opportunities',
+      text: 'A posting now has three tabs, so the letter and your PDF are one click away.'},
+    {icon: 'file', title: 'Resumes to send', link: '#/settings?tab=resume',
+      text: 'Keep up to five PDFs. The one in your application PDF is written on the application.'},
+    {icon: 'check', title: 'A resume check', link: '#/settings?tab=resume',
+      text: 'See weak bullets, length and date slips, each with the lines it is about. No score.'},
+    {icon: 'edit', title: 'What to tweak for a role',
+      text: 'The Apply tab shows what a posting stresses and rewords one line of yours at a time.'},
+  ]},
   {version: '0.3.20', date: '2026-11-12', items: [
     {icon: 'contrast', title: 'A new look', link: '#/settings?tab=appearance',
       text: 'Larger type, one green accent and calmer pages on every screen, in light and dark.'},
