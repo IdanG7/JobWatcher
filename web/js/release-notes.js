@@ -3,13 +3,20 @@
 //
 // Writing an entry at release time:
 // - `version` matches APP_VERSION in version.py. An entry for a version that isn't running yet
-//   never shows, so it can be written before version.py is bumped.
+//   never shows, so it can be written before version.py is bumped. A small fix between releases
+//   takes a fourth part (0.3.22.1); the updater, the installer and this card order it after 0.3.22.
 // - 2 to 4 items, most useful first. `title` names the change in a few words (at most 40
 //   characters); `text` says what it means for the user in a line (at most 90, two lines on the card).
 // - `icon` is a name from ICONS in web/js/ui.js. `link` is optional: a route such as
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.22.1', date: '2026-11-13', items: [
+    {icon: 'pin', title: 'Found addresses stay in the panel',
+      text: 'A long address now wraps instead of running past the edge of the posting panel.'},
+    {icon: 'refresh', title: 'Small updates between releases',
+      text: 'A fix like this one arrives as 0.3.22.1; the third number moves for new features.'},
+  ]},
   {version: '0.3.22', date: '2026-11-13', items: [
     {icon: 'pin', title: 'Find address finds more offices',
       text: 'It looks in the posting’s own city, then nearby, and leaves out branches and car parks.'},
