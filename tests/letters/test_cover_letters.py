@@ -1067,14 +1067,19 @@ class CoverLetterServiceTests(unittest.TestCase):
 
     def test_find_address_searches_the_company_in_the_postings_city(self):
         found = [{"name": "RBC", "lines": ["200 Bay Street", "Toronto, ON M5J 2J5"]}]
-        with mock.patch.object(letterhead, "find_address", return_value=found) as find, self.ollama():
+        with self.service.db() as con:
+            location = con.execute("SELECT location FROM jobs WHERE board='rbc' AND job_id='1'").fetchone()[0]
+        places = letterhead.search_places(location)
+        with mock.patch.object(letterhead, "find_addresses", return_value=(found, places[0])) as find, self.ollama():
             result = self.service.find_recipient("rbc:1")
-        self.assertEqual(found, result["results"])
-        company, place, agent = find.call_args.args
-        self.assertEqual("RBC", company)
-        self.assertIn("Toronto", place)
+        self.assertEqual((found, ""), (result["results"], result["wider"]))
+        company, asked, agent = find.call_args.args
+        self.assertEqual(("RBC", places), (company, asked))
+        self.assertIn("Toronto", asked[0])
         self.assertTrue(agent.startswith("Foothold/"))
-        with mock.patch.object(letterhead, "find_address", side_effect=LookupError("Couldn't reach OpenStreetMap.")), \
+        with mock.patch.object(letterhead, "find_addresses", return_value=(found, "ON")), self.ollama():
+            self.assertEqual("ON", self.service.find_recipient("rbc:1")["wider"])      # found outside the city: said
+        with mock.patch.object(letterhead, "find_addresses", side_effect=LookupError("Couldn't reach OpenStreetMap.")), \
                 self.ollama(), self.assertRaisesRegex(ApiError, "OpenStreetMap"):
             self.service.find_recipient("rbc:1")
 

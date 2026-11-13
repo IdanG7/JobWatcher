@@ -152,6 +152,19 @@ test('a found street address replaces the old one under the company', () => {
   assert.deepEqual(useAddress(['Hiring Manager', 'RBC', 'Toronto, ON'], 'RBC', street, 'Jane Smith'), ['Jane Smith', 'RBC', ...street]);
 });
 
+test('an address found outside the posting’s city says so', async () => {
+  const recipient = {lines: ['Hiring Manager', 'Qualcomm', 'Toronto, ON, CA'], source: 'city'};
+  const found = {query: 'Qualcomm, Toronto', wider: 'ON, CA',
+    results: [{name: 'Qualcomm Canada', lines: ['55 Commerce Valley Drive West', 'Markham, ON L3T 7M8'], approx: true}]};
+  const f = await fixture({letter: null, running: true, model: 'm', resume: true, references: 0, recipient},
+    {api: async () => found});
+  f.cover.fields['[data-cover-to]'] = {open: true};
+  await f.click(f.cover, {'[data-cover-act]': {dataset: {coverAct: 'find'}}});
+  assert.match(f.cover.innerHTML, /Qualcomm Canada/);
+  assert.match(f.cover.innerHTML, /Nothing for Qualcomm, Toronto\. These are in ON, CA/);
+  assert.match(f.cover.innerHTML, /Building at its map pin/);            // no street number on the map: say it is the nearest
+});
+
 test('the letter is addressed from the To line: find, use, then save', async () => {
   const recipient = {lines: ['Hiring Manager', 'RBC', 'Toronto, ON'], source: 'city'};
   const found = {query: 'RBC, Toronto', results: [{name: 'RBC Centre', lines: ['155 Wellington St W', 'Toronto, ON M5V 3H1']}]};

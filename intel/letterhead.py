@@ -7,7 +7,8 @@ city, else a street address in the posting's location, else the office and
 contact the local model read in the posting's text, else just the company and
 city. OpenStreetMap (no account or key) adds the postal code to a street found
 in the posting, and Find address lists the company's addresses there for the
-user to confirm; only the company, street and city are sent.
+user to confirm; only the company, street and city are sent, and the map position
+OpenStreetMap itself gave for an office it lists without a street number.
 """
 from __future__ import annotations
 
@@ -19,6 +20,8 @@ from datetime import date
 from .pdf_tools import CLOSING, DATE_LINE, GREETING, letter_parts
 
 NOMINATIM = "https://nominatim.openstreetmap.org/search"
+NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse"
+MAX_PINS = 2            # offices without a street number looked up by position, per search
 MAX_LINES, MAX_LINE = 6, 120
 _SALUTED = {"dear", "hiring", "manager", "managers", "team", "committee", "recruiter", "recruiting", "recruitment"}
 # '745 7th Avenue', '100 King St W'; not '3 Locations'
@@ -206,39 +209,98 @@ def address_lines(address: dict) -> list[str]:
     return [street, last] if last else [street]
 
 
-def _search(query: str, user_agent: str) -> list:
-    """Nominatim's places for ``query``, each search sent once. Raises LookupError with a message for the user."""
+def _ask(url: str, params: dict, user_agent: str):
+    """Nominatim's answer, one request a second. Raises LookupError with a message for the user."""
     global _last_lookup
-    if query in _answers:
-        return _answers[query]
     import requests
     with _lookups:
         time.sleep(max(0.0, 1 - (time.monotonic() - _last_lookup)))
         try:
-            response = requests.get(NOMINATIM, params={"q": query, "format": "jsonv2", "addressdetails": 1, "limit": 8},
+            response = requests.get(url, params={**params, "format": "jsonv2", "addressdetails": 1},
                                     headers={"User-Agent": user_agent}, timeout=10)
             if not response.ok:
                 raise ValueError(f"HTTP {response.status_code}")
-            items = response.json()
+            return response.json()
         except (requests.RequestException, ValueError) as exc:
             raise LookupError("Couldn't reach OpenStreetMap. Check the connection, or type the address.") from exc
         finally:
             _last_lookup = time.monotonic()
-    _answers[query] = items if isinstance(items, list) else []
+
+
+def _search(query: str, user_agent: str) -> list:
+    """Nominatim's places for ``query``, each search sent once. Raises LookupError with a message for the user."""
+    if query not in _answers:
+        items = _ask(NOMINATIM, {"q": query, "limit": 8}, user_agent)
+        _answers[query] = items if isinstance(items, list) else []
     return _answers[query]
 
 
+def _reverse(lat: str, lon: str, user_agent: str) -> dict:
+    """The address of the building at this position (a street address, not the place pinned there), each
+    position asked once. Raises LookupError."""
+    key = f"@{lat},{lon}"
+    if key not in _answers:
+        answer = _ask(NOMINATIM_REVERSE, {"lat": lat, "lon": lon, "zoom": 18, "layer": "address"}, user_agent)
+        _answers[key] = (answer.get("address") if isinstance(answer, dict) else None) or {}
+    return _answers[key]
+
+
+# A company's branches and what stands beside them: an address there is not where an application goes.
+_NOT_OFFICE_TYPES = {"bank", "atm", "parking", "parking_entrance", "mall", "bureau_de_change", "fuel", "post_box"}
+
+
+def _office_rank(item: dict) -> int:
+    """Places mapped as an office come before buildings named after the company."""
+    return 0 if item.get("category") == "office" else 1 if item.get("type") in ("office", "commercial") else 2
+
+
 def find_address(company: str, place: str, user_agent: str) -> list[dict]:
-    """Up to three street addresses OpenStreetMap has for the company in this place: [{'name', 'lines'}].
-    Raises LookupError with a message for the user."""
+    """Up to three street addresses OpenStreetMap has for the company in this place, offices first:
+    [{'name', 'lines'}]. Raises LookupError with a message for the user."""
     found: list[dict] = []
-    for item in _search(", ".join(part for part in (company.strip(), place.strip()) if part), user_agent):
-        if item.get("category") in _NOT_OFFICES:
+    pins = 0
+    items = _search(", ".join(part for part in (company.strip(), place.strip()) if part), user_agent)
+    for item in sorted(items, key=_office_rank):
+        if item.get("category") in _NOT_OFFICES or item.get("type") in _NOT_OFFICE_TYPES:
             continue
         lines = address_lines(item.get("address") or {})
+        approx = False
+        # An office mapped as a point in a tower often has no street number of its own ("Cisco Canada" on the
+        # PATH): the building at that point has one. It is the nearest building, so it is marked for checking.
+        if not lines and item.get("category") == "office" and item.get("lat") and item.get("lon") and pins < MAX_PINS:
+            pins += 1
+            try:
+                lines = address_lines(_reverse(item["lat"], item["lon"], user_agent))
+                approx = bool(lines)
+            except LookupError:
+                continue                # this one is skipped; the addresses already found are still shown
         if lines and all(lines != f["lines"] for f in found):
-            found.append({"name": item.get("name") or str(item.get("display_name", "")).split(",")[0], "lines": lines})
+            found.append({"name": item.get("name") or str(item.get("display_name", "")).split(",")[0], "lines": lines,
+                          **({"approx": True} if approx else {})})
     return found[:3]
+
+
+def search_places(location: str, city: str = "") -> list[str]:
+    """Where to look for a posting's office, nearest first: its own city, then the rest of its location (the
+    province or country: 'Toronto, ON, CA' is ['Toronto', 'ON, CA']). Many head offices sit in the next town
+    (a 'Toronto' role in Markham or Mississauga), and OpenStreetMap finds nothing when asked for the wrong one.
+    ``city`` (the list's city for the posting) is used only when the posting gives no location."""
+    first = re.split(r"[;|]", location or "")[0]              # "Toronto, ON; Vancouver, BC": the first place
+    parts = [re.sub(r"(?i)\bremote\b", "", part).strip(" -–—()/") for part in first.split(",")]
+    parts = [part for part in parts if part and not _STREET.match(part)]
+    if not parts:
+        return [city] if city else []
+    return [parts[0], ", ".join(parts[1:])] if len(parts) > 1 else parts
+
+
+def find_addresses(company: str, places: list[str], user_agent: str) -> tuple[list[dict], str]:
+    """find_address in each of ``places`` in turn until one has an address: (addresses, the place that had them),
+    or ([], ''). Raises LookupError with a message for the user."""
+    for place in places or [""]:
+        found = find_address(company, place, user_agent)
+        if found:
+            return found, place
+    return [], ""
 
 
 def locate(street: str, place: str, user_agent: str) -> dict:

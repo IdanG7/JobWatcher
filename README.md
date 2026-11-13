@@ -266,8 +266,13 @@ saved for that company and city, else the office the posting names, else just th
 company and city. The local model reads the posting for the office's street, floor
 and city, and for a named contact to write to. Foothold keeps only what the posting
 actually says, and OpenStreetMap adds the postal code. **Find address** shows that
-office first, then the street addresses OpenStreetMap has for the company; pick one,
-check it, and **Save address**. It's then used for every letter to that company in
+office first, then the street addresses OpenStreetMap has for the company: in the
+posting's own city, and when it has none there, in the rest of the posting's location
+(many "Toronto" roles sit in Markham or Mississauga), which the list then says. Bank
+branches, cash machines and car parks are left out. An office mapped without a street
+number is shown with the building at its map pin, marked for checking: the map often
+lacks a company's published address and never its suite. Pick one, check it, and
+**Save address**. It's then used for every letter to that company in
 that city. A LinkedIn copy of a job has no posting text of its own, so Foothold uses
 the text from the company's own copy of the same job when it has one.
 

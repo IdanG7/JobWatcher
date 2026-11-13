@@ -131,8 +131,9 @@ export async function mountDocuments(el, job, deps = {}) {
       <div class="doc-to-body">
         <label class="field"><span class="sr-only">Recipient lines</span>
           <textarea class="input" data-cover-recipient rows="4" maxlength="800">${esc(to)}</textarea></label>
-        ${found ? (found.results.length ? `<ul class="doc-found">${found.results.map((f, i) => `<li>${icon('pin', 14)}<div class="grow"><div class="t">${esc(f.name)}</div><div class="s">${esc([f.contact, ...f.lines].filter(Boolean).join(', '))}</div></div>
-            <button type="button" class="btn ghost xs" data-cover-act="use" data-found="${i}">Use</button></li>`).join('')}</ul>`
+        ${found ? (found.results.length ? `<ul class="doc-found">${found.results.map((f, i) => `<li>${icon('pin', 14)}<div class="grow"><div class="t">${esc(f.name)}</div><div class="s">${esc([f.contact, ...f.lines].filter(Boolean).join(', '))}${f.approx ? ' · Building at its map pin; check the street and add the suite' : ''}</div></div>
+            <button type="button" class="btn ghost xs" data-cover-act="use" data-found="${i}">Use</button></li>`).join('')}</ul>
+            ${found.wider ? `<p class="doc-note">Nothing for ${esc(found.query)}. These are in ${esc(found.wider)}: check it is the office this role is in.</p>` : ''}`
           : `<p class="doc-note">OpenStreetMap has no street address for ${esc(found.query)}. Type it in from the company’s website.</p>`) : ''}
         <div class="doc-actions">
           <button type="button" class="btn sm" data-cover-act="find"${busy ? ' disabled' : ''}${busy === 'find' ? ' aria-busy="true"' : ''}>${icon('search')}${busy === 'find' ? 'Reading the posting…' : 'Find address'}</button>

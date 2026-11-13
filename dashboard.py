@@ -2784,13 +2784,17 @@ class JobwatchService:
         details = self.read_posting_details(key, job, model)
         address = letterhead.details_address(job, details)
         results = [{"name": "In the posting", "lines": address, "contact": details.get("contact", "")}] if address else []
-        place = job.get("city_label") or job.get("location") or ""
+        # The posting's own city first (not the list's: a Markham role is listed under Toronto), then wider.
+        places = letterhead.search_places(job.get("location") or "", job.get("city_label") or "")
+        where = ""
         try:
-            results += letterhead.find_address(job.get("company") or "", place, self._osm_agent())
+            found, where = letterhead.find_addresses(job.get("company") or "", places, self._osm_agent())
+            results += found
         except LookupError as exc:
             if not results:
                 raise ApiError(str(exc), HTTPStatus.BAD_GATEWAY) from exc
-        return {"query": ", ".join(filter(None, [job.get("company"), place])), "results": results,
+        return {"query": ", ".join(filter(None, [job.get("company"), places[0] if places else ""])), "results": results,
+                "wider": where if places and where != places[0] else "",     # found outside the posting's city
                 "recipient": self.get_cover_letter(key, job)["recipient"]}
 
     def _letter_signature(self, letter: dict) -> dict | None:
