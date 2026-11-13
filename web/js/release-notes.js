@@ -10,6 +10,12 @@
 //   '#/settings?tab=letters' that opens where the change lives.
 // web/tests/whats-new.test.js checks these rules.
 export const RELEASE_NOTES = [
+  {version: '0.3.22', date: '2026-11-13', items: [
+    {icon: 'pin', title: 'Find address finds more offices',
+      text: 'It looks in the posting’s own city, then nearby, and leaves out branches and car parks.'},
+    {icon: 'building', title: 'Offices with no street number',
+      text: 'An office the map lists without a number shows the building at its pin, for you to check.'},
+  ]},
   {version: '0.3.21', date: '2026-11-13', items: [
     {icon: 'kanban', title: 'Role, Apply and Track tabs', link: '#/opportunities',
       text: 'A posting now has three tabs, so the letter and your PDF are one click away.'},
