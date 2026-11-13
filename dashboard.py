@@ -89,6 +89,13 @@ DISCORD_SUBSCRIBER = "desktop"
 RELEASES_API = "https://api.github.com/repos/IdanG7/JobWatcher/releases/latest"
 RELEASES_PAGE = "https://github.com/IdanG7/JobWatcher/releases/"
 COVER_LIBRARY = 10     # past cover letters kept to adapt from
+RESUME_FILES = 5       # resumes kept as PDFs to send
+
+
+def _file_name(filename: str) -> str:
+    """A kept resume's name: what the person typed, or the file's name without ".pdf"."""
+    name = " ".join(str(filename).split())
+    return (name[:-4] if name.lower().endswith(".pdf") else name)[:60].strip()
 LETTER_LIMIT = f"the letter must be text up to {cover_letter.MAX_LETTER:,} characters"
 # What a letter goes through, in order, as its panel shows while it is written; the past letter is put
 # right only when there is one.
@@ -1315,6 +1322,9 @@ class JobwatchService:
                 status = existing["status"]     # saving again never resets progress; PATCH changes status
             ts = utcnow()
             fields = self._application_fields(payload, existing)
+            if not fields["resume_version"] and "resume_version" not in payload:
+                sent = con.execute("SELECT v FROM kv WHERE k=?", ("sent_resume:" + key,)).fetchone()
+                fields["resume_version"] = sent[0] if sent else ""      # the resume in its PDF (_note_sent)
             if status == "applied" and not fields["applied_date"]:
                 fields["applied_date"] = _today().isoformat()
             board, _, job_id = key.partition(":")
@@ -1871,7 +1881,7 @@ class JobwatchService:
     def _resume_status(self, con, include_parsed=False) -> dict:
         row = con.execute("SELECT * FROM candidate_resume WHERE id=1").fetchone()
         if not row:
-            return {"available": False, "enabled": False, "pending": 0}
+            return {"available": False, "enabled": False, "pending": 0, "files": self._resume_files(con)}
         # How many postings the resume hasn't read yet, the same for every list, saved view and page until the
         # database changes: counted once per data version. The version is read before counting, so a commit
         # during the count only makes the next caller count again. Only once the response cache has opened
@@ -1884,7 +1894,7 @@ class JobwatchService:
             pending = self._count_pending(con, row["version"])
             self._resume_pending = (key, pending)
         result = {"available": True, "enabled": bool(row["enabled"]), "pending": pending, "version": row["version"],
-                  "filename": row["filename"], "updated_at": row["updated_at"],
+                  "filename": row["filename"], "updated_at": row["updated_at"], "files": self._resume_files(con),
                   "targets": self.profile(con).get("target_roles") or [],
                   # read by the parser before graded role targets; re-uploading improves matching
                   "outdated": "role_interests" not in json.loads(row["parsed"])}
@@ -1956,7 +1966,9 @@ class JobwatchService:
             result["text"] = text
         return result
 
-    def apply_resume(self, payload: dict) -> dict:
+    def apply_resume(self, payload: dict, file_id: int | None = None) -> dict:
+        """Read the resume and make it the one matching and letters use. ``file_id`` is a kept file being made
+        the main one (update_resume_file): no new file is stored."""
         preview = self.parse_resume(payload, keep_text=True)
         with self.db() as con:
             con.execute("BEGIN IMMEDIATE")
@@ -1970,11 +1982,15 @@ class JobwatchService:
             # full text for cover letters; parsed facts alone lose the wording
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('resume_text', ?)", (preview["text"],))
             # The file itself when it is a PDF, for "One PDF to upload". Anything else (Word, pasted text)
-            # clears it: an older file is never sent as the current resume.
-            con.execute("DELETE FROM resume_file")
-            if "text" not in payload and preview["filename"].lower().endswith(".pdf"):
-                con.execute("INSERT INTO resume_file VALUES (1,?,?)",
-                            (preview["filename"], base64.b64decode(payload["data"])))
+            # clears the main file: an older file is never sent as the current resume.
+            if file_id is not None:
+                con.execute("UPDATE resume_files SET main=(id=?)", (file_id,))
+            else:
+                con.execute("DELETE FROM resume_files WHERE main=1")
+                if "text" not in payload and preview["filename"].lower().endswith(".pdf"):
+                    con.execute("INSERT INTO resume_files(name, filename, data, main, added_at) VALUES (?,?,?,1,?)",
+                                (_file_name(preview["filename"]), preview["filename"],
+                                 base64.b64decode(payload["data"]), utcnow()))
             con.execute("DELETE FROM resume_matches")
             con.execute("UPDATE job_intel SET profile_version=NULL")
         self.kick()
@@ -1995,8 +2011,63 @@ class JobwatchService:
             con.execute("DELETE FROM candidate_resume")
             con.execute("DELETE FROM resume_matches")
             con.execute("DELETE FROM kv WHERE k='resume_text'")
-            con.execute("DELETE FROM resume_file")
+            con.execute("DELETE FROM resume_files WHERE main=1")
         return {"ok": True}
+
+    # Resumes kept as files (PDFs) to send: the main one, which the saved resume was read from, and others.
+    @staticmethod
+    def _resume_files(con) -> list[dict]:
+        return [{"id": r[0], "name": r[1], "filename": r[2], "main": bool(r[3])} for r in con.execute(
+            "SELECT id, name, filename, main FROM resume_files ORDER BY main DESC, id")]
+
+    def add_resume_file(self, payload: dict) -> dict:
+        """Keep another resume to send (a PDF). It is not read: matching and letters stay with the main one."""
+        filename, encoded = payload.get("filename"), payload.get("data")
+        if not isinstance(filename, str) or not filename.lower().endswith(".pdf") or len(filename) > 200:
+            raise ApiError("add a resume as a PDF")
+        if not isinstance(encoded, str) or len(encoded) > (MAX_BYTES + 2) // 3 * 4:
+            raise ApiError("add a PDF up to 5 MB")
+        try:
+            data = base64.b64decode(encoded, validate=True)
+            pdf_tools.merge_pdfs([(filename, data)])            # opens as a PDF
+        except (binascii.Error, ValueError) as exc:             # PdfError is a ValueError
+            raise ApiError(f"{filename} could not be read as a PDF") from exc
+        with self.db() as con:
+            if con.execute("SELECT COUNT(*) FROM resume_files").fetchone()[0] >= RESUME_FILES:
+                raise ApiError(f"Foothold keeps up to {RESUME_FILES} resumes; remove one first.")
+            con.execute("INSERT INTO resume_files(name, filename, data, main, added_at) VALUES (?,?,?,0,?)",
+                        (_file_name(payload.get("name") or filename), filename, data, utcnow()))
+        return self.get_resume()
+
+    def update_resume_file(self, file_id: int, payload: dict) -> dict:
+        """Rename a kept resume, or make it the main one: read as an upload is, the old main kept as a file."""
+        with self.db() as con:
+            row = con.execute("SELECT filename, data FROM resume_files WHERE id=?", (file_id,)).fetchone()
+            if not row:
+                raise ApiError("resume not found", HTTPStatus.NOT_FOUND)
+            if "name" in payload:
+                name = _file_name(payload["name"]) if isinstance(payload["name"], str) else ""
+                if not name:
+                    raise ApiError("give the resume a name")
+                con.execute("UPDATE resume_files SET name=? WHERE id=?", (name, file_id))
+        if payload.get("main") is True:
+            return self.apply_resume({"filename": row[0], "data": base64.b64encode(bytes(row[1])).decode()}, file_id)
+        return self.get_resume()
+
+    def delete_resume_file(self, file_id: int) -> dict:
+        with self.db() as con:
+            con.execute("DELETE FROM resume_files WHERE id=?", (file_id,))
+        return self.get_resume()
+
+    def _note_sent(self, key: str, file_id: int) -> None:
+        """The resume that went into this posting's PDF, for the application's "resume version": kept for an
+        application made later, and written on one that exists unless the person wrote their own note there."""
+        with self.db() as con:
+            names = {f["id"]: f["name"] for f in self._resume_files(con)}
+            con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES (?, ?)", ("sent_resume:" + key, names[file_id]))
+            con.execute(f"""UPDATE applications SET resume_version=? WHERE job_key=?
+                            AND COALESCE(resume_version,'') IN ('',{','.join('?' * len(names))})""",
+                        (names[file_id], key, *names.values()))
 
     def get_profile(self) -> dict:
         with self.db() as con:
@@ -2323,9 +2394,9 @@ class JobwatchService:
             model = self._cover_model(con, ollama["models"])
             references = len(self._cover_references(con))
             recipient = letterhead.recipient(job, self._recipients(con), self._details(con, key, job))
-            kept = con.execute("SELECT filename FROM resume_file WHERE id=1").fetchone()
+            resumes = [{k: f[k] for k in ("id", "name", "main")} for f in self._resume_files(con)]
         return {"letter": json.loads(row[0]) if row else None, "running": ollama["running"], "model": model,
-                "resume": has_resume, "resume_pdf": kept[0] if kept else None,
+                "resume": has_resume, "resumes": resumes,
                 "references": references, "recipient": recipient,
                 "writing": self._writing(key)}
 
@@ -2675,7 +2746,8 @@ class JobwatchService:
         """One PDF from uploaded PDFs and, optionally, this job's cover letter.
 
         ``files`` items are {"filename", "data" (base64)}, {"cover_letter": "<job key>"} or
-        {"resume": true} (the resume kept from its upload as a PDF).
+        {"resume": <id>} (a resume kept as a PDF). With ``job`` (a posting's key), the resume in the file is
+        noted as the one sent for it.
         """
         items = payload.get("files")
         if not isinstance(items, list) or not items:
@@ -2688,7 +2760,7 @@ class JobwatchService:
             self._merge_slots.release()
 
     def _merge_documents(self, payload: dict, items: list) -> FileResult:
-        files = []
+        files, sent = [], None
         for item in items[:pdf_tools.MAX_FILES + 1]:
             if not isinstance(item, dict):
                 raise ApiError("files must be objects")
@@ -2702,10 +2774,12 @@ class JobwatchService:
                 continue
             if item.get("resume"):
                 with self.db() as con:
-                    kept = con.execute("SELECT filename, data FROM resume_file WHERE id=1").fetchone()
+                    kept = con.execute("SELECT id, filename, data FROM resume_files WHERE id=?",
+                                       (item["resume"] if isinstance(item["resume"], int) else -1,)).fetchone()
                 if not kept:
                     raise ApiError("Upload your resume as a PDF in Settings first, or add the file here.")
-                files.append((kept[0], bytes(kept[1])))
+                files.append((kept[1], bytes(kept[2])))
+                sent = sent or kept[0]
                 continue
             name = str(item.get("filename") or "document.pdf")[:200]
             try:
@@ -2716,6 +2790,8 @@ class JobwatchService:
             merged = pdf_tools.merge_pdfs(files)
         except pdf_tools.PdfError as exc:
             raise ApiError(str(exc)) from exc
+        if sent and isinstance(payload.get("job"), str):
+            self._note_sent(payload["job"], sent)
         name = payload.get("name") if isinstance(payload.get("name"), str) else ""
         return FileResult(merged, pdf_tools.safe_filename(name[:150] or "Application"))
 
@@ -3021,6 +3097,9 @@ ROUTES = [
     ("POST", r"/api/resume", lambda s, m, q, b: s.apply_resume(b)),
     ("PATCH", r"/api/resume", lambda s, m, q, b: s.set_resume_enabled(b)),
     ("DELETE", r"/api/resume", lambda s, m, q, b: s.delete_resume()),
+    ("POST", r"/api/resume/files", lambda s, m, q, b: s.add_resume_file(b)),
+    ("PATCH", r"/api/resume/files/(?P<id>\d+)", lambda s, m, q, b: s.update_resume_file(int(m["id"]), b)),
+    ("DELETE", r"/api/resume/files/(?P<id>\d+)", lambda s, m, q, b: s.delete_resume_file(int(m["id"]))),
     ("GET", r"/api/overview", lambda s, m, q, b: s.overview()),
     ("GET", r"/api/jobs", lambda s, m, q, b: s.jobs(q)),
     ("GET", r"/api/jobs/(?P<key>[^/]+)", lambda s, m, q, b: s.job_detail(unquote(m["key"]))),
@@ -3185,7 +3264,8 @@ class JobwatchHandler(BaseHTTPRequestHandler):
                     return self._reject_unread_body("Content-Type must be application/json",
                                                     HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
                 limit = (34_000_000 if parsed.path == "/api/documents/merge"
-                         else 6_700_000 if parsed.path in ("/api/resume", "/api/resume/parse", "/api/letters/references")
+                         else 6_700_000 if parsed.path in ("/api/resume", "/api/resume/parse", "/api/resume/files",
+                                                             "/api/letters/references")
                          else 200_000)
                 if length > limit:
                     return self._reject_unread_body("request too large", HTTPStatus.REQUEST_ENTITY_TOO_LARGE)

@@ -267,16 +267,18 @@ def _v9_list_index(con: sqlite3.Connection) -> None:
         company_type, company_key, cycle, cycle_year, urgency)""")
 
 
-def _v10_resume_file(con: sqlite3.Connection) -> None:
-    # The resume as uploaded, when it is a PDF, so "One PDF to upload" can start with it. Its own table:
-    # kv is read whole into the state file on every poll.
-    con.execute("""CREATE TABLE IF NOT EXISTS resume_file(
-        id INTEGER PRIMARY KEY CHECK(id=1), filename TEXT NOT NULL, data BLOB NOT NULL)""")
+def _v10_resume_files(con: sqlite3.Connection) -> None:
+    # Resumes as uploaded (PDFs), so "One PDF to upload" can start with one. main=1 is the file the saved
+    # resume was read from; the others are only files to send. Their own table: kv is read whole into the
+    # state file on every poll.
+    con.execute("""CREATE TABLE IF NOT EXISTS resume_files(
+        id INTEGER PRIMARY KEY, name TEXT NOT NULL, filename TEXT NOT NULL, data BLOB NOT NULL,
+        main INTEGER NOT NULL DEFAULT 0, added_at TEXT NOT NULL)""")
 
 
 MIGRATIONS = {1: _v1_baseline, 2: _v2_finance, 3: _v3_activity_index, 4: _v4_cover_letters,
               5: _v5_resume_matching, 6: _v6_drop_cover_letters, 7: _v7_listing_notes, 8: _v8_due_indexes,
-              9: _v9_list_index, 10: _v10_resume_file}
+              9: _v9_list_index, 10: _v10_resume_files}
 
 
 def migrate(con: sqlite3.Connection) -> int:

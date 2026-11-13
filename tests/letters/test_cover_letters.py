@@ -1132,29 +1132,83 @@ class CoverLetterServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ApiError, "encoding"):
             self.service.merge_documents({"files": [{"filename": "x.pdf", "data": "not base64!"}]})
 
+    def upload(self, filename, text="Resume page"):
+        data = pdf_tools.letter_pdf(text) if filename.endswith(".pdf") else b"word"
+        with mock.patch("dashboard.extract_text", return_value=RESUME):
+            return self.service.apply_resume({"filename": filename, "data": base64.b64encode(data).decode()})
+
+    def resumes(self):
+        return [(r["name"], r["main"]) for r in self.service.get_cover_letter("rbc:1")["resumes"]]
+
     def test_a_resume_uploaded_as_a_pdf_is_kept_for_the_one_pdf_builder(self):
         self.service.apply_resume({"text": RESUME})                 # pasted: there is no file to keep
-        self.assertIsNone(self.service.get_cover_letter("rbc:1")["resume_pdf"])
+        self.assertEqual([], self.resumes())
         with self.assertRaisesRegex(ApiError, "resume as a PDF"):
-            self.service.merge_documents({"files": [{"resume": True}]})
-        page = pdf_tools.letter_pdf("Resume page")
-        with mock.patch("dashboard.extract_text", return_value=RESUME):
-            self.service.apply_resume({"filename": "Jordan Lee.pdf", "data": base64.b64encode(page).decode()})
-        self.assertEqual("Jordan Lee.pdf", self.service.get_cover_letter("rbc:1")["resume_pdf"])
+            self.service.merge_documents({"files": [{"resume": 1}]})
+        self.upload("Jordan Lee.pdf")
+        self.assertEqual([("Jordan Lee", True)], self.resumes())
+        main = self.service.get_resume()["files"][0]["id"]
         self.service.put_cover_letter("rbc:1", {"body": "Dear Hiring Manager,\n\nHello."})
-        result = self.service.merge_documents({"files": [{"resume": True}, {"cover_letter": "rbc:1"}]})
+        result = self.service.merge_documents({"files": [{"resume": main}, {"cover_letter": "rbc:1"}]})
         pages = pypdf.PdfReader(io.BytesIO(result.data)).pages
         self.assertEqual("Resume page", pages[0].extract_text().strip())
         self.assertIn("Hello.", pages[1].extract_text())
         # A Word resume, or pasted text, replaces it: an old file is never sent as the current resume.
-        with mock.patch("dashboard.extract_text", return_value=RESUME):
-            self.service.apply_resume({"filename": "Jordan Lee.docx", "data": base64.b64encode(b"word").decode()})
-        self.assertIsNone(self.service.get_cover_letter("rbc:1")["resume_pdf"])
-        with mock.patch("dashboard.extract_text", return_value=RESUME):
-            self.service.apply_resume({"filename": "Jordan Lee.pdf", "data": base64.b64encode(page).decode()})
+        self.upload("Jordan Lee.docx")
+        self.assertEqual([], self.resumes())
+        self.upload("Jordan Lee.pdf")
         self.service.delete_resume()
-        with self.service.db() as con:
-            self.assertEqual(0, con.execute("SELECT COUNT(*) FROM resume_file").fetchone()[0])
+        self.assertEqual([], self.resumes())
+
+    def test_other_resumes_are_kept_beside_the_main_one(self):
+        self.upload("Jordan Lee.pdf", "Main page")
+        other = base64.b64encode(pdf_tools.letter_pdf("Software page")).decode()
+        for bad in ({"filename": "x.docx", "data": other}, {"filename": "x.pdf", "data": "!"},
+                    {"filename": "x.pdf", "data": base64.b64encode(b"not a pdf").decode()}):
+            with self.assertRaises(ApiError):
+                self.service.add_resume_file(bad)
+        files = self.service.add_resume_file({"filename": "Jordan Lee - software.pdf", "data": other, "name": "Software"})["files"]
+        self.assertEqual([("Jordan Lee", True), ("Software", False)], [(f["name"], f["main"]) for f in files])
+        soft = files[1]["id"]
+        self.assertEqual("SWE", next(f["name"] for f in self.service.update_resume_file(soft, {"name": " SWE "})["files"]
+                                     if f["id"] == soft))
+        with self.assertRaises(ApiError):
+            self.service.update_resume_file(soft, {"name": ""})
+        page = pypdf.PdfReader(io.BytesIO(self.service.merge_documents({"files": [{"resume": soft}]}).data)).pages[0]
+        self.assertEqual("Software page", page.extract_text().strip())
+        # Uploading a new main resume replaces the main file and leaves the others.
+        self.upload("Jordan Lee 2027.pdf")
+        self.assertEqual([("Jordan Lee 2027", True), ("SWE", False)], self.resumes())
+        # Making another one main reads it as an upload does, and keeps the old main as a file to send.
+        with mock.patch("dashboard.extract_text", return_value=RESUME) as read:
+            self.service.update_resume_file(soft, {"main": True})
+        self.assertEqual("Jordan Lee - software.pdf", read.call_args.args[0])
+        self.assertEqual([("SWE", True), ("Jordan Lee 2027", False)], self.resumes())
+        self.assertEqual("Jordan Lee - software.pdf", self.service.get_resume()["filename"])
+        for _ in range(3):
+            self.service.add_resume_file({"filename": "more.pdf", "data": other})
+        with self.assertRaisesRegex(ApiError, "up to 5"):
+            self.service.add_resume_file({"filename": "more.pdf", "data": other})
+        self.service.delete_resume_file(soft)                       # the main file goes; the resume's facts stay
+        self.assertNotIn(("SWE", True), self.resumes())
+        self.assertTrue(self.service.get_resume()["available"])
+
+    def test_the_resume_sent_is_written_on_the_application(self):
+        self.upload("Jordan Lee.pdf")
+        main = self.service.get_resume()["files"][0]["id"]
+        self.service.merge_documents({"files": [{"resume": main}], "job": "rbc:1"})
+        self.service.save_application({"key": "rbc:1", "status": "applied"})      # applied after the download
+        app = next(a for a in self.service.applications()["applications"] if a["key"] == "rbc:1")
+        self.assertEqual("Jordan Lee", app["resume_version"])
+        other = base64.b64encode(pdf_tools.letter_pdf("Software page")).decode()
+        soft = self.service.add_resume_file({"filename": "s.pdf", "data": other, "name": "Software"})["files"][1]["id"]
+        self.service.merge_documents({"files": [{"resume": soft}], "job": "rbc:1"})   # sent again with another
+        app = next(a for a in self.service.applications()["applications"] if a["key"] == "rbc:1")
+        self.assertEqual("Software", app["resume_version"])
+        self.service.patch_application("rbc:1", {"resume_version": "IB v3"})          # the person's own note stays
+        self.service.merge_documents({"files": [{"resume": main}], "job": "rbc:1"})
+        app = next(a for a in self.service.applications()["applications"] if a["key"] == "rbc:1")
+        self.assertEqual("IB v3", app["resume_version"])
 
     def test_a_past_letters_signature_signs_the_letters_adapted_from_it(self):
         upload = {"filename": "signed.pdf", "data": base64.b64encode(signed_pdf()).decode()}

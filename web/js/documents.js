@@ -90,7 +90,7 @@ export async function mountDocuments(el, job, deps = {}) {
   const merge = el.querySelector('[data-merge-root]');
   if (!cover || !merge) return;
   let state = {letter: null, running: false, model: '', resume: false, references: 0, recipient: null};
-  let items = [];        // {kind: 'file', file} | {kind: 'letter'} | {kind: 'resume'} (the PDF kept from its upload)
+  let items = [];        // {kind: 'file', file} | {kind: 'letter'} | {kind: 'resume', id} (a resume kept as a PDF)
   let busy = false;      // 'generate' | 'revise' while the model works; 'find' | 'address' for the recipient
   let found = null;      // {query, results: [{name, lines}]} from Find address
   let merging = false;
@@ -103,10 +103,12 @@ export async function mountDocuments(el, job, deps = {}) {
     } catch (err) { loadError = err; }
   };
   await load();
-  if (state.resume_pdf) items.push({kind: 'resume'});
+  const resumes = () => state.resumes || [];
+  const mainResume = resumes().find(r => r.main);
+  if (mainResume) items.push({kind: 'resume', id: mainResume.id});
   if (state.letter) items.push({kind: 'letter'});
   const has = kind => items.some(it => it.kind === kind);
-  const itemName = it => (it.kind === 'letter' ? 'Cover letter (from above)' : it.kind === 'resume' ? state.resume_pdf : it.file.name);
+  const itemName = it => (it.kind === 'letter' ? 'Cover letter (from above)' : it.kind === 'resume' ? `Resume · ${resumes().find(r => r.id === it.id)?.name || 'removed'}` : it.file.name);
 
   // What the user typed survives redraws (a failed save, a busy button).
   const typed = () => ({notes: cover.querySelector('[data-cover-notes]')?.value,
@@ -204,12 +206,12 @@ export async function mountDocuments(el, job, deps = {}) {
         <button type="button" class="btn ghost xs icon" data-merge-act="remove" aria-label="Remove" title="Remove">${icon('x', 13)}</button></li>`).join('')}</ol>` : ''}
       <div class="doc-actions">
         <label class="btn sm">${icon('upload')}Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
-        ${state.resume_pdf && !has('resume') ? `<button type="button" class="btn ghost sm" data-merge-act="resume">${icon('plus')}Add resume</button>` : ''}
+        ${resumes().filter(r => !items.some(it => it.id === r.id)).map(r => `<button type="button" class="btn ghost sm" data-merge-act="resume" data-resume="${r.id}" title="Add this resume">${icon('plus')}${esc(r.name)}</button>`).join('')}
         ${state.letter && !has('letter') ? `<button type="button" class="btn ghost sm" data-merge-act="letter">${icon('plus')}Add cover letter</button>` : ''}
         <span class="doc-gap"></span>
         <button type="button" class="btn sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>${icon('download')}Download as one PDF</button>
       </div>
-      ${state.resume && !state.resume_pdf ? '<p class="doc-note">To have your resume on this list by itself, upload it as a PDF in <a class="link" href="#/settings?tab=resume">Settings → Resume</a>. Foothold keeps the file on this computer.</p>' : ''}`;
+      ${state.resume && !resumes().some(r => r.main) ? '<p class="doc-note">To have your resume on this list by itself, upload it as a PDF in <a class="link" href="#/settings?tab=resume">Settings → Resume</a>. Foothold keeps the file on this computer.</p>' : ''}`;
   };
 
   const redraw = () => { drawCover(); drawMerge(); };
@@ -388,7 +390,7 @@ export async function mountDocuments(el, job, deps = {}) {
     } else if (act === 'letter') {
       items.push({kind: 'letter'});
     } else if (act === 'resume') {
-      items.unshift({kind: 'resume'});
+      items.unshift({kind: 'resume', id: Number(btn.dataset.resume)});
     } else if (act === 'merge') {
       if (merging) return;
       merging = true;
@@ -400,9 +402,9 @@ export async function mountDocuments(el, job, deps = {}) {
           state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
         }
         const files = await Promise.all(items.map(async it => (it.kind === 'letter' ? {cover_letter: job.key}
-          : it.kind === 'resume' ? {resume: true}
+          : it.kind === 'resume' ? {resume: it.id}
           : {filename: it.file.name, data: await request.fileToBase64(it.file)})));
-        const name = await request.download('/api/documents/merge', {files, name: `${job.company} - ${job.title}`});
+        const name = await request.download('/api/documents/merge', {files, name: `${job.company} - ${job.title}`, job: job.key});
         request.toast(`Saved ${name}`);
       } catch (err) {
         request.toast(err.message, {error: true, timeout: 9000});

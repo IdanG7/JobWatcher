@@ -48,6 +48,21 @@ export function resumeMatchSection(match) {
     ${match.review?.length ? `<p class="muted">Needs review</p><ul class="reasons">${match.review.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}</section>`;
 }
 
+const MAX_RESUME_FILES = 5;
+
+/** The resumes kept as PDFs to send with applications: the main one (the resume Foothold reads) and others. */
+export function resumeFilesHtml(files = []) {
+  const rows = files.map(f => `<li><label class="grow"><span class="sr-only">Name</span><input class="input sm" data-resume-name data-file="${f.id}" maxlength="60" value="${esc(f.name)}"></label>
+      <span class="resume-files-file">${f.main ? '<span class="badge best">Main</span>' : ''}${esc(f.filename)}</span>
+      ${f.main ? '' : `<button type="button" class="btn sm ghost" data-resume-main data-file="${f.id}" title="Read this resume and match roles to it">Make main</button>`}
+      <button type="button" class="btn sm ghost danger" data-resume-drop data-file="${f.id}">Remove</button></li>`).join('');
+  return `<section class="resume-files"><h3>Resumes to send</h3>
+    <p class="fine">PDFs kept on this computer for “One PDF to upload” on a posting. Foothold reads the main one for matching and letters; the others are only sent, and the one that went with an application is written on it.</p>
+    ${rows ? `<ul>${rows}</ul>` : ''}
+    ${files.length < MAX_RESUME_FILES ? '<label class="btn sm">Add a resume (PDF)<input type="file" accept="application/pdf,.pdf" hidden data-resume-add></label>' : `<p class="fine">Foothold keeps up to ${MAX_RESUME_FILES}. Remove one to add another.</p>`}
+  </section>`;
+}
+
 /** What the server reads a resume from: the chosen file (a promise, the file has to be read), else the
  * pasted text (returned at once). Either can be awaited. */
 export function resumePayload(selected, text = '') {
@@ -100,7 +115,32 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
       <button type="button" class="btn sm ghost danger" data-resume-remove>Remove</button></div></div>
       ${saved.outdated ? '<p class="notice warn">This resume was read by an older version of Foothold. Upload it again below and apply it so targets and fit scores come from your actual experience.</p>' : ''}
       <details class="disclose"><summary>Saved matching facts</summary>${resumeFacts(saved.parsed)}</details>` : '<p class="fine">Upload a resume to enable automatic matching on Opportunities.</p>';
+    $('[data-resume-saved]').innerHTML += resumeFilesHtml(saved.files);
   }
+  // A kept file changed: show the list as the server has it now.
+  async function refresh(note) {
+    saved = await request.get('/api/resume');
+    if (!root.isConnected) return;
+    drawSaved(); message(note);
+  }
+  root.addEventListener('change', async e => {
+    const el = e.target;
+    const adding = el.matches?.('[data-resume-add]');
+    if (busy || !(adding || el.matches?.('[data-resume-name]'))) return;
+    try {
+      lock(true);
+      if (adding) {
+        const selected = el.files?.[0];
+        if (!selected) return;
+        await request.post('/api/resume/files', await resumePayload(selected));
+        await refresh(`${selected.name} added.`);
+      } else {
+        await request.patch(`/api/resume/files/${el.dataset.file}`, {name: el.value});
+        await refresh('Renamed.');
+      }
+    } catch (err) { if (root.isConnected) message(err.message, true); }
+    finally { if (root.isConnected) lock(false); }
+  });
   function discard() {
     preview = payload = null;
     $('[data-resume-result]').hidden = true;
@@ -143,7 +183,18 @@ export async function mountResume(root, {meta, onApply, canApply = () => true}, 
         if (!await request.confirm('Remove saved resume facts and stop automatic matching? Your applied profile fields will remain editable below.', {title: 'Remove resume', confirmLabel: 'Remove'})) return;
         lock(true); await request.del('/api/resume');
         if (!root.isConnected) return;
-        saved = {available: false}; discard(); drawSaved(); message('Resume removed.');
+        discard(); await refresh('Resume removed.');
+      } else if (button.matches('[data-resume-main]')) {
+        if (!canApply()) throw new Error('Save your profile edits below first.');
+        if (!await request.confirm('Foothold reads this resume and matches roles to it, as when you upload one. Your current main resume stays here as a file to send.', {title: 'Make this your main resume?', confirmLabel: 'Make main'})) return;
+        lock(true); message('Reading resume and checking postings…');
+        const result = await request.patch(`/api/resume/files/${button.dataset.file}`, {main: true});
+        if (!root.isConnected) return;
+        request.toast('Main resume changed. Matching is being redone.');
+        onApply(result.profile);
+      } else if (button.matches('[data-resume-drop]')) {
+        lock(true); await request.del(`/api/resume/files/${button.dataset.file}`);
+        await refresh('Removed.');
       }
     } catch (err) { if (root.isConnected) message(err.message, true); }
     finally { if (root.isConnected) lock(false); }

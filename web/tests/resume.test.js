@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {mountResume, resumeChanges, resumeFacts, resumeMatchSection} from '../js/resume.js';
+import {mountResume, resumeChanges, resumeFacts, resumeFilesHtml, resumeMatchSection} from '../js/resume.js';
 
 const parsed = {education: {graduation_year: 2028, graduation_month: 4, level: 'undergraduate', gpa: 3.92},
   skills: [{key:'excel', label:'Excel'}], roles: [{title:'Treasury Analyst'}], languages:['English']};
@@ -115,6 +115,31 @@ test('request failures preserve input and restore controls; detached views ignor
   const pending = f.click('preview'); f.root.isConnected = false;
   resolve({parsed, changes:{}}); await pending;
   assert.equal(f.applied.length, 0);
+});
+
+test('kept resumes are listed; one can be added, renamed, made main or removed', async () => {
+  const files = [{id: 4, name: 'Jordan Lee', filename: 'Jordan Lee.pdf', main: true}, {id: 7, name: 'Soft<ware', filename: 's.pdf', main: false}];
+  const html = resumeFilesHtml(files);
+  assert.match(html, /value="Jordan Lee"[^>]*>.*Main/s);
+  assert.match(html, /data-resume-main data-file="7"/);
+  assert.doesNotMatch(html, /data-resume-main data-file="4"/);
+  assert.doesNotMatch(html, /Soft<ware/);
+  assert.match(resumeFilesHtml([]), /data-resume-add/);
+  assert.doesNotMatch(resumeFilesHtml(Array.from({length: 5}, (_, i) => ({id: i, name: 'r', filename: 'r.pdf', main: !i}))), /data-resume-add/);
+
+  const f = await fixture({available:true, enabled:true, filename:'Jordan Lee.pdf', parsed, files});
+  assert.match(f.controls.saved.innerHTML, /Resumes to send/);
+  const button = (key, id) => ({disabled:false, dataset:{file:String(id)}, matches: s => s === `[data-resume-${key}]`, closest() {return this;}});
+  await f.root.click({target: button('main', 7)});
+  assert.deepEqual(f.calls.at(-1), {path:'/api/resume/files/7', body:{main:true}});
+  assert.equal(f.applied.length, 1);                       // the page takes the profile the new main resume set
+  await f.root.click({target: button('drop', 7)});
+  assert.deepEqual(f.calls.at(-1), {path:'/api/resume/files/7'});
+  await f.root.change({target: {matches: s => s === '[data-resume-name]', dataset:{file:'7'}, value:'SWE'}});
+  assert.deepEqual(f.calls.at(-1), {path:'/api/resume/files/7', body:{name:'SWE'}});
+  await f.root.change({target: {matches: s => s === '[data-resume-add]', value:'x',
+    files:[{name:'x.pdf', size:2, arrayBuffer: async () => new Uint8Array([1, 2]).buffer}]}});
+  assert.deepEqual(f.calls.at(-1), {path:'/api/resume/files', body:{filename:'x.pdf', data:'AQI='}});
 });
 
 test('pause and remove use explicit actions and removal can be canceled', async () => {

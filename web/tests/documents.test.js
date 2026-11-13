@@ -69,18 +69,24 @@ test('the letter’s actions are worded, and the merge block says what it is for
 });
 
 test('a resume kept as a PDF heads the one-PDF list, and goes first in the file', async () => {
-  const f = await fixture({letter: {body: 'Edited body', model: 'm'}, running: true, model: 'm', resume: true, resume_pdf: 'Jordan Lee.pdf', references: 0});
-  assert.match(f.merge.innerHTML, /1\. Jordan Lee\.pdf.*2\. Cover letter/s);
+  const f = await fixture({letter: {body: 'Edited body', model: 'm'}, running: true, model: 'm', resume: true, references: 0,
+    resumes: [{id: 4, name: 'Jordan Lee', main: true}, {id: 7, name: 'Software', main: false}]});
+  assert.match(f.merge.innerHTML, /1\. Resume · Jordan Lee.*2\. Cover letter/s);
+  assert.match(f.merge.innerHTML, /data-merge-act="resume" data-resume="7"[^>]*>(<svg.*?<\/svg>)?Software</);
   assert.doesNotMatch(f.merge.innerHTML, /upload it as a PDF/);
   await f.click(f.merge, {'[data-merge-act]': {dataset: {mergeAct: 'merge'}, closest: () => null}});
-  assert.deepEqual(f.calls.find(c => c[0] === 'download')[2].files, [{resume: true}, {cover_letter: 'rbc:1'}]);
+  assert.deepEqual(f.calls.find(c => c[0] === 'download')[2].files, [{resume: 4}, {cover_letter: 'rbc:1'}]);
+  assert.equal(f.calls.find(c => c[0] === 'download')[2].job, 'rbc:1');      // so the application records it
   // taken off the list, it can be put back
   await f.click(f.merge, {'[data-merge-act]': {dataset: {mergeAct: 'remove'}, closest: () => ({dataset: {mergeI: '0'}})}});
-  assert.match(f.merge.innerHTML, /data-merge-act="resume"/);
+  assert.match(f.merge.innerHTML, /data-merge-act="resume" data-resume="4"/);
+  // another resume goes in its place, at the top
+  await f.click(f.merge, {'[data-merge-act]': {dataset: {mergeAct: 'resume', resume: '7'}, closest: () => null}});
+  assert.match(f.merge.innerHTML, /1\. Resume · Software/);
 });
 
 test('without a kept file the builder says how to get the resume in by itself', async () => {
-  const f = await fixture({letter: null, running: true, model: 'm', resume: true, resume_pdf: null, references: 0});
+  const f = await fixture({letter: null, running: true, model: 'm', resume: true, resumes: [], references: 0});
   assert.match(f.merge.innerHTML, /upload it as a PDF in <a[^>]*#\/settings\?tab=resume/);
 });
 
