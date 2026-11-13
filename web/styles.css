@@ -2115,7 +2115,8 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .doc-to-body { padding: 2px 12px 12px; }
 .doc-to-body textarea { font-size: 13px; line-height: 1.5; }
 .doc-to-body .doc-actions { margin-top: 8px; }
-.doc-found { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+/* One column no wider than the panel: a long address wraps instead of pushing the row past the edge. */
+.doc-found { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
 .doc-found li {
   display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 6px 4px 10px;
   border: 1px solid var(--border); border-radius: 5px; background: var(--surface);
@@ -2123,7 +2124,7 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .doc-found li > svg { flex: none; color: var(--text-3); }
 .doc-found .grow { flex: 1; min-width: 0; }
 .doc-found .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 550; }
-.doc-found .s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); font-size: 12px; }
+.doc-found .s { overflow-wrap: anywhere; color: var(--text-2); font-size: 12px; line-height: 1.45; }
 .merge-list {
   list-style: none; margin: 14px 0 0; padding: 4px; display: grid; gap: 2px;
   border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2);
