@@ -1969,6 +1969,12 @@ class JobwatchService:
                 (preview["filename"], json.dumps(preview["parsed"]), version, utcnow()))
             # full text for cover letters; parsed facts alone lose the wording
             con.execute("INSERT OR REPLACE INTO kv(k, v) VALUES ('resume_text', ?)", (preview["text"],))
+            # The file itself when it is a PDF, for "One PDF to upload". Anything else (Word, pasted text)
+            # clears it: an older file is never sent as the current resume.
+            con.execute("DELETE FROM resume_file")
+            if "text" not in payload and preview["filename"].lower().endswith(".pdf"):
+                con.execute("INSERT INTO resume_file VALUES (1,?,?)",
+                            (preview["filename"], base64.b64decode(payload["data"])))
             con.execute("DELETE FROM resume_matches")
             con.execute("UPDATE job_intel SET profile_version=NULL")
         self.kick()
@@ -1989,6 +1995,7 @@ class JobwatchService:
             con.execute("DELETE FROM candidate_resume")
             con.execute("DELETE FROM resume_matches")
             con.execute("DELETE FROM kv WHERE k='resume_text'")
+            con.execute("DELETE FROM resume_file")
         return {"ok": True}
 
     def get_profile(self) -> dict:
@@ -2316,8 +2323,10 @@ class JobwatchService:
             model = self._cover_model(con, ollama["models"])
             references = len(self._cover_references(con))
             recipient = letterhead.recipient(job, self._recipients(con), self._details(con, key, job))
+            kept = con.execute("SELECT filename FROM resume_file WHERE id=1").fetchone()
         return {"letter": json.loads(row[0]) if row else None, "running": ollama["running"], "model": model,
-                "resume": has_resume, "references": references, "recipient": recipient,
+                "resume": has_resume, "resume_pdf": kept[0] if kept else None,
+                "references": references, "recipient": recipient,
                 "writing": self._writing(key)}
 
     def _writing(self, key: str) -> dict | None:
@@ -2665,7 +2674,8 @@ class JobwatchService:
     def merge_documents(self, payload: dict) -> FileResult:
         """One PDF from uploaded PDFs and, optionally, this job's cover letter.
 
-        ``files`` items are {"filename", "data" (base64)} or {"cover_letter": "<job key>"}.
+        ``files`` items are {"filename", "data" (base64)}, {"cover_letter": "<job key>"} or
+        {"resume": true} (the resume kept from its upload as a PDF).
         """
         items = payload.get("files")
         if not isinstance(items, list) or not items:
@@ -2689,6 +2699,13 @@ class JobwatchService:
                     raise ApiError("this job has no cover letter yet")
                 files.append(("Cover letter", pdf_tools.letter_pdf(letter["body"], "Cover letter",
                                                                    self._letter_signature(letter))))
+                continue
+            if item.get("resume"):
+                with self.db() as con:
+                    kept = con.execute("SELECT filename, data FROM resume_file WHERE id=1").fetchone()
+                if not kept:
+                    raise ApiError("Upload your resume as a PDF in Settings first, or add the file here.")
+                files.append((kept[0], bytes(kept[1])))
                 continue
             name = str(item.get("filename") or "document.pdf")[:200]
             try:

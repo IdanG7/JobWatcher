@@ -90,7 +90,7 @@ export async function mountDocuments(el, job, deps = {}) {
   const merge = el.querySelector('[data-merge-root]');
   if (!cover || !merge) return;
   let state = {letter: null, running: false, model: '', resume: false, references: 0, recipient: null};
-  let items = [];        // {kind: 'file', file} | {kind: 'letter'}
+  let items = [];        // {kind: 'file', file} | {kind: 'letter'} | {kind: 'resume'} (the PDF kept from its upload)
   let busy = false;      // 'generate' | 'revise' while the model works; 'find' | 'address' for the recipient
   let found = null;      // {query, results: [{name, lines}]} from Find address
   let merging = false;
@@ -103,7 +103,10 @@ export async function mountDocuments(el, job, deps = {}) {
     } catch (err) { loadError = err; }
   };
   await load();
+  if (state.resume_pdf) items.push({kind: 'resume'});
   if (state.letter) items.push({kind: 'letter'});
+  const has = kind => items.some(it => it.kind === kind);
+  const itemName = it => (it.kind === 'letter' ? 'Cover letter (from above)' : it.kind === 'resume' ? state.resume_pdf : it.file.name);
 
   // What the user typed survives redraws (a failed save, a busy button).
   const typed = () => ({notes: cover.querySelector('[data-cover-notes]')?.value,
@@ -195,16 +198,18 @@ export async function mountDocuments(el, job, deps = {}) {
   const drawMerge = () => {
     merge.innerHTML = `${head('One PDF to upload')}
       <p class="section-empty">Some application forms take a single file. Add your resume and anything else, put them in order with the letter, and download them as one PDF.</p>
-      ${items.length ? `<ol class="merge-list">${items.map((it, i) => `<li data-merge-i="${i}">${icon('file')}<div class="grow"><div class="t">${i + 1}. ${esc(it.kind === 'letter' ? 'Cover letter (from above)' : it.file.name)}</div></div>
+      ${items.length ? `<ol class="merge-list">${items.map((it, i) => `<li data-merge-i="${i}">${icon('file')}<div class="grow"><div class="t">${i + 1}. ${esc(itemName(it))}</div></div>
         <button type="button" class="btn ghost xs icon" data-merge-act="up"${i ? '' : ' disabled'} aria-label="Move up" title="Move up">${icon('chevronUp', 13)}</button>
         <button type="button" class="btn ghost xs icon" data-merge-act="down"${i < items.length - 1 ? '' : ' disabled'} aria-label="Move down" title="Move down">${icon('chevronDown', 13)}</button>
         <button type="button" class="btn ghost xs icon" data-merge-act="remove" aria-label="Remove" title="Remove">${icon('x', 13)}</button></li>`).join('')}</ol>` : ''}
       <div class="doc-actions">
         <label class="btn sm">${icon('upload')}Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
-        ${state.letter && !items.some(it => it.kind === 'letter') ? `<button type="button" class="btn ghost sm" data-merge-act="letter">${icon('plus')}Add cover letter</button>` : ''}
+        ${state.resume_pdf && !has('resume') ? `<button type="button" class="btn ghost sm" data-merge-act="resume">${icon('plus')}Add resume</button>` : ''}
+        ${state.letter && !has('letter') ? `<button type="button" class="btn ghost sm" data-merge-act="letter">${icon('plus')}Add cover letter</button>` : ''}
         <span class="doc-gap"></span>
         <button type="button" class="btn sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>${icon('download')}Download as one PDF</button>
-      </div>`;
+      </div>
+      ${state.resume && !state.resume_pdf ? '<p class="doc-note">To have your resume on this list by itself, upload it as a PDF in <a class="link" href="#/settings?tab=resume">Settings → Resume</a>. Foothold keeps the file on this computer.</p>' : ''}`;
   };
 
   const redraw = () => { drawCover(); drawMerge(); };
@@ -382,6 +387,8 @@ export async function mountDocuments(el, job, deps = {}) {
       items.splice(i, 1);
     } else if (act === 'letter') {
       items.push({kind: 'letter'});
+    } else if (act === 'resume') {
+      items.unshift({kind: 'resume'});
     } else if (act === 'merge') {
       if (merging) return;
       merging = true;
@@ -393,6 +400,7 @@ export async function mountDocuments(el, job, deps = {}) {
           state = await request.put(`/api/jobs/${enc(job.key)}/cover-letter`, {body});
         }
         const files = await Promise.all(items.map(async it => (it.kind === 'letter' ? {cover_letter: job.key}
+          : it.kind === 'resume' ? {resume: true}
           : {filename: it.file.name, data: await request.fileToBase64(it.file)})));
         const name = await request.download('/api/documents/merge', {files, name: `${job.company} - ${job.title}`});
         request.toast(`Saved ${name}`);

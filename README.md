@@ -193,9 +193,10 @@ list; matching is not a guarantee of eligibility. Today, Discord alerts, saved v
 CSV exports use the short list too (a saved view keeps the list it was saved on).
 Results appear in batches during indexing.
 
-Only structured matching facts are saved locally. Original documents, raw text,
-contact details and accomplishment bullets are not retained or exported. Removing
-the saved resume stops matching and leaves applied profile fields editable.
+Matching uses only structured facts. The resume's text is kept on this computer for
+cover letters, and a resume uploaded as a PDF is kept as a file so the posting panel's
+"One PDF to upload" can start with it; neither is exported or sent anywhere. Removing
+the saved resume removes both, stops matching and leaves applied profile fields editable.
 Incomplete/unreadable replacements preserve the saved resume. PDF extraction is
 limited to 10 pages and 60,000 characters, with a 2 MB limit per decoded stream;
 scanned PDFs need pasted text. DOCX XML is bounded before decompression.
@@ -264,7 +265,7 @@ you name the paragraph or sentence, the more reliably the model makes the change
 the model leaves the letter as it was, Foothold asks once more, more firmly. A word
 count for the whole letter ("keep it under 300 words") is met paragraph by paragraph. Read each letter
 before sending: small models still slip now and then. Letters can be edited by hand,
-and download as a one-page Times New Roman PDF or join the merged application PDF.
+and download as a one-page Times New Roman PDF or join the posting panel's "One PDF to upload" with your resume and other PDFs.
 The posting, your resume and your letters never leave the computer; OpenStreetMap
 gets only the company's name, the office street and the city.
 

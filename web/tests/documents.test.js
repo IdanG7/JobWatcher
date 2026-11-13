@@ -68,6 +68,22 @@ test('the letter’s actions are worded, and the merge block says what it is for
   assert.doesNotMatch(f.merge.innerHTML, /Application PDF|Merge &amp; download/);
 });
 
+test('a resume kept as a PDF heads the one-PDF list, and goes first in the file', async () => {
+  const f = await fixture({letter: {body: 'Edited body', model: 'm'}, running: true, model: 'm', resume: true, resume_pdf: 'Jordan Lee.pdf', references: 0});
+  assert.match(f.merge.innerHTML, /1\. Jordan Lee\.pdf.*2\. Cover letter/s);
+  assert.doesNotMatch(f.merge.innerHTML, /upload it as a PDF/);
+  await f.click(f.merge, {'[data-merge-act]': {dataset: {mergeAct: 'merge'}, closest: () => null}});
+  assert.deepEqual(f.calls.find(c => c[0] === 'download')[2].files, [{resume: true}, {cover_letter: 'rbc:1'}]);
+  // taken off the list, it can be put back
+  await f.click(f.merge, {'[data-merge-act]': {dataset: {mergeAct: 'remove'}, closest: () => ({dataset: {mergeI: '0'}})}});
+  assert.match(f.merge.innerHTML, /data-merge-act="resume"/);
+});
+
+test('without a kept file the builder says how to get the resume in by itself', async () => {
+  const f = await fixture({letter: null, running: true, model: 'm', resume: true, resume_pdf: null, references: 0});
+  assert.match(f.merge.innerHTML, /upload it as a PDF in <a[^>]*#\/settings\?tab=resume/);
+});
+
 test('merge saves pending edits and sends files in order', async () => {
   const f = await fixture({letter: {body: 'Old body', model: 'm'}, running: true, model: 'm', resume: true, references: 0});
   f.merge.handlers.change({target: {matches: () => true, files: [{name: 'resume.pdf'}, {name: 'transcript.pdf'}]}});

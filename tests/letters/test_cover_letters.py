@@ -1132,6 +1132,30 @@ class CoverLetterServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ApiError, "encoding"):
             self.service.merge_documents({"files": [{"filename": "x.pdf", "data": "not base64!"}]})
 
+    def test_a_resume_uploaded_as_a_pdf_is_kept_for_the_one_pdf_builder(self):
+        self.service.apply_resume({"text": RESUME})                 # pasted: there is no file to keep
+        self.assertIsNone(self.service.get_cover_letter("rbc:1")["resume_pdf"])
+        with self.assertRaisesRegex(ApiError, "resume as a PDF"):
+            self.service.merge_documents({"files": [{"resume": True}]})
+        page = pdf_tools.letter_pdf("Resume page")
+        with mock.patch("dashboard.extract_text", return_value=RESUME):
+            self.service.apply_resume({"filename": "Jordan Lee.pdf", "data": base64.b64encode(page).decode()})
+        self.assertEqual("Jordan Lee.pdf", self.service.get_cover_letter("rbc:1")["resume_pdf"])
+        self.service.put_cover_letter("rbc:1", {"body": "Dear Hiring Manager,\n\nHello."})
+        result = self.service.merge_documents({"files": [{"resume": True}, {"cover_letter": "rbc:1"}]})
+        pages = pypdf.PdfReader(io.BytesIO(result.data)).pages
+        self.assertEqual("Resume page", pages[0].extract_text().strip())
+        self.assertIn("Hello.", pages[1].extract_text())
+        # A Word resume, or pasted text, replaces it: an old file is never sent as the current resume.
+        with mock.patch("dashboard.extract_text", return_value=RESUME):
+            self.service.apply_resume({"filename": "Jordan Lee.docx", "data": base64.b64encode(b"word").decode()})
+        self.assertIsNone(self.service.get_cover_letter("rbc:1")["resume_pdf"])
+        with mock.patch("dashboard.extract_text", return_value=RESUME):
+            self.service.apply_resume({"filename": "Jordan Lee.pdf", "data": base64.b64encode(page).decode()})
+        self.service.delete_resume()
+        with self.service.db() as con:
+            self.assertEqual(0, con.execute("SELECT COUNT(*) FROM resume_file").fetchone()[0])
+
     def test_a_past_letters_signature_signs_the_letters_adapted_from_it(self):
         upload = {"filename": "signed.pdf", "data": base64.b64encode(signed_pdf()).decode()}
         with self.ollama("qwen3:8b"):
