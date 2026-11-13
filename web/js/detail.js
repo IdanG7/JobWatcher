@@ -1,7 +1,7 @@
 // Posting detail: a header that holds the decision (save, mark applied, open the posting) with
-// everything else behind one ⋯ menu, then the key facts at a glance, fit, your application,
-// requirements, skills and the description. Preparing (letter, PDF, people) and where the
-// listing came from close the column.
+// everything else behind one ⋯ menu, then three tabs (drawer-tabs.js). Role: the key facts at a
+// glance, fit, requirements, skills, the description and where the listing came from. Apply: the
+// cover letter and one PDF to upload. Track: your application and the people you know there.
 import {del, enc, get, openExternal, patch, post, put} from './api.js';
 import {
   ageLong, cleanQuote, descriptionHtml, esc, fitBand, fmtDay, hoursText, isoDay, levelText, licenceText, safeUrl,
@@ -13,11 +13,13 @@ import {
 } from './ui.js';
 import {contactForm} from './forms.js';
 import {resumeMatchSection} from './resume.js';
-import {documentsSections, mountDocuments} from './documents.js';
+import {documentsSections, fitLetter, mountDocuments} from './documents.js';
+import {nextTab, panelHtml, tabsHtml} from './drawer-tabs.js';
 import {applyAnswer, askHtml, clearOpened, noteOpened, noteReturned, readOpened, shouldAsk} from './apply-ask.js';
 
 let current = null;   // {key, job, el}
 let ctxRef = null;
+let tab = 'role';     // the tab showing; a different posting opens on Role again
 
 export function drawerOpen() { return !!current; }
 export function drawerJob() { return current?.job || null; }
@@ -67,6 +69,7 @@ export async function openDrawer(key, ctx) {
     root.querySelector('.drawer').classList.add('show');
   }
   const el = root.querySelector('.drawer');
+  if (current?.key !== key) tab = 'role';
   current = {key, job: null, el, opener: current?.opener || null};
   el.innerHTML = `<header class="drawer-head" aria-busy="true"><div class="dh-bar"><span class="dh-skel-co"><span class="skel" style="width:24px;height:24px;border-radius:5px"></span><span class="skel" style="width:150px"></span></span>${closeButton()}</div>
     <div class="skel" style="height:22px;width:82%;margin-top:18px"></div><div class="skel" style="height:12px;width:48%;margin-top:12px"></div>
@@ -96,6 +99,7 @@ export function closeDrawer() {
   if (!current) return;
   const opener = current.opener;
   current = null;
+  tab = 'role';
   if (opener?.isConnected) opener.focus({preventScroll: true});
   const drawer = root.querySelector('.drawer');
   const scrim = root.querySelector('.scrim');
@@ -193,24 +197,22 @@ function render(el, job, {docs = null} = {}) {
       ${!status ? `<button type="button" class="btn" data-act="save" title="Save to your tracker (s)">${icon('bookmark')}Save</button>` : ''}
       ${status ? `<label class="status-control st-${esc(status)}" title="Application status"><i aria-hidden="true"></i><span class="sr-only">Application status</span><select id="drawer-status">${options(STATUS_ORDER.map(k => ({key: k, label: STATUS_LABELS[k]})), status)}</select>${icon('chevronDown', 12)}</label>` : ''}
     </div>
+    ${tabsHtml(tab, icon)}
   </header>
   <div class="drawer-body">
     ${closed ? `<div class="callout neg dh-callout">${icon('clock')}<div>Removed from ${esc(sourceName(job.source_label))}${job.closed_at ? ` on ${fmtDay(String(job.closed_at).slice(0, 10))}` : ''}. The role may be filled or closed.</div></div>`
       : job.job_status === 'possibly_closed' ? `<div class="callout info dh-callout">${icon('clock')}<div>Missing from the latest check of ${esc(sourceName(job.source_label))}. Foothold marks it closed if it stays missing.</div></div>` : ''}
     ${ctxRef?.store && shouldAsk(readOpened(ctxRef.store)[job.key], status) ? askHtml() : ''}
-    ${glance(job, f)}
-    ${fitSection(job, job.fit_detail || {})}
-    ${resumeMatchSection(job.resume_match)}
-    ${app ? applicationSection(job, app) : ''}
-    ${requirementsSection(f)}
-    ${skillsSection(f.skills || [], new Set(ctxRef.profile?.skills || []))}
-    ${descriptionSection(job)}
-    <section class="section prep" aria-labelledby="dr-prep">
-      ${sectionHead('dr-prep', 'Prepare')}
-      ${documentsSections()}
-      ${peopleBlock(job)}
-    </section>
-    ${listingSection(job, f)}
+    ${panelHtml('role', tab, `${glance(job, f)}
+      ${fitSection(job, job.fit_detail || {})}
+      ${resumeMatchSection(job.resume_match)}
+      ${requirementsSection(f)}
+      ${skillsSection(f.skills || [], new Set(ctxRef.profile?.skills || []))}
+      ${descriptionSection(job)}
+      ${listingSection(job, f)}`)}
+    ${panelHtml('apply', tab, documentsSections())}
+    ${panelHtml('track', tab, `${app ? applicationSection(job, app) : untrackedSection()}
+      ${peopleBlock(job)}`)}
   </div>`;
 
   bind(el, job);
@@ -383,9 +385,18 @@ function applicationSection(job, app) {
   </section>`;
 }
 
+/** The Track tab before the role is in the tracker: what tracking keeps, and the way in. */
+function untrackedSection() {
+  return `<section class="section" aria-labelledby="dr-app">
+    ${sectionHead('dr-app', 'Your application')}
+    <p class="section-empty">Not in your tracker yet. Save the role to keep its dates, your next step and notes here; marking it applied saves it too.</p>
+    <div class="doc-actions"><button type="button" class="btn sm" data-act="save">${icon('bookmark')}Save</button></div>
+  </section>`;
+}
+
 function peopleBlock(job) {
   return `<section class="section" aria-labelledby="dr-people">
-    ${sectionHead('dr-people', `People at ${esc(job.company || 'this company')}`, `<button type="button" class="btn ghost xs" data-act="add-contact">${icon('plus', 12)}Add</button>`, 4)}
+    ${sectionHead('dr-people', `People at ${esc(job.company || 'this company')}`, `<button type="button" class="btn ghost xs" data-act="add-contact">${icon('plus', 12)}Add</button>`)}
     ${job.contacts.length ? `<ul class="people">${job.contacts.map(c => `<li><span class="avatar" aria-hidden="true">${esc((c.name || '?').slice(0, 1).toUpperCase())}</span><div class="grow"><div class="t">${esc(c.name)}${c.position ? ` <span class="pos">${esc(c.position)}</span>` : ''}</div><div class="s">${esc(prettyKey(c.relationship))}${c.last_contacted ? ` · last contact ${fmtDay(c.last_contacted)}` : ''}${c.next_follow_up ? ` · follow up ${fmtDay(c.next_follow_up)}` : ''}</div></div></li>`).join('')}</ul>`
       : '<p class="section-empty">No one yet. Alumni, recruiters and referrals you add stay on this computer.</p>'}
   </section>`;
@@ -474,6 +485,25 @@ function bind(el, job) {
   const ctx = ctxRef;
   const on = (act, fn) => el.querySelectorAll(`[data-act=${act}]`).forEach(b => b.addEventListener('click', fn));
   bindMenu(el.querySelector('[data-drawer-menu]'));
+  const showTab = (key, focus = false) => {
+    tab = key;
+    el.querySelectorAll('[data-tab]').forEach(b => {
+      const selected = b.dataset.tab === key;
+      b.setAttribute('aria-selected', String(selected));
+      b.tabIndex = selected ? 0 : -1;
+      if (selected && focus) b.focus();
+    });
+    el.querySelectorAll('.dr-panel').forEach(p => { p.hidden = p.id !== `dr-panel-${key}`; });
+    el.querySelector('.drawer-body').scrollTop = 0;
+    if (key === 'apply') fitLetter(el);
+  };
+  el.querySelectorAll('[data-tab]').forEach(b => {
+    b.addEventListener('click', () => showTab(b.dataset.tab));
+    b.addEventListener('keydown', e => {
+      const to = nextTab(b.dataset.tab, e.key);
+      if (to) { e.preventDefault(); showTab(to, true); }
+    });
+  });
   on('close', () => ctx.closeJob());
   on('why', e => {
     const box = el.querySelector('[data-breakdown]');

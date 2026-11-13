@@ -1924,8 +1924,6 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .ask-applied p { margin: 0; }
 .ask-applied .ask-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .ask-applied .ask-actions .icon { margin-left: auto; }
-.drawer-body > .section { padding: 24px 0; border-bottom: 1px solid var(--border); }
-.drawer-body > .section:last-child { border-bottom: 0; }
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 22px; margin: 0 0 14px; }
 .section-head h3, .drawer-body .section > h3 {
   margin: 0; font-size: 14px; font-weight: 600; font-stretch: 92%; letter-spacing: -.005em; color: var(--text);
@@ -2040,12 +2038,6 @@ body.onboarding main { padding: 0 24px; max-width: none; }
 .form-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
 .form-state { font-size: 12px; color: var(--text-3); }
 .drawer-body .changes li { grid-template-columns: 64px minmax(0, 1fr); }
-
-/* Prepare: cover letter, application PDF and people under one heading. */
-.prep > .section { padding: 16px 0 0; border: 0; }
-.prep > .section + .section { margin-top: 16px; border-top: 1px solid var(--border); }
-.prep > .section-head + .section { padding-top: 0; }
-.prep .section-head { margin-bottom: 8px; }
 
 /* About this listing: small print. */
 .drawer-body .listing .kv { font-size: 12.5px; gap: 8px 16px; color: var(--text-2); }
@@ -3458,3 +3450,23 @@ main { max-width: 1304px; }
 /* ---------------------------------------------------------------- Top bar on the page column */
 @media (min-width: 761px) { .topnav { padding-inline: max(32px, calc((100% - 1304px) / 2 + 32px)); } }
 .today-list th.c-posted { font-size: 12px; color: var(--text-3); }
+
+/* ---------------------------------------------------------------- Posting panel tabs (Role, Apply, Track) */
+/* A segmented control: three equal buttons in one track, the one showing lifted out of it. */
+.drawer-head { padding-bottom: 16px; }
+.dr-tabs { display: flex; gap: 3px; margin-top: 18px; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.dr-tab {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px;
+  border: 1px solid transparent; border-radius: 7px; background: none; cursor: pointer;
+  font: 500 13.5px/1 var(--font); color: var(--text-2); transition: color 120ms ease, background-color 120ms ease;
+}
+.dr-tab svg { flex: none; color: var(--text-3); }
+.dr-tab[aria-selected="true"] { color: var(--text); background: var(--surface); border-color: var(--border-strong, var(--border)); box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+.dr-tab[aria-selected="true"] svg { color: var(--pos); }
+.dr-tab:focus-visible { outline: 2px solid var(--pos); outline-offset: 1px; }
+@media (hover: hover) and (pointer: fine) { .dr-tab:not([aria-selected="true"]):hover { color: var(--text); background: var(--hover); } }
+.doc-to + .field { margin-top: 14px; }
+.dr-panel > .section { padding: 24px 0; border-bottom: 1px solid var(--border); }
+.dr-panel > .section:last-child { border-bottom: 0; }
+/* The letter box is as tall as the letter (documents.js fitLetter where field-sizing is missing). */
+.doc-letter textarea { field-sizing: content; resize: none; overflow: hidden; font-size: 14.5px; }

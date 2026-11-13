@@ -5,8 +5,17 @@ import {api, download, enc, fileToBase64, get, put} from './api.js';
 import {buildHash, esc, fmtDay, parseHash} from './lib.js';
 import {confirmDialog, icon, toast} from './ui.js';
 
-// Sub-headings: the drawer groups these under its "Prepare" section.
-const head = (title, aside = '') => `<div class="section-head"><h4>${title}</h4>${aside}</div>`;
+// The two sections of the posting panel's Apply tab.
+const head = (title, aside = '') => `<div class="section-head"><h3>${title}</h3>${aside}</div>`;
+
+/** The letter box is as tall as the letter, so the panel scrolls and the box doesn't. Called again when
+    the Apply tab is shown: a hidden box has no height to measure. */
+export function fitLetter(root) {
+  const box = root?.querySelector('[data-cover-body]');
+  if (!box?.style || !box.scrollHeight) return;
+  box.style.height = 'auto';
+  box.style.height = `${box.scrollHeight + 2}px`;
+}
 
 // Where the recipient's address came from, as a badge on the "To" line.
 const SOURCES = {saved: ['badge', 'Saved'], posting: ['badge', 'From the posting'], city: ['badge deadline', 'No street address']};
@@ -158,7 +167,7 @@ export async function mountDocuments(el, job, deps = {}) {
     cover.innerHTML = `${head('Cover letter', l ? `<span class="section-aside">${l.model ? `Written by ${esc(l.model)}` : 'Written by you'}${l.created_at ? ` · ${esc(fmtDay(String(l.created_at).slice(0, 10)))}` : ''}${l.edited ? ' · edited' : ''}</span>` : '')}
       ${drawTo(draft)}
       ${l ? `<label class="field doc-letter"><span class="sr-only">Letter</span>
-        <textarea class="input" data-cover-body rows="14"${w ? ' readonly' : ''}>${esc(body)}</textarea></label>
+        <textarea class="input" data-cover-body rows="12"${w ? ' readonly' : ''}>${esc(body)}</textarea></label>
         ${drawNeeds(l.needs)}
         <div class="doc-ask"><label class="grow"><span class="sr-only">Ask for a change</span>
           <input class="input" data-cover-ask maxlength="1000" value="${esc(draft.ask ?? '')}" placeholder="Ask for a change, e.g. shorten the second paragraph"></label>
@@ -168,8 +177,8 @@ export async function mountDocuments(el, job, deps = {}) {
       <div class="doc-actions">
         <button type="button" class="btn sm${l ? ' ghost' : ''}" data-cover-act="generate"${busy || w ? ' disabled' : ''}${w?.kind === 'write' ? ' aria-busy="true"' : ''}>${icon(l ? 'refresh' : 'edit')}${w?.kind === 'write' ? 'Writing…' : l ? 'Rewrite' : 'Write letter'}</button>
         ${l ? `<span class="doc-gap"></span>
-          <button type="button" class="btn ghost sm icon" data-cover-act="copy" aria-label="Copy letter" title="Copy letter">${icon('copy')}</button>
-          <button type="button" class="btn ghost sm icon" data-cover-act="pdf" aria-label="Download as PDF" title="Download as PDF">${icon('download')}</button>
+          <button type="button" class="btn ghost sm" data-cover-act="copy">${icon('copy')}Copy</button>
+          <button type="button" class="btn ghost sm" data-cover-act="pdf" title="The letter alone, as a PDF">${icon('download')}Download PDF</button>
           <button type="button" class="btn sm${dirty ? ' primary' : ''}" data-cover-act="save"${dirty && !w ? '' : ' disabled'}>Save edits</button>` : ''}
       </div>
       ${w ? `<div class="doc-progress" data-cover-progress><ol class="doc-steps" aria-hidden="true">${stepSegments(w)}</ol>
@@ -180,11 +189,12 @@ export async function mountDocuments(el, job, deps = {}) {
         : state.references
           ? (state.references > 1 ? `Adapts the closest of your ${state.references} past letters to this posting.` : 'Adapts your past letter to this posting.')
           : 'Written from your resume. Add your past cover letters in Settings and the closest one is adapted to each posting instead.'} Check every letter before sending.</p>`;
+    fitLetter(cover);
   };
 
   const drawMerge = () => {
-    merge.innerHTML = `${head('Application PDF')}
-      <p class="section-empty">Combine your resume, cover letter, transcript and other PDFs into one file.</p>
+    merge.innerHTML = `${head('One PDF to upload')}
+      <p class="section-empty">Some application forms take a single file. Add your resume and anything else, put them in order with the letter, and download them as one PDF.</p>
       ${items.length ? `<ol class="merge-list">${items.map((it, i) => `<li data-merge-i="${i}">${icon('file')}<div class="grow"><div class="t">${i + 1}. ${esc(it.kind === 'letter' ? 'Cover letter (from above)' : it.file.name)}</div></div>
         <button type="button" class="btn ghost xs icon" data-merge-act="up"${i ? '' : ' disabled'} aria-label="Move up" title="Move up">${icon('chevronUp', 13)}</button>
         <button type="button" class="btn ghost xs icon" data-merge-act="down"${i < items.length - 1 ? '' : ' disabled'} aria-label="Move down" title="Move down">${icon('chevronDown', 13)}</button>
@@ -193,7 +203,7 @@ export async function mountDocuments(el, job, deps = {}) {
         <label class="btn sm">${icon('upload')}Add PDFs<input type="file" accept="application/pdf,.pdf" multiple hidden data-merge-files></label>
         ${state.letter && !items.some(it => it.kind === 'letter') ? `<button type="button" class="btn ghost sm" data-merge-act="letter">${icon('plus')}Add cover letter</button>` : ''}
         <span class="doc-gap"></span>
-        <button type="button" class="btn sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>${icon('download')}Merge &amp; download</button>
+        <button type="button" class="btn sm" data-merge-act="merge"${items.length ? '' : ' disabled'}>${icon('download')}Download as one PDF</button>
       </div>`;
   };
 
@@ -254,6 +264,7 @@ export async function mountDocuments(el, job, deps = {}) {
       return;
     }
     if (!e.target.matches?.('[data-cover-body]') || !state.letter) return;
+    fitLetter(cover);
     const btn = cover.querySelector('[data-cover-act=save]');
     const dirty = e.target.value !== state.letter.body;
     if (btn) { btn.disabled = !dirty; btn.classList.toggle('primary', dirty); }

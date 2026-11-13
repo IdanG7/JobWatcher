@@ -29,7 +29,7 @@ MAX_LETTER = 20_000               # a letter the user saves or asks to change
 MAX_NOTES = 1_000
 MODEL_NAME = re.compile(r"[a-z0-9][\w.\-/]{0,80}(:[\w.\-]{1,40})?", re.I)
 
-SYSTEM = """You write cover letters for students and early-career candidates applying to finance roles.
+SYSTEM = """You write a cover letter for a job candidate, in whatever field and at whatever stage of their career the resume shows.
 Rules:
 - Write in the first person as the candidate. Facts come only from the resume: never invent employers, titles, dates, numbers, certifications, skills, awards or anything else.
 - Keep every number with the achievement it belongs to in the resume; never move a figure to a different task or role. The facts for today say which roles have ended and which exams are passed.

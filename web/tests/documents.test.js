@@ -58,6 +58,16 @@ test('generate sends notes, then the letter is offered for merging', async () =>
   assert.match(f.merge.innerHTML, /Cover letter \(from above\)/);
 });
 
+test('the letter’s actions are worded, and the merge block says what it is for', async () => {
+  const f = await fixture({letter: {body: 'Old body', model: 'm'}, running: true, model: 'm', resume: true, references: 0});
+  assert.match(f.cover.innerHTML, /data-cover-act="copy"[^>]*>(<svg.*?<\/svg>)?Copy</);
+  assert.match(f.cover.innerHTML, /data-cover-act="pdf"[^>]*>(<svg.*?<\/svg>)?Download PDF</);
+  assert.match(f.merge.innerHTML, /One PDF to upload/);
+  assert.match(f.merge.innerHTML, /take a single file/);
+  assert.match(f.merge.innerHTML, /Download as one PDF/);
+  assert.doesNotMatch(f.merge.innerHTML, /Application PDF|Merge &amp; download/);
+});
+
 test('merge saves pending edits and sends files in order', async () => {
   const f = await fixture({letter: {body: 'Old body', model: 'm'}, running: true, model: 'm', resume: true, references: 0});
   f.merge.handlers.change({target: {matches: () => true, files: [{name: 'resume.pdf'}, {name: 'transcript.pdf'}]}});
