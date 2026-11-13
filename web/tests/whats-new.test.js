@@ -19,6 +19,10 @@ test('versions compare by number, not as text', () => {
   assert.equal(compareVersions('0.2.5', '0.3.0'), -1);
   assert.equal(compareVersions('v1.0.0', '0.9.9'), 1);
   assert.equal(compareVersions('', '0.0.1'), -1);
+  // A small update between two releases has a fourth part.
+  assert.equal(compareVersions('0.3.22.1', '0.3.22'), 1);
+  assert.equal(compareVersions('0.3.22.1', '0.3.23'), -1);
+  assert.equal(compareVersions('0.3.22.0', '0.3.22'), 0);
 });
 
 test('after an update the card lists every release since the last one closed, newest first', () => {
@@ -133,10 +137,10 @@ test('“All updates” is a button after this release that unfolds the earlier 
 });
 
 test('release notes follow the rules for the card', () => {
-  const parse = v => /^\d+\.\d+\.\d+$/.test(v);
+  const parse = v => /^\d+\.\d+\.\d+(\.\d+)?$/.test(v);
   const blank = icon('no-such-icon');
   RELEASE_NOTES.forEach((r, i) => {
-    assert.ok(parse(r.version), `${r.version}: versions are like 0.3.5`);
+    assert.ok(parse(r.version), `${r.version}: versions are like 0.3.5 or 0.3.5.1`);
     if (i) assert.equal(compareVersions(RELEASE_NOTES[i - 1].version, r.version), 1, `${r.version}: newest first, one entry each`);
     assert.ok(!r.date || /^\d{4}-\d{2}-\d{2}$/.test(r.date), `${r.version}: date is YYYY-MM-DD`);
     assert.ok(r.items.length >= 2 && r.items.length <= 4, `${r.version}: 2 to 4 items`);

@@ -14,7 +14,7 @@ const MARK = '<svg class="wn-mark" viewBox="0 0 24 24" aria-hidden="true"><rect 
 /** "0.3.10" → [0, 3, 10]; anything unreadable sorts first. */
 export function versionParts(version) {
   const parts = String(version ?? '').match(/\d+/g);
-  return parts ? parts.slice(0, 3).map(Number) : [0];
+  return parts ? parts.slice(0, 4).map(Number) : [0];      // the fourth part is a small update: 0.3.22.1
 }
 
 export function compareVersions(a, b) {

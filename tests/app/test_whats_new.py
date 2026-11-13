@@ -58,7 +58,17 @@ class WhatsNewTests(ServiceFixture):
             self.assertEqual("9.9.5", self.service.close_whats_new({"version": "9.9.5"})["seen"])
             # A tab left open from before the update closes its older card: the mark stays.
             self.assertEqual("9.9.5", self.service.close_whats_new({"version": "9.9.4"})["seen"])
-            for bad in ({"version": "9.9.6"}, {"version": "latest"}, {"version": ""}, {}, {"version": "1.2.3.4"}):
+        # A small update between two releases has a fourth part: it is later than the release it follows.
+        with self.running("9.9.5.1"):
+            self.assertEqual("9.9.5.1", self.service.close_whats_new({"version": "9.9.5.1"})["seen"])
+            self.assertEqual("9.9.5.1", self.service.close_whats_new({"version": "9.9.5"})["seen"])
+            with self.assertRaises(ApiError):
+                self.service.close_whats_new({"version": "9.9.5.2"})
+        self.forget()
+        with self.running("9.9.5"):
+            self.service.close_whats_new({"version": "9.9.5"})
+            for bad in ({"version": "9.9.6"}, {"version": "latest"}, {"version": ""}, {}, {"version": "1.2.3.4.5"},
+                        {"version": "9.9.5.1"}):
                 with self.assertRaises(ApiError, msg=bad):
                     self.service.close_whats_new(bad)
         self.assertEqual("9.9.5", self.mark())

@@ -135,7 +135,11 @@ def _letter_text(body) -> bool:
 
 
 def _version_key(version: str) -> tuple[int, ...]:
-    return tuple(int(n) for n in re.findall(r"\d+", version)[:3]) or (0,)
+    """(0, 3, 22) or, for a small update between releases, (0, 3, 22, 1): trailing zeros don't count."""
+    parts = [int(n) for n in re.findall(r"\d+", version)[:4]]
+    while len(parts) > 1 and parts[-1] == 0:
+        parts.pop()
+    return tuple(parts) or (0,)
 
 
 class ApiError(Exception):
@@ -3094,7 +3098,7 @@ class JobwatchService:
         older version, so the newer notes still show; the mark never moves back."""
         from version import APP_VERSION
         version = str(payload.get("version") or "")
-        if not re.fullmatch(r"\d+(?:\.\d+){0,2}", version) or _version_key(version) > _version_key(APP_VERSION):
+        if not re.fullmatch(r"\d+(?:\.\d+){0,3}", version) or _version_key(version) > _version_key(APP_VERSION):
             raise ApiError("version must be this version or an earlier one")
         with self.db() as con:
             row = con.execute("SELECT v FROM kv WHERE k='whats_new_seen'").fetchone()
